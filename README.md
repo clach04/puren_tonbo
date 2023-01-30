@@ -2,10 +2,10 @@
 
 Tombo alternative, WIP
 
-プレーントンボ
+プレーン トンボ
 Purēntonbo
 
- 蜻蛉
+ 平易 蜻蛉
 
 
   * http://tombo.sourceforge.jp/En/
