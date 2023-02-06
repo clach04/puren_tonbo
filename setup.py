@@ -5,6 +5,8 @@ try:
 except ImportError:
     from distutils.core import setup
 
+is_py3 = sys.version_info >= (3,)
+
 if len(sys.argv) <= 1:
     print("""
 Suggested setup.py parameters:
@@ -27,6 +29,12 @@ else:
 
 #exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'puren_tonbo', '_version.py')).read())
 __version__ = '0.0.1'
+
+
+# TODO/FIXME dupe of requirements.txt - also chi_io missing here (as not on pypi)
+install_requires = ['pycryptodome']
+if is_py3:
+    install_requires += ['pyzipper']  # pyzipperis python 3.x+
 
 setup(
     name='puren_tonbo',
@@ -52,5 +60,5 @@ setup(
         # FIXME TODO more
         ],
     platforms='any',  # or distutils.util.get_platform()
-    install_requires=['pycryptodome', 'pyzipper'],  # TODO/FIXME dupe of requirements.txt - also chi_io missing here (as not on pypi)
+    install_requires=install_requires,
 )
