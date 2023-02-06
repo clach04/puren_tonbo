@@ -24,8 +24,9 @@ None right now!
 
 ## Getting Started
 
-    python -m pip install -r requirements.txt
+    # python -m pip install -r requirements.txt
     # TODO requirements_optional.txt
+    python -m pip install -e .
 
 ## Examples
 
@@ -44,7 +45,7 @@ The chi file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ a
 
     python ptcipher.py -e -p test README.md -o README.aes256.zip
 
-    python ptcipher.py -p test test.aes256.zip
+    python ptcipher.py -p test README.aes256.zip
 
 The aes256.zip file can also be read/written by 7z, WinZIP, etc that support AES zip files.
 For example:
