@@ -44,8 +44,13 @@ setup(
     description='Tombo alternative, also supports AES-256 ZIP files. Work-In-Progress (WIP)!',  # FIXME
     long_description=long_description,
     packages=['puren_tonbo'],
-    scripts=['ptcipher.py'],
+    #scripts=['ptcipher.py'],
     #py_modules=[''], # TODO scripts
+    entry_points={
+        'console_scripts': [
+            'ptcipher = puren_tonbo.tools.ptcipher:main',
+        ],
+    },
     #data_files=[('.', [readme_filename])],  # does not work :-( ALso tried setup.cfg [metadata]\ndescription-file = README.md # Maybe try include_package_data = True and a MANIFEST.in?
     classifiers=[  # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 4 - Beta',
