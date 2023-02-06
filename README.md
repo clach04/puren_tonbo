@@ -45,7 +45,7 @@ None right now!
 The chi file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ and clones
 
 
-#### AES256 zip
+#### AES-256 zip
 
     python ptcipher.py -e -p test README.md -o README.aes256.zip
 
