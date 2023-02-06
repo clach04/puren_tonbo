@@ -4,6 +4,23 @@ import os
 import sys
 
 
+def fake_module(name):
+    # Fail with a clear message (possibly at an unexpected time)
+    class MissingModule(object):
+        def __call__(self, attr):
+            raise ImportError('No module named %s' % name)
+
+        def __getattr__(self, attr):
+            #raise ImportError('No module named %s' % name)  # allow attribute lookup to pass through without error
+            return 'No module named %s' % name
+
+        def __bool__(self):
+            # if checks on this will fail
+            return False
+        __nonzero__ = __bool__  # support py3 and py2
+
+    return MissingModule()
+
 try:
     import chi_io  # https://github.com/clach04/chi_io/
 except ImportError:
@@ -15,7 +32,7 @@ except ImportError:
 try:
     import pyzipper  # https://github.com/danifus/pyzipper  NOTE py3 only
 except ImportError:
-    pyzipper = None
+    pyzipper = fake_module('pyzipper')
 
 
 is_py3 = sys.version_info >= (3,)
