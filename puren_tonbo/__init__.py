@@ -156,10 +156,14 @@ class ZipAES(EncryptedFile):
             # TODO chain exception...
             print(dir(info))
             raise BadPassword()
+        except RuntimeError as info:
+            raise BadPassword(info)
         except Exception as info:
             # TODO chain exception...
-            print(dir(info))
-            raise PurenTomboException()
+            #print(info)
+            #print(type(info))
+            #print(dir(info))
+            raise PurenTomboException(info)
 
     def write_to(self, file_object, byte_data):
         with pyzipper.AESZipFile(file_object,
