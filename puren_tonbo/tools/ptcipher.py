@@ -95,8 +95,7 @@ def main(argv=None):
     try:
         if decrypt:
             #import pdb ; pdb.set_trace()
-            handler_class = puren_tonbo.filename2handler(in_filename)  # FIXME handle -
-            # TODO in ot how to handle caseof looop up failure. I think it needs to hard fail.
+            handler_class = puren_tonbo.filename2handler(in_filename)
             handler = handler_class(key=password)
             plain_str = handler.read_from(in_file)
             if is_py3:
