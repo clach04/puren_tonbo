@@ -1,13 +1,17 @@
 # puren_tonbo
 
-# Table of Contents
+Pure Plain Text Notes... with optional encryption.
+
+https://github.com/clach04/puren_tonbo/
+
 * [Features](#Features)
+* [Background](#Background)
 * [Getting Started](#Getting-Started)
 * [Examples](#Examples)
-	* [ptcipher](#ptcipher)
+    * [ptcipher](#ptcipher)
 
 
-Pure Plain Text Notes... with optional encryption.
+## Background
 
 Tombo alternative, Work-In-Progress (WIP)!
 
