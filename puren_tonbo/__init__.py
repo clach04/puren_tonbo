@@ -179,7 +179,9 @@ def filename2handler(filename):
         _dummy, file_extn = os.path.splitext(filename)
     log.debug('clach04 DEBUG file_extn: %r', file_extn)
     log.debug('clach04 DEBUG file_type_handlers: %r', file_type_handlers)
-    handler_class = file_type_handlers.get(file_extn, RawFile)
+    handler_class = file_type_handlers.get(file_extn)
+    if handler_class is None:
+        raise UnsupportedFile('no support for %r' % file_extn)
     log.debug('clach04 DEBUG handler_class: %r', handler_class)
     return handler_class
 
