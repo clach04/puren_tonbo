@@ -54,13 +54,16 @@ setup(
     #data_files=[('.', [readme_filename])],  # does not work :-( ALso tried setup.cfg [metadata]\ndescription-file = README.md # Maybe try include_package_data = True and a MANIFEST.in?
     classifiers=[  # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 4 - Beta',
-        'License :: OSI Approved :: Apache Software License',
+        'License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)',
         'Operating System :: OS Independent',
+        'Topic :: Security :: Cryptography',
+        'Topic :: Text Processing :: General',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6.9',
+        'Programming Language :: Python :: 3.6',  # Python 3.6.9
         'Programming Language :: Python :: 3.10',
         # FIXME TODO more
         ],
