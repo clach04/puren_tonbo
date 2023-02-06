@@ -1,5 +1,7 @@
 # puren_tonbo
 
+Pure Plain Text Notes... with optional encryption.
+
 Tombo alternative, Work-In-Progress (WIP)!
 
 プレーン トンボ
@@ -18,8 +20,10 @@ Purēntonbo
 None right now!
 
   * Currently limited to local file system and stdin/out for files.
-  * Supports reading and writing from/to chi files that are compatible with Tombo
-  * Supports reading and writing from/to zip files that are compatible with AES-256 encrypted zip files created with 7z and WinZIP (does NOT support encrypted 7z files)
+  * Supports reading and writing from/to encrypted chi files that are compatible with Tombo Blowfish (note not recommended for new storage)
+  * Supports reading and writing from/to encrypted zip files that are compatible with AES-256 encrypted zip files created with 7z and WinZIP (does NOT support encrypted 7z files)
+  * Plain text files notes (potentially with no formatting or in Markdown, reStructuredText, etc.)
+  * Nested directories of notes
 
 
 ## Getting Started
