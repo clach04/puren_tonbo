@@ -127,6 +127,7 @@ class ZipAES(EncryptedFile):
     """
 
     _filename = 'encrypted.md'  # filename inside of (AES encrypted) zip file
+    _compression = pyzipper.ZIP_DEFLATED
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTomboException()
@@ -146,13 +147,26 @@ class ZipAES(EncryptedFile):
     def write_to(self, file_object, byte_data):
         with pyzipper.AESZipFile(file_object,
                                  'w',
-                                 compression=pyzipper.ZIP_LZMA,  # TODO revisit this
-                                 encryption=pyzipper.WZ_AES,
+                                 compression=self._compression,
+                                 encryption=pyzipper.WZ_AES,  # no other options
                                  ) as zf:
             # defaults to nbits=256 - TODO make explict?
             zf.setpassword(self.key)
             zf.writestr(self._filename, byte_data)  # pyzipper can take string or bytes
 
+
+class ZipNoCompressionAES(ZipAES):
+    _compression = pyzipper.ZIP_STORED
+    # .aes256stored.zip
+
+class ZipLzmaAES(ZipAES):
+    _compression = pyzipper.ZIP_LZMA
+    # .aes256lzma.zip
+
+class ZipBzip2AES(ZipAES):
+    _compression = pyzipper.ZIP_BZIP2
+
+# TODO unused/untested; ZipBzip2AES
 
 # note uses file extension - could also sniff file header and use file magic
 file_type_handlers = {
@@ -164,6 +178,8 @@ if chi_io :
 if pyzipper :
     file_type_handlers['.aes.zip'] = ZipAES  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
     file_type_handlers['.aes256.zip'] = ZipAES  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+    file_type_handlers['.aes256stored.zip'] = ZipNoCompressionAES  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+    file_type_handlers['.aes256lzma.zip'] = ZipLzmaAES  # LZMA Zip file with AES-256 7z .zip (not the old ZipCrypto!)
 
 # Consider command line crypto (via pipe to avoid plaintext on disk)
 # TODO? openssl aes-128-cbc -in in_file -out out_file.aes128
@@ -175,6 +191,10 @@ def filename2handler(filename):
         file_extn = '.aes.zip'
     elif filename.endswith('.aes.zip'):
         file_extn = '.aes.zip'
+    elif filename.endswith('.aes256stored.zip'):
+        file_extn = '.aes256stored.zip'
+    elif filename.endswith('.aes256lzma.zip'):
+        file_extn = '.aes256lzma.zip'
     else:
         _dummy, file_extn = os.path.splitext(filename)
     log.debug('clach04 DEBUG file_extn: %r', file_extn)
