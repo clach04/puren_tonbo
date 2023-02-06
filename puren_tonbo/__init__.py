@@ -7,7 +7,10 @@ import sys
 try:
     import chi_io  # https://github.com/clach04/chi_io/
 except ImportError:
-    chi_io = None
+    try:
+        from . import chi_io  # https://github.com/clach04/chi_io/
+    except ImportError:
+        chi_io = None
 
 try:
     import pyzipper  # https://github.com/danifus/pyzipper  NOTE py3 only
@@ -104,7 +107,8 @@ class TomboBlowfish(EncryptedFile):
         except chi_io.BadPassword as info:  # FIXME place holder
             # TODO chain exception...
             #print(dir(info))
-            raise BadPassword(info.message)
+            #raise BadPassword(info.message)  # does not work for python 3.6.9
+            raise BadPassword(info)  # FIXME BadPassword(BadPassword("for 'file-like-object'",),)
         except Exception as info:
             # TODO chain exception...
             #raise PurenTomboException(info.message)
@@ -173,8 +177,9 @@ def filename2handler(filename):
         file_extn = '.aes.zip'
     else:
         _dummy, file_extn = os.path.splitext(filename)
-    handler_class = file_type_handlers.get(file_extn, RawFile)
     log.debug('clach04 DEBUG file_extn: %r', file_extn)
+    log.debug('clach04 DEBUG file_type_handlers: %r', file_type_handlers)
+    handler_class = file_type_handlers.get(file_extn, RawFile)
     log.debug('clach04 DEBUG handler_class: %r', handler_class)
     return handler_class
 

@@ -40,7 +40,7 @@ def main(argv=None):
     #print('%r' % ((options, args),))
     verbose = options.verbose
     if verbose:
-        print('Python %s on %s\n\n' % (sys.version.replace('\n', ' - '), sys.platform))
+        print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
         print(options.cipher)
 
     def usage():
@@ -97,7 +97,7 @@ def main(argv=None):
             #import pdb ; pdb.set_trace()
             handler_class = puren_tonbo.filename2handler(in_filename)  # FIXME handle -
             # TODO in ot how to handle caseof looop up failure. I think it needs to hard fail.
-            handler = handler_class(password=password)
+            handler = handler_class(key=password)
             plain_str = handler.read_from(in_file)
             if is_py3:
                 # encode to stdout encoding  TODO make this optional, potentially useful for py2 too
@@ -107,7 +107,7 @@ def main(argv=None):
         else:
             # encrypt
             handler_class = puren_tonbo.filename2handler(out_filename)  # FIXME handle -
-            handler = handler_class(password=password)
+            handler = handler_class(key=password)
             plain_text = in_file.read()
             handler.write_to(out_file, password, plain_text)
             failed = False
