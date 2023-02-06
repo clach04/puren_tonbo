@@ -109,7 +109,7 @@ def main(argv=None):
             handler_class = puren_tonbo.filename2handler(out_filename)  # FIXME handle -
             handler = handler_class(key=password)
             plain_text = in_file.read()
-            handler.write_to(out_file, password, plain_text)
+            handler.write_to(out_file, plain_text)
             failed = False
     except puren_tonbo.PurenTomboException as info:
         print("Encrypt/Decrypt problem. %r" % (info,))
