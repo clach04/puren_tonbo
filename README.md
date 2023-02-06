@@ -1,5 +1,12 @@
 # puren_tonbo
 
+# Table of Contents
+* [Features](#Features)
+* [Getting Started](#Getting-Started)
+* [Examples](#Examples)
+	* [ptcipher](#ptcipher)
+
+
 Pure Plain Text Notes... with optional encryption.
 
 Tombo alternative, Work-In-Progress (WIP)!
