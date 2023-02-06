@@ -22,6 +22,11 @@ None right now!
   * Supports reading and writing from/to zip files that are compatible with AES-256 encrypted zip files created with 7z and WinZIP (does NOT support encrypted 7z files)
 
 
+## Getting Started
+
+    python -m pip install -r requirements.txt
+    # TODO requirements_optional.txt
+
 ## Examples
 
 ### ptcipher

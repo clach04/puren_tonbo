@@ -1,0 +1,3 @@
+git+https://github.com/clach04/chi_io.git  # needed for Tombo Blowfish CHI support
+pyzipper
+pycryptodome  # for performance - actually used by pyzipper so not explictly needed
