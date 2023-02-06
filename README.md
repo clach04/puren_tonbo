@@ -1,6 +1,6 @@
 # puren_tonbo
 
-Tombo alternative, WIP
+Tombo alternative, Work-In-Progress (WIP)!
 
 プレーン トンボ
 Purēntonbo
@@ -13,6 +13,13 @@ Purēntonbo
   * https://hg.sr.ht/~clach04/pytombo
 
 
+## Features
+
+None right now!
+
+  * Currently limited to local file system and stdin/out for files.
+  * Supports reading and writing from/to chi files that are compatible with Tombo
+  * Supports reading and writing from/to zip files that are compatible with AES-256 encrypted zip files created with 7z and WinZIP (does NOT support encrypted 7z files)
 
 
 ## Examples
