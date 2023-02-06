@@ -63,13 +63,9 @@ def main(argv=None):
         password_file = password_file.strip()
     else:
         password_file = None
-    password = options.password or password_file or os.environ.get('PT_PASSWORD') or getpass.getpass("Password:")
     decrypt = options.decrypt
     out_filename = options.out_filename
     note_encoding = options.codec
-
-    if not isinstance(password, bytes):
-        password = password.encode('us-ascii')
 
     if in_filename == '-':
         if is_py3:
@@ -90,6 +86,10 @@ def main(argv=None):
         # handle string versus bytes....?
     else:
         out_file = open(out_filename, 'wb')
+
+    password = options.password or password_file or os.environ.get('PT_PASSWORD') or getpass.getpass("Password:")
+    if not isinstance(password, bytes):
+        password = password.encode('us-ascii')
 
     failed = True
     try:
