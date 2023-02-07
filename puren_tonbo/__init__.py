@@ -74,6 +74,9 @@ class UnsupportedFile(PurenTomboException):
 
 
 class EncryptedFile:
+
+    description = 'Base Encrypted File'
+
     def __init__(self, key=None, password=None, password_encoding='utf8'):
         """
         key - is the actual encryption key in bytes
@@ -101,6 +104,8 @@ class RawFile(EncryptedFile):
     Use for plain text files.
     """
 
+    description = 'Raw file, no encryption support'
+
     def read_from(self, file_object):
         return file_object.read()
 
@@ -116,6 +121,8 @@ class TomboBlowfish(EncryptedFile):
       * Kumagusu - https://osdn.net/projects/kumagusu/ and https://play.google.com/store/apps/details?id=jp.gr.java_conf.kumagusu
       * miniNoteViewer - http://hatapy.web.fc2.com/mininoteviewer.html and https://play.google.com/store/apps/details?id=jp.gr.java_conf.hatalab.mnv&hl=en_US&gl=US
     """
+
+    description = 'Tombo Blowfish ECB (not recommended)'
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTomboException()
@@ -143,6 +150,7 @@ class ZipAES(EncryptedFile):
         7z a -ptest test_file.aes.zip encrypted.md
     """
 
+    description = 'AES-256 ZIP AV1 DEFLATED (regular compression)'
     _filename = 'encrypted.md'  # filename inside of (AES encrypted) zip file
     _compression = pyzipper.ZIP_DEFLATED
 
@@ -174,14 +182,17 @@ class ZipAES(EncryptedFile):
 
 
 class ZipNoCompressionAES(ZipAES):
+    description = 'AES-256 ZIP AV1 STORED (uncompressed)'
     _compression = pyzipper.ZIP_STORED
     # .aes256stored.zip
 
 class ZipLzmaAES(ZipAES):
+    description = 'AES-256 ZIP AV1 LZMA'
     _compression = pyzipper.ZIP_LZMA
     # .aes256lzma.zip
 
 class ZipBzip2AES(ZipAES):
+    description = 'AES-256 ZIP AV1 BZIP2'
     _compression = pyzipper.ZIP_BZIP2
 
 # TODO unused/untested; ZipBzip2AES

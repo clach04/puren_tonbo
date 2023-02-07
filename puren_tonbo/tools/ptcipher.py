@@ -30,7 +30,8 @@ def main(argv=None):
                         help="decrypt in_filename")
     parser.add_option("-e", "--encrypt", action="store_false", dest="decrypt",
                         help="encrypt in_filename")
-    parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint)")  # TODO also need a list mechanism too
+    parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
+    parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint)")
     parser.add_option("-c", "--codec", help="File encoding", default='utf-8')
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
@@ -41,7 +42,14 @@ def main(argv=None):
     verbose = options.verbose
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
-        print(options.cipher)
+    if options.list_formats:
+        print('')
+        print('Formats:')
+        print('')
+        for file_extension in puren_tonbo.file_type_handlers:
+            handler_class = puren_tonbo.file_type_handlers[file_extension]
+            print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # TODO description
+        return 0
 
     def usage():
         parser.print_usage()
@@ -91,11 +99,18 @@ def main(argv=None):
     if not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
+    if options.cipher:
+        handler_class = puren_tonbo.filename2handler('_.' + options.cipher)  # TODO options.cipher to filename extension is less than ideal
+    else:
+        handler_class = None
+    print('DEBUG handler_class %r' % handler_class)
+
     failed = True
     try:
         if decrypt:
             #import pdb ; pdb.set_trace()
-            handler_class = puren_tonbo.filename2handler(in_filename)
+            if handler_class is None:
+                handler_class = puren_tonbo.filename2handler(in_filename)
             handler = handler_class(key=password)
             plain_str = handler.read_from(in_file)
             if is_py3:
@@ -106,7 +121,8 @@ def main(argv=None):
         else:
             # encrypt
             #import pdb ; pdb.set_trace()
-            handler_class = puren_tonbo.filename2handler(out_filename)  # FIXME handle -
+            if handler_class is None:
+                handler_class = puren_tonbo.filename2handler(out_filename)  # FIXME handle -
             handler = handler_class(key=password)
             plain_text = in_file.read()
             handler.write_to(out_file, plain_text)
