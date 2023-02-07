@@ -152,11 +152,8 @@ class ZipAES(EncryptedFile):
             with pyzipper.AESZipFile(file_object) as zf:
                 zf.setpassword(self.key)
                 return zf.read(self._filename)
-        except chi_io.BadPassword as info:
-            # TODO chain exception...
-            print(dir(info))
-            raise BadPassword()
         except RuntimeError as info:
+            # so far only seen for; RuntimeError("Bad password for file 'encrypted.md'")
             raise BadPassword(info)
         except Exception as info:
             # TODO chain exception...
