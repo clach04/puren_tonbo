@@ -103,7 +103,6 @@ def main(argv=None):
         handler_class = puren_tonbo.filename2handler('_.' + options.cipher)  # TODO options.cipher to filename extension is less than ideal
     else:
         handler_class = None
-    print('DEBUG handler_class %r' % handler_class)
 
     failed = True
     try:
