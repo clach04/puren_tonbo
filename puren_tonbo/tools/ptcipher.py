@@ -85,7 +85,7 @@ def main(argv=None):
             out_file = sys.stdout
         # handle string versus bytes....?
     else:
-        out_file = open(out_filename, 'wb')
+        out_file = open(out_filename, 'wb')  # FIXME use a temp name in case of failure, so as to avoid destroying existing files
 
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or getpass.getpass("Password:")
     if not isinstance(password, bytes):
@@ -105,6 +105,7 @@ def main(argv=None):
             failed = False
         else:
             # encrypt
+            #import pdb ; pdb.set_trace()
             handler_class = puren_tonbo.filename2handler(out_filename)  # FIXME handle -
             handler = handler_class(key=password)
             plain_text = in_file.read()
