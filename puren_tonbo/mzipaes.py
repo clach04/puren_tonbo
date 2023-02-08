@@ -39,7 +39,8 @@ try:
     from Crypto.Cipher import AES
     from Crypto.Hash import HMAC, SHA
     from Crypto.Protocol.KDF import PBKDF2
-    from Crypto import Random, Util
+    from Crypto import Random
+    import Crypto.Util.Counter
     PYCRYPTOAVAILABLE=1
 except:
     PYCRYPTOAVAILABLE=0
@@ -65,7 +66,7 @@ class Crypto_PyCrypto:
 
     def AE_ctr_crypt(p, key, s):
         "Cifra/decifra in AES-256 CTR con contatore Little Endian"
-        enc = AES.new(key, AES.MODE_CTR, counter=Util.Counter.new(128, little_endian=True))
+        enc = AES.new(key, AES.MODE_CTR, counter=Crypto.Util.Counter.new(128, little_endian=True))  # TODO review 128 here
         return enc.encrypt(s)
 
     def AE_hmac_sha1_80(p, key, s):
@@ -570,11 +571,20 @@ for C in (Crypto_PyCrypto, Crypto_OpenSSL, Crypto_Botan, Crypto_NSS, Crypto_GCry
     except:
         continue
 if crypto_kit == None:
-    raise Exception("NO CRYPTO KIT FOUND - ABORTED!")
+    raise Exception("NO CRYPTO KIT FOUND - ABORTED!")  # this check does not work
 
 
 
 class MiniZipAE1Writer():
+    """AE-1 AES ZIP Writer - i.e. includes CRC
+    TODO check file permissions (hopefully marks as Windows) and timestamp
+    7z shows timestamp as 1980-01-01 00:00:00
+    Attributes A
+    method AES-256 Deflate
+    Characteristics WzAES : Encrypt
+    Host OS FAT
+    Version 51
+    """
     def __init__ (p, stream, password):
         # Stream di output sul file ZIP
         p.fp = stream
@@ -616,7 +626,7 @@ class MiniZipAE1Writer():
         p.fp.seek(0, 0)
         
     def PK0304(p):
-        return b'PK\x03\x04' + struct.pack('<5H3I2H', 0x33, 1, 99, 0, 33, p.crc32, p.csize, p.usize, 4, 11) + b'data' + p.AEH()
+        return b'PK\x03\x04' + struct.pack('<5H3I2H', 0x33, 1, 99, 0, 33, p.crc32, p.csize, p.usize, len(p.entry), 11) + p.entry + p.AEH()
 
     def AEH(p, method=8, version=1):
         # version=2 (AE-2) non registra il CRC-32, AE-1 lo fa
@@ -624,7 +634,7 @@ class MiniZipAE1Writer():
         return struct.pack('<4HBH', 0x9901, 7, version, 0x4541, 3, method)
 
     def PK0102(p):
-        return b'PK\x01\x02' + struct.pack('<6H3I5H2I', 0x33, 0x33, 1, 99, 0, 33, p.crc32, p.csize, p.usize, 4, 11, 0, 0, 0, 0x20, 0) + b'data' + p.AEH()
+        return b'PK\x01\x02' + struct.pack('<6H3I5H2I', 0x33, 0x33, 1, 99, 0, 33, p.crc32, p.csize, p.usize, len(p.entry), 11, 0, 0, 0, 0x20, 0) + p.entry + p.AEH()
 
     def PK0506(p, cdirsize, offs):
         if hasattr(p, 'zipcomment'):
@@ -636,6 +646,10 @@ class MiniZipAE1Writer():
 
 
 class MiniZipAE1Reader():
+    """AE-1 AES ZIP Reader.
+    NOTE ignores filenames and ONLY allows access to the first file via .get()
+    decrypts/de-compresses on instantiation (not get).
+    """
     def __init__ (p, stream, password):
         # Stream di input sul file ZIP
         p.fp = stream
@@ -674,8 +688,14 @@ class MiniZipAE1Reader():
             raise Exception("TOO MANY EXT HEADERS")
         p.entry = p.fp.read(namelen)
         xh, cb, ver, vendor, keybits, method = struct.unpack('<4HBH', p.fp.read(xhlen))
-        if xh != 0x9901 or ver != 1 or vendor != 0x4541:
-            raise Exception("UNKNOWN AE PROTOCOL")
+        EXTRA_WZ_AES = 0x9901
+        WZ_AES_V1 = 0x0001
+        WZ_AES_V2 = 0x0002
+        WZ_AES_VENDOR_ID = b'AE'  # 0x4541 little endian
+        if xh != 0x9901 or ver != 1 or vendor != 0x4541:  # AE-1 with CRC
+            #if (xh, ver, vendor) != (39169, 2, 17729):  # some form of AE-2 no CRC - with LZMA
+            # sadly this does not work, eventually get; zlib.error: Error -3 while decompressing data: invalid distance too far back
+            raise Exception("UNKNOWN AE PROTOCOL %r" % ((xh, ver, vendor),))
         if keybits == 3:
             p.salt = p.fp.read(16)
             DELTA=28

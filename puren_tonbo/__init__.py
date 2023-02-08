@@ -35,6 +35,9 @@ except ImportError:
     pyzipper = fake_module('pyzipper')
 
 
+import puren_tonbo.mzipaes
+
+
 is_py3 = sys.version_info >= (3,)
 
 # create log
@@ -141,8 +144,44 @@ class TomboBlowfish(EncryptedFile):
     def write_to(self, file_object, byte_data):
         chi_io.write_encrypted_file(file_object, self.key, byte_data)
 
+class ZipEncryptedFileBase(EncryptedFile):
+    _filename = 'encrypted.md'  # filename inside of (encrypted) zip file
+    _compression = pyzipper.ZIP_DEFLATED
 
-class ZipAES(EncryptedFile):
+
+class PurePyZipAES(ZipEncryptedFileBase):
+    """mzipaes - Read/write ZIP AES(256) encrypted files (not old ZipCrypto)
+    Suitable for Python 2.7 and 3.x
+    """
+
+    description = 'AES-256 ZIP AE-1 DEFLATED (regular compression)'
+
+    def read_from(self, file_object):
+        # TODO catch specific exceptions and raise better mapped exception
+        try:
+            zf = mzipaes.MiniZipAE1Reader(file_object, self.key)
+            return zf.get()  # first file in zip, ignore self._filename
+        except Exception as info:
+            # TODO chain exception...
+            #raise PurenTomboException(info.message)
+            raise PurenTomboException(info)
+
+    def write_to(self, file_object, byte_data):
+        assert self._compression == pyzipper.ZIP_DEFLATED  # FIXME/TODO add proper check and raise explict exception
+        # TODO catch specific exceptions and raise better mapped exception
+        # TODO e.g. Exception('BAD PASSWORD',)
+        try:
+            zf = mzipaes.MiniZipAE1Writer(file_object, self.key)
+            zf.append(self._filename, byte_data)
+            #zf.zipcomment = 'optional comment'
+            zf.write()
+        except Exception as info:
+            # TODO chain exception...
+            #raise PurenTomboException(info.message)
+            raise PurenTomboException(info)
+
+
+class ZipAES(ZipEncryptedFileBase):
     """Read/write ZIP AES(256) encrypted files (not old ZipCrypto)
     Compatible with files in WinZIP and 7z.
     Example 7z demo (Windows or Linux, assuming 7z is in the path):
@@ -150,7 +189,7 @@ class ZipAES(EncryptedFile):
         7z a -ptest test_file.aes.zip encrypted.md
     """
 
-    description = 'AES-256 ZIP AV1 DEFLATED (regular compression)'
+    description = 'AES-256 ZIP AE-1 DEFLATED (regular compression)'
     _filename = 'encrypted.md'  # filename inside of (AES encrypted) zip file
     _compression = pyzipper.ZIP_DEFLATED
 
@@ -182,17 +221,17 @@ class ZipAES(EncryptedFile):
 
 
 class ZipNoCompressionAES(ZipAES):
-    description = 'AES-256 ZIP AV1 STORED (uncompressed)'
+    description = 'AES-256 ZIP AE-1 STORED (uncompressed)'
     _compression = pyzipper.ZIP_STORED
     # .aes256stored.zip
 
 class ZipLzmaAES(ZipAES):
-    description = 'AES-256 ZIP AV1 LZMA'
+    description = 'AES-256 ZIP AE-1 LZMA'
     _compression = pyzipper.ZIP_LZMA
     # .aes256lzma.zip
 
 class ZipBzip2AES(ZipAES):
-    description = 'AES-256 ZIP AV1 BZIP2'
+    description = 'AES-256 ZIP AE-1 BZIP2'
     _compression = pyzipper.ZIP_BZIP2
 
 # TODO unused/untested; ZipBzip2AES
@@ -202,13 +241,15 @@ file_type_handlers = {
     '.txt': RawFile,  # these are not needed, filename2handler() defaults
     '.md': RawFile,
 }
-if chi_io :
+if chi_io:
     file_type_handlers['.chi'] = TomboBlowfish  # created by http://tombo.osdn.jp/En/
-if pyzipper :
+if pyzipper:
     file_type_handlers['.aes.zip'] = ZipAES  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
     file_type_handlers['.aes256.zip'] = ZipAES  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
     file_type_handlers['.aes256stored.zip'] = ZipNoCompressionAES  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
     file_type_handlers['.aes256lzma.zip'] = ZipLzmaAES  # LZMA Zip file with AES-256 7z .zip (not the old ZipCrypto!)
+else:
+    file_type_handlers['.aes.zip'] = PurePyZipAES  # AE-1 only Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
 
 # Consider command line crypto (via pipe to avoid plaintext on disk)
 # TODO? openssl aes-128-cbc -in in_file -out out_file.aes128
