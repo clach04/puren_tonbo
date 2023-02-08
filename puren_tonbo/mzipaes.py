@@ -662,7 +662,12 @@ class MiniZipAE1Reader():
         if p.digest != crypto_kit.AE_hmac_sha1_80(hmac_key, p.blob):
             raise Exception("BAD HMAC-SHA1-80")
         cs = crypto_kit.AE_ctr_crypt(aes_key, p.blob)
-        p.s = p.decompressor.decompress(cs)
+        if p.compression_method == 0:  # ZIP_STORED
+            p.s = cs
+        elif p.compression_method == 8:  # ZIP_DEFLATED
+            p.s = p.decompressor.decompress(cs)
+        else:
+            raise Exception("possibly unhandled compression - TODO actually test and try it")
         crc32 = zlib.crc32(p.s) & 0xFFFFFFFF
         if crc32 != p.crc32:
             raise Exception("BAD CRC-32")
@@ -681,6 +686,9 @@ class MiniZipAE1Reader():
         if p.fp.read(4) != b'PK\x03\x04':
             raise Exception("BAD LOCAL HEADER")
         ver1, flag, method, dtime, ddate, crc32, csize, usize, namelen, xhlen = struct.unpack('<5H3I2H', p.fp.read(26))
+        p.encryption_method = method  # first file meta
+        #print('method %r' % method)
+        #print('%r' % ((ver1, flag, method, hex(dtime), hex(ddate), hex(crc32), csize, usize, namelen, xhlen),))
         #~ print ver1, flag, method, hex(dtime), hex(ddate), hex(crc32), csize, usize, namelen, xhlen
         if method != 99:
             raise Exception("NOT AES ENCRYPTED")
@@ -688,6 +696,7 @@ class MiniZipAE1Reader():
             raise Exception("TOO MANY EXT HEADERS")
         p.entry = p.fp.read(namelen)
         xh, cb, ver, vendor, keybits, method = struct.unpack('<4HBH', p.fp.read(xhlen))
+        p.compression_method = method
         EXTRA_WZ_AES = 0x9901
         WZ_AES_V1 = 0x0001
         WZ_AES_V2 = 0x0002
