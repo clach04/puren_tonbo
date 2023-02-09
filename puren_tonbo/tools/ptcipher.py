@@ -4,15 +4,44 @@
 """Command line tool to encrypt/decrypt Puren Tombo files (Tombo CHI Blowfish files)
 """
 
+import datetime
 import getpass
 import os
 from optparse import OptionParser
 import sys
+import tempfile
 
 import puren_tonbo
 
 
 is_py3 = sys.version_info >= (3,)
+
+
+def file_replace(src, dst):
+    if is_py3:
+        os.replace(src, dst)
+    else:
+        # can't use rename on Windows if file already exists.
+        # Non-Atomic but try and be as safe as possible
+        # aim to avoid clobbering existing files, rather than handling race conditions with concurrency
+
+        if os.path.exists(dst):
+            dest_exists = True
+            t = tempfile.NamedTemporaryFile(
+                mode='wb',
+                dir=os.path.dirname(dst),
+                prefix=os.path.basename(dst) + datetime.datetime.now().strftime('%Y%m%d_%H%M%S'),
+                delete=False
+            )
+            tmp_backup = t.name
+            t.close()
+            os.remove(tmp_backup)
+            os.rename(dst, tmp_backup)
+        else:
+            dest_exists = False
+        os.rename(src, dst)
+        if dest_exists:
+            os.remove(tmp_backup)
 
 
 def main(argv=None):
@@ -93,7 +122,15 @@ def main(argv=None):
             out_file = sys.stdout
         # handle string versus bytes....?
     else:
-        out_file = open(out_filename, 'wb')  # FIXME use a temp name in case of failure, so as to avoid destroying existing files
+        timestamp_now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        out_file = tempfile.NamedTemporaryFile(
+            mode='wb',
+            dir=os.path.dirname(out_filename),
+            prefix=os.path.basename(out_filename) + timestamp_now,
+            delete=False
+        )
+        tmp_out_filename = out_file.name
+        print('DEBUG tmp_out_filename %r' % tmp_out_filename)
 
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or getpass.getpass("Password:")
     if not isinstance(password, bytes):
@@ -133,6 +170,12 @@ def main(argv=None):
             in_file.close()
         if out_file != sys.stdout:
             out_file.close()
+            if not failed:
+                do_backup = True
+                if do_backup:
+                    if os.path.exists(out_filename):
+                        file_replace(out_filename, out_filename + '.bak')  # backup existing
+                file_replace(tmp_out_filename, out_filename)
 
     if failed:
         return 1
