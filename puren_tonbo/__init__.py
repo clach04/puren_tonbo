@@ -140,23 +140,10 @@ class VimDecrypt(EncryptedFile):
         password = self.key
         args = VimDecryptArgs
         try:
-            return vimdecrypt.decryptfile(data, password, args)
+            return vimdecrypt.decryptfile(data, password.decode("utf-8"), args)  # vimdecrypt expects passwords as strings and will encode to utf8 - TODO update vimdecrypt library to support bytes
         except Exception as info:
             # TODO chain exception...
             raise PurenTomboException(info)
-        """
-        try:
-            return chi_io.read_encrypted_file(file_object, self.key)
-        except chi_io.BadPassword as info:  # FIXME place holder
-            # TODO chain exception...
-            #print(dir(info))
-            #raise BadPassword(info.message)  # does not work for python 3.6.9
-            raise BadPassword(info)  # FIXME BadPassword(BadPassword("for 'file-like-object'",),)
-        except Exception as info:
-            # TODO chain exception...
-            #raise PurenTomboException(info.message)
-            raise PurenTomboException(info)
-        """
 
 
 class TomboBlowfish(EncryptedFile):

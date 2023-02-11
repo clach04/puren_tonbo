@@ -79,3 +79,25 @@ For example:
 or create with 7z:
 
     7z a -ptest test.aes256.zip encrypted.md
+
+#### VimCrypt
+
+NOTE not implemented in nvim / newovim.
+
+In vim the easiest way to get the newest encryption mode/format, for a file:
+
+    vim -c ":setlocal cm=blowfish2"  test.vimcrypt3
+
+then issue:
+
+    :X
+
+will be prompted for password, can then edit/save as per normal.
+
+To see encryption mode:
+
+    :setlocal cm?
+
+ptcipher demo:
+
+    python3 -m puren_tonbo.tools.ptcipher -p test test.vimcrypt3
