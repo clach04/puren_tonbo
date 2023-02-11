@@ -152,6 +152,107 @@ class TestBaseEncryptedFileVimDecrypt(TestBaseEncryptedFileUtil, TestBaseEncrypt
         self.skip('VimCrypt encryption not implemented yet')
 
 
+class TestFileSystemNotes(TestUtil):
+    data_folder = os.path.join(
+                    os.path.dirname(puren_tonbo.tests.__file__),
+                    'data'
+    )
+    test_password_bytes = b'password'
+    note_encoding = 'us-ascii'
+
+    plain_text_data_windows_newlines = \
+'''aesop\r\n\r\nThe Frogs Desiring a King\r\n\r\nThe Frogs were l\
+iving as happy as could be in a marshy swamp that just suited the\
+m; they went splashing about caring for nobody and nobody troubli\
+ng with them. But some of them thought that this was not right, t\
+hat they should have a king and a proper constitution, so they de\
+termined to send up a petition to Jove to give them what they wan\
+ted. "Mighty Jove," they cried, "send unto us a king that will ru\
+le over us and keep us in order." Jove laughed at their croaking,\
+ and threw down into the swamp a huge Log, which came down splash\
+ing into the swamp. The Frogs were frightened out of their lives \
+by the commotion made in their midst, and all rushed to the bank \
+to look at the horrible monster; but after a time, seeing that it\
+ did not move, one or two of the boldest of them ventured out tow\
+ards the Log, and even dared to touch it; still it did not move. \
+Then the greatest hero of the Frogs jumped upon the Log and comme\
+nced dancing up and down upon it, thereupon all the Frogs came an\
+d did the same; and for some time the Frogs went about their busi\
+ness every day without taking the slightest notice of their new K\
+ing Log lying in their midst. But this did not suit them, so they\
+ sent another petition to Jove, and said to him, "We want a real \
+king; one that will really rule over us." Now this made Jove angr\
+y, so he sent among them a big Stork that soon set to work gobbli\
+ng them all up. Then the Frogs repented when too late.\r\n\r\nBet\
+ter no rule than cruel rule.\r\n'''
+
+    plain_text_data_linux_newlines = \
+'''aesop\n\nThe Frogs Desiring a King\n\nThe Frogs were l\
+iving as happy as could be in a marshy swamp that just suited the\
+m; they went splashing about caring for nobody and nobody troubli\
+ng with them. But some of them thought that this was not right, t\
+hat they should have a king and a proper constitution, so they de\
+termined to send up a petition to Jove to give them what they wan\
+ted. "Mighty Jove," they cried, "send unto us a king that will ru\
+le over us and keep us in order." Jove laughed at their croaking,\
+ and threw down into the swamp a huge Log, which came down splash\
+ing into the swamp. The Frogs were frightened out of their lives \
+by the commotion made in their midst, and all rushed to the bank \
+to look at the horrible monster; but after a time, seeing that it\
+ did not move, one or two of the boldest of them ventured out tow\
+ards the Log, and even dared to touch it; still it did not move. \
+Then the greatest hero of the Frogs jumped upon the Log and comme\
+nced dancing up and down upon it, thereupon all the Frogs came an\
+d did the same; and for some time the Frogs went about their busi\
+ness every day without taking the slightest notice of their new K\
+ing Log lying in their midst. But this did not suit them, so they\
+ sent another petition to Jove, and said to him, "We want a real \
+king; one that will really rule over us." Now this made Jove angr\
+y, so he sent among them a big Stork that soon set to work gobbli\
+ng them all up. Then the Frogs repented when too late.\n\nBet\
+ter no rule than cruel rule.\n'''
+
+    #C:\code\py\puren_tonbo\puren_tonbo\tests\data\README.md
+    def test_aesop_txt(self):
+        #print(self.data_folder)
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop.txt'
+        data = note_root.note_contents(test_note_filename, password)
+        #print('%r' % self.plain_text_data_windows_newlines)
+        #print('%r' % data)
+        self.assertEqual(self.plain_text_data_windows_newlines, data)
+
+    def test_aesop_win_vimcrypt3(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_win.vimcrypt3'
+        data = note_root.note_contents(test_note_filename, password)
+        self.assertEqual(self.plain_text_data_windows_newlines, data)
+
+    def test_aesop_win_vimcrypt2(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_win.vimcrypt2'
+        data = note_root.note_contents(test_note_filename, password)
+        self.assertEqual(self.plain_text_data_windows_newlines, data)
+
+    def test_aesop_win_vimcrypt1(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_win.vimcrypt1'
+        data = note_root.note_contents(test_note_filename, password)
+        self.assertEqual(self.plain_text_data_windows_newlines, data)
+
+    def test_aesop_linux_vimcrypt3(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_linux.vimcrypt3'
+        data = note_root.note_contents(test_note_filename, password)
+        self.assertEqual(self.plain_text_data_linux_newlines, data)
+
+
+
 def main():
     print(sys.version)
     print('')
