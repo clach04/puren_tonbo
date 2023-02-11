@@ -460,7 +460,7 @@ any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 
 def supported_filename_filter(in_filename):
     name = in_filename.lower()
-    for file_extension in file_type_handlers
+    for file_extension in file_type_handlers:
         if name.endswith(file_extension):
             # TODO could look at mapping and check that too, e.g. only Raw files
             return True
