@@ -573,6 +573,10 @@ for C in (Crypto_PyCrypto, Crypto_OpenSSL, Crypto_Botan, Crypto_NSS, Crypto_GCry
 if crypto_kit == None:
     raise Exception("NO CRYPTO KIT FOUND - ABORTED!")  # this check does not work
 
+# constants for Zip file compression methods
+ZIP_STORED = 0
+ZIP_DEFLATED = 8
+# Other ZIP compression methods not supported
 
 
 class MiniZipAE1Writer():
@@ -628,9 +632,9 @@ class MiniZipAE1Writer():
     def PK0304(p):
         return b'PK\x03\x04' + struct.pack('<5H3I2H', 0x33, 1, 99, 0, 33, p.crc32, p.csize, p.usize, len(p.entry), 11) + p.entry + p.AEH()
 
-    def AEH(p, method=8, version=1):
+    def AEH(p, method=ZIP_DEFLATED, version=1):
         # version=2 (AE-2) non registra il CRC-32, AE-1 lo fa
-        # method=0 (non compresso), method=8 (deflated)
+        # method=ZIP_STORED == 0 (non compresso), method=ZIP_DEFLATED == 8 (deflated)
         return struct.pack('<4HBH', 0x9901, 7, version, 0x4541, 3, method)
 
     def PK0102(p):
@@ -662,9 +666,9 @@ class MiniZipAE1Reader():
         if p.digest != crypto_kit.AE_hmac_sha1_80(hmac_key, p.blob):
             raise Exception("BAD HMAC-SHA1-80")
         cs = crypto_kit.AE_ctr_crypt(aes_key, p.blob)
-        if p.compression_method == 0:  # ZIP_STORED
+        if p.compression_method == ZIP_STORED:
             p.s = cs
-        elif p.compression_method == 8:  # ZIP_DEFLATED
+        elif p.compression_method == ZIP_DEFLATED:
             p.s = p.decompressor.decompress(cs)
         else:
             raise Exception("possibly unhandled compression - TODO actually test and try it")
