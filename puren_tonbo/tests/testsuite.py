@@ -55,8 +55,31 @@ class TestUtil(unittest.TestCase):
             """
 
 
-class TestBaseEncryptedFileUtil(TestUtil):
 
+class TestBaseEncryptedFileUtilBase(TestUtil):
+    def check_get_what_you_put_in(self, test_data_bytes, test_password_bytes, encrypt_pt_handler_class, decrypt_pt_handler_class=None):
+        if hasattr(self, 'pt_handler_class_conditional'):
+            pt_handler_class_conditional = self.pt_handler_class_conditional
+            if not getattr(puren_tonbo, pt_handler_class_conditional, True):
+                self.skip('%r pt_handler_class_conditional not available' % pt_handler_class_conditional)
+
+        decrypt_pt_handler_class = decrypt_pt_handler_class or encrypt_pt_handler_class
+
+        plain_text = test_data_bytes
+
+        fileptr1 = FakeFile()
+        handler = encrypt_pt_handler_class(key=test_password_bytes)
+        handler.write_to(fileptr1, plain_text)
+        crypted_data = fileptr1.getvalue()
+        #print repr(crypted_data)
+
+        fileptr2 = FakeFile(crypted_data)
+        handler = decrypt_pt_handler_class(key=test_password_bytes)
+        result_data = handler.read_from(fileptr2)
+        #print repr(result_data)
+        self.assertEqual(plain_text, result_data)
+
+class TestBaseEncryptedFileUtil(TestBaseEncryptedFileUtilBase):
     def check_same_input_different_crypted_text(self, test_data_bytes, test_password_bytes, pt_handler_class):
         if hasattr(self, 'pt_handler_class_conditional'):
             pt_handler_class_conditional = self.pt_handler_class_conditional
@@ -80,27 +103,9 @@ class TestBaseEncryptedFileUtil(TestUtil):
         # NOTE does not attempt to decrypt both.. yet. TODO
         self.assertNotEqual(crypted_data1, crypted_data2)
 
-    def check_get_what_you_put_in(self, test_data_bytes, test_password_bytes, pt_handler_class):
-        if hasattr(self, 'pt_handler_class_conditional'):
-            pt_handler_class_conditional = self.pt_handler_class_conditional
-            if not getattr(puren_tonbo, pt_handler_class_conditional, True):
-                self.skip('%r pt_handler_class_conditional not available' % pt_handler_class_conditional)
 
-        plain_text = test_data_bytes
 
-        fileptr1 = FakeFile()
-        handler = pt_handler_class(key=test_password_bytes)
-        handler.write_to(fileptr1, plain_text)
-        crypted_data = fileptr1.getvalue()
-        #print repr(crypted_data)
-
-        fileptr2 = FakeFile(crypted_data)
-        result_data = handler.read_from(fileptr2)  # re-use existing handler
-        #print repr(result_data)
-        self.assertEqual(plain_text, result_data)
-
-class TestBaseEncryptedFile():  # mix-in with TestBaseEncryptedFileUtil
-
+class TestBaseEncryptedFileBase():  # mix-in with TestBaseEncryptedFileUtil
     """
     test_data_bytes = b"this is just a small piece of text."
     test_password_bytes = b'mypassword'
@@ -110,10 +115,18 @@ class TestBaseEncryptedFile():  # mix-in with TestBaseEncryptedFileUtil
     """
 
     def test_get_what_you_put_in(self):
-        self.check_get_what_you_put_in(self.test_data_bytes, self.test_password_bytes, self.pt_handler_class)
+        if hasattr(self, 'decrypt_pt_handler_class'):
+            decrypt_pt_handler_class = self.decrypt_pt_handler_class
+        else:
+            decrypt_pt_handler_class = None
 
+        self.check_get_what_you_put_in(self.test_data_bytes, self.test_password_bytes, self.pt_handler_class, decrypt_pt_handler_class)
+
+
+class TestBaseEncryptedFile(TestBaseEncryptedFileBase):  # mix-in with TestBaseEncryptedFileUtil
     def test_same_input_different_crypted_text(self):
         self.check_same_input_different_crypted_text(self.test_data_bytes, self.test_password_bytes, self.pt_handler_class)
+
 
 class TestBaseEncryptedPurePyZipAES(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
     test_data_bytes = b"this is just a small piece of text."
@@ -139,6 +152,30 @@ class TestBaseEncryptedZipLzmaAES(TestBaseEncryptedZipAES):
 
 class TestBaseEncryptedZipBzip2AES(TestBaseEncryptedZipAES):
     pt_handler_class = puren_tonbo.ZipBzip2AES
+
+
+class TestBaseEncryptedFileCompat(TestBaseEncryptedFileBase):
+    def test_get_what_you_put_in_reverse(self):
+        decrypt_pt_handler_class = self.decrypt_pt_handler_class
+
+        #self.check_get_what_you_put_in(self.test_data_bytes, self.test_password_bytes, self.pt_handler_class, decrypt_pt_handler_class)
+        self.check_get_what_you_put_in(self.test_data_bytes, self.test_password_bytes, decrypt_pt_handler_class, self.pt_handler_class)
+
+class TestBaseEncryptedFileCompatPurePyZipAESandZipAES(TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtilBase):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    encrypt_pt_handler_class = puren_tonbo.PurePyZipAES
+    decrypt_pt_handler_class = puren_tonbo.ZipAES
+    pt_handler_class = encrypt_pt_handler_class
+
+
+class TestBaseEncryptedFileCompatZipNoCompressionPurePyZipAESandZipNoCompressionAES(TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtilBase):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    encrypt_pt_handler_class = puren_tonbo.PurePyZipAES
+    decrypt_pt_handler_class = puren_tonbo.ZipAES
+    pt_handler_class = encrypt_pt_handler_class
+
 
 class TestBaseEncryptedTomboBlowfish(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
     test_data_bytes = b"this is just a small piece of text."
