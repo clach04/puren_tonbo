@@ -322,7 +322,6 @@ class ZipLzmaAES(ZipAES):
 class ZipBzip2AES(ZipAES):
     description = 'AES-256 ZIP AE-1 BZIP2'
     _compression = pyzipper.ZIP_BZIP2
-# TODO unused/untested; ZipBzip2AES
 
 # note uses file extension - could also sniff file header and use file magic
 file_type_handlers = {}
@@ -339,7 +338,7 @@ if chi_io:
         file_type_handlers[file_extension] = TomboBlowfish  # created by http://tombo.osdn.jp/En/
 
 if pyzipper:
-    for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES):
+    for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES, ZipBzip2AES):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 else:
