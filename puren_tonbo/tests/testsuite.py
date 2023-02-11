@@ -5,13 +5,16 @@
 
 Sample usage:
 
-    ./test_chi.py -v
-    ./test_chi.py -v FIXME_class_name_here
+    python -m puren_tonbo.tests.testsuite -v
+    python -m puren_tonbo.tests.testsuite -v TestIO
 
 """
 
 import os
 import sys
+
+from io import BytesIO as FakeFile  # py3
+
 try:
     if sys.version_info < (2, 3):
         raise ImportError
@@ -46,6 +49,47 @@ class TestIOUtil(unittest.TestCase):
             self.fail('SKIP THIS TEST: ' + reason)
             #self.assertTrue(False, reason)
             #raise Exception(reason)
+
+
+class TestIO(TestIOUtil):
+
+    def check_same_input_different_crypted_text(self, test_data_bytes, test_password_bytes, pt_handler_class):
+        plain_text = test_data_bytes
+
+        fileptr1 = FakeFile()
+        handler = pt_handler_class(key=test_password_bytes)
+        handler.write_to(fileptr1, plain_text)
+        crypted_data1 = fileptr1.getvalue()
+        #print repr(crypted_data1)
+
+        fileptr2 = FakeFile()
+        handler = pt_handler_class(key=test_password_bytes)
+        handler.write_to(fileptr2, plain_text)
+        crypted_data2 = fileptr2.getvalue()
+        #print repr(crypted_data2)
+
+        # NOTE does not attempt to decrypt both.. yet. TODO
+        self.assertNotEqual(crypted_data1, crypted_data2)
+
+    def check_get_what_you_put_in(self, test_data_bytes, test_password_bytes, pt_handler_class):
+        plain_text = test_data_bytes
+
+        fileptr1 = FakeFile()
+        handler = pt_handler_class(key=test_password_bytes)
+        handler.write_to(fileptr1, plain_text)
+        crypted_data = fileptr1.getvalue()
+        #print repr(crypted_data)
+
+        fileptr2 = FakeFile(crypted_data)
+        result_data = handler.read_from(fileptr2)  # re-use existing handler
+        #print repr(result_data)
+        self.assertEqual(plain_text, result_data)
+
+    def test_demo_vimdecrypt(self):
+        test_data_bytes = b"this is just a small piece of text."
+        test_password_bytes = b'mypassword'
+        pt_handler_class = puren_tonbo.VimDecrypt
+        self.check_get_what_you_put_in(test_data_bytes, test_password_bytes, pt_handler_class)
 
 
 def main():
