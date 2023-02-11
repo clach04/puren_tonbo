@@ -257,7 +257,7 @@ def bf_decrypt(ver, data, pw, args):
         print("seed = ", b2a_hex(iv))
         print("data = ", b2a_hex(data[:16]))
 
-    key = hashpw(pw.encode("utf-8"), salt)
+    key = hashpw(pw.encode("utf-8"), salt)  # TODO allow bytes to be passed, if unicode then allow encoding to be passed in (via args?). I.e. support non-utf8 encoded passwords
     if args.verbose:
         print("hashed key =", b2a_hex(key))
 
@@ -312,7 +312,7 @@ def zip_decrypt(data, pw, args):
 
     keys = [ 0x12345678, 0x23456789, 0x34567890 ]
     for c in pw:
-        updatekeys(keys, ord(c))
+        updatekeys(keys, ord(c))  # TODO not sure this will work with non-single byte encoded passwords, e.g. utf-8
 
     if args.verbose:
         print("keys: %08x %08x %08x" % tuple(keys))
