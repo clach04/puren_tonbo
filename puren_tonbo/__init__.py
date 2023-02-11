@@ -336,14 +336,6 @@ if chi_io:
         file_type_handlers[file_extension] = TomboBlowfish  # created by http://tombo.osdn.jp/En/
 
 if pyzipper:
-    """
-    for file_extension in ZipAES.extensions:
-        file_type_handlers[file_extension] = ZipAES
-    for file_extension in ZipNoCompressionAES.extensions:
-        file_type_handlers[file_extension] = ZipNoCompressionAES
-    for file_extension in ZipLzmaAES.extensions:
-        file_type_handlers[file_extension] = ZipLzmaAES
-    """
     for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
