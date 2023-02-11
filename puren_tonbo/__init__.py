@@ -1,4 +1,6 @@
 
+import errno
+
 try:
     import getpass
 except ImportError:
@@ -13,6 +15,7 @@ except ImportError:
             result = raw_input('') # or simply ignore stream??
             return result
         getpass = classmethod(getpass)
+
 import logging
 import os
 import sys
@@ -91,7 +94,7 @@ formatter = logging.Formatter(logging_fmt_str)
 ch.setFormatter(formatter)
 log.addHandler(ch)
 
-class PurenTomboException(Exception):
+class PurenTomboException(Exception):  # FIXME typo Tonbo
     '''Base chi I/O exception'''
 
 
@@ -118,7 +121,7 @@ class EncryptedFile:
         """
         if key is None and password is None:
             raise RuntimeError('need password or key')  # TODO custom exception (needed for read_from()/write_to() failures
-        if key:
+        if key is not None:
             self.key = key
         elif password:
             key = password.encode(password_encoding)
@@ -195,6 +198,7 @@ class TomboBlowfish(EncryptedFile):
             #raise BadPassword(info.message)  # does not work for python 3.6.9
             raise BadPassword(info)  # FIXME BadPassword(BadPassword("for 'file-like-object'",),)
         except Exception as info:
+            raise  # DEBUG
             # TODO chain exception...
             #raise PurenTomboException(info.message)
             raise PurenTomboException(info)
@@ -538,7 +542,8 @@ class FileSystemNotes(BaseNotes):
                 raise PurenTomboIO('outside of note tree root')
 
             handler_class = filename2handler(filename)
-            if type(handler_class) == type(RawFile):
+            #import pdb ; pdb.set_trace()
+            if handler_class is RawFile:
                 print('it is plain text')
                 note_password = ''  # fake it. Alternatively override init for RawFile to remove check
             else:
@@ -551,9 +556,11 @@ class FileSystemNotes(BaseNotes):
                 if note_password is None:
                     raise BadPassword('missing or bad password for %s' % filename)
 
+            #import pdb ; pdb.set_trace()
             handler = handler_class(key=note_password)  # FIXME callback function support for password func
             # TODO repeat on bad password func
-            in_file = open(filename, 'rb')
+            print('DEBUG filename %r' % fullpath_filename)
+            in_file = open(fullpath_filename, 'rb')
             try:
                 plain_str = handler.read_from(in_file)
                 # TODO could stash away handler..key for reuse as self.last_used_key .... or derived_key (which would be a new attribute)
