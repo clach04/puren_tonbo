@@ -60,6 +60,7 @@ except ImportError:
 
 
 import puren_tonbo.mzipaes
+from puren_tonbo.mzipaes import ZIP_DEFLATED, ZIP_STORED
 
 
 is_py3 = sys.version_info >= (3,)
@@ -222,7 +223,7 @@ class TomboBlowfish(EncryptedFile):
 
 class ZipEncryptedFileBase(EncryptedFile):
     _filename = 'encrypted.md'  # filename inside of (encrypted) zip file
-    _compression = pyzipper.ZIP_DEFLATED
+    _compression = ZIP_DEFLATED
 
 
 class PurePyZipAES(ZipEncryptedFileBase):
@@ -248,7 +249,7 @@ class PurePyZipAES(ZipEncryptedFileBase):
             raise PurenTonboException(info)
 
     def write_to(self, file_object, byte_data):
-        assert self._compression == pyzipper.ZIP_DEFLATED  # FIXME/TODO add proper check and raise explict exception
+        assert self._compression == ZIP_DEFLATED  # FIXME/TODO add proper check and raise explict exception
         # TODO catch specific exceptions and raise better mapped exception
         # TODO e.g. Exception('BAD PASSWORD',)
         try:
@@ -276,7 +277,7 @@ class ZipAES(ZipEncryptedFileBase):
         '.aes256.zip',  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
     ]
     _filename = 'encrypted.md'  # filename inside of (AES encrypted) zip file
-    _compression = pyzipper.ZIP_DEFLATED
+    _compression = ZIP_DEFLATED
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTonboException()
@@ -307,7 +308,7 @@ class ZipAES(ZipEncryptedFileBase):
 
 class ZipNoCompressionAES(ZipAES):
     description = 'AES-256 ZIP AE-1 STORED (uncompressed)'
-    _compression = pyzipper.ZIP_STORED
+    _compression = ZIP_STORED
     extensions = [
         '.aes256stored.zip',  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
     ]
