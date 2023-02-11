@@ -674,8 +674,9 @@ class MiniZipAE1Reader():
         else:
             raise Exception("possibly unhandled compression - TODO actually test and try it")
         crc32 = zlib.crc32(p.s) & 0xFFFFFFFF
+        #print('crc of p.s %r' % p.s)
         if crc32 != p.crc32:
-            raise Exception("BAD CRC-32")
+            raise Exception("BAD CRC-32 (actual) 0x%x != 0x%x (in zip meta)" % (crc32, p.crc32))
             
     def get(p):
         return p.s
