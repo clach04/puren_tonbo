@@ -112,6 +112,7 @@ class PurenTonboIO(PurenTonboException):
 class EncryptedFile:
 
     description = 'Base Encrypted File'
+    extensions = []  # non-empty list of file extensions, first is the default (e.g. for writing)
 
     def __init__(self, key=None, password=None, password_encoding='utf8'):
         """
@@ -128,6 +129,8 @@ class EncryptedFile:
             # KDF could be applied here if write_to() does not handle this
             self.key = key
 
+    ## TODO rename read_from() -> read() - NOTE this would not be file-like
+    # TODO add wrapper class for file-like object api
     def read_from(self, file_object):
         raise NotImplementedError
 
@@ -142,6 +145,7 @@ class RawFile(EncryptedFile):
     """
 
     description = 'Raw file, no encryption support'
+    extensions = ['.txt', '.md']
 
     def read_from(self, file_object):
         return file_object.read()
@@ -160,6 +164,12 @@ class VimDecrypt(EncryptedFile):
     """
 
     description = 'vimcrypt 1, 2, 3'
+    extensions = [
+        '.vimcrypt',  # VimCrypt~03 - blowfish2
+        '.vimcrypt1',  # VimCrypt~01 - zip
+        '.vimcrypt2',  # VimCrypt~02 - blowfish
+        '.vimcrypt3',  # VimCrypt~03 - blowfish2
+    ]
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTonboException()
@@ -187,6 +197,7 @@ class TomboBlowfish(EncryptedFile):
     """
 
     description = 'Tombo Blowfish ECB (not recommended)'
+    extensions = ['.chi']
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTonboException()
@@ -217,6 +228,11 @@ class PurePyZipAES(ZipEncryptedFileBase):
     """
 
     description = 'AES-256 ZIP AE-1 DEFLATED (regular compression)'
+    extensions = [
+        '.aes.zip',  # AE-1 only Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+        '.aes256.zip',  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+        '.aes256stored.zip',  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+    ]
 
     def read_from(self, file_object):
         # TODO catch specific exceptions and raise better mapped exception
@@ -252,6 +268,10 @@ class ZipAES(ZipEncryptedFileBase):
     """
 
     description = 'AES-256 ZIP AE-1 DEFLATED (regular compression)'
+    extensions = [
+        '.aes.zip',  # AE-1 only Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+        '.aes256.zip',  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+    ]
     _filename = 'encrypted.md'  # filename inside of (AES encrypted) zip file
     _compression = pyzipper.ZIP_DEFLATED
 
@@ -285,38 +305,54 @@ class ZipAES(ZipEncryptedFileBase):
 class ZipNoCompressionAES(ZipAES):
     description = 'AES-256 ZIP AE-1 STORED (uncompressed)'
     _compression = pyzipper.ZIP_STORED
-    # .aes256stored.zip
+    extensions = [
+        '.aes256stored.zip',  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+    ]
 
 class ZipLzmaAES(ZipAES):
     description = 'AES-256 ZIP AE-1 LZMA'
     _compression = pyzipper.ZIP_LZMA
-    # .aes256lzma.zip
+    extensions = [
+        '.aes256lzma.zip',  # LZMA Zip file with AES-256 7z .zip (not the old ZipCrypto!)
+    ]
 
 class ZipBzip2AES(ZipAES):
     description = 'AES-256 ZIP AE-1 BZIP2'
     _compression = pyzipper.ZIP_BZIP2
-
 # TODO unused/untested; ZipBzip2AES
 
 # note uses file extension - could also sniff file header and use file magic
-file_type_handlers = {
+file_type_handlers = {}
+"""
     '.txt': RawFile,  # these are not needed, filename2handler() defaults
     '.md': RawFile,
 }
+"""
+for file_extension in RawFile.extensions:
+    file_type_handlers[file_extension] = RawFile
+
 if chi_io:
-    file_type_handlers['.chi'] = TomboBlowfish  # created by http://tombo.osdn.jp/En/
+    for file_extension in TomboBlowfish.extensions:
+        file_type_handlers[file_extension] = TomboBlowfish  # created by http://tombo.osdn.jp/En/
+
 if pyzipper:
-    file_type_handlers['.aes.zip'] = ZipAES  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
-    file_type_handlers['.aes256.zip'] = ZipAES  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
-    file_type_handlers['.aes256stored.zip'] = ZipNoCompressionAES  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
-    file_type_handlers['.aes256lzma.zip'] = ZipLzmaAES  # LZMA Zip file with AES-256 7z .zip (not the old ZipCrypto!)
+    """
+    for file_extension in ZipAES.extensions:
+        file_type_handlers[file_extension] = ZipAES
+    for file_extension in ZipNoCompressionAES.extensions:
+        file_type_handlers[file_extension] = ZipNoCompressionAES
+    for file_extension in ZipLzmaAES.extensions:
+        file_type_handlers[file_extension] = ZipLzmaAES
+    """
+    for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES):
+        for file_extension in enc_class.extensions:
+            file_type_handlers[file_extension] = enc_class
 else:
-    file_type_handlers['.aes.zip'] = PurePyZipAES  # AE-1 only Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+    for file_extension in PurePyZipAES.extensions:
+        file_type_handlers[file_extension] = PurePyZipAES
 if vimdecrypt:
-    file_type_handlers['.vimcrypt'] = VimDecrypt  # vim
-    file_type_handlers['.vimcrypt1'] = VimDecrypt  # vim
-    file_type_handlers['.vimcrypt2'] = VimDecrypt  # vim
-    file_type_handlers['.vimcrypt3'] = VimDecrypt  # vim
+    for file_extension in VimDecrypt.extensions:
+        file_type_handlers[file_extension] = VimDecrypt
 
 # Consider command line crypto (via pipe to avoid plaintext on disk)
 # TODO? openssl aes-128-cbc -in in_file -out out_file.aes128
