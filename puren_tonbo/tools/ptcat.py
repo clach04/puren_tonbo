@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: us-ascii -*-
 # vim:ts=4:sw=4:softtabstop=4:smarttab:expandtab
-"""Command line tool to encrypt/decrypt Puren Tombo files (Tombo CHI Blowfish files)
+"""Command line tool to decrypt to stdout Puren Tonbo files (Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.)
+
+python2 -m puren_tonbo.tools.ptcat -p test test.chi
+
 """
 
 import os
