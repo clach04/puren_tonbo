@@ -262,6 +262,20 @@ ter no rule than cruel rule.\n'''
         data = note_root.note_contents(test_note_filename, password)
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
+    def test_aesop_linux_vimcrypt2(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_linux.vimcrypt2'
+        data = note_root.note_contents(test_note_filename, password)
+        self.assertEqual(self.plain_text_data_linux_newlines, data)
+
+    def test_aesop_linux_vimcrypt1(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_linux.vimcrypt1'
+        data = note_root.note_contents(test_note_filename, password)
+        self.assertEqual(self.plain_text_data_linux_newlines, data)
+
 
 
 def main():
