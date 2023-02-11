@@ -75,7 +75,7 @@ except NameError:
 log = logging.getLogger("mylogger")
 log.setLevel(logging.DEBUG)
 disable_logging = False
-#disable_logging = True
+disable_logging = True
 if disable_logging:
     log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
 
@@ -559,6 +559,8 @@ class FileSystemNotes(BaseNotes):
         return fullpath_filename
 
     def to_string(self, data_in_bytes):
+        #log.debug('self.note_encoding %r', self.note_encoding)
+        #log.debug('data_in_bytes %r', data_in_bytes)
         if isinstance(self.note_encoding, basestring):
             return data_in_bytes.decode(self.note_encoding)
         for encoding in self.note_encoding:
