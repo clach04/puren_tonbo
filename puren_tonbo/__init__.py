@@ -34,6 +34,12 @@ try:
 except ImportError:
     pyzipper = fake_module('pyzipper')
 
+try:
+    #import vimdecrypt  # https://github.com/nlitsme/vimdecrypt
+    from puren_tonbo import vimdecrypt  # https://github.com/nlitsme/vimdecrypt
+except ImportError:
+    vimdecrypt = fake_module('vimdecrypt')
+
 
 import puren_tonbo.mzipaes
 
@@ -115,6 +121,42 @@ class RawFile(EncryptedFile):
     def write_to(self, file_object, byte_data):
         file_object.write(byte_data)
 
+
+
+class VimDecryptArgs():
+    verbose = False
+
+class VimDecrypt(EncryptedFile):
+    """vimcrypt - can ONLY decrypt
+    TODO add blowfish2 ONLY write support
+    """
+
+    description = 'vimcrypt 1, 2, 3'
+
+    def read_from(self, file_object):
+        # TODO catch exceptions and raise PurenTomboException()
+        # due to the design of VIMs crypto support, bad passwords can NOT be detected
+        data = file_object.read()
+        password = self.key
+        args = VimDecryptArgs
+        try:
+            return vimdecrypt.decryptfile(data, password, args)
+        except Exception as info:
+            # TODO chain exception...
+            raise PurenTomboException(info)
+        """
+        try:
+            return chi_io.read_encrypted_file(file_object, self.key)
+        except chi_io.BadPassword as info:  # FIXME place holder
+            # TODO chain exception...
+            #print(dir(info))
+            #raise BadPassword(info.message)  # does not work for python 3.6.9
+            raise BadPassword(info)  # FIXME BadPassword(BadPassword("for 'file-like-object'",),)
+        except Exception as info:
+            # TODO chain exception...
+            #raise PurenTomboException(info.message)
+            raise PurenTomboException(info)
+        """
 
 
 class TomboBlowfish(EncryptedFile):
@@ -250,6 +292,11 @@ if pyzipper:
     file_type_handlers['.aes256lzma.zip'] = ZipLzmaAES  # LZMA Zip file with AES-256 7z .zip (not the old ZipCrypto!)
 else:
     file_type_handlers['.aes.zip'] = PurePyZipAES  # AE-1 only Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+if vimdecrypt:
+    file_type_handlers['.vimcrypt'] = VimDecrypt  # vim
+    file_type_handlers['.vimcrypt1'] = VimDecrypt  # vim
+    file_type_handlers['.vimcrypt2'] = VimDecrypt  # vim
+    file_type_handlers['.vimcrypt3'] = VimDecrypt  # vim
 
 # Consider command line crypto (via pipe to avoid plaintext on disk)
 # TODO? openssl aes-128-cbc -in in_file -out out_file.aes128
