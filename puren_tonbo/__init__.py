@@ -483,7 +483,12 @@ class BaseNotes(object):
         """
         raise NotImplementedError('Implement in sub-class')
 
-    def note_contents_save(self, notetext, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
+    def note_contents_save(self, note_text, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
+        """Save the contents in the string @note_text, to @filename if specified else derive filename from first line in note
+        @original_filename will help determine type and potentially remove once saved if filename has changed
+        TODO folder specification?
+        force  encryption or is filename the only technique?
+        """
         raise NotImplementedError('Implement in sub-class')
 
     def note_delete(self, filename, backup=True):
@@ -575,7 +580,7 @@ class FileSystemNotes(BaseNotes):
             else:
                 raise
 
-    def note_contents_save(self, notetext, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
+    def note_contents_save(self, note_text, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
         raise NotImplementedError('Implement in sub-class')
 
     def note_delete(self, filename, backup=True):
