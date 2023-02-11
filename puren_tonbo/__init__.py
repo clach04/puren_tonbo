@@ -534,6 +534,7 @@ class BaseNotes(object):
         if sub_dir is not specified `self.note_root` is assumed
         @original_full_filename should be relative to `self.note_root` and include directory name - will also help determine type and potentially remove once saved if filename has changed
         force  encryption or is filename the only technique?
+        Failures during call should leave original filename present and untouched
         """
         raise NotImplementedError('Implement in sub-class')
 
