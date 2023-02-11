@@ -30,7 +30,7 @@ import puren_tonbo
 is_py3 = sys.version_info >= (3,)
 
 
-class TestIOUtil(unittest.TestCase):
+class TestUtil(unittest.TestCase):
     def skip(self, reason):
         """Skip current test because of `reason`.
 
@@ -44,6 +44,8 @@ class TestIOUtil(unittest.TestCase):
         #self.assertEqual(1, 0)
         if unittest2:
             raise unittest2.SkipTest(reason)
+        elif is_py3:
+            raise self.skipTest(reason)
         else:
             print(reason)
             self.fail('SKIP THIS TEST: ' + reason)
@@ -51,9 +53,14 @@ class TestIOUtil(unittest.TestCase):
             #raise Exception(reason)
 
 
-class TestIO(TestIOUtil):
+class TestBaseEncryptedFileUtil(TestUtil):
 
     def check_same_input_different_crypted_text(self, test_data_bytes, test_password_bytes, pt_handler_class):
+        if hasattr(self, 'pt_handler_class_conditional'):
+            pt_handler_class_conditional = self.pt_handler_class_conditional
+            if not getattr(puren_tonbo, pt_handler_class_conditional, True):
+                self.skip('%r dependency (pt_handler_class_conditional) not available' % pt_handler_class_conditional)
+
         plain_text = test_data_bytes
 
         fileptr1 = FakeFile()
@@ -72,6 +79,11 @@ class TestIO(TestIOUtil):
         self.assertNotEqual(crypted_data1, crypted_data2)
 
     def check_get_what_you_put_in(self, test_data_bytes, test_password_bytes, pt_handler_class):
+        if hasattr(self, 'pt_handler_class_conditional'):
+            pt_handler_class_conditional = self.pt_handler_class_conditional
+            if not getattr(puren_tonbo, pt_handler_class_conditional, True):
+                self.skip('%r pt_handler_class_conditional not available' % pt_handler_class_conditional)
+
         plain_text = test_data_bytes
 
         fileptr1 = FakeFile()
@@ -85,11 +97,58 @@ class TestIO(TestIOUtil):
         #print repr(result_data)
         self.assertEqual(plain_text, result_data)
 
-    def test_demo_vimdecrypt(self):
-        test_data_bytes = b"this is just a small piece of text."
-        test_password_bytes = b'mypassword'
-        pt_handler_class = puren_tonbo.VimDecrypt
-        self.check_get_what_you_put_in(test_data_bytes, test_password_bytes, pt_handler_class)
+class TestBaseEncryptedFile():  # mix-in with TestBaseEncryptedFileUtil
+
+    """
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.VimDecrypt
+    #pt_handler_class_conditional = puren_tonbo.vimdecrypt  # TODO string instead and lookup the attribute name?
+    pt_handler_class_conditional = 'vimdecrypt ' # name of conditional in puren_tonbo to check, if false skip tests. if true or conditional not specified run the test(s)
+    """
+
+    def test_get_what_you_put_in(self):
+        self.check_get_what_you_put_in(self.test_data_bytes, self.test_password_bytes, self.pt_handler_class)
+
+    def test_same_input_different_crypted_text(self):
+        self.check_same_input_different_crypted_text(self.test_data_bytes, self.test_password_bytes, self.pt_handler_class)
+
+class TestBaseEncryptedPurePyZipAES(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.PurePyZipAES
+
+class TestBaseEncryptedZipAES(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.ZipAES
+    pt_handler_class_conditional = 'pyzipper'
+
+class TestBaseEncryptedZipNoCompressionAES(TestBaseEncryptedZipAES):
+    pt_handler_class = puren_tonbo.ZipNoCompressionAES
+
+class TestBaseEncryptedZipLzmaAES(TestBaseEncryptedZipAES):
+    pt_handler_class = puren_tonbo.ZipLzmaAES
+
+class TestBaseEncryptedZipBzip2AES(TestBaseEncryptedZipAES):
+    pt_handler_class = puren_tonbo.ZipBzip2AES
+
+class TestBaseEncryptedTomboBlowfish(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.TomboBlowfish
+    pt_handler_class_conditional = 'chi_io'
+
+class TestBaseEncryptedFileVimDecrypt(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.VimDecrypt
+
+    def test_get_what_you_put_in(self):
+        self.skip('VimCrypt encryption not implemented yet')
+
+    def test_same_input_different_crypted_text(self):
+        self.skip('VimCrypt encryption not implemented yet')
 
 
 def main():

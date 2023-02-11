@@ -101,3 +101,15 @@ To see encryption mode:
 ptcipher demo:
 
     python3 -m puren_tonbo.tools.ptcipher -p test test.vimcrypt3
+
+
+## Developement and testing
+
+Python 2.x ONLY:
+
+    pip install unittest2
+    # TODO requirements.dev?
+
+### Run test suite
+
+    python -m puren_tonbo.tests.testsuite
