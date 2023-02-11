@@ -105,10 +105,6 @@ ptcipher demo:
 
 ## Developement and testing
 
-Python 2.x ONLY:
-
-    pip install unittest2
-    # TODO requirements.dev?
 
 ### Run test suite
 
