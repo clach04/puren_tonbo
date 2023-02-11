@@ -70,7 +70,8 @@ def main(argv=None):
 
     note_root = puren_tonbo.FileSystemNotes(options.note_root, note_encoding)
     data = note_root.note_contents(in_filename, password)
-    print('%r' % data)
+    #print('%r' % data)
+    print('%s' % data)
 
     return 0
 
