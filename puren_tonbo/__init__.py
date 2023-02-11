@@ -546,6 +546,13 @@ class FileSystemNotes(BaseNotes):
     """PyTombo notes on local file system, just like original Windows Tombo
     """
 
+    def abspath(self, sub_dir, filename):
+        fullpath_filename = os.path.join(self.note_root, filename)
+        fullpath_filename = os.path.abspath(fullpath_filename)
+        if not fullpath_filename.startswith(self.note_root):
+            raise PurenTonboIO('outside of note tree root')
+        return fullpath_filename
+
     def to_string(self, data_in_bytes):
         if isinstance(self.note_encoding, basestring):
             return data_in_bytes.decode(self.note_encoding)
@@ -585,10 +592,7 @@ class FileSystemNotes(BaseNotes):
         @return_bytes returns bytes rather than (Unicode) strings
         """
         try:
-            fullpath_filename = os.path.join(self.note_root, filename)  # FIXME refactor into sanity_method()
-            fullpath_filename = os.path.abspath(fullpath_filename)
-            if not fullpath_filename.startswith(self.note_root):
-                raise PurenTonboIO('outside of note tree root')
+            fullpath_filename = self.abspath(self.note_root, filename)
 
             handler_class = filename2handler(filename)
             #import pdb ; pdb.set_trace()
