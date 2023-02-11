@@ -322,6 +322,9 @@ class ZipLzmaAES(ZipAES):
 class ZipBzip2AES(ZipAES):
     description = 'AES-256 ZIP AE-1 BZIP2'
     _compression = pyzipper.ZIP_BZIP2
+    extensions = [
+        '.aes256bzip2.zip',  # bzip2 Zip file with AES-256 7z .zip (not the old ZipCrypto!)
+    ]
 
 # note uses file extension - could also sniff file header and use file magic
 file_type_handlers = {}
