@@ -12,6 +12,22 @@ Ideally generated with external tools that Puren Tonbo can validate against.
     Created with Windows win32 Tombo http://tombo.sourceforge.jp/En/
       * password is `password`
       * Approx 1.5Kb.
+  * aesop_linux_7z.aes256.zip - default AES-256 zip encrypted from
+    `aesop.txt` on Windows
+    Created with ARM Linux p7zip Version 16.02 (32-bit) https://www.7-zip.org/
+      * password is `password`
+      * Approx 0.8Kb.
+      * has window newlines
+      * us-ascii encoding
+      * `7z a -ppassword aesop_linux_7z.aes256.zip encrypted.md`
+  * aesop_linux_7z.aes256stored.zip - uncompressed AES-256 zip encrypted from
+    `aesop.txt` on Windows
+    Created with ARM Linux p7zip Version 16.02 (32-bit) https://www.7-zip.org/
+      * password is `password`
+      * Approx 1.6Kb.
+      * has window newlines
+      * us-ascii encoding
+      * `7z a -mx0 -ppassword aesop_linux_7z.aes256stored.zip encrypted.md`
   * aesop_win_7z.aes256.zip - default AES-256 zip encrypted from
     `aesop.txt` on Windows
     Created with Windows 7-Zip 19.00 (x64) : https://www.vim.org/
