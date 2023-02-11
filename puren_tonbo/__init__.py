@@ -458,13 +458,23 @@ caching_console_password_prompt = gen_caching_get_password().gen_func()
 
 any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 
+def supported_filename_filter(in_filename):
+    name = in_filename.lower()
+    for file_extension in file_type_handlers
+        if name.endswith(file_extension):
+            # TODO could look at mapping and check that too, e.g. only Raw files
+            return True
+    return False
+
+## TODO implement generator function that takes in filename search term
+
 class BaseNotes(object):
     def __init__(self, note_root, note_encoding=None):
         self.note_root = note_root
         #self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
 
-    def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):
+    def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):  # Also supported_filename_filter
         """Recursive Tombo note lister.
         Iterator of files in @sub_dir"""
         raise NotImplementedError('Implement in sub-class')
