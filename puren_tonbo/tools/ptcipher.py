@@ -166,9 +166,9 @@ def main(argv=None):
     except puren_tonbo.PurenTomboException as info:
         print("Encrypt/Decrypt problem. %r" % (info,))
     finally:
-        if in_file != sys.stdin:
+        if in_filename != '-':  # i.e. sys.stdin
             in_file.close()
-        if out_file != sys.stdout:
+        if out_filename != '-':  # i.e. sys.stdout
             out_file.close()
             if not failed:
                 do_backup = True
