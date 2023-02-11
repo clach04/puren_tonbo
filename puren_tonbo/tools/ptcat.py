@@ -24,6 +24,7 @@ def main(argv=None):
     usage = "usage: %prog [options] in_filename"
     parser = OptionParser(usage=usage, version="%prog 1.0")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
+    parser.add_option("--note-root", help="Direcory of notes", default='.')
     parser.add_option("-c", "--codec", help="File encoding", default='utf-8')
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
@@ -67,7 +68,7 @@ def main(argv=None):
 
     note_encoding = options.codec
 
-    note_root = puren_tonbo.FileSystemNotes('.', note_encoding)   # FIXME '.' hardcoded
+    note_root = puren_tonbo.FileSystemNotes(options.note_root, note_encoding)
     data = note_root.note_contents(in_filename, password)
     print('%r' % data)
 
