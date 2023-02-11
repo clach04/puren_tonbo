@@ -44,13 +44,14 @@ class TestUtil(unittest.TestCase):
         #self.assertEqual(1, 0)
         if unittest2:
             raise unittest2.SkipTest(reason)
-        elif is_py3:
-            raise self.skipTest(reason)
         else:
+            raise self.skipTest(reason)  # py3 and 2.7 have this
+            """
             print(reason)
             self.fail('SKIP THIS TEST: ' + reason)
             #self.assertTrue(False, reason)
             #raise Exception(reason)
+            """
 
 
 class TestBaseEncryptedFileUtil(TestUtil):
