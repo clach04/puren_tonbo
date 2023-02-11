@@ -28,6 +28,7 @@ import puren_tonbo
 
 
 is_py3 = sys.version_info >= (3,)
+is_win = sys.platform.startswith('win')
 
 
 class TestUtil(unittest.TestCase):
@@ -221,7 +222,10 @@ ter no rule than cruel rule.\n'''
         data = note_root.note_contents(test_note_filename, password)
         #print('%r' % self.plain_text_data_windows_newlines)
         #print('%r' % data)
-        self.assertEqual(self.plain_text_data_windows_newlines, data)
+        if is_win:
+            self.assertEqual(self.plain_text_data_windows_newlines, data)
+        else:
+            self.assertEqual(self.plain_text_data_linux_newlines, data)
 
     def test_aesop_win_vimcrypt3(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
