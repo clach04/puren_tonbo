@@ -381,9 +381,9 @@ def debug_get_password():
         crypto_password = debug_get_password()
         handler = handler_class(password=crypto_password)
         content = handler.read_from(path)
-        print('bytes from decrypt')
+        log.debug('bytes from decrypt')
         log.debug('clach04 DEBUG data: %r', content)
-        print(repr(content))
+        log.debug(repr(content))
         content = content.decode('utf8')  # hard coded for now
     else:
         log.debug('clach04 DEBUG : regular read')
@@ -589,7 +589,7 @@ class FileSystemNotes(BaseNotes):
             handler_class = filename2handler(filename)
             #import pdb ; pdb.set_trace()
             if handler_class is RawFile:
-                print('it is plain text')
+                log.debug('it is plain text')
                 note_password = ''  # fake it. Alternatively override init for RawFile to remove check
             else:
                 if callable(get_pass):
@@ -604,7 +604,7 @@ class FileSystemNotes(BaseNotes):
             #import pdb ; pdb.set_trace()
             handler = handler_class(key=note_password)  # FIXME callback function support for password func
             # TODO repeat on bad password func
-            print('DEBUG filename %r' % fullpath_filename)
+            log.debug('DEBUG filename %r', fullpath_filename)
             in_file = open(fullpath_filename, 'rb')
             try:
                 plain_str = handler.read_from(in_file)
@@ -614,7 +614,7 @@ class FileSystemNotes(BaseNotes):
                 else:
                     return self.to_string(plain_str)
             except PurenTonboException as info:
-                print("DEBUG Encrypt/Decrypt problem. %r" % (info,))
+                log.debug("DEBUG Encrypt/Decrypt problem. %r", (info,))
             finally:
                 in_file.close()
         except IOError as info:
