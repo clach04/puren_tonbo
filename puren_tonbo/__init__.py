@@ -16,6 +16,7 @@ except ImportError:
             return result
         getpass = classmethod(getpass)
 
+import locale
 import logging
 import os
 import sys
@@ -93,6 +94,8 @@ else:
 formatter = logging.Formatter(logging_fmt_str)
 ch.setFormatter(formatter)
 log.addHandler(ch)
+
+log.debug('encodings %r', (sys.getdefaultencoding(), sys.getfilesystemencoding(), locale.getdefaultlocale()))
 
 class PurenTonboException(Exception):
     '''Base chi I/O exception'''
@@ -547,6 +550,7 @@ class FileSystemNotes(BaseNotes):
     """
 
     def abspath(self, sub_dir, filename):
+        filename = self.unicode_path(filename)
         fullpath_filename = os.path.join(self.note_root, filename)
         fullpath_filename = os.path.abspath(fullpath_filename)
         if not fullpath_filename.startswith(self.note_root):
@@ -564,7 +568,14 @@ class FileSystemNotes(BaseNotes):
                 pass  # try next
             # TODO try/except
 
+    def unicode_path(self, filename):
+        if isinstance(filename, bytes):
+            # want unicode string so that all file interaction is unicode based
+            filename = filename.decode('utf8')  # FIXME hard coded, pick up from config or locale/system encoding
+        return filename
+
     def __init__(self, note_root, note_encoding=None):
+        note_root = self.unicode_path(note_root)
         self.note_root = os.path.abspath(note_root)
         #self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
@@ -592,6 +603,7 @@ class FileSystemNotes(BaseNotes):
         @return_bytes returns bytes rather than (Unicode) strings
         """
         try:
+            filename = self.unicode_path(filename)
             fullpath_filename = self.abspath(self.note_root, filename)
 
             handler_class = filename2handler(filename)
