@@ -168,11 +168,10 @@ class TestBaseEncryptedFileCompatPurePyZipAESandZipAES(TestBaseEncryptedFileComp
     encrypt_pt_handler_class = puren_tonbo.PurePyZipAES
     decrypt_pt_handler_class = puren_tonbo.ZipAES
     pt_handler_class = encrypt_pt_handler_class
+    pt_handler_class_conditional = 'pyzipper'
 
 
-class TestBaseEncryptedFileCompatZipNoCompressionPurePyZipAESandZipNoCompressionAES(TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtilBase):
-    test_data_bytes = b"this is just a small piece of text."
-    test_password_bytes = b'mypassword'
+class TestBaseEncryptedFileCompatZipNoCompressionPurePyZipAESandZipNoCompressionAES(TestBaseEncryptedFileCompatPurePyZipAESandZipAES):
     encrypt_pt_handler_class = puren_tonbo.PurePyZipAES
     decrypt_pt_handler_class = puren_tonbo.ZipAES
     pt_handler_class = encrypt_pt_handler_class
