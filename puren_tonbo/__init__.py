@@ -516,15 +516,17 @@ class BaseNotes(object):
         """Same API as search_iter()"""
         raise NotImplementedError('Implement in sub-class')
 
-    def note_contents(self, filename, get_pass=None, dos_newlines=True):
-        """get_pass is either plaintext (bytes) password or a password returning func
+    def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False):
+        """@filename is relative to `self.note_root` and includes directory name if not in the root
+        @get_pass is either plaintext (bytes) password or a password returning func
+        @return_bytes returns bytes rather than (Unicode) strings
         """
         raise NotImplementedError('Implement in sub-class')
 
-    def note_contents_save(self, note_text, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
-        """Save the contents in the string @note_text, to @filename if specified else derive filename from first line in note
-        @original_filename will help determine type and potentially remove once saved if filename has changed
-        TODO folder specification?
+    def note_contents_save(self, note_text, sub_dir=None, filename=None, original_full_filename=None, get_pass=None, dos_newlines=True, backup=True):
+        """Save the contents in the string @note_text, to @filename if specified else derive filename from first line in note.
+        if sub_dir is not specified `self.note_root` is assumed
+        @original_full_filename should be relative to `self.note_root` and include directory name - will also help determine type and potentially remove once saved if filename has changed
         force  encryption or is filename the only technique?
         """
         raise NotImplementedError('Implement in sub-class')
@@ -607,7 +609,10 @@ class FileSystemNotes(BaseNotes):
             try:
                 plain_str = handler.read_from(in_file)
                 # TODO could stash away handler..key for reuse as self.last_used_key .... or derived_key (which would be a new attribute)
-                return self.to_string(plain_str)
+                if return_bytes:
+                    return plain_str
+                else:
+                    return self.to_string(plain_str)
             except PurenTonboException as info:
                 print("DEBUG Encrypt/Decrypt problem. %r" % (info,))
             finally:
