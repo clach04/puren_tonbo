@@ -517,8 +517,11 @@ class BaseNotes(object):
         raise NotImplementedError('Implement in sub-class')
 
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False):
-        """@filename is relative to `self.note_root` and includes directory name if not in the root
-        @get_pass is either plaintext (bytes) password or a password returning func
+        """@filename is relative to `self.note_root` and includes directory name if not in the root.
+        @filename (extension) dictates encryption mode/format (if any)
+        @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'. See caching_console_password_prompt() for an example.
+            get_pass(filename=filename, reset=reset_password)
+        dos_newlines=True means use Windows/DOS newlines, emulates win32 behavior of Tombo and is the default
         @return_bytes returns bytes rather than (Unicode) strings
         """
         raise NotImplementedError('Implement in sub-class')
@@ -573,12 +576,13 @@ class FileSystemNotes(BaseNotes):
         """Same API as search_iter()"""
         raise NotImplementedError('Implement in sub-class')
 
-    def note_contents(self, filename, get_pass=None, dos_newlines=True):
-        """get_pass is either plaintext (bytes) password or a password returning func
-        filename (extension) dictates encryption mode/format (if any)
-        get_pass() is a callback function that returns a password, get_pass() should return None for 'cancel'. See caching_console_password_prompt() for an example.
+    def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False):
+        """@filename is relative to `self.note_root` and includes directory name if not in the root.
+        @filename (extension) dictates encryption mode/format (if any)
+        @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'. See caching_console_password_prompt() for an example.
             get_pass(filename=filename, reset=reset_password)
         dos_newlines=True means use Windows/DOS newlines, emulates win32 behavior of Tombo and is the default
+        @return_bytes returns bytes rather than (Unicode) strings
         """
         try:
             fullpath_filename = os.path.join(self.note_root, filename)  # FIXME refactor into sanity_method()
