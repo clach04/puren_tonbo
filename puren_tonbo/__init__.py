@@ -1,4 +1,18 @@
 
+try:
+    import getpass
+except ImportError:
+    class getpass(object):
+        def getpass(cls, prompt=None, stream=None):
+            if prompt is None:
+                prompt=''
+            if stream is None:
+                stream=sys.stdout
+            prompt=prompt+ ' (warning password WILL echo): '
+            stream.write(prompt)
+            result = raw_input('') # or simply ignore stream??
+            return result
+        getpass = classmethod(getpass)
 import logging
 import os
 import sys
@@ -46,6 +60,13 @@ import puren_tonbo.mzipaes
 
 is_py3 = sys.version_info >= (3,)
 
+try:
+    basestring  # only used to determine if parameter is a filename
+except NameError:
+    basestring = (
+        str  # py3 - in this module, only used to determine if parameter is a filename
+    )
+
 # create log
 log = logging.getLogger("mylogger")
 log.setLevel(logging.DEBUG)
@@ -81,6 +102,9 @@ class BadPassword(PurenTomboException):
 class UnsupportedFile(PurenTomboException):
     '''File not encrypted/not supported exception'''
 
+class PurenTomboIO(PurenTomboException):
+    '''(File) I/O exception'''
+
 
 class EncryptedFile:
 
@@ -111,6 +135,7 @@ class EncryptedFile:
 class RawFile(EncryptedFile):
     """Raw/binary/text file - Read/write raw bytes. 
     Use for plain text files.
+    TODO this requires a password on init, plain text/unencrypted files should not need a password
     """
 
     description = 'Raw file, no encryption support'
@@ -136,12 +161,16 @@ class VimDecrypt(EncryptedFile):
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTomboException()
         # due to the design of VIMs crypto support, bad passwords can NOT be detected
+        # but a Unicode decode error is a good sign that the password is bad as will have junk bytes
         data = file_object.read()
         password = self.key
+        if isinstance(password, bytes):
+            password = password.decode("utf-8")  # vimdecrypt expects passwords as strings and will encode to utf8 - TODO update vimdecrypt library to support bytes
         args = VimDecryptArgs
         try:
-            return vimdecrypt.decryptfile(data, password.decode("utf-8"), args)  # vimdecrypt expects passwords as strings and will encode to utf8 - TODO update vimdecrypt library to support bytes
+            return vimdecrypt.decryptfile(data, password, args)
         except Exception as info:
+            raise  # debug
             # TODO chain exception...
             raise PurenTomboException(info)
 
@@ -159,7 +188,7 @@ class TomboBlowfish(EncryptedFile):
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTomboException()
         try:
-            return chi_io.read_encrypted_file(file_object, self.key)
+            return chi_io.read_encrypted_file(file_object, self.key)  # TODO if key is bytes/plaintext this will be slow for multiple files. Ideal is to derive actually password from plaintext once and feed in here for performance
         except chi_io.BadPassword as info:  # FIXME place holder
             # TODO chain exception...
             #print(dir(info))
@@ -330,6 +359,224 @@ def debug_get_password():
           content = f.read()
 
 
+#################
+
+def getpassfunc(prompt=None):
+    if prompt:
+        if sys.platform == 'win32':  # and isinstance(prompt, unicode):  # FIXME better windows check and unicode check
+            #if windows, deal with unicode problem in console
+            # TODO add Windows check here!
+            prompt = repr(prompt)  # consider us-ascii with replacement character encoding...
+        return getpass.getpass(prompt)
+    else:
+        return getpass.getpass()
+
+class gen_caching_get_password(object):
+    def __init__(self, dirname=None):
+        """If dirname is specified, removes that part of the pathname when prompting for the password for that file"""
+        self.user_password = None
+        self.dirname = dirname
+    def gen_func(self):
+        ## TODO add (optional) timeout "forget"/wipe password from memory
+        def get_pass(prompt=None, filename=None, reset=False):
+            """Caching password prompt for CONSOLE.
+                prompt - the prompt to print for password prompt
+                reset - if set to True will forget the cached password and prompt for it
+            """
+            if reset:
+                self.user_password = None
+            if self.user_password is None:
+                if prompt is None:
+                    if filename is None:
+                        prompt = "Password:"
+                    else:
+                        if self.dirname is not None:
+                            filename = remove_leading_path(self.dirname, filename)
+                            prompt = "Password for note %s:" % filename
+                        else:
+                            prompt = "Password for file %s:" % filename
+                self.user_password = getpassfunc(prompt)
+                if self.user_password  is None or self.user_password  == b'':
+                    self.user_password = None
+                """
+                else:
+                    ## not sure if this logic belongs at this level....
+                    self.user_password = chi_io.CHI_cipher(self.user_password)
+                """
+            return self.user_password
+        return get_pass
+
+class gen_caching_get_passwordWIP(object):
+    def __init__(self, dirname=None, promptfunc=None):
+        """If dirname is specified, removes that part of the pathname when prompting for the password for that file
+        if promptfunc is specified, promptfunc is called to prompt for password, if ommitted std getpass.getpass() is used"""
+        self.user_password = None
+        self.dirname = dirname
+        if promptfunc is None:
+            promptfunc = getpassfunc
+        self.promptfunc = promptfunc
+    def gen_func(self):
+        ## TODO add (optional) timeout "forget"/wipe password from memory
+        def get_pass(prompt_str=None, filename=None, reset=False, value=None, prompt=True):
+            """Caching password prompt for CONSOLE.
+                prompt_str - the prompt to print for password prompt
+                filename - the filename the password is required for
+                reset - if set to True will set cached password to "value" (which is set to default of None means forget the cached password and prompt for it)
+                value - see reset parameter
+                prompt - if not True will NOT prompt user and simply return the cached password
+            """
+            if reset:
+                self.user_password = value
+                if self.user_password is not None:
+                    ## not sure if this logic belongs at this level....
+                    self.user_password = chi_io.CHI_cipher(self.user_password)
+            if self.user_password is None and prompt:
+                if prompt_str is None:
+                    if filename is None:
+                        prompt_str = "Password:"
+                    else:
+                        if self.dirname is not None:
+                            filename = remove_leading_path(self.dirname, filename)
+                            prompt = "Password for note %s:" % filename
+                        else:
+                            prompt = "Password for file %s:" % filename
+                self.user_password = self.promptfunc(prompt)
+                if self.user_password  is None or self.user_password  == b'':
+                    self.user_password = None
+                else:
+                    ## not sure if this logic belongs at this level....
+                    self.user_password = chi_io.CHI_cipher(self.user_password)
+            return self.user_password
+        return get_pass
+
+
+caching_console_password_prompt = gen_caching_get_password().gen_func()
+
+any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
+
+class BaseNotes(object):
+    def __init__(self, note_root, note_encoding=None):
+        self.note_root = note_root
+        #self.note_encoding = note_encoding or 'utf8'
+        self.note_encoding = note_encoding or ('utf8', 'cp1252')
+
+    def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):
+        """Recursive Tombo note lister.
+        Iterator of files in @sub_dir"""
+        raise NotImplementedError('Implement in sub-class')
+
+    def directory_contents(self, sub_dir=None):
+        """Simple non-recursive Tombo note lister.
+        Returns tuple (list of directories, list of files) in @sub_dir"""
+        raise NotImplementedError('Implement in sub-class')
+
+    def search_iter(self, *args, **kwargs):
+        """Same API as search_iter()"""
+        raise NotImplementedError('Implement in sub-class')
+
+    def note_contents(self, filename, get_pass=None, dos_newlines=True):
+        """get_pass is either plaintext (bytes) password or a password returning func
+        """
+        raise NotImplementedError('Implement in sub-class')
+
+    def note_contents_save(self, notetext, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
+        raise NotImplementedError('Implement in sub-class')
+
+    def note_delete(self, filename, backup=True):
+        pass
+
+    def note_size(self, filename):
+        return 9999999999  # more likely to be noticed as an anomaly
+        return -1
+
+
+class FileSystemNotes(BaseNotes):
+    """PyTombo notes on local file system, just like original Windows Tombo
+    """
+
+    def to_string(self, data_in_bytes):
+        if isinstance(self.note_encoding, basestring):
+            return data_in_bytes.decode(self.note_encoding)
+        for encoding in self.note_encoding:
+            try:
+                result = data_in_bytes.decode(encoding)
+                return result
+            except UnicodeDecodeError:
+                pass  # try next
+            # TODO try/except
+
+    def __init__(self, note_root, note_encoding=None):
+        self.note_root = os.path.abspath(note_root)
+        #self.note_encoding = note_encoding or 'utf8'
+        self.note_encoding = note_encoding or ('utf8', 'cp1252')
+
+    def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):
+        """Recursive Tombo note lister.
+        Iterator of files in @sub_dir"""
+        raise NotImplementedError('Implement in sub-class')
+
+    def directory_contents(self, sub_dir=None):
+        """Simple non-recursive Tombo note lister.
+        Returns tuple (list of directories, list of files) in @sub_dir"""
+        raise NotImplementedError('Implement in sub-class')
+
+    def search_iter(self, *args, **kwargs):
+        """Same API as search_iter()"""
+        raise NotImplementedError('Implement in sub-class')
+
+    def note_contents(self, filename, get_pass=None, dos_newlines=True):
+        """get_pass is either plaintext (bytes) password or a password returning func
+        filename (extension) dictates encryption mode/format (if any)
+        get_pass() is a callback function that returns a password, get_pass() should return None for 'cancel'. See caching_console_password_prompt() for an example.
+            get_pass(filename=filename, reset=reset_password)
+        dos_newlines=True means use Windows/DOS newlines, emulates win32 behavior of Tombo and is the default
+        """
+        try:
+            fullpath_filename = os.path.join(self.note_root, filename)  # FIXME refactor into sanity_method()
+            fullpath_filename = os.path.abspath(fullpath_filename)
+            if not fullpath_filename.startswith(self.note_root):
+                raise PurenTomboIO('outside of note tree root')
+
+            handler_class = filename2handler(filename)
+            if type(handler_class) == type(RawFile):
+                print('it is plain text')
+                note_password = ''  # fake it. Alternatively override init for RawFile to remove check
+            else:
+                if callable(get_pass):
+                    reset_password = False  # TODO - for now, use this if get bad passwords
+                    note_password = get_pass(filename=filename, reset=reset_password)
+                else:
+                    # Assume password bytes passed in
+                    note_password = get_pass
+                if note_password is None:
+                    raise BadPassword('missing or bad password for %s' % filename)
+
+            handler = handler_class(key=note_password)  # FIXME callback function support for password func
+            # TODO repeat on bad password func
+            in_file = open(filename, 'rb')
+            try:
+                plain_str = handler.read_from(in_file)
+                # TODO could stash away handler..key for reuse as self.last_used_key .... or derived_key (which would be a new attribute)
+                return self.to_string(plain_str)
+            except PurenTomboException as info:
+                print("DEBUG Encrypt/Decrypt problem. %r" % (info,))
+            finally:
+                in_file.close()
+        except IOError as info:
+            if info.errno == errno.ENOENT:
+                raise PurenTomboIO('Error opening %r file/directory does not exist' % filename)
+            else:
+                raise
+
+    def note_contents_save(self, notetext, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
+        raise NotImplementedError('Implement in sub-class')
+
+    def note_delete(self, filename, backup=True):
+        pass
+
+    def note_size(self, filename):
+        return 9999999999  # more likely to be noticed as an anomaly
+        return -1
 
 
 def main(argv=None):
