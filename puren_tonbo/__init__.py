@@ -235,7 +235,6 @@ class PurePyZipAES(ZipEncryptedFileBase):
     extensions = [
         '.aes.zip',  # AE-1 only Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
         '.aes256.zip',  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
-        '.aes256stored.zip',  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
     ]
 
     def read_from(self, file_object):
@@ -249,11 +248,11 @@ class PurePyZipAES(ZipEncryptedFileBase):
             raise PurenTonboException(info)
 
     def write_to(self, file_object, byte_data):
-        assert self._compression == ZIP_DEFLATED  # FIXME/TODO add proper check and raise explict exception
+        assert self._compression in (ZIP_DEFLATED, ZIP_STORED)  # FIXME/TODO add proper check and raise explict exception
         # TODO catch specific exceptions and raise better mapped exception
         # TODO e.g. Exception('BAD PASSWORD',)
         try:
-            zf = mzipaes.MiniZipAE1Writer(file_object, self.key)
+            zf = mzipaes.MiniZipAE1Writer(file_object, self.key, compression=self._compression)
             zf.append(self._filename, byte_data)
             #zf.zipcomment = 'optional comment'
             zf.write()
@@ -261,6 +260,14 @@ class PurePyZipAES(ZipEncryptedFileBase):
             # TODO chain exception...
             #raise PurenTonboException(info.message)
             raise PurenTonboException(info)
+
+
+class ZipNoCompressionPurePyZipAES(PurePyZipAES):
+    description = 'AES-256 ZIP AE-1 STORED (uncompressed)'
+    _compression = ZIP_STORED
+    extensions = [
+        '.aes256stored.zip',  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+    ]
 
 
 class ZipAES(ZipEncryptedFileBase):
@@ -346,8 +353,9 @@ if pyzipper:
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 else:
-    for file_extension in PurePyZipAES.extensions:
-        file_type_handlers[file_extension] = PurePyZipAES
+    for enc_class in (PurePyZipAES, ZipNoCompressionPurePyZipAES):
+        for file_extension in enc_class.extensions:
+            file_type_handlers[file_extension] = enc_class
 if vimdecrypt:
     for file_extension in VimDecrypt.extensions:
         file_type_handlers[file_extension] = VimDecrypt

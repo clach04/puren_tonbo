@@ -120,6 +120,11 @@ class TestBaseEncryptedPurePyZipAES(TestBaseEncryptedFileUtil, TestBaseEncrypted
     test_password_bytes = b'mypassword'
     pt_handler_class = puren_tonbo.PurePyZipAES
 
+class TestBaseEncryptedZipNoCompressionPurePyZipAES(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.ZipNoCompressionPurePyZipAES
+
 class TestBaseEncryptedZipAES(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
     test_data_bytes = b"this is just a small piece of text."
     test_password_bytes = b'mypassword'
