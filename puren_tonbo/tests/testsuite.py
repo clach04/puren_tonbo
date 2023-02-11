@@ -227,6 +227,13 @@ ter no rule than cruel rule.\n'''
         else:
             self.assertEqual(self.plain_text_data_linux_newlines, data)
 
+    def test_aesop_chi(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop.chi'
+        data = note_root.note_contents(test_note_filename, password)
+        self.assertEqual(self.plain_text_data_windows_newlines, data)
+
     def test_aesop_win_vimcrypt3(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
