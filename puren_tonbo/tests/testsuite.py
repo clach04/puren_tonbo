@@ -65,6 +65,7 @@ class TestBaseEncryptedFileUtilBase(TestUtil):
 
         decrypt_pt_handler_class = decrypt_pt_handler_class or encrypt_pt_handler_class
 
+        #import pdb ; pdb.set_trace()  # DEBUG
         plain_text = test_data_bytes
 
         fileptr1 = FakeFile()
@@ -305,6 +306,22 @@ ter no rule than cruel rule.\n'''
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.aes256stored.zip'
+        data = note_root.note_contents(test_note_filename, password)
+        self.assertEqual(self.plain_text_data_windows_newlines, data)
+
+    # TODO need this test to also be applied to PurePyZipAES
+    def test_aesop_win_winrar_aes256_zip(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_win_winrar.aes256.zip'
+        data = note_root.note_contents(test_note_filename, password)
+        self.assertEqual(self.plain_text_data_windows_newlines, data)
+
+    # TODO need this test to also be applied to PurePyZipAES
+    def test_aesop_win_winrar_aes256stored_zip(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_win_winrar.aes256stored.zip'
         data = note_root.note_contents(test_note_filename, password)
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
