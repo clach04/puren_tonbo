@@ -94,18 +94,18 @@ formatter = logging.Formatter(logging_fmt_str)
 ch.setFormatter(formatter)
 log.addHandler(ch)
 
-class PurenTomboException(Exception):  # FIXME typo Tonbo
+class PurenTonboException(Exception):
     '''Base chi I/O exception'''
 
 
-class BadPassword(PurenTomboException):
+class BadPassword(PurenTonboException):
     '''Bad password exception'''
 
 
-class UnsupportedFile(PurenTomboException):
+class UnsupportedFile(PurenTonboException):
     '''File not encrypted/not supported exception'''
 
-class PurenTomboIO(PurenTomboException):
+class PurenTonboIO(PurenTonboException):
     '''(File) I/O exception'''
 
 
@@ -162,7 +162,7 @@ class VimDecrypt(EncryptedFile):
     description = 'vimcrypt 1, 2, 3'
 
     def read_from(self, file_object):
-        # TODO catch exceptions and raise PurenTomboException()
+        # TODO catch exceptions and raise PurenTonboException()
         # due to the design of VIMs crypto support, bad passwords can NOT be detected
         # but a Unicode decode error is a good sign that the password is bad as will have junk bytes
         data = file_object.read()
@@ -175,7 +175,7 @@ class VimDecrypt(EncryptedFile):
         except Exception as info:
             raise  # debug
             # TODO chain exception...
-            raise PurenTomboException(info)
+            raise PurenTonboException(info)
 
 
 class TomboBlowfish(EncryptedFile):
@@ -189,7 +189,7 @@ class TomboBlowfish(EncryptedFile):
     description = 'Tombo Blowfish ECB (not recommended)'
 
     def read_from(self, file_object):
-        # TODO catch exceptions and raise PurenTomboException()
+        # TODO catch exceptions and raise PurenTonboException()
         try:
             return chi_io.read_encrypted_file(file_object, self.key)  # TODO if key is bytes/plaintext this will be slow for multiple files. Ideal is to derive actually password from plaintext once and feed in here for performance
         except chi_io.BadPassword as info:  # FIXME place holder
@@ -200,8 +200,8 @@ class TomboBlowfish(EncryptedFile):
         except Exception as info:
             raise  # DEBUG
             # TODO chain exception...
-            #raise PurenTomboException(info.message)
-            raise PurenTomboException(info)
+            #raise PurenTonboException(info.message)
+            raise PurenTonboException(info)
 
     def write_to(self, file_object, byte_data):
         chi_io.write_encrypted_file(file_object, self.key, byte_data)
@@ -225,8 +225,8 @@ class PurePyZipAES(ZipEncryptedFileBase):
             return zf.get()  # first file in zip, ignore self._filename
         except Exception as info:
             # TODO chain exception...
-            #raise PurenTomboException(info.message)
-            raise PurenTomboException(info)
+            #raise PurenTonboException(info.message)
+            raise PurenTonboException(info)
 
     def write_to(self, file_object, byte_data):
         assert self._compression == pyzipper.ZIP_DEFLATED  # FIXME/TODO add proper check and raise explict exception
@@ -239,8 +239,8 @@ class PurePyZipAES(ZipEncryptedFileBase):
             zf.write()
         except Exception as info:
             # TODO chain exception...
-            #raise PurenTomboException(info.message)
-            raise PurenTomboException(info)
+            #raise PurenTonboException(info.message)
+            raise PurenTonboException(info)
 
 
 class ZipAES(ZipEncryptedFileBase):
@@ -256,7 +256,7 @@ class ZipAES(ZipEncryptedFileBase):
     _compression = pyzipper.ZIP_DEFLATED
 
     def read_from(self, file_object):
-        # TODO catch exceptions and raise PurenTomboException()
+        # TODO catch exceptions and raise PurenTonboException()
         try:
             with pyzipper.AESZipFile(file_object) as zf:
                 zf.setpassword(self.key)
@@ -269,7 +269,7 @@ class ZipAES(ZipEncryptedFileBase):
             #print(info)
             #print(type(info))
             #print(dir(info))
-            raise PurenTomboException(info)
+            raise PurenTonboException(info)
 
     def write_to(self, file_object, byte_data):
         with pyzipper.AESZipFile(file_object,
@@ -539,7 +539,7 @@ class FileSystemNotes(BaseNotes):
             fullpath_filename = os.path.join(self.note_root, filename)  # FIXME refactor into sanity_method()
             fullpath_filename = os.path.abspath(fullpath_filename)
             if not fullpath_filename.startswith(self.note_root):
-                raise PurenTomboIO('outside of note tree root')
+                raise PurenTonboIO('outside of note tree root')
 
             handler_class = filename2handler(filename)
             #import pdb ; pdb.set_trace()
@@ -565,13 +565,13 @@ class FileSystemNotes(BaseNotes):
                 plain_str = handler.read_from(in_file)
                 # TODO could stash away handler..key for reuse as self.last_used_key .... or derived_key (which would be a new attribute)
                 return self.to_string(plain_str)
-            except PurenTomboException as info:
+            except PurenTonboException as info:
                 print("DEBUG Encrypt/Decrypt problem. %r" % (info,))
             finally:
                 in_file.close()
         except IOError as info:
             if info.errno == errno.ENOENT:
-                raise PurenTomboIO('Error opening %r file/directory does not exist' % filename)
+                raise PurenTonboIO('Error opening %r file/directory does not exist' % filename)
             else:
                 raise
 

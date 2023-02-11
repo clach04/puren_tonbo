@@ -163,7 +163,7 @@ def main(argv=None):
             plain_text = in_file.read()
             handler.write_to(out_file, plain_text)
             failed = False
-    except puren_tonbo.PurenTomboException as info:
+    except puren_tonbo.PurenTonboException as info:
         print("Encrypt/Decrypt problem. %r" % (info,))
     finally:
         if in_filename != '-':  # i.e. sys.stdin
