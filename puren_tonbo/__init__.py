@@ -19,6 +19,7 @@ except ImportError:
 import locale
 import logging
 import os
+import re
 import sys
 
 from ._version import __version__, __version_info__
@@ -112,6 +113,22 @@ class UnsupportedFile(PurenTonboException):
 
 class PurenTonboIO(PurenTonboException):
     '''(File) I/O exception'''
+
+
+class SearchException(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class SearchCancelled(SearchException):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
 
 
 class EncryptedFile:
@@ -513,6 +530,7 @@ any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 
 def supported_filename_filter(in_filename):
     name = in_filename.lower()
+    print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
     for file_extension in file_type_handlers:
         if name.endswith(file_extension):
             # TODO could look at mapping and check that too, e.g. only Raw files
@@ -520,6 +538,23 @@ def supported_filename_filter(in_filename):
     return False
 
 ## TODO implement generator function that takes in filename search term
+
+def example_progess_callback(*args, **kwargs):
+    print('example_progess_callback:', args, kwargs)
+
+def grep_string(search_text, regex_object):
+    """Given input string "search_text" and compiled regex regex_object
+    search for regex matches and return list of tuples of line number and text for that line
+    """
+    linecount = 0
+    results = []
+    #print('%r' % ((regex_object, search_text,),))
+    for x in search_text.split('\n'):
+        linecount += 1
+        if regex_object.search(x):
+            results.append((linecount, x))
+    return results
+
 
 class BaseNotes(object):
     def __init__(self, note_root, note_encoding=None):
@@ -537,8 +572,11 @@ class BaseNotes(object):
         Returns tuple (list of directories, list of files) in @sub_dir"""
         raise NotImplementedError('Implement in sub-class')
 
-    def search_iter(self, *args, **kwargs):
-        """Same API as search_iter()"""
+    #def search(self, *args, **kwargs):
+    def search(self, search_term):
+        """iterator that searches note directory, grep/regex-like
+        returns values like:
+            ('somefile.txt', [(2, 'line two'),])"""
         raise NotImplementedError('Implement in sub-class')
 
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
@@ -566,6 +604,60 @@ class BaseNotes(object):
     def note_size(self, filename):
         return 9999999999  # more likely to be noticed as an anomaly
         return -1
+
+
+##############################
+
+# Local file system navigation functions
+def recurse_notes(path_to_search, filename_filter):
+    """Walk directory of notes, directory depth first (just like Tombo find does), returns generator
+    """
+    ## Requires os.walk (python 2.3 and later).
+    ## Pure Python versions for earlier versions available from:
+    ##  http://osdir.com/ml/lang.jython.user/2006-04/msg00032.html
+    ## but lacks "topdown" support, walk class later
+    for dirpath, dirnames, filenames in os.walk(path_to_search, topdown=False):
+        #print 'walker', repr((dirnames, filenames))
+        filenames.sort()
+        #print '\twalker', repr((dirnames, filenames))
+        for temp_filename in filenames:
+            if filename_filter(temp_filename):
+                temp_filename = os.path.join(dirpath, temp_filename)
+                #print 'yield ', temp_filename
+                yield temp_filename
+
+
+def fake_recurse_notes(path_to_search, filename_filter):
+    """Same API as recurse_notes(), returns generator
+        BUT used on a single file (and ignores filename_filter)
+    """
+    yield path_to_search
+
+
+def directory_contents(dirname):
+    """Simple non-recursive Tombo note lister.
+    Returns tuple (list of directories, list of files) in @dirname"""
+    ## TODO consider using 'dircache' instead of os.listdir?
+    ## should not be re-reading so probably not a good idea
+    file_list = []
+    dir_list = []
+    if os.path.isdir(dirname):
+        for name in os.listdir(dirname):
+            path = os.path.join(dirname, name)
+            if os.path.isfile(path):
+                if is_text_or_chi_note_filename_filter(name):
+                    file_list.append(name)
+            if os.path.isdir(path):
+                dir_list.append(name)
+    else:
+        # assume a file, ignores s-links
+        file_list.append(os.path.basename(dirname))
+
+    dir_list.sort()
+    file_list.sort()
+    return dir_list, file_list
+
+##############################
 
 
 class FileSystemNotes(BaseNotes):
@@ -619,22 +711,58 @@ class FileSystemNotes(BaseNotes):
     def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):
         """Recursive Tombo note lister.
         Iterator of files in @sub_dir"""
-        raise NotImplementedError('Implement in sub-class')
+        return recurse_notes(self.note_root, filename_filter)
 
     def directory_contents(self, sub_dir=None):
         """Simple non-recursive Tombo note lister.
         Returns tuple (list of directories, list of files) in @sub_dir"""
         raise NotImplementedError('Implement in sub-class')
 
-    def search_iter(self, *args, **kwargs):
-        """Same API as search_iter()"""
+    def search(self, search_term, search_term_is_a_regex=False, ignore_case=False, search_encrypted=False, findonly_filename=False, get_password_callback=None, progess_callback=None):
+        """search note directory, grep/regex like actualy an iterator"""
+        """
         yield ('somefile.txt', [(2, 'line two'),]) # DEBUG
+        """
         """
         return [
             ('somefile.txt', [(2, 'line two'),])
         ]  # DEBUG
         """
-        raise NotImplementedError('Implement in sub-class')
+        #raise NotImplementedError('Implement in sub-class')
+
+        search_path = self.note_root
+        if not search_term_is_a_regex:
+            search_term = re.escape(search_term)
+        if ignore_case:
+            regex_object = re.compile(search_term, re.IGNORECASE)
+        else:
+            regex_object = re.compile(search_term)
+        filename_filter_str = None
+        if findonly_filename:
+            filename_filter_str = regex_object
+        #is_note_filename_filter = pytombo.search.note_filename_filter_gen(allow_encrypted=search_encrypted, filename_filter_str=filename_filter_str)  # FIXME implement
+        is_note_filename_filter = supported_filename_filter  # TEMP DEBUG
+        if os.path.isfile(search_path):
+            recurse_notes_func = fake_recurse_notes
+        else:
+            recurse_notes_func = recurse_notes
+        for x in recurse_notes_func(search_path, is_note_filename_filter):
+            if progess_callback:
+                progess_callback(filename=x)
+            if filename_filter_str:
+                yield (x, [(1, 'FILENAME SEARCH HIT\n')])
+            include_contents = True
+            include_contents = False
+            ## TODO decide what to do with include_contents - default or make a parameter
+            if not filename_filter_str or include_contents:
+                try:
+                    note_text = self.note_contents(x, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
+                except BadPassword as info:
+                    raise SearchCancelled(str(info))
+                search_res = grep_string(note_text, regex_object)
+                if search_res:
+                    yield (x, search_res)
+
 
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
         """@filename is relative to `self.note_root` and includes directory name if not in the root.

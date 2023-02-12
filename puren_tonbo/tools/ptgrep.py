@@ -5,6 +5,9 @@
 Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.
 
     python -m puren_tonbo.tools.ptgrep -h
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data/ cruel
+
+TODO test single file;     python -m puren_tonbo.tools.ptgrep --note-root puren_tonbo/tests/data/aesop.txt cruel
 
 """
 
@@ -18,6 +21,7 @@ except ImportError:
     colorama = None
 
 import puren_tonbo
+from puren_tonbo import SearchCancelled
 
 
 is_py3 = sys.version_info >= (3,)
@@ -164,9 +168,7 @@ def main(argv=None):
     """
     # TODO look at password
     password_func = password  #  DEBUG TODO look at password
-    class SearchCancelled(Exception):  # DEBUG
-        pass
-    
+
     if options.time:
         start_time = time.time()
     try:
@@ -174,7 +176,8 @@ def main(argv=None):
             print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
             note_root = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
             #for hit in search_iter(search_term, path_to_search, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func):
-            for hit in note_root.search_iter():  # TODO rename?
+            #for hit in note_root.search(search_term):
+            for hit in note_root.search(search_term, progess_callback=puren_tonbo.example_progess_callback):
                 print('DEBUG')
                 filename, hit_detail = hit
                 #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
