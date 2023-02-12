@@ -296,8 +296,8 @@ ter no rule than cruel rule.\n'''
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.old.zip'
-        data = note_root.note_contents(test_note_filename, password, handler_class=puren_tonbo.PurePyZipAES)
-        self.assertEqual(self.plain_text_data_windows_newlines, data)
+        # this file format is not supported by PurePyZipAES
+        self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password, handler_class=puren_tonbo.PurePyZipAES)
 
     def test_aesop_win_7z_old_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)

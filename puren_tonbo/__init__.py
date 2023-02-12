@@ -244,6 +244,8 @@ class PurePyZipAES(ZipEncryptedFileBase):
             return zf.get()  # first file in zip, ignore self._filename
         except mzipaes.BadPassword as info:
             raise BadPassword(info)
+        except mzipaes.UnsupportedFile as info:
+            raise UnsupportedFile(info)
         except mzipaes.AesZipException as info:
             # TODO chain exception...
             #raise PurenTonboException(info.message)
@@ -649,14 +651,16 @@ class FileSystemNotes(BaseNotes):
             log.debug('DEBUG filename %r', fullpath_filename)
             in_file = open(fullpath_filename, 'rb')
             try:
-                plain_str = handler.read_from(in_file)
-                # TODO could stash away handler..key for reuse as self.last_used_key .... or derived_key (which would be a new attribute)
-                if return_bytes:
-                    return plain_str
-                else:
-                    return self.to_string(plain_str)
-            except PurenTonboException as info:
-                log.debug("DEBUG Encrypt/Decrypt problem. %r", (info,))
+                try:
+                    plain_str = handler.read_from(in_file)
+                    # TODO could stash away handler..key for reuse as self.last_used_key .... or derived_key (which would be a new attribute)
+                    if return_bytes:
+                        return plain_str
+                    else:
+                        return self.to_string(plain_str)
+                except PurenTonboException as info:
+                    log.debug("Encrypt/Decrypt problem. %r", (info,))
+                    raise
             finally:
                 in_file.close()
         except IOError as info:
