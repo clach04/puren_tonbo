@@ -530,7 +530,7 @@ class BaseNotes(object):
         """Same API as search_iter()"""
         raise NotImplementedError('Implement in sub-class')
 
-    def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False):
+    def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
         """@filename is relative to `self.note_root` and includes directory name if not in the root.
         @filename (extension) dictates encryption mode/format (if any)
         @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'. See caching_console_password_prompt() for an example.
@@ -608,7 +608,7 @@ class FileSystemNotes(BaseNotes):
         """Same API as search_iter()"""
         raise NotImplementedError('Implement in sub-class')
 
-    def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False):
+    def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
         """@filename is relative to `self.note_root` and includes directory name if not in the root.
         @filename (extension) dictates encryption mode/format (if any)
         @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'. See caching_console_password_prompt() for an example.
@@ -620,7 +620,7 @@ class FileSystemNotes(BaseNotes):
             filename = self.unicode_path(filename)
             fullpath_filename = self.abspath(self.note_root, filename)
 
-            handler_class = filename2handler(filename)
+            handler_class = handler_class or filename2handler(filename)
             #import pdb ; pdb.set_trace()
             if handler_class is RawFile:
                 log.debug('it is plain text')

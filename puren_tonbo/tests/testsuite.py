@@ -292,7 +292,13 @@ ter no rule than cruel rule.\n'''
         data = note_root.note_contents(test_note_filename, password)
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
-    # TODO need this test to also be applied to PurePyZipAES
+    def test_aesop_win_7z_aes256_zip_using_purepyzipaes(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_win_7z.aes256.zip'
+        data = note_root.note_contents(test_note_filename, password, handler_class=puren_tonbo.PurePyZipAES)
+        self.assertEqual(self.plain_text_data_windows_newlines, data)
+
     def test_aesop_win_7z_aes256_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
