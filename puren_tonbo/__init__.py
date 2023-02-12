@@ -242,6 +242,8 @@ class PurePyZipAES(ZipEncryptedFileBase):
         try:
             zf = mzipaes.MiniZipAE1Reader(file_object, self.key)
             return zf.get()  # first file in zip, ignore self._filename
+        except mzipaes.BadPassword as info:
+            raise BadPassword(info)
         except mzipaes.AesZipException as info:
             # TODO chain exception...
             #raise PurenTonboException(info.message)
