@@ -572,6 +572,16 @@ class FileSystemNotes(BaseNotes):
     """PyTombo notes on local file system, just like original Windows Tombo
     """
 
+    def abspath2relative(self, input_path):
+        """returns input_path with (leading) self.note_root removed.
+        If ignore_path is not at the start of the input_path, raise error"""
+        abs_ignore_path = self.abs_ignore_path
+        #abs_input_path = os.path.abspath(input_path)
+        abs_input_path = input_path
+        if abs_input_path.startswith(abs_ignore_path):
+            return abs_input_path[len(abs_ignore_path):]
+        raise PurenTonboException('path not in note tree')
+
     def abspath(self, sub_dir, filename):
         filename = self.unicode_path(filename)
         fullpath_filename = os.path.join(self.note_root, filename)
@@ -602,6 +612,7 @@ class FileSystemNotes(BaseNotes):
     def __init__(self, note_root, note_encoding=None):
         note_root = self.unicode_path(note_root)
         self.note_root = os.path.abspath(note_root)
+        self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash
         #self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
 
@@ -617,6 +628,12 @@ class FileSystemNotes(BaseNotes):
 
     def search_iter(self, *args, **kwargs):
         """Same API as search_iter()"""
+        yield ('somefile.txt', [(2, 'line two'),]) # DEBUG
+        """
+        return [
+            ('somefile.txt', [(2, 'line two'),])
+        ]  # DEBUG
+        """
         raise NotImplementedError('Implement in sub-class')
 
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
