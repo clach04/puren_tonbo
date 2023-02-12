@@ -86,14 +86,14 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * Approx 1.5Kb.
       * has unix/linux newlines
       * us-ascii encoding
-  * aesop_linux.vimcrypt3 - Vim Crypt Blowfish2 (VimCrypt~03)  encrypted from
+  * aesop_linux.vimcrypt3 - Vim Crypt Blowfish2 (VimCrypt~03) encrypted from
     `aesop.txt`
     Created with ARM Linux vim 8.1.2269 https://www.vim.org/
       * password is `password`
       * Approx 1.5Kb.
       * has unix/linux newlines
       * us-ascii encoding
-  * aesop_linux.vimcrypt2 - Vim Crypt Blowfish (VimCrypt~02)  encrypted from
+  * aesop_linux.vimcrypt2 - Vim Crypt Blowfish (VimCrypt~02) encrypted from
     `aesop.txt`
     Created with ARM Linux vim 8.1.2269 https://www.vim.org/
       * password is `password`
