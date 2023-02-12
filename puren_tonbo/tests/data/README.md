@@ -31,6 +31,39 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * us-ascii encoding
       * created using GUI
 
+  * aesop_linux_7z.aes256.zip - AE-2 AES-256 zip encrypted from
+    `aesop.txt` on Windows
+    Created with ARM Linux p7zip Version 16.02 (32-bit) https://www.7-zip.org/
+      * password is `password`
+      * Approx 0.9Kb.
+      * has window newlines
+      * us-ascii encoding
+      * `7z a -tzip -mem=AES256 -ppassword aesop_linux_7z.aes256.zip encrypted.md`
+  * aesop_linux_7z.aes256stored.zip - AE-2 uncompressed AES-256 zip encrypted from
+    `aesop.txt` on Windows
+    Created with ARM Linux p7zip Version 16.02 (32-bit) https://www.7-zip.org/
+      * password is `password`
+      * Approx 1.7Kb.
+      * has window newlines
+      * us-ascii encoding
+      * `7z a -tzip -mem=AES256 -mx0 -ppassword aesop_linux_7z.aes256stored.zip encrypted.md`
+  * aesop_win_7z.aes256.zip - AE-2 AES-256 zip encrypted from
+    `aesop.txt` on Windows
+    Created with Windows 7-Zip 19.00 (x64) https://www.7-zip.org/
+      * password is `password`
+      * Approx 0.9Kb.
+      * has window newlines
+      * us-ascii encoding
+      * `7z a -tzip -mem=AES256 -ppassword aesop_win_7z.aes256.zip encrypted.md`
+  * aesop_win_7z.aes256stored.zip - AE-2 uncompressed AES-256 zip encrypted from
+    `aesop.txt` on Windows
+    Created with Windows 7-Zip 19.00 (x64) https://www.7-zip.org/
+      * password is `password`
+      * Approx 1.7Kb.
+      * has window newlines
+      * us-ascii encoding
+      * `7z a -tzip -mem=AES256 -mx0 -ppassword aesop_win_7z.aes256stored.zip encrypted.md`
+
   * aesop_linux_7z.old.zip - default old ZipCrypto zip encrypted from
     `aesop.txt` on Windows
     Created with ARM Linux p7zip Version 16.02 (32-bit) https://www.7-zip.org/
