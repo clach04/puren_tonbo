@@ -49,6 +49,7 @@ setup(
     entry_points={
         'console_scripts': [
             'ptcipher = puren_tonbo.tools.ptcipher:main',
+            'ptcat = puren_tonbo.tools.ptcat:main',
         ],
     },
     #data_files=[('.', [readme_filename])],  # does not work :-( ALso tried setup.cfg [metadata]\ndescription-file = README.md # Maybe try include_package_data = True and a MANIFEST.in?
