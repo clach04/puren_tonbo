@@ -28,7 +28,7 @@ else:
     long_description = None
 
 #exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'puren_tonbo', '_version.py')).read())
-__version__ = '0.0.1'
+__version__ = '0.0.2'  # TODO embed in library
 
 
 # TODO/FIXME dupe of requirements.txt - also chi_io missing here (as not on pypi)
@@ -41,7 +41,7 @@ setup(
     version=__version__,
     author='clach04',
     url='https://github.com/clach04/puren_tonbo',
-    description='Tombo alternative, also supports AES-256 ZIP files. Work-In-Progress (WIP)!',  # FIXME
+    description='Plain text notes Tombo (chi) alternative, also supports AES-256 ZIP AE-1/AE-2 and VimCrypt encrypted files. Work-In-Progress (WIP)!',  # FIXME
     long_description=long_description,
     packages=['puren_tonbo'],
     #scripts=['ptcipher.py'],

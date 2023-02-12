@@ -13,7 +13,7 @@ https://github.com/clach04/puren_tonbo/
 
 ## Background
 
-Tombo alternative, Work-In-Progress (WIP)!
+Plain text notes Tombo (chi) alternative, also supports AES-256 ZIP AE-1/AE-2 and VimCrypt encrypted files. Work-In-Progress (WIP)!
 
 プレーン トンボ
 Purēntonbo
@@ -30,14 +30,14 @@ Purēntonbo
 
 None right now!
 
-  * Currently limited to local file system and stdin/out for files.
+  * Plain text files notes (potentially with no formatting or in Markdown, reStructuredText, etc.)
+  * Nested directories of notes
   * Supports reading and writing from/to encrypted chi files that are compatible with:
       * Tombo Blowfish `*.chi` (note not recommended for new storage)
       * VimCrypt (1-3)
       * AE-1/AE-2 AES-256 encrypted zip files created with WinZIP and WinRAR (does NOT support encrypted 7z files)
           * under Python 3 can also read (but not write) the original ZipCrypto zip format
-  * Plain text files notes (potentially with no formatting or in Markdown, reStructuredText, etc.)
-  * Nested directories of notes
+  * Currently limited to local file system and stdin/out for files.
 
 
 ## Getting Started
