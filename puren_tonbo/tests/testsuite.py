@@ -172,8 +172,8 @@ class TestBaseEncryptedFileCompatPurePyZipAESandZipAES(TestBaseEncryptedFileComp
 
 
 class TestBaseEncryptedFileCompatZipNoCompressionPurePyZipAESandZipNoCompressionAES(TestBaseEncryptedFileCompatPurePyZipAESandZipAES):
-    encrypt_pt_handler_class = puren_tonbo.PurePyZipAES
-    decrypt_pt_handler_class = puren_tonbo.ZipAES
+    encrypt_pt_handler_class = puren_tonbo.ZipNoCompressionPurePyZipAES
+    decrypt_pt_handler_class = puren_tonbo.ZipNoCompressionAES
     pt_handler_class = encrypt_pt_handler_class
 
 
