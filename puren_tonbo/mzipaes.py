@@ -702,9 +702,9 @@ class MiniZipAE1Reader():
         #print('%r' % ((ver1, flag, method, hex(dtime), hex(ddate), hex(crc32), csize, usize, namelen, xhlen),))
         #~ print ver1, flag, method, hex(dtime), hex(ddate), hex(crc32), csize, usize, namelen, xhlen
         if method != 99:
-            raise Exception("NOT AES ENCRYPTED")
+            raise Exception("NOT AES ENCRYPTED method=%r" % method)
         if xhlen != 11:
-            raise Exception("TOO MANY EXT HEADERS")
+            raise Exception("TOO MANY EXT HEADERS (ext header count of %d, expecting 11)" % (xhlen,))
         p.entry = p.fp.read(namelen)
         xh, cb, ver, vendor, keybits, method = struct.unpack('<4HBH', p.fp.read(xhlen))
         p.compression_method = method
