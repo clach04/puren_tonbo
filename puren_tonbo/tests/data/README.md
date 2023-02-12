@@ -50,7 +50,7 @@ Ideally generated with external tools that Puren Tonbo can validate against.
 
   * aesop_win_7z.old.zip - default old ZipCrypto zip encrypted from
     `aesop.txt` on Windows
-    Created with Windows 7-Zip 19.00 (x64) : https://www.vim.org/
+    Created with Windows 7-Zip 19.00 (x64) https://www.7-zip.org/
       * password is `password`
       * Approx 0.8Kb.
       * has window newlines
@@ -58,7 +58,7 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * `7z a -ppassword aesop_win_7z.old.zip encrypted.md`
   * aesop_win_7z.oldstored.zip - uncompressed old ZipCrypto zip encrypted from
     `aesop.txt` on Windows
-    Created with Windows 7-Zip 19.00 (x64) : https://www.vim.org/
+    Created with Windows 7-Zip 19.00 (x64) https://www.7-zip.org/
       * password is `password`
       * Approx 1.6Kb.
       * has window newlines
