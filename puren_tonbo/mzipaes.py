@@ -45,6 +45,10 @@ try:
 except:
     PYCRYPTOAVAILABLE=0
 
+class AesZipException(Exception):
+    '''Base AES ZIP exception'''
+
+
 class Crypto_PyCrypto:
     KitName = 'pycrypto 2.6+'
     
@@ -112,7 +116,7 @@ class Crypto_OpenSSL:
     #
     # !!!CAVE!!! Su Python 3.4 è circa 1,6x più lenta rispetto a Python 2.7!
     def AES_ctr128_le_crypt(self, key, s):
-        if len(key) not in (16,24,32): raise Exception("BAD AES KEY LENGTH")
+        if len(key) not in (16,24,32): raise AesZipException("BAD AES KEY LENGTH")
         #~ # This slows down to 755 K/s
         #~ self.handle.AES_ecb_encrypt.argtypes = [c_char_p, c_char_p, c_void_p, c_int]        
         #~ self.handle.AES_ecb_encrypt.restype = [c_int]        
@@ -191,7 +195,7 @@ class Crypto_Botan:
             pass
 
     def AES_ctr128_le_crypt(self, key, s):
-        if len(key) not in (16,24,32): raise Exception("BAD AES KEY LENGTH")
+        if len(key) not in (16,24,32): raise AesZipException("BAD AES KEY LENGTH")
 
         cipher = c_void_p(0)
         mode = {16:b'AES-128/ECB', 24:b'AES-192/ECB', 32:b'AES-256/ECB'}[len(key)]
@@ -271,7 +275,7 @@ class Crypto_NSS:
             p.handle.NSS_NoDB_Init(".")
             # Servono almeno le DLL nss3, softokn3, freebl3, mozglue
             if not p.handle.NSS_IsInitialized():
-                raise Exception("NSS3 INITIALIZATION FAILED")
+                raise AesZipException("NSS3 INITIALIZATION FAILED")
             p.loaded = 1
         except:
             pass
@@ -283,7 +287,7 @@ class Crypto_NSS:
             pass
 
     def AES_ctr128_le_crypt(self, key, s):
-        if len(key) not in (16,24,32): raise Exception("BAD AES KEY LENGTH")
+        if len(key) not in (16,24,32): raise AesZipException("BAD AES KEY LENGTH")
         
         # In nss\lib\util\pkcs11t.h:
         # CKM_AES_ECB = 0x1081
@@ -420,7 +424,7 @@ class Crypto_GCrypt:
             pass
 
     def AES_ctr128_le_crypt(self, key, s):
-        if len(key) not in (16,24,32): raise Exception("BAD AES KEY LENGTH")
+        if len(key) not in (16,24,32): raise AesZipException("BAD AES KEY LENGTH")
 
         hd = c_long(0)
         
@@ -571,7 +575,7 @@ for C in (Crypto_PyCrypto, Crypto_OpenSSL, Crypto_Botan, Crypto_NSS, Crypto_GCry
     except:
         continue
 if crypto_kit == None:
-    raise Exception("NO CRYPTO KIT FOUND - ABORTED!")  # this check does not work
+    raise AesZipException("NO CRYPTO KIT FOUND - ABORTED!")  # this check does not work
 
 # constants for Zip file compression methods
 ZIP_STORED = 0
@@ -667,21 +671,21 @@ class MiniZipAE1Reader():
         p.parse()
         aes_key, hmac_key, chkword = crypto_kit.AE_derive_keys(password, p.salt)
         if p.chkword != chkword:
-            raise Exception("BAD PASSWORD")
+            raise AesZipException("BAD PASSWORD")
         if p.digest != crypto_kit.AE_hmac_sha1_80(hmac_key, p.blob):
-            raise Exception("BAD HMAC-SHA1-80")
+            raise AesZipException("BAD HMAC-SHA1-80")
         cs = crypto_kit.AE_ctr_crypt(aes_key, p.blob)
         if p.compression_method == ZIP_STORED:
             p.s = cs
         elif p.compression_method == ZIP_DEFLATED:
             p.s = p.decompressor.decompress(cs)
         else:
-            raise Exception("possibly unhandled compression - TODO actually test and try it")
+            raise AesZipException("possibly unhandled compression - TODO actually test and try it")
         crc32 = zlib.crc32(p.s) & 0xFFFFFFFF
         #print('crc in zip meta 0x%x ' % p.crc32)  # DEBUG
         #print('crc of p.s %r' % p.s)
         if crc32 != p.crc32:
-            raise Exception("BAD CRC-32 (actual) 0x%x != 0x%x (in zip meta)" % (crc32, p.crc32))
+            raise AesZipException("BAD CRC-32 (actual) 0x%x != 0x%x (in zip meta)" % (crc32, p.crc32))
             
     def get(p):
         return p.s
@@ -695,16 +699,16 @@ class MiniZipAE1Reader():
     def parse(p):
         p.rewind()
         if p.fp.read(4) != b'PK\x03\x04':
-            raise Exception("BAD LOCAL HEADER")
+            raise AesZipException("BAD LOCAL HEADER")
         ver1, flag, method, dtime, ddate, crc32, csize, usize, namelen, xhlen = struct.unpack('<5H3I2H', p.fp.read(26))
         p.encryption_method = method  # first file meta
         #print('method %r' % method)
         #print('%r' % ((ver1, flag, method, hex(dtime), hex(ddate), hex(crc32), csize, usize, namelen, xhlen),))
         #~ print ver1, flag, method, hex(dtime), hex(ddate), hex(crc32), csize, usize, namelen, xhlen
         if method != 99:
-            raise Exception("NOT AES ENCRYPTED method=%r" % method)
+            raise AesZipException("NOT AES ENCRYPTED method=%r" % method)
         if xhlen != 11:
-            raise Exception("TOO MANY EXT HEADERS (ext header count of %d, expecting 11)" % (xhlen,))
+            raise AesZipException("TOO MANY EXT HEADERS (ext header count of %d, expecting 11)" % (xhlen,))
         p.entry = p.fp.read(namelen)
         xh, cb, ver, vendor, keybits, method = struct.unpack('<4HBH', p.fp.read(xhlen))
         p.compression_method = method
@@ -715,7 +719,7 @@ class MiniZipAE1Reader():
         if xh != 0x9901 or ver != 1 or vendor != 0x4541:  # AE-1 with CRC
             #if (xh, ver, vendor) != (39169, 2, 17729):  # some form of AE-2 no CRC - with LZMA
             # sadly this does not work, eventually get; zlib.error: Error -3 while decompressing data: invalid distance too far back
-            raise Exception("UNKNOWN AE PROTOCOL %r" % ((xh, ver, vendor),))
+            raise AesZipException("UNKNOWN AE PROTOCOL %r" % ((xh, ver, vendor),))
         if keybits == 3:
             p.salt = p.fp.read(16)
             DELTA=28
@@ -726,7 +730,7 @@ class MiniZipAE1Reader():
             p.salt = p.fp.read(8)
             DELTA=20
         else:
-            raise Exception("UNKNOWN AES KEY STRENGTH")
+            raise AesZipException("UNKNOWN AES KEY STRENGTH")
         p.chkword = p.fp.read(2)
         p.blob = p.fp.read(csize-DELTA)
         p.digest = p.fp.read(10)

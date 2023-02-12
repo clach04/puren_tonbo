@@ -242,7 +242,7 @@ class PurePyZipAES(ZipEncryptedFileBase):
         try:
             zf = mzipaes.MiniZipAE1Reader(file_object, self.key)
             return zf.get()  # first file in zip, ignore self._filename
-        except Exception as info:
+        except mzipaes.AesZipException as info:
             # TODO chain exception...
             #raise PurenTonboException(info.message)
             raise PurenTonboException(info)
@@ -256,7 +256,7 @@ class PurePyZipAES(ZipEncryptedFileBase):
             zf.append(self._filename, byte_data)
             #zf.zipcomment = 'optional comment'
             zf.write()
-        except Exception as info:
+        except mzipaes.AesZipException as info:
             # TODO chain exception...
             #raise PurenTonboException(info.message)
             raise PurenTonboException(info)
