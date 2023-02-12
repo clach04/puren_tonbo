@@ -43,6 +43,7 @@ def main(argv=None):
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-t", "--time", action="store_true")
+    parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
     parser.add_option("-v", "--verbose", help='Print query search time', action="store_true")
     
     parser.add_option("--grep", help='Use grep-like output format instead of ripgrep-like', action="store_true")
@@ -154,9 +155,9 @@ def main(argv=None):
     
     ignore_case = options.ignore_case
     
-    search_encrypted = options.search_encrypted
     """
     line_numbers = search_is_regex = ignore_case = search_encrypted = False  # DEBUG FIXME TODO
+
 
     """
     if options.password:
@@ -168,6 +169,8 @@ def main(argv=None):
     """
     # TODO look at password
     password_func = password  #  DEBUG TODO look at password
+
+    search_encrypted = options.search_encrypted
 
     if options.time:
         start_time = time.time()

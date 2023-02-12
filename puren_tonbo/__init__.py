@@ -537,6 +537,15 @@ def supported_filename_filter(in_filename):
             return True
     return False
 
+def plaintext_filename_filter(in_filename):
+    name = in_filename.lower()
+    #print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
+    for file_extension in ('.txt', '.md', ):  # FIXME hard coded for know plain text extensions
+        if name.endswith(file_extension):
+            # TODO could look at mapping and check that too, e.g. only Raw files
+            return True
+    return False
+
 ## TODO implement generator function that takes in filename search term
 
 def example_progess_callback(*args, **kwargs):
@@ -719,6 +728,8 @@ class FileSystemNotes(BaseNotes):
         Returns tuple (list of directories, list of files) in @sub_dir"""
         raise NotImplementedError('Implement in sub-class')
 
+    #         (self, search_term, search_term_is_a_regex=True,  ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, findonly_filename=None, index_name=None, note_encoding=None):
+    #               (search_term, search_term_is_a_regex=True , ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, findonly_filename=None, index_name=None, note_encoding=None):
     def search(self, search_term, search_term_is_a_regex=False, ignore_case=False, search_encrypted=False, findonly_filename=False, get_password_callback=None, progess_callback=None):
         """search note directory, grep/regex like actualy an iterator"""
         #print('get_password_callback %r' % get_password_callback)
@@ -734,7 +745,11 @@ class FileSystemNotes(BaseNotes):
         if findonly_filename:
             filename_filter_str = regex_object
         #is_note_filename_filter = pytombo.search.note_filename_filter_gen(allow_encrypted=search_encrypted, filename_filter_str=filename_filter_str)  # FIXME implement
-        is_note_filename_filter = supported_filename_filter  # TEMP DEBUG
+        if search_encrypted:
+            is_note_filename_filter = supported_filename_filter
+        else:
+            # plain text only, right now this is hard coded
+            is_note_filename_filter = plaintext_filename_filter
         if os.path.isfile(search_path):
             recurse_notes_func = fake_recurse_notes
         else:
