@@ -419,6 +419,7 @@ ter no rule than cruel rule.\n'''
 def main():
     print(sys.version)
     print('')
+    print('Puren Tonbo puren_tonbo version %s' % puren_tonbo.__version__)
     print('Formats:')
     print('')
     for file_extension in puren_tonbo.file_type_handlers:
