@@ -30,6 +30,7 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * has window newlines
       * us-ascii encoding
       * `7z a -mx0 -ppassword aesop_linux_7z.oldstored.zip encrypted.md`
+
   * aesop_win_winrar.aes256.zip - default AES-256 zip AE-1 encrypted from
     `aesop.txt` on Windows
     Created with Windows WinRAR 5.00 (32-bit)
@@ -46,6 +47,7 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * has window newlines
       * us-ascii encoding
       * created using GUI
+
   * aesop_win_7z.old.zip - default old ZipCrypto zip encrypted from
     `aesop.txt` on Windows
     Created with Windows 7-Zip 19.00 (x64) : https://www.vim.org/
@@ -62,6 +64,7 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * has window newlines
       * us-ascii encoding
       * `7z a -mx0 -ppassword aesop_win_7z.oldstored.zip encrypted.md`
+
   * aesop_win.vimcrypt3 - Vim Crypt Blowfish2 (VimCrypt~03) encrypted from
     `aesop.txt`
     Created with Windows vim 8.1.1 https://www.vim.org/
@@ -112,4 +115,4 @@ Vim Crypt files created via:
     vim -c ":setlocal cm=zip"  puren_tonbo/tests/data/aesop_linux.vimcrypt1
 
 
-TODO WinRAR has a command line rar.exe
+TODO WinRAR has a command line rar.exe, but it's not clear if AE-1/AE-2 can be generated using it.
