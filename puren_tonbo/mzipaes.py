@@ -733,19 +733,10 @@ class MiniZipAE1Reader():
         p.entry = p.fp.read(namelen)
         xh, cb, ver, vendor, keybits, method = struct.unpack('<4HBH', p.fp.read(xhlen))
         p.compression_method = method
-        """
-        if xh != 0x9901 or ver != 1 or vendor != 0x4541:  # AE-1 with CRC
-            #if (xh, ver, vendor) != (39169, 2, 17729):  # some form of AE-2 no CRC - with LZMA
-            # sadly this does not work, eventually get; zlib.error: Error -3 while decompressing data: invalid distance too far back
-            if (xh, ver, vendor) != (EXTRA_WZ_AES, WZ_AES_V2, WZ_AES_VENDOR_ID):  # AE-2
-                print((EXTRA_WZ_AES, WZ_AES_V2, WZ_AES_VENDOR_ID))
-                raise UnsupportedFile("UNKNOWN AE PROTOCOL %r" % ((xh, ver, vendor),))
-        """
         if (xh, ver, vendor) not in (
                                         (EXTRA_WZ_AES, WZ_AES_V1, WZ_AES_VENDOR_ID), # AE-1
                                         (EXTRA_WZ_AES, WZ_AES_V2, WZ_AES_VENDOR_ID), # AE-2
                                     ):
-            print((EXTRA_WZ_AES, WZ_AES_V2, WZ_AES_VENDOR_ID))
             raise UnsupportedFile("UNKNOWN AE PROTOCOL %r" % ((xh, ver, vendor),))
         p.ae_version = ver
 
