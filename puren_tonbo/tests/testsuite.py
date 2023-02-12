@@ -276,21 +276,25 @@ ter no rule than cruel rule.\n'''
         data = note_root.note_contents(test_note_filename, password)
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
-    # TODO need this test to also be applied to PurePyZipAES
     def test_aesop_linux_7z_old_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux_7z.old.zip'
-        data = note_root.note_contents(test_note_filename, password)
-        self.assertEqual(self.plain_text_data_linux_newlines, data)
+        if puren_tonbo.pyzipper:
+            data = note_root.note_contents(test_note_filename, password)
+            self.assertEqual(self.plain_text_data_linux_newlines, data)
+        else:
+            self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
 
-    # TODO need this test to also be applied to PurePyZipAES
     def test_aesop_linux_7z_oldstored_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux_7z.oldstored.zip'
-        data = note_root.note_contents(test_note_filename, password)
-        self.assertEqual(self.plain_text_data_linux_newlines, data)
+        if puren_tonbo.pyzipper:
+            data = note_root.note_contents(test_note_filename, password)
+            self.assertEqual(self.plain_text_data_linux_newlines, data)
+        else:
+            self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
 
     def test_aesop_win_7z_old_zip_using_purepyzipaes(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
@@ -303,18 +307,22 @@ ter no rule than cruel rule.\n'''
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.old.zip'
-        data = note_root.note_contents(test_note_filename, password)
-        self.assertEqual(self.plain_text_data_windows_newlines, data)
+        if puren_tonbo.pyzipper:
+            data = note_root.note_contents(test_note_filename, password)
+            self.assertEqual(self.plain_text_data_windows_newlines, data)
+        else:
+            self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
 
-    # TODO need this test to also be applied to PurePyZipAES
     def test_aesop_win_7z_oldstored_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.oldstored.zip'
-        data = note_root.note_contents(test_note_filename, password)
-        self.assertEqual(self.plain_text_data_windows_newlines, data)
+        if puren_tonbo.pyzipper:
+            data = note_root.note_contents(test_note_filename, password)
+            self.assertEqual(self.plain_text_data_windows_newlines, data)
+        else:
+            self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
 
-    # TODO need this test to also be applied to PurePyZipAES
     def test_aesop_win_winrar_aes256_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
@@ -322,7 +330,6 @@ ter no rule than cruel rule.\n'''
         data = note_root.note_contents(test_note_filename, password)
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
-    # TODO need this test to also be applied to PurePyZipAES
     def test_aesop_win_winrar_aes256stored_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
