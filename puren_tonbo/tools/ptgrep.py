@@ -6,8 +6,8 @@ Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip
 
     python -m puren_tonbo.tools.ptgrep -h
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data/ cruel
-
-TODO test single file;     python -m puren_tonbo.tools.ptgrep --note-root puren_tonbo/tests/data/aesop.txt cruel
+    python -m puren_tonbo.tools.ptgrep --note-root puren_tonbo/tests/data/ cruel
+    python -m puren_tonbo.tools.ptgrep --note-root puren_tonbo/tests/data/aesop.txt cruel
 
 """
 
@@ -175,10 +175,7 @@ def main(argv=None):
         for path_to_search in paths_to_search:
             print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
             note_root = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
-            #for hit in search_iter(search_term, path_to_search, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func):
-            #for hit in note_root.search(search_term):
-            for hit in note_root.search(search_term, progess_callback=puren_tonbo.example_progess_callback):
-                print('DEBUG')
+            for hit in note_root.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func):
                 filename, hit_detail = hit
                 #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
                 if filename:

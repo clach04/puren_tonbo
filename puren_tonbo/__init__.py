@@ -530,7 +530,7 @@ any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 
 def supported_filename_filter(in_filename):
     name = in_filename.lower()
-    print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
+    #print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
     for file_extension in file_type_handlers:
         if name.endswith(file_extension):
             # TODO could look at mapping and check that too, e.g. only Raw files
@@ -617,11 +617,12 @@ def recurse_notes(path_to_search, filename_filter):
     ##  http://osdir.com/ml/lang.jython.user/2006-04/msg00032.html
     ## but lacks "topdown" support, walk class later
     for dirpath, dirnames, filenames in os.walk(path_to_search, topdown=False):
-        #print 'walker', repr((dirnames, filenames))
+        #print('walker', repr((dirnames, filenames)))
         filenames.sort()
-        #print '\twalker', repr((dirnames, filenames))
+        #print('walker', repr((dirnames, filenames)))
         for temp_filename in filenames:
             if filename_filter(temp_filename):
+                #print('filename filter true ', repr((temp_filename,)))
                 temp_filename = os.path.join(dirpath, temp_filename)
                 #print 'yield ', temp_filename
                 yield temp_filename
@@ -720,15 +721,7 @@ class FileSystemNotes(BaseNotes):
 
     def search(self, search_term, search_term_is_a_regex=False, ignore_case=False, search_encrypted=False, findonly_filename=False, get_password_callback=None, progess_callback=None):
         """search note directory, grep/regex like actualy an iterator"""
-        """
-        yield ('somefile.txt', [(2, 'line two'),]) # DEBUG
-        """
-        """
-        return [
-            ('somefile.txt', [(2, 'line two'),])
-        ]  # DEBUG
-        """
-        #raise NotImplementedError('Implement in sub-class')
+        #print('get_password_callback %r' % get_password_callback)
 
         search_path = self.note_root
         if not search_term_is_a_regex:
@@ -745,23 +738,25 @@ class FileSystemNotes(BaseNotes):
         if os.path.isfile(search_path):
             recurse_notes_func = fake_recurse_notes
         else:
-            recurse_notes_func = recurse_notes
-        for x in recurse_notes_func(search_path, is_note_filename_filter):
+            recurse_notes_func = self.recurse_notes
+        for tmp_filename in recurse_notes_func(search_path, is_note_filename_filter):
+            filename = self.abspath2relative(tmp_filename)
             if progess_callback:
                 progess_callback(filename=x)
             if filename_filter_str:
-                yield (x, [(1, 'FILENAME SEARCH HIT\n')])
+                yield (filename, [(1, 'FILENAME SEARCH HIT\n')])
             include_contents = True
             include_contents = False
             ## TODO decide what to do with include_contents - default or make a parameter
             if not filename_filter_str or include_contents:
+                #import pdb ; pdb.set_trace()
                 try:
-                    note_text = self.note_contents(x, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
+                    note_text = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
                 except BadPassword as info:
                     raise SearchCancelled(str(info))
                 search_res = grep_string(note_text, regex_object)
                 if search_res:
-                    yield (x, search_res)
+                    yield (filename, search_res)
 
 
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
