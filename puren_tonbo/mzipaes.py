@@ -590,9 +590,15 @@ ZIP_STORED = 0
 ZIP_DEFLATED = 8
 # Other ZIP compression methods not supported
 
+EXTRA_WZ_AES = 0x9901
+WZ_AES_V1 = 0x0001
+WZ_AES_V2 = 0x0002
+WZ_AES_VENDOR_ID = 0x4541  # b'AE'  # 0x4541 little endian
+
 
 class MiniZipAE1Writer():
     """AE-1 AES ZIP Writer - i.e. includes CRC
+    TODO AE-2 write support
     TODO check file permissions (hopefully marks as Windows) and timestamp
     7z shows timestamp as 1980-01-01 00:00:00
     Attributes A
@@ -667,11 +673,12 @@ class MiniZipAE1Writer():
 
 
 class MiniZipAE1Reader():
-    """AE-1 AES ZIP Reader.
+    """AE-1/AE-2 AES ZIP Reader.
     NOTE ignores filenames and ONLY allows access to the first file via .get()
     decrypts/de-compresses on instantiation (not get).
     """
     def __init__ (p, stream, password):
+        p.ae_version = 0  # unknown
         # Stream di input sul file ZIP
         p.fp = stream
         # Avvia il decompressore Deflate via zlib
@@ -689,11 +696,17 @@ class MiniZipAE1Reader():
             p.s = p.decompressor.decompress(cs)
         else:
             raise UnsupportedFile("possibly unhandled compression - TODO actually test and try it")
-        crc32 = zlib.crc32(p.s) & 0xFFFFFFFF
-        #print('crc in zip meta 0x%x ' % p.crc32)  # DEBUG
-        #print('crc of p.s %r' % p.s)
-        if crc32 != p.crc32:
-            raise UnsupportedFile("BAD CRC-32 (actual) 0x%x != 0x%x (in zip meta)" % (crc32, p.crc32))
+        if p.ae_version == WZ_AES_V2:
+            crc32 = 0
+        elif p.ae_version == WZ_AES_V1:
+            crc32 = zlib.crc32(p.s) & 0xFFFFFFFF
+            #print('crc in zip meta 0x%x ' % p.crc32)  # DEBUG
+            #print('crc of p.s %r' % p.s)
+            if crc32 != p.crc32:
+                raise UnsupportedFile("BAD CRC-32 (actual) 0x%x != 0x%x (in zip meta)" % (crc32, p.crc32))
+        else:
+            # not sure how we got here, should have been caught earlier
+            raise UnsupportedFile("Unsupported AE-version 0x%x (%r)" % (p.ae_version, p.ae_version))
             
     def get(p):
         return p.s
@@ -720,14 +733,22 @@ class MiniZipAE1Reader():
         p.entry = p.fp.read(namelen)
         xh, cb, ver, vendor, keybits, method = struct.unpack('<4HBH', p.fp.read(xhlen))
         p.compression_method = method
-        EXTRA_WZ_AES = 0x9901
-        WZ_AES_V1 = 0x0001
-        WZ_AES_V2 = 0x0002
-        WZ_AES_VENDOR_ID = b'AE'  # 0x4541 little endian
+        """
         if xh != 0x9901 or ver != 1 or vendor != 0x4541:  # AE-1 with CRC
             #if (xh, ver, vendor) != (39169, 2, 17729):  # some form of AE-2 no CRC - with LZMA
             # sadly this does not work, eventually get; zlib.error: Error -3 while decompressing data: invalid distance too far back
+            if (xh, ver, vendor) != (EXTRA_WZ_AES, WZ_AES_V2, WZ_AES_VENDOR_ID):  # AE-2
+                print((EXTRA_WZ_AES, WZ_AES_V2, WZ_AES_VENDOR_ID))
+                raise UnsupportedFile("UNKNOWN AE PROTOCOL %r" % ((xh, ver, vendor),))
+        """
+        if (xh, ver, vendor) not in (
+                                        (EXTRA_WZ_AES, WZ_AES_V1, WZ_AES_VENDOR_ID), # AE-1
+                                        (EXTRA_WZ_AES, WZ_AES_V2, WZ_AES_VENDOR_ID), # AE-2
+                                    ):
+            print((EXTRA_WZ_AES, WZ_AES_V2, WZ_AES_VENDOR_ID))
             raise UnsupportedFile("UNKNOWN AE PROTOCOL %r" % ((xh, ver, vendor),))
+        p.ae_version = ver
+
         if keybits == 3:
             p.salt = p.fp.read(16)
             DELTA=28
