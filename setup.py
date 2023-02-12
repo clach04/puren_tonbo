@@ -27,8 +27,8 @@ if os.path.exists(readme_filename):
 else:
     long_description = None
 
-#exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'puren_tonbo', '_version.py')).read())
-__version__ = '0.0.3-alpha'  # TODO embed in library
+# Lookup __version__
+exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'puren_tonbo', '_version.py')).read())
 
 
 # TODO/FIXME dupe of requirements.txt - also chi_io missing here (as not on pypi)

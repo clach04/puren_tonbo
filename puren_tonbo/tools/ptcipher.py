@@ -52,7 +52,7 @@ def main(argv=None):
         stream_encoding = 'utf-8'  # FIXME hard coded
 
     usage = "usage: %prog [options] in_filename"
-    parser = OptionParser(usage=usage, version="%prog 1.0")
+    parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     parser.add_option("-o", "--output", dest="out_filename", default='-',
                         help="write output to FILE", metavar="FILE")
     parser.add_option("-d", "--decrypt", action="store_true", dest="decrypt", default=True,

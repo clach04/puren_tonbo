@@ -21,6 +21,7 @@ import logging
 import os
 import sys
 
+from ._version import __version__, __version_info__
 
 def fake_module(name):
     # Fail with a clear message (possibly at an unexpected time)
