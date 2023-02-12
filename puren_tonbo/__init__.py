@@ -282,6 +282,7 @@ class ZipAES(ZipEncryptedFileBase):
     extensions = [
         '.aes.zip',  # AE-1 only Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
         '.aes256.zip',  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+        '.old.zip',  # Zip file with old old ZipCrypto - writing not supported/implemented
     ]
     _filename = 'encrypted.md'  # filename inside of (AES encrypted) zip file
     _compression = ZIP_DEFLATED
@@ -318,6 +319,7 @@ class ZipNoCompressionAES(ZipAES):
     _compression = ZIP_STORED
     extensions = [
         '.aes256stored.zip',  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
+        '.oldstored.zip',  # Zip file with old old ZipCrypto - writing not supported/implemented
     ]
 
 class ZipLzmaAES(ZipAES):
@@ -374,6 +376,10 @@ def filename2handler(filename):
         file_extn = '.aes256stored.zip'
     elif filename.endswith('.aes256lzma.zip'):
         file_extn = '.aes256lzma.zip'
+    elif filename.endswith('.old.zip'):
+        file_extn = '.old.zip'
+    elif filename.endswith('.oldstored.zip'):
+        file_extn = '.oldstored.zip'
     else:
         _dummy, file_extn = os.path.splitext(filename)
     log.debug('clach04 DEBUG file_extn: %r', file_extn)
