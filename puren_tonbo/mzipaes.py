@@ -606,8 +606,12 @@ class MiniZipAE1Writer():
             p.entry = entry
         # Calcola il CRC-32 sui dati originali
         p.crc32 = zlib.crc32(s) & 0xFFFFFFFF
+        #print('about to write crc into zip meta 0x%x ' % p.crc32)  # DEBUG
         # Comprime, cifra e calcola l'hash sul cifrato
-        cs = p.compressor.compress(s) + p.compressor.flush()
+        if p.compression_method == ZIP_DEFLATED:
+            cs = p.compressor.compress(s) + p.compressor.flush()
+        else:
+            cs = s  # assume ZIP_STORED
         # csize = salt (16) + chkword (2) + len(s) + HMAC (10)
         p.usize, p.csize = len(s), len(cs)+28
         p.blob = crypto_kit.AE_ctr_crypt(p.aes_key, cs)
@@ -674,6 +678,7 @@ class MiniZipAE1Reader():
         else:
             raise Exception("possibly unhandled compression - TODO actually test and try it")
         crc32 = zlib.crc32(p.s) & 0xFFFFFFFF
+        #print('crc in zip meta 0x%x ' % p.crc32)  # DEBUG
         #print('crc of p.s %r' % p.s)
         if crc32 != p.crc32:
             raise Exception("BAD CRC-32 (actual) 0x%x != 0x%x (in zip meta)" % (crc32, p.crc32))
