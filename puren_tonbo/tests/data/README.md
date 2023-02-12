@@ -28,7 +28,7 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * has window newlines
       * us-ascii encoding
       * `7z a -mx0 -ppassword aesop_linux_7z.aes256stored.zip encrypted.md`
-  * aesop_win_winrar.aes256.zip - default AES-256 zip encrypted from
+  * aesop_win_winrar.aes256.zip - default AES-256 zip AE-1 encrypted from
     `aesop.txt` on Windows
     Created with Windows WinRAR 5.00 (32-bit)
       * password is `password`
@@ -36,7 +36,7 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * has window newlines
       * us-ascii encoding
       * created using GUI
-  * aesop_win_winrar.aes256stored.zip - uncompressed AES-256 zip encrypted from
+  * aesop_win_winrar.aes256stored.zip - uncompressed AES-256 zip AE-1 encrypted from
     `aesop.txt` on Windows
     Created with Windows WinRAR 5.00 (32-bit)
       * password is `password`
