@@ -516,7 +516,7 @@ class gen_caching_get_passwordWIP(object):
                             prompt = "Password for file %s:" % filename
                 self.user_password = self.promptfunc(prompt)
                 if self.user_password  is None or self.user_password  == b'':
-                    self.user_password = None
+                    self.user_password = None  # Alternatively could raise SearchCancelled
                 else:
                     ## not sure if this logic belongs at this level....
                     self.user_password = chi_io.CHI_cipher(self.user_password)
@@ -765,10 +765,7 @@ class FileSystemNotes(BaseNotes):
             ## TODO decide what to do with include_contents - default or make a parameter
             if not filename_filter_str or include_contents:
                 #import pdb ; pdb.set_trace()
-                try:
-                    note_text = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
-                except BadPassword as info:
-                    raise SearchCancelled(str(info))
+                note_text = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
                 search_res = grep_string(note_text, regex_object)
                 if search_res:
                     yield (filename, search_res)
@@ -777,8 +774,9 @@ class FileSystemNotes(BaseNotes):
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
         """@filename is relative to `self.note_root` and includes directory name if not in the root.
         @filename (extension) dictates encryption mode/format (if any)
-        @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'. See caching_console_password_prompt() for an example.
-            get_pass(filename=filename, reset=reset_password)
+        @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'.
+            See caching_console_password_prompt() for an example. API expected:
+                get_pass(filename=filename, reset=reset_password)
         dos_newlines=True means use Windows/DOS newlines, emulates win32 behavior of Tombo and is the default
         @return_bytes returns bytes rather than (Unicode) strings
         """
@@ -786,44 +784,50 @@ class FileSystemNotes(BaseNotes):
             filename = self.unicode_path(filename)
             fullpath_filename = self.abspath(self.note_root, filename)
 
-            handler_class = handler_class or filename2handler(filename)
-            #import pdb ; pdb.set_trace()
-            if handler_class is RawFile:
-                log.debug('it is plain text')
-                note_password = ''  # fake it. Alternatively override init for RawFile to remove check
-            else:
-                if callable(get_pass):
-                    reset_password = False  # TODO - for now, use this if get bad passwords
-                    note_password = get_pass(filename=filename, reset=reset_password)
-                else:
-                    # Assume password bytes passed in
-                    note_password = get_pass
-                if note_password is None:
-                    raise BadPassword('missing or bad password for %s' % filename)
 
-            #import pdb ; pdb.set_trace()
-            handler = handler_class(key=note_password)  # FIXME callback function support for password func
-            # TODO repeat on bad password func
-            log.debug('DEBUG filename %r', fullpath_filename)
-            in_file = open(fullpath_filename, 'rb')
-            try:
+            handler_class = handler_class or filename2handler(filename)
+            reset_password = False
+            while True:
+                #import pdb ; pdb.set_trace()
+                if handler_class is RawFile:
+                    log.debug('it is plain text')
+                    note_password = ''  # fake it. Alternatively override init for RawFile to remove check
+                else:
+                    #import pdb ; pdb.set_trace()
+                    if callable(get_pass):
+                        note_password = get_pass(filename=filename, reset=reset_password)
+                    else:
+                        # Assume password bytes passed in
+                        note_password = get_pass
+                    if note_password is None:
+                        raise SearchCancelled('empty password for for %s' % filename)
+
+                #import pdb ; pdb.set_trace()
+                handler = handler_class(key=note_password)  # FIXME callback function support for password func
+                # TODO repeat on bad password func
+                log.debug('DEBUG filename %r', fullpath_filename)
+
                 try:
+                    in_file = open(fullpath_filename, 'rb')  # TODO open once and seek back on failure
                     plain_str = handler.read_from(in_file)
                     # TODO could stash away handler..key for reuse as self.last_used_key .... or derived_key (which would be a new attribute)
                     if return_bytes:
                         return plain_str
                     else:
                         return self.to_string(plain_str)
-                except PurenTonboException as info:
-                    log.debug("Encrypt/Decrypt problem. %r", (info,))
-                    raise
-            finally:
-                in_file.close()
+                except BadPassword as info:
+                    ## We will try the file again with a new (reset) password
+                    reset_password = True
+                finally:
+                    in_file.close()
         except IOError as info:
             if info.errno == errno.ENOENT:
                 raise PurenTonboIO('Error opening %r file/directory does not exist' % filename)
             else:
                 raise
+        except PurenTonboException as info:
+            log.debug("Encrypt/Decrypt problem. %r", (info,))
+            raise
 
     def note_contents_save(self, note_text, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
         raise NotImplementedError('Implement in sub-class')

@@ -209,7 +209,7 @@ def main(argv=None):
                         # grep-like without numbers
                         print('%s%s' % (filename, result_hit_text))
     except SearchCancelled as info:
-        print('Bad password, search cancelled', info)
+        print('search cancelled', info)
     if options.time:
         end_time = time.time()
         search_time = end_time - start_time
