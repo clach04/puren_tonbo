@@ -817,6 +817,8 @@ class FileSystemNotes(BaseNotes):
                         return self.to_string(plain_str)
                 except BadPassword as info:
                     ## We will try the file again with a new (reset) password
+                    if not callable(get_pass):
+                        raise
                     reset_password = True
                 finally:
                     in_file.close()
