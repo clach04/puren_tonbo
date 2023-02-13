@@ -76,9 +76,11 @@ The chi file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ a
 
 The aes256.zip file can also be read/written by WinRAR, WinZIP, etc. that support AES zip files.
 
-For example, 7z can read but not write AES zip files:
+For example, 7z can read but and write AES zip files:
 
+    7z a -tzip -mem=AES256 -ptest README.aes256.zip README.md
     7z x -ptest README.aes256.zip
+
 
 
 #### VimCrypt
