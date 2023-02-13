@@ -842,6 +842,66 @@ class FileSystemNotes(BaseNotes):
         return -1
 
 
+#############
+
+# Config files
+
+default_config_filename = 'pt.ini'  # if using https://github.com/DiffSK/configobj
+# Consider YAML? toml - https://toml.io/ https://github.com/hukkin/tomli
+default_config_filename = 'pt.json'  # built in so easy choice for now
+# TODO Android home directory?
+default_config_dirname = os.environ.get('HOME', os.environ.get('USERPROFILE'))  # TODO consider os.path.expanduser("~") and for Windows My Documents
+
+
+def get_config_path(config_filename=None, dirs_to_search=None, dir_if_not_found=None):
+    """Attempts to find (and return) existing config file name.
+    If config file can not be found default name is returned.
+
+        - @dirs_to_search list of directories to search, if not specified defaults
+        - @dir_if_not_found is the directory to use if no config file is found
+    """
+    config_filename  = config_filename or default_config_filename
+    dirs_to_search = dirs_to_search or ['.', default_config_dirname]
+    dir_if_not_found = dir_if_not_found or default_config_dirname
+
+    full_config_pathname = None
+    for tmp_dirname in dirs_to_search:
+        tmp_config_filename = os.path.join(tmp_dirname, config_filename)
+        if os.path.exists(tmp_config_filename):
+            full_config_pathname = tmp_config_filename
+            break
+
+    if full_config_pathname is None:
+        #print('no config file found, defaulting')
+        full_config_pathname = os.path.join(dir_if_not_found, config_filename)
+
+    #print('full_config_pathname = %r' % full_config_pathname)
+    full_config_pathname = os.path.normpath(full_config_pathname)  # abspath?
+    return full_config_pathname
+
+def get_config(config_filename=None):
+    config_filename = config_filename or get_config_path()
+    config_filename = os.path.abspath(config_filename)
+    if os.path.exists(config_filename):
+        with open(config_filename) as config_file:
+            config = json.load(config_file)
+    else:
+        config = {}
+    defaults = {
+        'note_root': '.',  # root directory of notes
+        'codec': ('utf8', 'cp1252'),  # note encoding(s) in order to try for reading, first is the encoding for writing
+        'default_text_ext': 'txt',
+        'default_encryption_ext': 'chi',
+        #'default_encryption_ext': 'aes256.zip',
+        #'new_lines': 'dos',
+        #'new_lines': 'unix',
+        #'': '',
+    }
+    defaults.update(config)
+    # TODO codec may need to be parsed if it came from config file as was a comma seperate string
+    return defaults
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv

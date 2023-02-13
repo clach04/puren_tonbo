@@ -37,7 +37,8 @@ def main(argv=None):
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
-    parser.add_option("--note-root", help="Direcory of notes, or dir_name_or_filename1....", default='.')  # TODO pick up from a config file
+    #parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1....", default='.')  # TODO pick up from a config file
+    parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")
     parser.add_option("-c", "--codec", help="File encoding (can be a list TODO format comma?)", default='utf-8')
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
@@ -45,7 +46,7 @@ def main(argv=None):
     parser.add_option("-t", "--time", action="store_true")
     parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
     parser.add_option("-v", "--verbose", help='Print query search time', action="store_true")
-    
+    parser.add_option("--config-file", help="Config file path")
     parser.add_option("--grep", help='Use grep-like output format instead of ripgrep-like', action="store_true")
     """ TODO
     -s, --search_term=STRING: 
@@ -106,15 +107,17 @@ def main(argv=None):
             #raise optionparse.Usage('missing search term')
             #optionparse.exit_exception() ##FIXME update exit_exception to append error text to end of usage instead-of "instead of" logic
             #optionparse.exit('missing search term') ##FIXME update exit_exception to append error text to end of usage instead-of "instead of" logic
-            usage_error('ERROR: Missing search term')
+            usage_error('ERROR: Missing search term')  # FIXME not implemented
 
+    config = puren_tonbo.get_config(options.config_file)
+    print(config)
     if options.note_root:
         paths_to_search = [options.note_root]
     else:
-        paths_to_search = args
+        paths_to_search = args or [config.get('note_root')]
         if not paths_to_search:
             # TODO feature enhancement, load config file and default to notes directory if config found
-            usage_error('ERROR: Missing search path/directory')
+            usage_error('ERROR: Missing search path/directory')  # should never happen now. FIXME not implemented
 
     is_win = sys.platform.startswith('win')
 
