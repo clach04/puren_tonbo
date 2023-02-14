@@ -16,6 +16,7 @@ except ImportError:
             return result
         getpass = classmethod(getpass)
 
+import json
 import locale
 import logging
 import os
@@ -888,6 +889,7 @@ def get_config(config_filename=None):
     else:
         config = {}
     defaults = {
+        '_version_created_with': '%s' % __version__,
         'note_root': '.',  # root directory of notes
         'codec': ('utf8', 'cp1252'),  # note encoding(s) in order to try for reading, first is the encoding for writing
         'default_text_ext': 'txt',
