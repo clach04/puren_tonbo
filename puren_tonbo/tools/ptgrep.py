@@ -69,7 +69,7 @@ def main(argv=None):
         print('')
         for file_extension in puren_tonbo.file_type_handlers:
             handler_class = puren_tonbo.file_type_handlers[file_extension]
-            print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # TODO description
+            print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))
         return 0
 
     def usage():
@@ -88,9 +88,7 @@ def main(argv=None):
     else:
         password_file = None
 
-    #password = options.password or password_file or os.environ.get('PT_PASSWORD') or getpass.getpass("Password:")  # TODO FIXME replace with password prompt generator
-    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.caching_console_password_prompt
-    # TODO text file should NOT prompt for a password
+    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.caching_console_password_prompt  # TODO keyring support
     if password and not callable(password) and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
@@ -114,8 +112,7 @@ def main(argv=None):
     else:
         paths_to_search = args or [config.get('note_root', '.')]
         if not paths_to_search:
-            # TODO feature enhancement, load config file and default to notes directory if config found
-            usage_error('ERROR: Missing search path/directory')  # should never happen now. FIXME not implemented
+            usage_error('ERROR: Missing search path/directory')  # should never happen now, here just-in-case
 
     if options.codec:
         note_encoding = options.codec
@@ -134,7 +131,7 @@ def main(argv=None):
         color_filename = colorama.Fore.BLUE
         color_linenum = colorama.Fore.GREEN
         color_searchhit = colorama.Fore.RED
-        color_reset = colorama.Style.RESET_ALL  # TODO review...
+        color_reset = colorama.Style.RESET_ALL
         # TODO only do below for Windows? looks like it may be a NOOP so may not need a windows check
         try:
             colorama.just_fix_windows_console()
@@ -164,9 +161,8 @@ def main(argv=None):
         caching_console_password_prompt = gen_caching_get_password(dirname=path_to_search).gen_func()
         password_func = caching_console_password_prompt
     """
-    # TODO look at password
-    password_func = password  #  DEBUG TODO look at password
 
+    password_func = password
     ignore_case = options.ignore_case
     search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
     line_numbers = options.line_numbers == True
