@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: us-ascii -*-
 # vim:ts=4:sw=4:softtabstop=4:smarttab:expandtab
-"""Command line tool to decrypt to stdout Puren Tonbo files (Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.)
+"""Command line tool to encrypt/decrypt Puren Tonbo files (Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.)
+
+    python -m puren_tonbo.tools.ptcipher -h
 """
 
 import datetime
