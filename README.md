@@ -113,3 +113,11 @@ ptcipher demo:
 ### Run test suite
 
     python -m puren_tonbo.tests.testsuite
+
+### High Level Overview
+
+All encryption/decryption is file based.
+Low level routines (EncryptedFile) use file-like objects, for in-memory encryption/decryption use BytesIO
+(see test suite, `puren_tonbo/tests/testsuite.py`).
+
+There is also the note abstraction (FileSystemNotes) which is filename based.
