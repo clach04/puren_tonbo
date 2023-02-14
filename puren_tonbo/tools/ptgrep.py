@@ -40,6 +40,7 @@ def main(argv=None):
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
+    parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
     parser.add_option("-p", "--password", help="password, if omitted and OS env PT_PASSWORD is set use that, if missing prompt")  # TODO keyring support
@@ -50,7 +51,6 @@ def main(argv=None):
     parser.add_option("--config-file", help="Override config file")
     parser.add_option("--grep", help='Use grep-like output format instead of ripgrep-like', action="store_true")
     """ TODO
-    -r, --regex_search:     Treat search term as a regex (default is to treat as literal word/phrase)
     -n, --line_numbers:     Print line number with output lines
     -p, --password=PASSWORD: Password to use for all encrypted notes (if omitted will be prompted for password,
         specifying password at command line can be a security risk as password _may_ be visible in process/task list and/or shell history)
@@ -158,11 +158,10 @@ def main(argv=None):
     """
     line_numbers = options.line_numbers == True
     
-    search_is_regex = options.regex_search == True
     
     
     """
-    line_numbers = search_is_regex = search_encrypted = False  # DEBUG FIXME TODO
+    line_numbers = False  # DEBUG FIXME TODO
 
 
     """
@@ -177,7 +176,7 @@ def main(argv=None):
     password_func = password  #  DEBUG TODO look at password
 
     ignore_case = options.ignore_case
-
+    search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
     search_encrypted = options.search_encrypted
 
     if options.time:
