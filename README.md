@@ -56,6 +56,7 @@ Assuming installed:
 
 From source code checkout:
 
+    python -m puren_tonbo.tools.ptcipher -h
     python2 -m puren_tonbo.tools.ptcipher -h
     python3 -m puren_tonbo.tools.ptcipher -h
 
@@ -103,7 +104,7 @@ To see encryption mode:
 
 ptcipher demo:
 
-    python3 -m puren_tonbo.tools.ptcipher -p test test.vimcrypt3
+    python -m puren_tonbo.tools.ptcipher -p test test.vimcrypt3
 
 
 ## Developement and testing
