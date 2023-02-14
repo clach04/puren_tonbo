@@ -14,6 +14,7 @@ Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip
 import os
 from optparse import OptionParser
 import sys
+import time
 
 try:
     import colorama
@@ -37,26 +38,25 @@ def main(argv=None):
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
-    #parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1....", default='.')  # TODO pick up from a config file
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")
-    parser.add_option("-c", "--codec", help="File encoding (can be a list TODO format comma?)", default='utf-8')
-    parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
+    parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
+    parser.add_option("-p", "--password", help="password, if omitted and OS env PT_PASSWORD is set use that, if missing prompt")  # TODO keyring support
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-t", "--time", action="store_true")
     parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
     parser.add_option("-v", "--verbose", help='Print query search time', action="store_true")
-    parser.add_option("--config-file", help="Config file path")
+    parser.add_option("--config-file", help="Override config file")
     parser.add_option("--grep", help='Use grep-like output format instead of ripgrep-like', action="store_true")
     """ TODO
-    -s, --search_term=STRING: 
-    -r, --regex_search:            Treat search term as a regex (default is to treat as literal word/phrase)
+    -r, --regex_search:     Treat search term as a regex (default is to treat as literal word/phrase)
     -i, --ignore_case:      Case insensitive search
-    -d, --dir_name=PATH: PATH Name Directory of notes to search (or file name), if omitted, [dir_name_or_filename] is used instead
     -n, --line_numbers:     Print line number with output lines
-    -e, --search_encrypted: Search encrypted files
-    -p, --password=PASSWORD: Password to use for all encrypted notes (if omitted will be prompted for password, specifying password at command line can be a security risk as password _may_ be visible in process/task list and/or shell history)
+    -p, --password=PASSWORD: Password to use for all encrypted notes (if omitted will be prompted for password,
+        specifying password at command line can be a security risk as password _may_ be visible in process/task list and/or shell history)
     """
+    # TODO add option to show absolute paths of filenames
+    # TODO add option similar to grep -A/B/C for lines of context?
 
     (options, args) = parser.parse_args(argv[1:])
     #print('%r' % ((options, args),))
@@ -94,7 +94,6 @@ def main(argv=None):
     if password and not callable(password) and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
-    note_encoding = options.codec
 
     ###################
     if options.search_term:
@@ -110,14 +109,19 @@ def main(argv=None):
             usage_error('ERROR: Missing search term')  # FIXME not implemented
 
     config = puren_tonbo.get_config(options.config_file)
-    print(config)
     if options.note_root:
         paths_to_search = [options.note_root]
     else:
-        paths_to_search = args or [config.get('note_root')]
+        paths_to_search = args or [config.get('note_root', '.')]
         if not paths_to_search:
             # TODO feature enhancement, load config file and default to notes directory if config found
             usage_error('ERROR: Missing search path/directory')  # should never happen now. FIXME not implemented
+
+    if options.codec:
+        note_encoding = options.codec
+    else:
+        note_encoding = config['codec']
+
 
     is_win = sys.platform.startswith('win')
 
@@ -180,8 +184,8 @@ def main(argv=None):
     try:
         for path_to_search in paths_to_search:
             print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
-            note_root = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
-            for hit in note_root.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func):
+            notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
+            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func):
                 filename, hit_detail = hit
                 #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
                 if filename:
