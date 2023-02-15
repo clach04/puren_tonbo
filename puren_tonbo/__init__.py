@@ -552,17 +552,26 @@ def plaintext_filename_filter(in_filename):
 def example_progess_callback(*args, **kwargs):
     print('example_progess_callback:', args, kwargs)
 
-def grep_string(search_text, regex_object):
+def grep_string(search_text, regex_object, highlight_text_start=None, highlight_text_stop=None):
     """Given input string "search_text" and compiled regex regex_object
     search for regex matches and return list of tuples of line number and text for that line
+    for matches, prefix and postfix with highlight_text_start, highlight_text_stop
     """
+    def process_matches(match):
+        return highlight_text_start + match.group(0) + highlight_text_stop
+
     linecount = 0
     results = []
     #print('%r' % ((regex_object, search_text,),))
     for x in search_text.split('\n'):
         linecount += 1
         if regex_object.search(x):
-            results.append((linecount, x))
+            if not highlight_text_start:
+                results.append((linecount, x))
+            else:
+                # simplisic highlighting with prefix/postfix - no escaping or processing of non-match text performed
+                tmp_x = regex_object.sub(process_matches, x)
+                results.append((linecount, tmp_x))
     return results
 
 
@@ -731,11 +740,15 @@ class FileSystemNotes(BaseNotes):
 
     #         (self, search_term, search_term_is_a_regex=True,  ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, findonly_filename=None, index_name=None, note_encoding=None):
     #               (search_term, search_term_is_a_regex=True , ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, findonly_filename=None, index_name=None, note_encoding=None):
-    def search(self, search_term, search_term_is_a_regex=False, ignore_case=False, search_encrypted=False, findonly_filename=False, get_password_callback=None, progess_callback=None):
+    def search(self, search_term, search_term_is_a_regex=False, ignore_case=False, search_encrypted=False, findonly_filename=False, get_password_callback=None, progess_callback=None, highlight_text_start=None, highlight_text_stop=None):
         """search note directory, grep/regex like actualy an iterator"""
         #print('get_password_callback %r' % get_password_callback)
 
         search_path = self.note_root
+        """
+        if (highlight_text_start or highlight_text_stop) and None in (highlight_text_start or highlight_text_stop):
+            raise SearchException('highlight_text_start and highlight_text_stop need to both be set or both not-set %r %r' % (highlight_text_start, highlight_text_stop))
+        """
         if not search_term_is_a_regex:
             search_term = re.escape(search_term)
         if ignore_case:
@@ -767,7 +780,7 @@ class FileSystemNotes(BaseNotes):
             if not filename_filter_str or include_contents:
                 #import pdb ; pdb.set_trace()
                 note_text = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
-                search_res = grep_string(note_text, regex_object)
+                search_res = grep_string(note_text, regex_object, highlight_text_start, highlight_text_stop)
                 if search_res:
                     yield (filename, search_res)
 

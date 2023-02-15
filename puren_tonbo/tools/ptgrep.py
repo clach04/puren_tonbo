@@ -5,10 +5,17 @@
 Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.
 
     python -m puren_tonbo.tools.ptgrep -h
+    python -m puren_tonbo.tools.ptgrep better puren_tonbo\tests\data
+    python -m puren_tonbo.tools.ptgrep better puren_tonbo/tests/data
+    python -m puren_tonbo.tools.ptgrep Better puren_tonbo/tests/data
+    python -m puren_tonbo.tools.ptgrep -i better puren_tonbo/tests/data
+    python -m puren_tonbo.tools.ptgrep -r th.n puren_tonbo/tests/data
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data/ cruel
     python -m puren_tonbo.tools.ptgrep --note-root puren_tonbo/tests/data/ cruel
-    python -m puren_tonbo.tools.ptgrep --note-root puren_tonbo/tests/data/aesop.txt cruel
-
+    python -m puren_tonbo.tools.ptgrep --note-root puren_tonbo/tests/data/aesop.txt cruel  # FIXME fails TODO test suite
+    python -m puren_tonbo.tools.ptgrep cruel puren_tonbo/tests/data/
+    python -m puren_tonbo.tools.ptgrep cruel puren_tonbo/tests/data/aesop.txt  # FIXME fails
+    python -m puren_tonbo.tools.ptgrep -r the. puren_tonbo/tests/data/
 """
 
 import os
@@ -55,6 +62,7 @@ def main(argv=None):
     -p, --password=PASSWORD: Password to use for all encrypted notes (if omitted will be prompted for password,
         specifying password at command line can be a security risk as password _may_ be visible in process/task list and/or shell history)
     """
+    # TODO add option to use findonly_filename
     # TODO add option to show absolute paths of filenames
     # TODO add option similar to grep -A/B/C for lines of context?
 
@@ -171,10 +179,15 @@ def main(argv=None):
     if options.time:
         start_time = time.time()
     try:
+        if use_color:
+            highlight_text_start, highlight_text_stop = color_searchhit, color_reset
+        else:
+            highlight_text_start, highlight_text_stop = None, None
+
         for path_to_search in paths_to_search:
             print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
             notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
-            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func):
+            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
                 filename, hit_detail = hit
                 #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
                 if filename:
@@ -189,8 +202,10 @@ def main(argv=None):
                     print('%s' % (filename, ))
                 for result_hit_line, result_hit_text in hit_detail:
                     if use_color:
+                        """
                         if not search_is_regex:
-                            result_hit_text = result_hit_text.replace(search_term, color_searchhit + search_term + color_reset)
+                            result_hit_text = result_hit_text.replace(search_term, color_searchhit + search_term + color_reset)  # no longer needed search func does highlight
+                        """
                         # else TODO regex ripgrep search color highlighting
                         result_hit_line = color_linenum + str(result_hit_line) + color_reset
                     else:
