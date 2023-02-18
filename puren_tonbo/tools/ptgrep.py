@@ -194,7 +194,11 @@ def main(argv=None):
                 if filename:
                     if options.display_full_path:
                         filename = os.path.join(path_to_search, filename)
-                    filename = '%s:' % filename  # TODO remove colon? ripgrep/ack/ag does not do this. grep -n does
+                    if ripgrep:
+                        filename = '%s' % filename  # ripgrep/ack/ag uses filename only
+                    else:
+                        # grep - TODO should this be conditional on line numbers and/or wild card?
+                        filename = '%s:' % filename
                 else:
                     # Single file grep, rather than recursive search
                     # do not want filename
