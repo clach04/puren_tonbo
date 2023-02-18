@@ -724,7 +724,7 @@ class FileSystemNotes(BaseNotes):
     def __init__(self, note_root, note_encoding=None):
         note_root = self.unicode_path(note_root)
         self.note_root = os.path.abspath(note_root)
-        self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash
+        self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash.. unless this is a file
         #self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
 
@@ -769,7 +769,10 @@ class FileSystemNotes(BaseNotes):
         else:
             recurse_notes_func = self.recurse_notes
         for tmp_filename in recurse_notes_func(search_path, is_note_filename_filter):
-            filename = self.abspath2relative(tmp_filename)
+            if recurse_notes_func == fake_recurse_notes:
+                filename = tmp_filename  # already absolute?  TODO check abspath2relative() - could sanity check already absoloute?
+            else:
+                filename = self.abspath2relative(tmp_filename)
             if progess_callback:
                 progess_callback(filename=x)
             if filename_filter_str:
