@@ -48,6 +48,23 @@ None right now!
 
 ## Examples
 
+    python -m puren_tonbo.tools.ptconfig
+
+
+### ptcat
+
+    python -m puren_tonbo.tools.ptcat  puren_tonbo/tests/data/aesop.txt
+    python -m puren_tonbo.tools.ptcat -p password puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
+
+
+### ptgrep
+
+    python -m puren_tonbo.tools.ptgrep better
+    python -m puren_tonbo.tools.ptgrep -e -p password Better
+    python -m puren_tonbo.tools.ptgrep -e -p password Better
+
+
+
 ### ptcipher
 
 Assuming installed:
