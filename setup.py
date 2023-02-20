@@ -50,6 +50,7 @@ setup(
         'console_scripts': [
             'ptcat = puren_tonbo.tools.ptcat:main',
             'ptcipher = puren_tonbo.tools.ptcipher:main',
+            'ptconfig = puren_tonbo.tools.ptconfig:main',
             'ptgrep = puren_tonbo.tools.ptgrep:main',
         ],
     },
