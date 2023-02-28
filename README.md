@@ -124,6 +124,53 @@ ptcipher demo:
     python -m puren_tonbo.tools.ptcipher -p test test.vimcrypt3
 
 
+## ptcat/ptcipher with text editors like vim
+
+Quick and easy view/read ONLY of encrypted file with vim, without updating vim config.
+
+NOTE call vim (or neovim) with options to set "private" mode:
+
+  * - to read from stdin instead of a filename, avoid plaintext hitting the disk
+  * -n turns off swap file - use memory only
+  * -i turns off .viminfo
+
+TODO disable undo file
+
+
+  1. Use a pipe (cross platform)
+
+        ptcat FILE | vim - -n -i "NONE"
+
+  2. Use bash shell command substitution feature for editors that don't support stdin (Linux/Unix only, avoids directly calling mkfifo and cleaning up named pipes)
+
+        scite < (ptcat FILE)
+        ptcat FILE | scite /dev/stdin
+        scite <(python -m puren_tonbo.tools.ptcat  puren_tonbo/tests/data/aesop.txt)
+
+Puren Tonbo will prompt for passwords and the decrypted content should not hit the file system.
+
+
+Option 1 can be used with other tools that take in stdin, option 2 can be used with any tool that takes in a filename.
+
+Caution!
+
+  * don't save the raw file
+  * ensure now backup, swap, undo file, etc.. get created
+
+
+https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-private-mode
+
+
+See https://vim.fandom.com/wiki/Encryption for how to configure vim with external tools for (view and edit) of encrypted files with autocmd.
+NOTE under Windows buffered IO can interfere with vim interactions.
+TODO consider using (OpenSSL) https://www.vim.org/scripts/script.php?script_id=2012 as a model for vim plugin (uses functions), also see:
+
+  * https://aweirdimagination.net/2019/03/24/encrypted-files-in-vim/ https://git.aweirdimagination.net/perelman/openssl.vim
+  * https://github.com/MoserMichael/vimcrypt2.
+      * https://github.com/MoserMichael/vimcrypt
+
+
+
 ## Developement and testing
 
 
