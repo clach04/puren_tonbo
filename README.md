@@ -4,6 +4,9 @@ Pure Plain Text Notes... with optional encryption.
 
 https://github.com/clach04/puren_tonbo/
 
+**IMPORTANT** before using the optionally encryption features 
+ensure that it is legal in your country to use the specific encryption ciphers. So.e countries have also have restrictions on import, export, and usage see http://www.cryptolaw.org/cls-sum.htm
+
 * [Features](#Features)
 * [Background](#Background)
 * [Getting Started](#Getting-Started)
