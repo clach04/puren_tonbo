@@ -43,6 +43,7 @@ def main(argv=None):
         stream_encoding = 'utf-8'  # FIXME hard coded
 
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
+    # TODO mix of snake_case and hypen-case flags/options
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
@@ -64,7 +65,7 @@ def main(argv=None):
         specifying password at command line can be a security risk as password _may_ be visible in process/task list and/or shell history)
     """
     # TODO add option to use findonly_filename
-    # TODO add option to show absolute paths of filenames
+    # TODO add option to use search only encrypted files (i.g. ignore *.txt and *.md files)
     # TODO add option similar to grep -A/B/C for lines of context?
 
     (options, args) = parser.parse_args(argv[1:])
