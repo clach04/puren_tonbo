@@ -291,6 +291,12 @@ ter no rule than cruel rule.\n'''
         data = note_root.note_contents(test_note_filename, password)
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
+    def test_aesop_win_encryptpad_gpg_bad_password(self):
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = 'bad'
+        test_note_filename = 'aesop_win_encryptpad.gpg'
+        self.assertRaises(puren_tonbo.BadPassword, note_root.note_contents, test_note_filename, password)
+
     def test_aesop_linux_7z_old_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
