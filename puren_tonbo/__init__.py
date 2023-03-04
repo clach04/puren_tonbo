@@ -51,6 +51,16 @@ except ImportError:
         chi_io = None
 
 try:
+    import gnupg  # https://github.com/vsajip/python-gnupg
+    try:
+        gpg = gnupg.GPG()
+    except RuntimeError:
+        # Assume;     RuntimeError: GnuPG is not installed!
+        gpg = None
+except ImportError:
+    gpg = None
+
+try:
     import pyzipper  # https://github.com/danifus/pyzipper  NOTE py3 only
 except ImportError:
     pyzipper = fake_module('pyzipper')
@@ -209,6 +219,49 @@ class VimDecrypt(EncryptedFile):
             raise  # debug
             # TODO chain exception...
             raise PurenTonboException(info)
+
+
+class GnuPG(EncryptedFile):
+    """GnuPG - GPG
+    """
+
+    description = 'gpg (GnuPG) symmetric 1.x and 2.x, does NOT uses keys'
+    extensions = [
+        '.gpg',  # binary
+        '.asc',  # ASCII Armored File
+        # potentially .epd for _some_ EncryptPad created files
+    ]
+
+    def read_from(self, file_object):
+        # TODO catch exceptions and raise PurenTonboException()
+        # bad passwords result in empty string results
+        password = self.key
+        """
+when bytes passed actually get misleading error:
+
+Traceback (most recent call last):
+  File "C:\code\py\puren_tonbo\puren_tonbo\tests\testsuite.py", line 291, in test_aesop_win_encryptpad_gpg
+    data = note_root.note_contents(test_note_filename, password)
+  File "C:\code\py\puren_tonbo\puren_tonbo\__init__.py", line 872, in note_contents
+    plain_str = handler.read_from(in_file)
+  File "C:\code\py\puren_tonbo\puren_tonbo\__init__.py", line 247, in read_from
+    result = gpg.decrypt_file(file_object, passphrase=password)
+  File "C:\py310venv\lib\site-packages\gnupg.py", line 1768, in decrypt_file
+    if passphrase and not self.is_valid_passphrase(passphrase):
+  File "C:\py310venv\lib\site-packages\gnupg.py", line 1158, in is_valid_passphrase
+    return ('\n' not in passphrase and '\r' not in passphrase and '\x00' not in passphrase)
+TypeError: a bytes-like object is required, not 'str'
+
+        """
+        # Seems to require strings - TODO open a bug upstream for this
+        if isinstance(password, bytes):
+            password = password.decode("utf-8")
+        edata = file_object.read()
+        result = gpg.decrypt(edata, passphrase=password)
+        #result = gpg.decrypt_file(file_object, passphrase=password)
+        if result:
+            return str(result)  # TODO is there a better API for this?
+        raise BadPassword('with %r' % file_object)
 
 
 class TomboBlowfish(EncryptedFile):
@@ -372,6 +425,10 @@ for file_extension in RawFile.extensions:
 if chi_io:
     for file_extension in TomboBlowfish.extensions:
         file_type_handlers[file_extension] = TomboBlowfish  # created by http://tombo.osdn.jp/En/
+
+if gpg:
+    for file_extension in GnuPG.extensions:
+        file_type_handlers[file_extension] = GnuPG
 
 if pyzipper:
     for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES, ZipBzip2AES):
@@ -705,6 +762,8 @@ class FileSystemNotes(BaseNotes):
     def to_string(self, data_in_bytes):
         #log.debug('self.note_encoding %r', self.note_encoding)
         #log.debug('data_in_bytes %r', data_in_bytes)
+        if not isinstance(data_in_bytes, (bytes, bytearray)):  # FIXME revisit this, "is string" check
+            return data_in_bytes  # assume a string already
         if isinstance(self.note_encoding, basestring):
             return data_in_bytes.decode(self.note_encoding)
         for encoding in self.note_encoding:
