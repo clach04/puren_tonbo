@@ -278,6 +278,9 @@ ter no rule than cruel rule.\n'''
 
     # TODO skip if gpg missing
     def test_aesop_win_encryptpad_asc(self):
+        if not puren_tonbo.gpg:
+            self.skip('gpg not available')
+
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_encryptpad.asc'
@@ -289,6 +292,9 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(canon, data)
 
     def test_aesop_win_encryptpad_gpg(self):
+        if not puren_tonbo.gpg:
+            self.skip('gpg not available')
+
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_encryptpad.gpg'
@@ -301,6 +307,9 @@ ter no rule than cruel rule.\n'''
 
 
     def test_aesop_win_encryptpad_gpg_string_password(self):
+        if not puren_tonbo.gpg:
+            self.skip('gpg not available')
+
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes.decode('us-ascii')
         test_note_filename = 'aesop_win_encryptpad.gpg'
@@ -312,6 +321,9 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(canon, data)
 
     def test_aesop_win_encryptpad_gpg_bad_password(self):
+        if not puren_tonbo.gpg:
+            self.skip('gpg not available')
+
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = 'bad'
         test_note_filename = 'aesop_win_encryptpad.gpg'
