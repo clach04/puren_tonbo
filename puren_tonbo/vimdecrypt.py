@@ -42,7 +42,13 @@ import codecs
 import time
 import getpass
 from binascii import b2a_hex, a2b_hex
-from Crypto.Hash import SHA256
+try:
+    import hashlib
+    sha256checksum = hashlib.sha256
+except ImportError:
+    from Crypto.Hash import SHA256  # FIXME isn't there a builtin?
+    sha256checksum = SHA256.new
+from Crypto.Cipher import Blowfish
 
 
 def SaveAsZip(zipname, filename, filedata):
@@ -155,7 +161,7 @@ def wordswap(data):
 
 def sha256(data, salt):
     """ Return sha256 digest of data + salt """
-    h = SHA256.new()
+    h = sha256checksum()
     h.update(data)
     h.update(salt)
     return h.digest()
@@ -224,7 +230,6 @@ class GoodCFB(object):
 
 def makeblowfish(args, key):
     """ Create blowfish cipher """
-    from Crypto.Cipher import Blowfish
     ecb = Blowfish.new(key, mode=Blowfish.MODE_ECB)
     # convert to little endian
     original_encrypt = ecb.encrypt
