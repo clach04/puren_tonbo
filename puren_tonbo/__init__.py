@@ -279,12 +279,19 @@ TypeError: a bytes-like object is required, not 'str'
                 result = result[0]  # just ignore the validation.. # FIXME!
                 return result
             else:
-                return str(result)  # TODO is there a better API for this?
+                return result.data
         raise BadPassword('with %r' % file_object)
 
     # if gpgme:
     # crypted_text, _, _ = context.encrypt('hello', sign=False, passphrase='test')
 
+    def write_to(self, file_object, byte_data):
+        password = self.key
+        # Seems to require strings - TODO open a bug upstream for this
+        if isinstance(password, bytes):
+            password = password.decode("utf-8")
+        enc_data = gpg.encrypt(byte_data, recipients=[], symmetric=True, armor=False, passphrase=password)
+        file_object.write(enc_data.data)
 
 class TomboBlowfish(EncryptedFile):
     """Read/write Tombo (modified) Blowfish encrypted files
