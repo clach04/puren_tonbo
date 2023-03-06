@@ -92,6 +92,8 @@ The chi file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ a
 
 #### OpenPGP - gpg / pgp
 
+Symmetric encryption/decryption, no explict key support.
+
 Requires a gpg binary, download from https://gnupg.org/download/
 
     python -m puren_tonbo.tools.ptcipher --cipher=asc -e -p test README.md -o README.asc
