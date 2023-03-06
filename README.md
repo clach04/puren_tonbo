@@ -90,6 +90,18 @@ From source code checkout:
 The chi file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ and clones
 
 
+#### OpenPGP - gpg / pgp
+
+Requires a gpg binary, download from https://gnupg.org/download/
+
+    python -m puren_tonbo.tools.ptcipher --cipher=asc -e -p test README.md -o README.asc
+    python -m puren_tonbo.tools.ptcipher --cipher=gpg -e -p test README.md -o README.gpg
+
+    gpg  --pinentry-mode=loopback --decrypt  --passphrase test README.gpg
+
+Also see `encryptcli` from https://github.com/evpo/EncryptPad/
+
+
 #### AES-256 zip
 
     ptcipher -e -p test README.md -o README.aes256.zip
@@ -102,7 +114,6 @@ For example, 7z can read but and write AES zip files:
 
     7z a -tzip -mem=AES256 -ptest README.aes256.zip README.md
     7z x -ptest README.aes256.zip
-
 
 
 #### VimCrypt
