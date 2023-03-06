@@ -14,6 +14,16 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * password is `password`
       * Approx 1.5Kb.
 
+  * aesop_win_encryptpad.asc - gpg (GnuPG) encrypted from `aesop.txt`
+    Created with Windows win32 encryptpad 0.5.0.2 beta https://github.com/evpo/EncryptPad/
+      * password is `password`
+      * Approx 1.1Kb.
+
+  * aesop_win_encryptpad.gpg - gpg (GnuPG) encrypted from `aesop.txt`
+    Created with Windows win32 encryptpad 0.5.0.2 beta https://github.com/evpo/EncryptPad/
+      * password is `password`
+      * Approx 0.8Kb.
+
   * aesop_win_winrar.aes256.zip - default AES-256 zip AE-1 encrypted from
     `aesop.txt` on Windows
     Created with Windows WinRAR 5.00 (32-bit)

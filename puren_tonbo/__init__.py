@@ -228,7 +228,7 @@ class VimDecrypt(EncryptedFile):
 
 
 class GnuPG(EncryptedFile):
-    """GnuPG - GPG ASCII armored
+    """GnuPG - GPG binary
     """
 
     description = 'gpg (GnuPG) symmetric 1.x and 2.x, does NOT uses keys'
@@ -293,6 +293,9 @@ TypeError: a bytes-like object is required, not 'str'
         file_object.write(enc_data.data)
 
 class GnuPGascii(GnuPG):
+    """GnuPG - GPG ASCII armored
+    """
+
     extensions = [
         '.asc',  # ASCII Armored File
     ]
