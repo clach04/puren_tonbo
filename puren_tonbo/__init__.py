@@ -1024,6 +1024,16 @@ def get_config(config_filename=None):
     # TODO codec may need to be parsed if it came from config file as was a comma seperate string
     return defaults
 
+def print_version_info():
+    print(sys.version)
+    print('')
+    print('Puren Tonbo puren_tonbo version %s' % puren_tonbo.__version__)
+    print('Formats:')
+    print('')
+    for file_extension in puren_tonbo.file_type_handlers:
+        handler_class = puren_tonbo.file_type_handlers[file_extension]
+        print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # TODO description
+
 
 def main(argv=None):
     if argv is None:

@@ -470,14 +470,7 @@ ter no rule than cruel rule.\n'''
 
 
 def main():
-    print(sys.version)
-    print('')
-    print('Puren Tonbo puren_tonbo version %s' % puren_tonbo.__version__)
-    print('Formats:')
-    print('')
-    for file_extension in puren_tonbo.file_type_handlers:
-        handler_class = puren_tonbo.file_type_handlers[file_extension]
-        print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # TODO description
+    puren_tonbo.print_version_info()
     unittest.main()
 
 if __name__ == '__main__':
