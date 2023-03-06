@@ -228,13 +228,12 @@ class VimDecrypt(EncryptedFile):
 
 
 class GnuPG(EncryptedFile):
-    """GnuPG - GPG
+    """GnuPG - GPG ASCII armored
     """
 
     description = 'gpg (GnuPG) symmetric 1.x and 2.x, does NOT uses keys'
     extensions = [
         '.gpg',  # binary
-        '.asc',  # ASCII Armored File
         # potentially .epd for _some_ EncryptPad created files
     ]
 
@@ -292,6 +291,20 @@ TypeError: a bytes-like object is required, not 'str'
             password = password.decode("utf-8")
         enc_data = gpg.encrypt(byte_data, recipients=[], symmetric=True, armor=False, passphrase=password)
         file_object.write(enc_data.data)
+
+class GnuPGascii(GnuPG):
+    extensions = [
+        '.asc',  # ASCII Armored File
+    ]
+
+    def write_to(self, file_object, byte_data):
+        password = self.key
+        # Seems to require strings - TODO open a bug upstream for this
+        if isinstance(password, bytes):
+            password = password.decode("utf-8")
+        enc_data = gpg.encrypt(byte_data, recipients=[], symmetric=True, passphrase=password)
+        file_object.write(enc_data.data)
+
 
 class TomboBlowfish(EncryptedFile):
     """Read/write Tombo (modified) Blowfish encrypted files
@@ -456,8 +469,9 @@ if chi_io:
         file_type_handlers[file_extension] = TomboBlowfish  # created by http://tombo.osdn.jp/En/
 
 if gpg:
-    for file_extension in GnuPG.extensions:
-        file_type_handlers[file_extension] = GnuPG
+    for enc_class in (GnuPG, GnuPGascii):
+        for file_extension in enc_class.extensions:
+            file_type_handlers[file_extension] = enc_class
 
 if pyzipper:
     for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES, ZipBzip2AES):
