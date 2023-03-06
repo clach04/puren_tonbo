@@ -51,6 +51,7 @@ except ImportError:
         chi_io = None
 
 try:
+    raise ImportError()  # on my armbian distro the SWIG layer appears to have issues and caches plaintext, test_aesop_win_encryptpad_gpg_bad_password fails due to NOT getting bad password exception
     import gpg as gpgme  # `apt install python3-gpg` https://github.com/gpg/gpgme
     gpg = gpgme.core.Context()
 except ImportError:
