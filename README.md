@@ -110,9 +110,9 @@ Also see `encryptcli` from https://github.com/evpo/EncryptPad/
 
     ptcipher -p test README.aes256.zip
 
-The aes256.zip file can also be read/written by WinRAR, WinZIP, etc. that support AES zip files.
+The aes256.zip file can also be read/written by 7-Zip, WinRAR, WinZIP, etc. that support AES zip files.
 
-For example, 7z can read but and write AES zip files:
+For example, 7z can read and write AES zip files:
 
     7z a -tzip -mem=AES256 -ptest README.aes256.zip README.md
     7z x -ptest README.aes256.zip
@@ -120,7 +120,7 @@ For example, 7z can read but and write AES zip files:
 
 #### VimCrypt
 
-NOTE not implemented in nvim / newovim.
+NOTE not implemented in nvim / neovim.
 
 In vim the easiest way to get the newest encryption mode/format, for a file:
 
