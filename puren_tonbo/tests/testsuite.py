@@ -289,7 +289,7 @@ ter no rule than cruel rule.\n'''
             canon = self.plain_text_data_windows_newlines
         else:
             canon = self.plain_text_data_linux_newlines
-        self.assertEqual(canon, data)
+        self.assertEqual(canon, data)  # FIXME works with gpg versions; 1.4.23, 2.2.19, 2.4.0 (windows and linux) BUT fails under GitHub Actions with (Chocolatey?) 2.2.29 (windows ONLY) with double \n instead of \r\n
 
     def test_aesop_win_encryptpad_gpg(self):
         if not puren_tonbo.gpg:
