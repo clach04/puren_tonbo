@@ -51,14 +51,19 @@ except ImportError:
         chi_io = None
 
 try:
-    import gnupg  # https://github.com/vsajip/python-gnupg
-    try:
-        gpg = gnupg.GPG()
-    except RuntimeError:
-        # Assume;     RuntimeError: GnuPG is not installed!
-        gpg = None
+    import gpg as gpgme  # `apt install python3-gpg` https://github.com/gpg/gpgme
+    gpg = gpgme.core.Context()
 except ImportError:
-    gpg = None
+    gpgme = None
+    try:
+        import gnupg  # https://github.com/vsajip/python-gnupg
+        try:
+            gpg = gnupg.GPG()
+        except RuntimeError:
+            # Assume;     RuntimeError: GnuPG is not installed!
+            gpg = None
+    except ImportError:
+        gpg = None
 
 try:
     import pyzipper  # https://github.com/danifus/pyzipper  NOTE py3 only
@@ -257,11 +262,27 @@ TypeError: a bytes-like object is required, not 'str'
         if isinstance(password, bytes):
             password = password.decode("utf-8")
         edata = file_object.read()
-        result = gpg.decrypt(edata, passphrase=password)
+        if gpgme:
+            try:
+                result = gpg.decrypt(edata, passphrase=password)
+            except gpgme.errors.GPGMEError:
+                # just assume
+                raise BadPassword('with %r' % file_object)
+        else:
+            result = gpg.decrypt(edata, passphrase=password)
+        #result = gpgme.core.Context().decrypt(edata, passphrase=password)
+        #result = gpgme.core.Context().decrypt(edata, passphrase='this is shot')
         #result = gpg.decrypt_file(file_object, passphrase=password)
         if result:
-            return str(result)  # TODO is there a better API for this?
+            if gpgme:
+                result = result[0]  # just ignore the validation.. # FIXME!
+                return result
+            else:
+                return str(result)  # TODO is there a better API for this?
         raise BadPassword('with %r' % file_object)
+
+    # if gpgme:
+    # crypted_text, _, _ = context.encrypt('hello', sign=False, passphrase='test')
 
 
 class TomboBlowfish(EncryptedFile):
