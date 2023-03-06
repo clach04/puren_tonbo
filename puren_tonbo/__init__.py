@@ -1033,6 +1033,18 @@ def print_version_info():
     for file_extension in puren_tonbo.file_type_handlers:
         handler_class = puren_tonbo.file_type_handlers[file_extension]
         print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # TODO description
+    print('')
+    print('Libs:')
+    if chi_io:
+        print('\tchi_io.implementation: %s' % chi_io.implementation)
+    if gnupg:
+        print('\tpython-gnupg version: %s' % gnupg.__version__)
+    if gpg:
+        print('\tgpg version: %r' % (gpg.version,))
+    if pyzipper:
+        print('\tpyzipper version: %s' % pyzipper.__version__)
+    print('')
+
 
 
 def main(argv=None):
