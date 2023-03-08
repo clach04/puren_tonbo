@@ -63,6 +63,8 @@ None right now!
 
 ### ptgrep
 
+A grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/ripgrep), [silver-searcher](https://geoff.greer.fm/ag/), [pss](https://github.com/eliben/pss) like tool that works on encrypted (and plain text) files.
+
     python -m puren_tonbo.tools.ptgrep better
     python -m puren_tonbo.tools.ptgrep -e -p password Better
     python -m puren_tonbo.tools.ptgrep -e -p password Better
