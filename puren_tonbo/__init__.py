@@ -64,7 +64,7 @@ except ImportError:
             # Assume;     RuntimeError: GnuPG is not installed!
             gpg = None
     except ImportError:
-        gpg = None
+        gpg = gnupg = None
 
 try:
     import pyzipper  # https://github.com/danifus/pyzipper  NOTE py3 only
