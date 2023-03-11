@@ -13,6 +13,7 @@ from optparse import OptionParser
 import sys
 import tempfile
 
+# tested with pyvim.__version__ == '3.0.3'
 from pyvim.editor import Editor  # https://github.com/prompt-toolkit/pyvim
 from pyvim.rc_file import run_rc_file
 from pyvim.io import FileIO, DirectoryIO, HttpIO, GZipFileIO
