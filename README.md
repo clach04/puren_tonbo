@@ -149,22 +149,22 @@ Quick and easy view/read ONLY of encrypted file with vim, without updating vim c
 
 NOTE call vim (or neovim) with options to set "private" mode:
 
-  * - to read from stdin instead of a filename, avoid plaintext hitting the disk
-  * -n turns off swap file - use memory only
-  * -i turns off .viminfo
+  * `-` to read from stdin instead of a filename, avoid plaintext hitting the disk
+  * `-n` turns off swap file - use memory only
+  * `-i` turns off .viminfo
 
 TODO disable undo file
 
 
   1. Use a pipe (cross platform)
 
-        ptcat FILE | vim - -n -i "NONE"
+            ptcat FILE | vim - -n -i "NONE"
 
   2. Use bash shell command substitution feature for editors that don't support stdin (Linux/Unix only, avoids directly calling mkfifo and cleaning up named pipes)
 
-        scite < (ptcat FILE)
-        ptcat FILE | scite /dev/stdin
-        scite <(python -m puren_tonbo.tools.ptcat  puren_tonbo/tests/data/aesop.txt)
+            scite < (ptcat FILE)
+            ptcat FILE | scite /dev/stdin
+            scite <(python -m puren_tonbo.tools.ptcat  puren_tonbo/tests/data/aesop.txt)
 
 Puren Tonbo will prompt for passwords and the decrypted content should not hit the file system.
 
