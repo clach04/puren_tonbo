@@ -60,12 +60,59 @@ function! s:PurenTonboReadPost()
     redraw!
 endfunction
 
+function! s:PurenTonboWritePre()
+    " Partially working (under Linux)
+    " Write/save works, but then get prompt:
+    "   WARNING: The file has been changed since reading it!!!
+    "   Do you really want to write to it (y/n)?
+    " Say no, ptcipher had already written to file
+    " Saying yes, outputs the stdout/stderror from ptcipher into file, e.g.:
+    "   Read in from stdin...DEBUG tmp_out_filename '/..../puren_tonbo/write.aeszip20230311_170505e0grbho9'
+
+
+    set cmdheight=3
+    set shell=/bin/sh
+    set bin
+
+
+    " using filename <afile> rather than stdin to tool due to unbuffered issues with python (bins and __main__) and Windows
+    " 0 and 1 both work so far under Linux
+
+    " vim prompts for password, put into OS env PT_PASSWORD which ptcipher picks up automatically
+    " error message that requires dismisal displayed, then raw file loaded/displayed in buffer
+    let $PT_PASSWORD = inputsecret("ptcipher Password: ")
+    let l:expr = "1,$!ptcipher -e -o <afile>"
+    silent! execute l:expr
+    if v:shell_error
+        silent! 0,$y
+        silent! undo
+        echo "COULD NOT ENCRYPT USING EXPRESSION: " . expr
+        echo "ERROR FROM Puren Tonbo:"
+        echo @"
+        echo "COULD NOT ENCRYPT"
+        return
+    endif
+
+    set nobin
+    set cmdheight&
+    set shell&
+    execute ":doautocmd BufReadPost ".expand("%:r")
+    redraw!
+endfunction
+
+function! s:PurenTonboWritePost()
+    silent! undo
+    set nobin
+    set shell&
+    set cmdheight&
+    redraw!
+endfunction
+
+
 autocmd BufReadPre,FileReadPre     *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboReadPre()
 autocmd BufReadPost,FileReadPost   *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboReadPost()
-" TODO write not implemented!
-" WARNING writing with this config will write plain text content, withOUT encryption!
-autocmd BufWritePre,FileWritePre   *.chi,*.asc,*.gpg call s:PurenTonboWritePre()
-autocmd BufWritePost,FileWritePost *.chi,*.asc,*.gpg call s:PurenTonboWritePost()
+autocmd BufWritePre,FileWritePre   *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboWritePre()
+autocmd BufWritePost,FileWritePost *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboWritePost()
 
 augroup END
 
