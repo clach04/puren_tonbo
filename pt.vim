@@ -63,6 +63,7 @@ endfunction
 autocmd BufReadPre,FileReadPre     *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboReadPre()
 autocmd BufReadPost,FileReadPost   *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboReadPost()
 " TODO write not implemented!
+" WARNING writing with this config will write plain text content, withOUT encryption!
 autocmd BufWritePre,FileWritePre   *.chi,*.asc,*.gpg call s:PurenTonboWritePre()
 autocmd BufWritePost,FileWritePost *.chi,*.asc,*.gpg call s:PurenTonboWritePost()
 
