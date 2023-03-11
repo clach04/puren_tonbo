@@ -75,13 +75,17 @@ function! s:PurenTonboWritePre()
     set bin
 
 
-    " using filename <afile> rather than stdin to tool due to unbuffered issues with python (bins and __main__) and Windows
     " 0 and 1 both work so far under Linux
 
     " vim prompts for password, put into OS env PT_PASSWORD which ptcipher picks up automatically
     " error message that requires dismisal displayed, then raw file loaded/displayed in buffer
+    " if using stdout for encryption, ptcipher needs to be told which scheme/file type to use
+    " WARNING! end up with "Read in from stdin..." as prefix in file withou --silent flag, even though that was sent to stderr
+    let l:cipher = expand("<afile>:e")
     let $PT_PASSWORD = inputsecret("ptcipher Password: ")
-    let l:expr = "1,$!ptcipher -e -o <afile>"
+    " TODO prompt twice to avoid incorrect passwords?
+    "let l:expr = "1,$!ptcipher --cipher " . l:cipher . " -e -o -"
+    let l:expr = "1,$!ptcipher --silent --cipher " . l:cipher . " -e -o -"
     silent! execute l:expr
     if v:shell_error
         silent! 0,$y
