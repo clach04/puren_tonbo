@@ -149,9 +149,9 @@ Quick and easy view/read ONLY of encrypted file with vim, without updating vim c
 
 NOTE call vim (or neovim) with options to set "private" mode:
 
-  * - to read from stdin instead of a filename, avoid plaintext hitting the disk
-  * -n turns off swap file - use memory only
-  * -i turns off .viminfo
+  * `-` to read from stdin instead of a filename, avoid plaintext hitting the disk
+  * `-n` turns off swap file - use memory only
+  * `-i` turns off .viminfo
 
 TODO disable undo file
 
