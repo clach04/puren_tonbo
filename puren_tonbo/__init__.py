@@ -918,6 +918,9 @@ class FileSystemNotes(BaseNotes):
                     #import pdb ; pdb.set_trace()
                     if callable(get_pass):
                         note_password = get_pass(filename=filename, reset=reset_password)
+                        # sanity check needed in case function returned string
+                        if not isinstance(note_password, bytes):
+                            note_password = note_password.encode("utf-8")
                     else:
                         # Assume password bytes passed in
                         note_password = get_pass
