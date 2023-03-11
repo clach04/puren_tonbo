@@ -158,13 +158,13 @@ TODO disable undo file
 
   1. Use a pipe (cross platform)
 
-        ptcat FILE | vim - -n -i "NONE"
+            ptcat FILE | vim - -n -i "NONE"
 
   2. Use bash shell command substitution feature for editors that don't support stdin (Linux/Unix only, avoids directly calling mkfifo and cleaning up named pipes)
 
-        scite < (ptcat FILE)
-        ptcat FILE | scite /dev/stdin
-        scite <(python -m puren_tonbo.tools.ptcat  puren_tonbo/tests/data/aesop.txt)
+            scite < (ptcat FILE)
+            ptcat FILE | scite /dev/stdin
+            scite <(python -m puren_tonbo.tools.ptcat  puren_tonbo/tests/data/aesop.txt)
 
 Puren Tonbo will prompt for passwords and the decrypted content should not hit the file system.
 
