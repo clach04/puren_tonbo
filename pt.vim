@@ -79,12 +79,13 @@ function! s:PurenTonboWritePre()
     " vim prompts for password, put into OS env PT_PASSWORD which ptcipher picks up automatically
     " error message that requires dismisal displayed, then raw file loaded/displayed in buffer
     " if using stdout for encryption, ptcipher needs to be told which scheme/file type to use
-    let l:cipher = expand("<afile>:e")
+    " use the file extension as the format/encryption cipher
+    let l:file_extension = expand("<afile>:e")
     let $PT_PASSWORD = inputsecret("ptcipher Password: ")
     " TODO prompt twice to avoid incorrect passwords? and/or only prompt if PT_PASSWORD is not set
     " WARNING! end up with "Read in from stdin..." as prefix in file without --silent flag, even though that was sent to stderr
-    "let l:expr = "1,$!ptcipher --cipher " . l:cipher . " -e -o -"
-    let l:expr = "1,$!ptcipher --silent --cipher " . l:cipher . " -e -o -"
+    "let l:expr = "1,$!ptcipher --cipher " . l:file_extension . " -e -o -"
+    let l:expr = "1,$!ptcipher --silent --cipher " . l:file_extension . " -e -o -"
     silent! execute l:expr
     if v:shell_error
         silent! 0,$y
