@@ -8,11 +8,18 @@ https://github.com/clach04/puren_tonbo/
 ensure that it is legal in your country to use the specific encryption ciphers.
 Some countries have also have restrictions on import, export, and usage see http://www.cryptolaw.org/cls-sum.htm
 
-* [Features](#Features)
-* [Background](#Background)
-* [Getting Started](#Getting-Started)
-* [Examples](#Examples)
-    * [ptcipher](#ptcipher)
+- [Background](#background)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Examples](#examples)
+  - [ptcat](#ptcat)
+  - [ptgrep](#ptgrep)
+  - [ptcipher](#ptcipher)
+- [ptcat/ptcipher with text editors like vim](#ptcatptcipher-with-text-editors-like-vim)
+- [Developement and testing](#developement-and-testing)
+  - [Run test suite](#run-test-suite)
+  - [High Level Overview](#high-level-overview)
+- [Thanks](#thanks)
 
 
 ## Background
