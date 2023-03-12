@@ -160,7 +160,7 @@ TODO disable undo file
 
             ptcat FILE | vim - -n -i "NONE"
 
-  2. Use bash shell command substitution feature for editors that don't support stdin (Linux/Unix only, avoids directly calling mkfifo and cleaning up named pipes)
+  2. Use bash shell [process substitution](http://www.tldp.org/LDP/abs/html/process-sub.html) feature for editors that don't support stdin (Linux/Unix only, avoids directly calling mkfifo and cleaning up named pipes)
 
             scite < (ptcat FILE)
             ptcat FILE | scite /dev/stdin
