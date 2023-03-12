@@ -50,9 +50,6 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    if is_py3:
-        stream_encoding = 'utf-8'  # FIXME hard coded
-
     usage = "usage: %prog [options] in_filename"
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     parser.add_option("-o", "--output", dest="out_filename", default='-',
@@ -151,9 +148,6 @@ def main(argv=None):
                 handler_class = puren_tonbo.filename2handler(in_filename)
             handler = handler_class(key=password)
             plain_str = handler.read_from(in_file)
-            if is_py3:
-                # encode to stdout encoding  TODO make this optional, potentially useful for py2 too
-                plain_str = plain_str.decode(note_encoding).encode(stream_encoding)
             out_file.write(plain_str)
             failed = False
         else:
