@@ -90,13 +90,9 @@ class PureTonboFileIO(EditorIO):
 
         handler_class = puren_tonbo.filename2handler(location)
         handler = handler_class(key=password)
-        data = handler.read_from(location)
-        """
-        if is_py3:
-            # encode to stdout encoding  TODO make this optional, potentially useful for py2 too
-            stream_encoding = 'utf-8'  # FIXME hard coded
-            plain_str = plain_str.decode(note_encoding).encode(stream_encoding)
-        """
+        #import web_pdb; web_pdb.set_trace()  # https://github.com/romanvm/python-web-pdb
+        with open(location, 'rb') as file_object:
+            data = handler.read_from(file_object)  # problem here with rawfile?
 
         return _auto_decode(data)
 
