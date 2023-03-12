@@ -16,6 +16,8 @@ Some countries have also have restrictions on import, export, and usage see http
   - [ptgrep](#ptgrep)
   - [ptcipher](#ptcipher)
 - [ptcat/ptcipher with text editors like vim](#ptcatptcipher-with-text-editors-like-vim)
+  - [readonly pipe into editor](#readonly-pipe-into-editor)
+  - [vim plugin](#vim-plugin)
 - [Development and testing](#development-and-testing)
   - [Run test suite](#run-test-suite)
   - [High Level Overview](#high-level-overview)
@@ -152,6 +154,8 @@ ptcipher demo:
 
 ## ptcat/ptcipher with text editors like vim
 
+### readonly pipe into editor
+
 Quick and easy view/read ONLY of encrypted file with vim, without updating vim config.
 
 NOTE call vim (or neovim) with options to set "private" mode:
@@ -186,6 +190,9 @@ Caution!
 
 https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-private-mode
 
+### vim plugin
+
+See [pt.vim](./pt.vim) - Linux/Unix/Cygwin only for now.
 
 See https://vim.fandom.com/wiki/Encryption for how to configure vim with external tools for (view and edit) of encrypted files with autocmd.
 NOTE under Windows buffered IO can interfere with vim interactions.
