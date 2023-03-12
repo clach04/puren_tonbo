@@ -16,7 +16,7 @@ Some countries have also have restrictions on import, export, and usage see http
   - [ptgrep](#ptgrep)
   - [ptcipher](#ptcipher)
 - [ptcat/ptcipher with text editors like vim](#ptcatptcipher-with-text-editors-like-vim)
-- [Developement and testing](#developement-and-testing)
+- [Development and testing](#development-and-testing)
   - [Run test suite](#run-test-suite)
   - [High Level Overview](#high-level-overview)
 - [Thanks](#thanks)
@@ -197,7 +197,7 @@ TODO consider using (OpenSSL) https://www.vim.org/scripts/script.php?script_id=2
 
 
 
-## Developement and testing
+## Development and testing
 
 
 ### Run test suite
