@@ -56,7 +56,7 @@ def file_replace(src, dst):
             os.remove(tmp_backup)
 
 
-password = 'password'  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
+password = os.environ.get('PT_PASSWORD', '')  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
 if not isinstance(password, bytes):
     password = password.encode('us-ascii')
 
@@ -86,11 +86,14 @@ class PureTonboFileIO(EditorIO):
         """
         Read/decrypt file from disk.
         """
+        #import web_pdb; web_pdb.set_trace()  # https://github.com/romanvm/python-web-pdb
+        if not password:
+            raise puren_tonbo.BadPassword('Missing password, set OS env PT_PASSWORD')
+
         location = os.path.expanduser(location)  # revisit this, future virtual file system support
 
         handler_class = puren_tonbo.filename2handler(location)
         handler = handler_class(key=password)
-        #import web_pdb; web_pdb.set_trace()  # https://github.com/romanvm/python-web-pdb
         with open(location, 'rb') as file_object:
             data = handler.read_from(file_object)  # problem here with rawfile?
 
@@ -100,6 +103,9 @@ class PureTonboFileIO(EditorIO):
         """
         Write/encrypt file to disk.
         """
+        if not password:
+            raise puren_tonbo.BadPassword('Missing password, set OS env PT_PASSWORD')
+
         location = os.path.expanduser(location)  # revisit this
 
         failed = True
