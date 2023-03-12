@@ -204,3 +204,10 @@ Low level routines (EncryptedFile) use file-like objects, for in-memory encrypti
 (see test suite, `puren_tonbo/tests/testsuite.py`).
 
 There is also the note abstraction (FileSystemNotes) which is filename based.
+
+## Thanks
+
+Thanks and kudos to:
+
+  * [maxpat78](https://github.com/maxpat78) for the Python 2 (and 3) fall back code for AES zip support, [relicensed with permission](https://github.com/maxpat78/CryptoPad/issues/2) from https://github.com/maxpat78/CryptoPad
+  * Noah Spurrier who's Public Domain OpenSSL vim plugin is the inspiration for the PT vim support (using functions) https://www.vim.org/scripts/script.php?script_id=2012
