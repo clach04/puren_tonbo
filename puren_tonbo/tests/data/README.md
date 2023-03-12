@@ -150,6 +150,12 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * Approx 1.5Kb.
       * has unix/linux newlines
       * us-ascii encoding
+  * latin.txt - plain text file, single byte encoding
+      * Approx 3.2Kb.
+      * ISO-8859-1/Windows-1252 encoding
+  * utf8_latin.txt - plain text file, utf-8 multi byte encoding
+      * Approx 3.4Kb.
+      * utf-8 encoding
 
 Vim Crypt files created via:
 
