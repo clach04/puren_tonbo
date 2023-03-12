@@ -43,6 +43,7 @@ function! s:PurenTonboReadPost()
     " vim prompts for password, put into OS env PT_PASSWORD which ptcipher picks up automatically
     " error message that requires dismisal displayed, then raw file loaded/displayed in buffer
     if $PT_PASSWORD == ""
+        " TODO refactor into a function for password prompt
         let $PT_PASSWORD = inputsecret("ptcipher Password: ")
     endif
     let l:expr = "1,$!ptcipher -d <afile>"
