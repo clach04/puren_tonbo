@@ -61,29 +61,28 @@ function! s:PurenTonboReadPost()
 endfunction
 
 function! s:PurenTonboWritePre()
-    " Partially working (under Linux)
-    " Write/save works, but then get prompt:
+    " Likely Linux/Unix only due to Windows buffered IO issues (and use of /bin/sh)
+    " did experiment with using <afile> and having ptcipher write directly
+    " that write/save works, but then get prompt from vim:
     "   WARNING: The file has been changed since reading it!!!
     "   Do you really want to write to it (y/n)?
     " Say no, ptcipher had already written to file
     " Saying yes, outputs the stdout/stderror from ptcipher into file, e.g.:
     "   Read in from stdin...DEBUG tmp_out_filename '/..../puren_tonbo/write.aeszip20230311_170505e0grbho9'
 
-
     set cmdheight=3
     set shell=/bin/sh
     set bin
-
 
     " 0 and 1 both work so far under Linux
 
     " vim prompts for password, put into OS env PT_PASSWORD which ptcipher picks up automatically
     " error message that requires dismisal displayed, then raw file loaded/displayed in buffer
     " if using stdout for encryption, ptcipher needs to be told which scheme/file type to use
-    " WARNING! end up with "Read in from stdin..." as prefix in file withou --silent flag, even though that was sent to stderr
     let l:cipher = expand("<afile>:e")
     let $PT_PASSWORD = inputsecret("ptcipher Password: ")
-    " TODO prompt twice to avoid incorrect passwords?
+    " TODO prompt twice to avoid incorrect passwords? and/or only prompt if PT_PASSWORD is not set
+    " WARNING! end up with "Read in from stdin..." as prefix in file without --silent flag, even though that was sent to stderr
     "let l:expr = "1,$!ptcipher --cipher " . l:cipher . " -e -o -"
     let l:expr = "1,$!ptcipher --silent --cipher " . l:cipher . " -e -o -"
     silent! execute l:expr
