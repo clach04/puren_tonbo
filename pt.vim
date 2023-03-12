@@ -23,7 +23,9 @@ function! s:WorksErrorsToBufferPurenTonboReadPost()
     "silent 1,$!ptcipher -d <afile>
 
     " vim prompts for password, put into OS env PT_PASSWORD which ptcipher picks up automatically
-    let $PT_PASSWORD = inputsecret("ptcipher Password: ")
+    if $PT_PASSWORD == ""
+        let $PT_PASSWORD = inputsecret("ptcipher Password: ")
+    endif
     silent 1,$!ptcipher -d <afile>
 
     set nobin
@@ -40,7 +42,9 @@ function! s:PurenTonboReadPost()
 
     " vim prompts for password, put into OS env PT_PASSWORD which ptcipher picks up automatically
     " error message that requires dismisal displayed, then raw file loaded/displayed in buffer
-    let $PT_PASSWORD = inputsecret("ptcipher Password: ")
+    if $PT_PASSWORD == ""
+        let $PT_PASSWORD = inputsecret("ptcipher Password: ")
+    endif
     let l:expr = "1,$!ptcipher -d <afile>"
     silent! execute l:expr
     if v:shell_error
@@ -50,6 +54,8 @@ function! s:PurenTonboReadPost()
         echo "ERROR FROM Puren Tonbo:"
         echo @"
         echo "COULD NOT DECRYPT"
+        echo "Unsetting local OS env PT_PASSWORD"
+        let $PT_PASSWORD = ""
         return
     endif
 
@@ -81,7 +87,9 @@ function! s:PurenTonboWritePre()
     " if using stdout for encryption, ptcipher needs to be told which scheme/file type to use
     " use the file extension as the format/encryption cipher
     let l:file_extension = expand("<afile>:e")
-    let $PT_PASSWORD = inputsecret("ptcipher Password: ")
+    if $PT_PASSWORD == ""
+        let $PT_PASSWORD = inputsecret("ptcipher Password: ")
+    endif
     " TODO prompt twice to avoid incorrect passwords? and/or only prompt if PT_PASSWORD is not set
     " WARNING! end up with "Read in from stdin..." as prefix in file without --silent flag, even though that was sent to stderr
     "let l:expr = "1,$!ptcipher --cipher " . l:file_extension . " -e -o -"
