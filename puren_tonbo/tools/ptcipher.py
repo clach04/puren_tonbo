@@ -59,6 +59,7 @@ def main(argv=None):
     parser.add_option("-e", "--encrypt", action="store_false", dest="decrypt",
                         help="encrypt in_filename")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
+    parser.add_option("--no-prompt", help="do not prompt for password", action="store_true")
     parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint)")
     parser.add_option("-c", "--codec", help="File encoding", default='utf-8')
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
@@ -131,7 +132,11 @@ def main(argv=None):
         tmp_out_filename = out_file.name
         print('DEBUG tmp_out_filename %r' % tmp_out_filename)
 
-    password = options.password or password_file or os.environ.get('PT_PASSWORD') or getpass.getpass("Password:")
+    if options.no_prompt:
+        default_password_value = ''  # empty password, cause a bad password error
+    else:
+        default_password_value = getpass.getpass("Password:")
+    password = options.password or password_file or os.environ.get('PT_PASSWORD') or default_password_value
     if not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
