@@ -1,9 +1,9 @@
 import os
 import sys
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
-    from distutils.core import setup
+    from distutils.core import setup, find_packages
 
 try:
     import pyvim  # https://github.com/prompt-toolkit/pyvim - pip install pyvim
@@ -49,7 +49,11 @@ setup(
     url='https://github.com/clach04/puren_tonbo',
     description='Plain text notes Tombo (chi) alternative, also supports AES-256 ZIP AE-1/AE-2 and VimCrypt encrypted files. Work-In-Progress (WIP)!',  # FIXME
     long_description=long_description,
-    packages=['puren_tonbo'],
+    #packages=['puren_tonbo'],
+    packages=find_packages(where=os.path.dirname(__file__), include=['*']),
+    package_data={
+        'puren_tonbo': [os.path.join(os.path.dirname(__file__), 'puren_tonbo', 'data', '*')],
+    },
     #scripts=['ptcipher.py'],
     #py_modules=[''], # TODO scripts
     entry_points={
