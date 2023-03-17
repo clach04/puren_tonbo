@@ -38,7 +38,7 @@ exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'puren_tonbo'
 
 
 # TODO/FIXME dupe of requirements.txt - also chi_io missing here (as not on pypi)
-install_requires = ['pycryptodome', 'git+https://github.com/clach04/chi_io.git', 'python-gnupg']
+install_requires = ['pycryptodome', 'python-gnupg']
 if is_py3:
     install_requires += ['pyzipper']  # pyzipperis python 3.x+
 
