@@ -55,6 +55,13 @@ None right now!
 
 ## Getting Started
 
+### Without a source code checkout
+
+    pip uninstall puren_tonbo ; python -m pip install --upgrade git+https://github.com/clach04/chi_io.git  git+https://github.com/clach04/puren_tonbo.git
+
+NOTE be aware test suite will not pass due to missing data files,
+issue https://github.com/clach04/puren_tonbo/issues/38
+
 ### From a source code checkout
 
     # pip uninstall puren_tonbo
