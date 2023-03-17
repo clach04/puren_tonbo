@@ -61,7 +61,11 @@ None right now!
     # python -m pip install -r requirements.txt
     # TODO requirements_optional.txt
     python -m pip install -e .
-    python -m puren_tonbo.tools.ptconfig  # sanity check, and dump sample config to stdout
+
+
+    # sanity check, and dump sample config to stdout
+    ptconfig
+    python -m puren_tonbo.tools.ptconfig
 
 
 ## Examples
