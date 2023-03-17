@@ -15,18 +15,18 @@ function! s:WorksErrorsToBufferPurenTonboReadPost()
     " 0 and 1 both work so far under Linux
 
     " experiment hard coded password
-    "silent 1,$!ptcipher -d -p password <afile>
-    "silent 0,$!ptcipher -d -p password <afile>
+    "silent 1,$!ptcipher -d -p password '<afile>'
+    "silent 0,$!ptcipher -d -p password '<afile>'
 
     " ptcipher prompts for password
     " on error bugfer fills with error text
-    "silent 1,$!ptcipher -d <afile>
+    "silent 1,$!ptcipher -d '<afile>'
 
     " vim prompts for password, put into OS env PT_PASSWORD which ptcipher picks up automatically
     if $PT_PASSWORD == ""
         let $PT_PASSWORD = inputsecret("ptcipher Password: ")
     endif
-    silent 1,$!ptcipher -d <afile>
+    silent 1,$!ptcipher -d '<afile>'
 
     set nobin
     set cmdheight&
@@ -46,7 +46,7 @@ function! s:PurenTonboReadPost()
         " TODO refactor into a function for password prompt
         let $PT_PASSWORD = inputsecret("ptcipher Password: ")
     endif
-    let l:expr = "1,$!ptcipher -d <afile>"
+    let l:expr = "1,$!ptcipher -d '<afile>'"
     silent! execute l:expr
     if v:shell_error
         silent! 0,$y
