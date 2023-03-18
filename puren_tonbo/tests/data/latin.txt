@@ -1,4 +1,5 @@
 Quick and dirty single byte character table for Latin-x, ISO-8859-x, Windows 125x, cp125x
+-*- coding: cp1252 -*-
 
   * https://en.wikipedia.org/wiki/ISO/IEC_8859-15
   * https://en.wikipedia.org/wiki/Windows-1252
