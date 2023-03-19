@@ -35,6 +35,7 @@ class FakeOptions:
     line_numbers = True
     grep = False  # i.e ripgrep=True
     search_encrypted = False  # TODO add away to change this (set...
+    time = True
 
     def __init__(self, options=None):
         if options:
@@ -163,50 +164,14 @@ Examples
 
         search_encrypted = options.search_encrypted
         password_func = options.password or puren_tonbo.caching_console_password_prompt
+        use_color = True  # FIXME tty
         #search_encrypted = True
         """
         if search_encrypted:
             password_func = puren_tonbo.caching_console_password_prompt
         """
 
-        # TODO refactor ptgrep to allow reuse - remove below
-        try:
-            highlight_text_start, highlight_text_stop = None, None
-
-            for path_to_search in paths_to_search:
-                print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
-                notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
-                for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
-                    filename, hit_detail = hit
-                    #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
-                    if filename:
-                        if options.display_full_path:
-                            filename = os.path.join(path_to_search, filename)
-                        if ripgrep:
-                            filename = '%s' % filename  # ripgrep/ack/ag uses filename only
-                        else:
-                            # grep - TODO should this be conditional on line numbers and/or wild card?
-                            filename = '%s:' % filename
-                    else:
-                        # Single file grep, rather than recursive search
-                        # do not want filename
-                        filename = ''
-                    if ripgrep:
-                        print('%s' % (filename, ))
-                    for result_hit_line, result_hit_text in hit_detail:
-                        result_hit_line = str(result_hit_line)
-                        if ripgrep:
-                            # ripgrep like - automatically includes numbers
-                            print('%s:%s' % (result_hit_line, result_hit_text))
-                        elif line_numbers:
-                            # grep-like with numbers
-                            print('%s%s:%s' % (filename, result_hit_line, result_hit_text))
-                        else:
-                            # grep-like without numbers
-                            print('%s%s' % (filename, result_hit_text))
-        except SearchCancelled as info:
-            print('search cancelled', info)
-        # TODO refactor ptgrep to allow reuse - remove above
+        ptgrep.grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding, ripgrep)
 
     do_g = do_grep  # shortcut to save typing
     do_rg = do_grep  # ripgrep alias for convenience
