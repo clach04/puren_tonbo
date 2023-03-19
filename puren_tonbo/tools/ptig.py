@@ -28,7 +28,7 @@ from puren_tonbo.tools import ptcat, ptgrep  # FIXME TODO actually use these
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
 
-class FakeOptions:
+class FakeOptions:  # to match ptgrep (OptParse) options
     display_full_path = True
     ignore_case = False
     regex_search = False
@@ -162,13 +162,12 @@ Examples
         note_encoding = self.pt_config['codec']
 
         line_numbers = options.line_numbers
-        search_is_regex = options.search_is_regex
 
         search_encrypted = options.search_encrypted
         password_func = options.password or puren_tonbo.caching_console_password_prompt
         use_color = options.use_color
 
-        ptgrep.grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding)
+        ptgrep.grep(search_term, paths_to_search, options, ignore_case,  use_color, search_encrypted, password_func, note_encoding)
 
     do_g = do_grep  # shortcut to save typing
     do_rg = do_grep  # ripgrep alias for convenience

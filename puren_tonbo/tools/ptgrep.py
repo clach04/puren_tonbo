@@ -54,8 +54,10 @@ else:
 
 
 # TODO remove/replace args and consolidate into options
-def grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding):
+def grep(search_term, paths_to_search, options, ignore_case, use_color, search_encrypted, password_func, note_encoding):
     ripgrep = not options.grep
+    search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
+
     if options.time:
         start_time = time.time()
     try:
@@ -234,11 +236,10 @@ def main(argv=None):
 
     password_func = password
     ignore_case = options.ignore_case
-    search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
     line_numbers = options.line_numbers == True
     search_encrypted = options.search_encrypted
 
-    grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding)
+    grep(search_term, paths_to_search, options, ignore_case, use_color, search_encrypted, password_func, note_encoding)
 
     return 0
 
