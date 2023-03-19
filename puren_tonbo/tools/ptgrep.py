@@ -36,6 +36,23 @@ is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
 
 
+if colorama:
+    # TODO options for these? These are close facimiles to ripgrep default
+    color_filename = colorama.Fore.BLUE
+    color_linenum = colorama.Fore.GREEN
+    color_searchhit = colorama.Fore.RED
+    color_reset = colorama.Style.RESET_ALL
+else:
+    # might be linux (not Windows)
+    if not is_win:
+        # ansi color escape sequences
+        color_filename = '\x1b[01;34m'  # Fore.BLUE
+        color_linenum = '\x1b[01;32m'  # Fore.GREEN
+        #color_searchhit = '\x1b[01;05;37;41m'  # Background Red, foreground flasshing white
+        color_searchhit = '\x1b[31m'  # Fore.RED
+        color_reset = '\x1b[00m'
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -133,11 +150,6 @@ def main(argv=None):
         # skips processing for doing highlighting
         use_color = False
     elif colorama:
-        # TODO options for these? These are close facimiles to ripgrep default
-        color_filename = colorama.Fore.BLUE
-        color_linenum = colorama.Fore.GREEN
-        color_searchhit = colorama.Fore.RED
-        color_reset = colorama.Style.RESET_ALL
         # TODO only do below for Windows? looks like it may be a NOOP so may not need a windows check
         try:
             colorama.just_fix_windows_console()
@@ -148,12 +160,6 @@ def main(argv=None):
     else:
         # might be linux (not Windows)
         if not is_win:
-            # ansi color escape sequences
-            color_filename = '\x1b[01;34m'  # Fore.BLUE
-            color_linenum = '\x1b[01;32m'  # Fore.GREEN
-            #color_searchhit = '\x1b[01;05;37;41m'  # Background Red, foreground flasshing white
-            color_searchhit = '\x1b[31m'  # Fore.RED
-            color_reset = '\x1b[00m'
             use_color = True
 
 
