@@ -43,7 +43,7 @@ def main(argv=None):
     config = puren_tonbo.get_config(options.config_file)
     if options.note_root:
             config['note_root'] = options.note_root
-    print('%s' % json.dumps(config, indent=4, sort_keys=True))
+    print('%s' % json.dumps(config, indent=4, sort_keys=True))  # TODO color support
 
 
     return 0
