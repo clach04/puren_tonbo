@@ -54,7 +54,8 @@ else:
 
 
 # TODO remove/replace args and consolidate into options
-def grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding, ripgrep):
+def grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding):
+    ripgrep = not options.grep
     if options.time:
         start_time = time.time()
     try:
@@ -222,8 +223,6 @@ def main(argv=None):
             use_color = True
 
 
-    ripgrep = not options.grep
-
     """
     if options.password:
         password_func = gen_static_password(options.password).gen_func()
@@ -239,7 +238,7 @@ def main(argv=None):
     line_numbers = options.line_numbers == True
     search_encrypted = options.search_encrypted
 
-    grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding, ripgrep)
+    grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding)
 
     return 0
 

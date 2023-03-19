@@ -161,7 +161,6 @@ Examples
         ignore_case = options.ignore_case
         note_encoding = self.pt_config['codec']
 
-        ripgrep = not options.grep
         line_numbers = options.line_numbers
         search_is_regex = options.search_is_regex
 
@@ -169,7 +168,7 @@ Examples
         password_func = options.password or puren_tonbo.caching_console_password_prompt
         use_color = options.use_color
 
-        ptgrep.grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding, ripgrep)
+        ptgrep.grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding)
 
     do_g = do_grep  # shortcut to save typing
     do_rg = do_grep  # ripgrep alias for convenience
