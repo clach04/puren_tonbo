@@ -53,6 +53,7 @@ else:
         color_reset = '\x1b[00m'
 
 
+# TODO remove/replace args and consolidate into options
 def grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding, ripgrep):
     if options.time:
         start_time = time.time()
