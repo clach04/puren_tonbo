@@ -94,6 +94,46 @@ Examples
         if line in ('noic', 'noignorecase'):
             self.grep_options.ignore_case = False
             return
+
+        if '=' in line:
+            # got some sort of variable=value
+            """
+                set x=3
+                set x="3"
+                set x="3 "
+                set x=3
+                set x = 3
+                set x=  3
+                set x =3
+                set x= 3 sdfs
+                set x= "3 sdfs"
+
+                set search_encrypted=true
+                set password=password
+            """
+            # so dumb, but quick to write...
+            parsed_line = shlex.split(line)
+            #print('\t %r' % parsed_line)
+            completely_parsed_line = []
+            for x in parsed_line:
+                if '=' in x:
+                    x = x.split('=')
+                else:
+                    x = [x]
+                for y in x:
+                    if y:
+                        completely_parsed_line.append(y)
+            #print('\t\t %r' % completely_parsed_line)
+            if len(completely_parsed_line) != 2:
+                print('unsupported set operation: %r' % (completely_parsed_line,))
+                return
+            attribute_name, attribute_value = completely_parsed_line
+            # dumb boolean detection/force
+            if attribute_value.lower() in ('true', 'false'):
+                attribute_value = attribute_value.lower() == 'true'
+            setattr(self.grep_options, attribute_name, attribute_value)
+            return
+
         print('unsupported set operation')
 
     def do_cat(self, line=None):
@@ -121,10 +161,12 @@ Examples
         search_is_regex = False
 
         search_encrypted = options.search_encrypted
-        password_func = None
+        password_func = options.password or puren_tonbo.caching_console_password_prompt
         #search_encrypted = True
+        """
         if search_encrypted:
             password_func = puren_tonbo.caching_console_password_prompt
+        """
 
         # TODO refactor ptgrep to allow reuse - remove below
         try:
