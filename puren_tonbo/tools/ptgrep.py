@@ -16,6 +16,12 @@ Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip
     python -m puren_tonbo.tools.ptgrep cruel puren_tonbo/tests/data/
     python -m puren_tonbo.tools.ptgrep cruel puren_tonbo/tests/data/aesop.txt  # FIXME fails
     python -m puren_tonbo.tools.ptgrep -r the. puren_tonbo/tests/data/
+
+    ptgrep King
+    ptgrep -i King
+    ptgrep --regex_search  K.ng
+    ptgrep   K.ng
+
 """
 
 import os
@@ -54,7 +60,8 @@ else:
 
 
 # TODO remove/replace args and consolidate into options
-def grep(search_term, paths_to_search, options, ignore_case, use_color, search_encrypted, password_func, note_encoding):
+def grep(search_term, paths_to_search, options, use_color, search_encrypted, password_func, note_encoding):
+    ignore_case = options.ignore_case
     ripgrep = not options.grep
     search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
 
@@ -235,11 +242,10 @@ def main(argv=None):
     """
 
     password_func = password
-    ignore_case = options.ignore_case
     line_numbers = options.line_numbers == True
     search_encrypted = options.search_encrypted
 
-    grep(search_term, paths_to_search, options, ignore_case, use_color, search_encrypted, password_func, note_encoding)
+    grep(search_term, paths_to_search, options, use_color, search_encrypted, password_func, note_encoding)
 
     return 0
 

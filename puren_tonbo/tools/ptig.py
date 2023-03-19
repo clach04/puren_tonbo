@@ -157,8 +157,7 @@ Examples
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
         paths_to_search = self.paths_to_search
         options = self.grep_options
-        
-        ignore_case = options.ignore_case
+
         note_encoding = self.pt_config['codec']
 
         line_numbers = options.line_numbers
@@ -167,7 +166,7 @@ Examples
         password_func = options.password or puren_tonbo.caching_console_password_prompt
         use_color = options.use_color
 
-        ptgrep.grep(search_term, paths_to_search, options, ignore_case,  use_color, search_encrypted, password_func, note_encoding)
+        ptgrep.grep(search_term, paths_to_search, options,  use_color, search_encrypted, password_func, note_encoding)
 
     do_g = do_grep  # shortcut to save typing
     do_rg = do_grep  # ripgrep alias for convenience
