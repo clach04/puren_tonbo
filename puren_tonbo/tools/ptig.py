@@ -20,10 +20,15 @@ except ImportError:
     # use stdlib
     from cmd import Cmd
 
+try:
+    from puren_tonbo.tools import ptpyvim  # https://github.com/prompt-toolkit/pyvim - pip install pyvim
+except ImportError:
+    ptpyvim = None
 
 import puren_tonbo
 from puren_tonbo import SearchCancelled
 from puren_tonbo.tools import ptcat, ptgrep  # FIXME TODO actually use these
+
 
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
@@ -144,6 +149,20 @@ Examples
             return
 
         print('unsupported set operation')
+
+    if ptpyvim:
+        def do_pyvim(self, line=None):
+            """Edit using built in (vim-like) ptpyvim editor
+            """
+            in_filename = line
+            if not self.grep_options.password:
+                self.grep_options.password = puren_tonbo.caching_console_password_prompt('password for %r: ' % in_filename)
+            os.environ['PT_PASSWORD'] = self.grep_options.password
+            ptpyvim.edit([in_filename])
+    do_edit = do_pyvim
+    do_ptpyvim = do_pyvim
+    do_vim = do_pyvim
+    do_vi = do_pyvim
 
     def do_cat(self, line=None):
         note_encoding = self.pt_config['codec']

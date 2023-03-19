@@ -55,12 +55,6 @@ def file_replace(src, dst):
         if dest_exists:
             os.remove(tmp_backup)
 
-
-password = os.environ.get('PT_PASSWORD', '')  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
-if not isinstance(password, bytes):
-    password = password.encode('us-ascii')
-
-
 class PureTonboFileIO(EditorIO):
     """
     I/O backend for encrypted files.
@@ -68,6 +62,9 @@ class PureTonboFileIO(EditorIO):
     It is possible to edit this file as if it were not encrypted.
     The read and write call will decrypt and encrypt transparently.
     """
+
+    _password = None
+
     def can_open_location(cls, location):
         """
         if not FileIO().can_open_location(location):  # revisit this, future virtual file system support
@@ -87,6 +84,7 @@ class PureTonboFileIO(EditorIO):
         Read/decrypt file from disk.
         """
         #import web_pdb; web_pdb.set_trace()  # https://github.com/romanvm/python-web-pdb
+        password = self._password
         if not password:
             raise puren_tonbo.BadPassword('Missing password, set OS env PT_PASSWORD')
 
@@ -103,6 +101,7 @@ class PureTonboFileIO(EditorIO):
         """
         Write/encrypt file to disk.
         """
+        password = self._password
         if not password:
             raise puren_tonbo.BadPassword('Missing password, set OS env PT_PASSWORD')
 
@@ -137,6 +136,13 @@ class PureTonboFileIO(EditorIO):
 
 
 def edit(locations):
+    password = os.environ.get('PT_PASSWORD', '')  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
+    if not isinstance(password, bytes):
+        password = password.encode('us-ascii')
+
+    pt_file_io = PureTonboFileIO()
+    pt_file_io._password = password
+
     # Create new editor instance.
     editor = Editor()
 
@@ -144,7 +150,7 @@ def edit(locations):
     editor.io_backends = [
             DirectoryIO(),
             HttpIO(),
-            PureTonboFileIO(),
+            pt_file_io,
             GZipFileIO(),  # Should come before FileIO.
             FileIO(),
         ]  # TODO use existing and inject PureTonboFileIO? where?/how?
