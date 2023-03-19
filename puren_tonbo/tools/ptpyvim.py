@@ -136,13 +136,7 @@ class PureTonboFileIO(EditorIO):
             file_replace(tmp_out_filename, location)
 
 
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv
-
-    # TODO any argument processing?
-    locations = argv[1:]
-
+def edit(locations):
     # Create new editor instance.
     editor = Editor()
 
@@ -164,6 +158,15 @@ def main(argv=None):
     # Load files and run.
     editor.load_initial_files(locations)
     editor.run()
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
+    # TODO any argument processing?
+    locations = argv[1:]
+    edit(locations)
 
     return 0
 
