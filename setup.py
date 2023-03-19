@@ -66,6 +66,7 @@ setup(
             'ptcipher = puren_tonbo.tools.ptcipher:main',
             'ptconfig = puren_tonbo.tools.ptconfig:main',
             'ptgrep = puren_tonbo.tools.ptgrep:main',
+            'ptig = puren_tonbo.tools.ptig:main',
         ] + (['ptpyvim = puren_tonbo.tools.ptpyvim:main'] if pyvim else []),
     },
     #data_files=[('.', [readme_filename])],  # does not work :-( ALso tried setup.cfg [metadata]\ndescription-file = README.md # Maybe try include_package_data = True and a MANIFEST.in?
