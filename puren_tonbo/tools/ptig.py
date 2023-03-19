@@ -97,6 +97,7 @@ Examples
 
         if '=' in line:
             # got some sort of variable=value
+            # NOTE This does NOT allow '=' in a value due to the crappy parser used
             """
                 set x=3
                 set x="3"
