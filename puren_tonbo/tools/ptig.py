@@ -155,10 +155,10 @@ Examples
             """Edit using built in (vim-like) ptpyvim editor
             """
             in_filename = line
+            #import pdb; pdb.set_trace()
             if not self.grep_options.password:
-                self.grep_options.password = puren_tonbo.caching_console_password_prompt('password for %r: ' % in_filename)
-            os.environ['PT_PASSWORD'] = self.grep_options.password
-            ptpyvim.edit([in_filename])
+                self.grep_options.password = puren_tonbo.caching_console_password_prompt(filename=in_filename, reset=True)
+            ptpyvim.edit([in_filename], password=self.grep_options.password)
     do_edit = do_pyvim
     do_ptpyvim = do_pyvim
     do_vim = do_pyvim

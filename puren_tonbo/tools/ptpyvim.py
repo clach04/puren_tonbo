@@ -135,8 +135,8 @@ class PureTonboFileIO(EditorIO):
             file_replace(tmp_out_filename, location)
 
 
-def edit(locations):
-    password = os.environ.get('PT_PASSWORD', '')  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
+def edit(locations, password=None):
+    password = password or os.environ.get('PT_PASSWORD', '')  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
     if not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
