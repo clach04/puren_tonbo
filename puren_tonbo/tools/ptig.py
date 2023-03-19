@@ -20,11 +20,6 @@ except ImportError:
     # use stdlib
     from cmd import Cmd
 
-# FIXME don't do this, rely on ptgrep
-try:
-    import colorama
-except ImportError:
-    colorama = None
 
 import puren_tonbo
 from puren_tonbo import SearchCancelled
@@ -32,6 +27,15 @@ from puren_tonbo.tools import ptgrep
 
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
+
+class FakeOptions:
+    display_full_path = True
+    def __init__(self, options=None):
+        if options:
+            for attribute_name in dir(options):
+                if not attribute_name.startswith('_'):
+                    attribute_value = getattr(options, attribute_name)
+                    setattr(self, attribute_name, attribute_value)
 
 
 class CommandPrompt(Cmd):
@@ -41,7 +45,8 @@ class CommandPrompt(Cmd):
         Cmd.__init__(self)
         self.paths_to_search = paths_to_search or ['.']
         self.pt_config = pt_config
-        self.grep_options = grep_options
+        self.grep_options = grep_options or FakeOptions()
+        #import pdb ; pdb.set_trace()
 
     def emptyline(self):
         "NOOP - do not repeat last command like cmd.Cmd"
@@ -69,7 +74,53 @@ Examples
 
     def do_grep(self, line=None):
         """ptgrep/search"""
-        pass
+        search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
+        paths_to_search = self.paths_to_search
+        options = self.grep_options
+
+        note_encoding = self.pt_config['codec']
+        ripgrep = line_numbers = ignore_case = True
+        search_is_regex = search_encrypted = False
+        password_func = None
+        # TODO refactor ptgrep to allow reuse - remove below
+        try:
+            highlight_text_start, highlight_text_stop = None, None
+
+            for path_to_search in paths_to_search:
+                print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
+                notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
+                for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
+                    filename, hit_detail = hit
+                    #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
+                    if filename:
+                        if options.display_full_path:
+                            filename = os.path.join(path_to_search, filename)
+                        if ripgrep:
+                            filename = '%s' % filename  # ripgrep/ack/ag uses filename only
+                        else:
+                            # grep - TODO should this be conditional on line numbers and/or wild card?
+                            filename = '%s:' % filename
+                    else:
+                        # Single file grep, rather than recursive search
+                        # do not want filename
+                        filename = ''
+                    if ripgrep:
+                        print('%s' % (filename, ))
+                    for result_hit_line, result_hit_text in hit_detail:
+                        result_hit_line = str(result_hit_line)
+                        if ripgrep:
+                            # ripgrep like - automatically includes numbers
+                            print('%s:%s' % (result_hit_line, result_hit_text))
+                        elif line_numbers:
+                            # grep-like with numbers
+                            print('%s%s:%s' % (filename, result_hit_line, result_hit_text))
+                        else:
+                            # grep-like without numbers
+                            print('%s%s' % (filename, result_hit_text))
+        except SearchCancelled as info:
+            print('search cancelled', info)
+        # TODO refactor ptgrep to allow reuse - remove above
+
     do_g = do_grep
 
     def do_config(self, line=None):
@@ -120,9 +171,7 @@ def main(argv=None):
     else:
         note_encoding = config['codec']
 
-
-    # TODO refactor ptgrep to allow reuse
-    interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=options)  # FIXME ptgrep compat options needed
+    interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=FakeOptions(options))
     interpreter.onecmd('version')
     interpreter.cmdloop()
 
