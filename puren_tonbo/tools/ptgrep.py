@@ -33,6 +33,7 @@ from puren_tonbo import SearchCancelled
 
 
 is_py3 = sys.version_info >= (3,)
+is_win = sys.platform.startswith('win')
 
 
 def main(argv=None):
@@ -82,12 +83,10 @@ def main(argv=None):
             print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))
         return 0
 
-    def usage():
-        parser.print_usage()
-
     if not args:
         parser.print_usage()
         return 1
+
     in_filename = args[0]
 
     if options.password_file:
@@ -128,9 +127,6 @@ def main(argv=None):
         note_encoding = options.codec
     else:
         note_encoding = config['codec']
-
-
-    is_win = sys.platform.startswith('win')
 
     use_color = False
     if not sys.stdout.isatty():
