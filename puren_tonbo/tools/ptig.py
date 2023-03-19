@@ -162,11 +162,10 @@ Examples
 
         line_numbers = options.line_numbers
 
-        search_encrypted = options.search_encrypted
         password_func = options.password or puren_tonbo.caching_console_password_prompt
         use_color = options.use_color
 
-        ptgrep.grep(search_term, paths_to_search, options,  use_color, search_encrypted, password_func, note_encoding)
+        ptgrep.grep(search_term, paths_to_search, options, use_color, password_func, note_encoding)
 
     do_g = do_grep  # shortcut to save typing
     do_rg = do_grep  # ripgrep alias for convenience

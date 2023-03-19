@@ -21,6 +21,7 @@ Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip
     ptgrep -i King
     ptgrep --regex_search  K.ng
     ptgrep   K.ng
+    ptgrep --search_encrypted --password=password King
 
 """
 
@@ -60,9 +61,10 @@ else:
 
 
 # TODO remove/replace args and consolidate into options
-def grep(search_term, paths_to_search, options, use_color, search_encrypted, password_func, note_encoding):
+def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding):
     ignore_case = options.ignore_case
     ripgrep = not options.grep
+    search_encrypted = options.search_encrypted
     search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
 
     if options.time:
@@ -243,9 +245,8 @@ def main(argv=None):
 
     password_func = password
     line_numbers = options.line_numbers == True
-    search_encrypted = options.search_encrypted
 
-    grep(search_term, paths_to_search, options, use_color, search_encrypted, password_func, note_encoding)
+    grep(search_term, paths_to_search, options, use_color, password_func, note_encoding)
 
     return 0
 
