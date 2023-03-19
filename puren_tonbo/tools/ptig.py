@@ -84,10 +84,15 @@ Examples
 
         if not line:
             options = self.grep_options
+            if options.use_color:
+                name_color, value_color, color_reset = ptgrep.color_linenum, ptgrep.color_searchhit, ptgrep.color_reset
+            else:
+                name_color, value_color, color_reset = '', '', ''
             for attribute_name in dir(options):
                 if not attribute_name.startswith('_'):
                     attribute_value = getattr(options, attribute_name)
-                    print('\t%s=%s' % (attribute_name, attribute_value))  # TODO consider sorted dict?
+                    #print('\t%s=%s' % (attribute_name, attribute_value))  # TODO consider sorted dict?
+                    print('\t%s%s%s=%s%s%s' % (name_color, attribute_name, color_reset, value_color, attribute_value, color_reset))  # TODO consider sorted dict?
             return
 
         # vim-like case insensitive
