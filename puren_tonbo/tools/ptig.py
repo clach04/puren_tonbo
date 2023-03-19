@@ -35,7 +35,9 @@ class FakeOptions:
     line_numbers = True
     grep = False  # i.e ripgrep=True
     search_encrypted = False  # TODO add away to change this (set...
+    search_is_regex = False
     time = True
+    use_color = True
 
     def __init__(self, options=None):
         if options:
@@ -159,17 +161,13 @@ Examples
         ignore_case = options.ignore_case
         note_encoding = self.pt_config['codec']
 
-        ripgrep = line_numbers = True
-        search_is_regex = False
+        ripgrep = not options.grep
+        line_numbers = options.line_numbers
+        search_is_regex = options.search_is_regex
 
         search_encrypted = options.search_encrypted
         password_func = options.password or puren_tonbo.caching_console_password_prompt
-        use_color = True  # FIXME tty
-        #search_encrypted = True
-        """
-        if search_encrypted:
-            password_func = puren_tonbo.caching_console_password_prompt
-        """
+        use_color = options.use_color
 
         ptgrep.grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding, ripgrep)
 
