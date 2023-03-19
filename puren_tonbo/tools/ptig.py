@@ -23,7 +23,7 @@ except ImportError:
 
 import puren_tonbo
 from puren_tonbo import SearchCancelled
-from puren_tonbo.tools import ptgrep
+from puren_tonbo.tools import ptcat, ptgrep  # FIXME TODO actually use these
 
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
@@ -72,6 +72,18 @@ Examples
 """
         pass
 
+    def do_cat(self, line=None):
+        note_encoding = self.pt_config['codec']
+        in_filename = os.path.basename(line)
+        note_root = os.path.dirname(line)
+        password = puren_tonbo.caching_console_password_prompt
+
+        # TODO refactor ptcat
+        notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+        data = notes.note_contents(in_filename, password)
+        #print('%r' % data)
+        print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+
     def do_grep(self, line=None):
         """ptgrep/search"""
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
@@ -80,8 +92,12 @@ Examples
 
         note_encoding = self.pt_config['codec']
         ripgrep = line_numbers = ignore_case = True
-        search_is_regex = search_encrypted = False
+        search_is_regex = False
+
+        search_encrypted = False
         password_func = None
+        search_encrypted = True
+        password_func = puren_tonbo.caching_console_password_prompt
         # TODO refactor ptgrep to allow reuse - remove below
         try:
             highlight_text_start, highlight_text_stop = None, None
@@ -121,7 +137,8 @@ Examples
             print('search cancelled', info)
         # TODO refactor ptgrep to allow reuse - remove above
 
-    do_g = do_grep
+    do_g = do_grep  # shortcut to save typing
+    do_rg = do_grep  # ripgrep alias for convenience
 
     def do_config(self, line=None):
         """show puren tonbo config"""
