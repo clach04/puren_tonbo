@@ -53,6 +53,64 @@ else:
         color_reset = '\x1b[00m'
 
 
+def grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding, ripgrep):
+    if options.time:
+        start_time = time.time()
+    try:
+        if use_color:
+            highlight_text_start, highlight_text_stop = color_searchhit, color_reset
+        else:
+            highlight_text_start, highlight_text_stop = None, None
+
+        for path_to_search in paths_to_search:
+            print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
+            notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
+            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
+                filename, hit_detail = hit
+                #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
+                if filename:
+                    if options.display_full_path:
+                        filename = os.path.join(path_to_search, filename)
+                    if ripgrep:
+                        filename = '%s' % filename  # ripgrep/ack/ag uses filename only
+                    else:
+                        # grep - TODO should this be conditional on line numbers and/or wild card?
+                        filename = '%s:' % filename
+                else:
+                    # Single file grep, rather than recursive search
+                    # do not want filename
+                    filename = ''
+                if use_color:
+                    filename = color_filename + filename + color_reset
+                if ripgrep:
+                    print('%s' % (filename, ))
+                for result_hit_line, result_hit_text in hit_detail:
+                    if use_color:
+                        """
+                        if not search_is_regex:
+                            result_hit_text = result_hit_text.replace(search_term, color_searchhit + search_term + color_reset)  # no longer needed search func does highlight
+                        """
+                        # else TODO regex ripgrep search color highlighting
+                        result_hit_line = color_linenum + str(result_hit_line) + color_reset
+                    else:
+                        result_hit_line = str(result_hit_line)
+                    if ripgrep:
+                        # ripgrep like - automatically includes numbers
+                        print('%s:%s' % (result_hit_line, result_hit_text))
+                    elif line_numbers:
+                        # grep-like with numbers
+                        print('%s%s:%s' % (filename, result_hit_line, result_hit_text))
+                    else:
+                        # grep-like without numbers
+                        print('%s%s' % (filename, result_hit_text))
+    except SearchCancelled as info:
+        print('search cancelled', info)
+    if options.time:
+        end_time = time.time()
+        search_time = end_time - start_time
+        print('Query time: %.2f seconds' % search_time)
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -180,61 +238,7 @@ def main(argv=None):
     line_numbers = options.line_numbers == True
     search_encrypted = options.search_encrypted
 
-    if options.time:
-        start_time = time.time()
-    try:
-        if use_color:
-            highlight_text_start, highlight_text_stop = color_searchhit, color_reset
-        else:
-            highlight_text_start, highlight_text_stop = None, None
-
-        for path_to_search in paths_to_search:
-            print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
-            notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
-            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
-                filename, hit_detail = hit
-                #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
-                if filename:
-                    if options.display_full_path:
-                        filename = os.path.join(path_to_search, filename)
-                    if ripgrep:
-                        filename = '%s' % filename  # ripgrep/ack/ag uses filename only
-                    else:
-                        # grep - TODO should this be conditional on line numbers and/or wild card?
-                        filename = '%s:' % filename
-                else:
-                    # Single file grep, rather than recursive search
-                    # do not want filename
-                    filename = ''
-                if use_color:
-                    filename = color_filename + filename + color_reset
-                if ripgrep:
-                    print('%s' % (filename, ))
-                for result_hit_line, result_hit_text in hit_detail:
-                    if use_color:
-                        """
-                        if not search_is_regex:
-                            result_hit_text = result_hit_text.replace(search_term, color_searchhit + search_term + color_reset)  # no longer needed search func does highlight
-                        """
-                        # else TODO regex ripgrep search color highlighting
-                        result_hit_line = color_linenum + str(result_hit_line) + color_reset
-                    else:
-                        result_hit_line = str(result_hit_line)
-                    if ripgrep:
-                        # ripgrep like - automatically includes numbers
-                        print('%s:%s' % (result_hit_line, result_hit_text))
-                    elif line_numbers:
-                        # grep-like with numbers
-                        print('%s%s:%s' % (filename, result_hit_line, result_hit_text))
-                    else:
-                        # grep-like without numbers
-                        print('%s%s' % (filename, result_hit_text))
-    except SearchCancelled as info:
-        print('search cancelled', info)
-    if options.time:
-        end_time = time.time()
-        search_time = end_time - start_time
-        print('Query time: %.2f seconds' % search_time)
+    grep(search_term, paths_to_search, options, ignore_case, search_is_regex, use_color, search_encrypted, password_func, note_encoding, ripgrep)
 
     return 0
 
