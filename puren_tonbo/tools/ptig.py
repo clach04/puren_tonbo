@@ -30,6 +30,12 @@ is_win = sys.platform.startswith('win')
 
 class FakeOptions:
     display_full_path = True
+    ignore_case = False
+    regex_search = False
+    line_numbers = True
+    grep = False  # i.e ripgrep=True
+    search_encrypted = False  # TODO add away to change this (set...
+
     def __init__(self, options=None):
         if options:
             for attribute_name in dir(options):
@@ -60,7 +66,7 @@ class CommandPrompt(Cmd):
     do_bye = do_exit
 
     def do_set(self, line=None):
-        """Set variables/options
+        """Set variables/options. No params, show variable settings
 
 Examples
 
@@ -70,7 +76,25 @@ Examples
     set noignorecase
 
 """
-        pass
+        if line:
+            line = line.strip()
+
+        if not line:
+            options = self.grep_options
+            for attribute_name in dir(options):
+                if not attribute_name.startswith('_'):
+                    attribute_value = getattr(options, attribute_name)
+                    print('\t%s=%s' % (attribute_name, attribute_value))  # TODO consider sorted dict?
+            return
+
+        # vim-like case insensitive
+        if line in ('ic', 'ignorecase'):
+            self.grep_options.ignore_case = True
+            return
+        if line in ('noic', 'noignorecase'):
+            self.grep_options.ignore_case = False
+            return
+        print('unsupported set operation')
 
     def do_cat(self, line=None):
         note_encoding = self.pt_config['codec']
@@ -89,15 +113,19 @@ Examples
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
         paths_to_search = self.paths_to_search
         options = self.grep_options
-
+        
+        ignore_case = options.ignore_case
         note_encoding = self.pt_config['codec']
-        ripgrep = line_numbers = ignore_case = True
+
+        ripgrep = line_numbers = True
         search_is_regex = False
 
-        search_encrypted = False
+        search_encrypted = options.search_encrypted
         password_func = None
-        search_encrypted = True
-        password_func = puren_tonbo.caching_console_password_prompt
+        #search_encrypted = True
+        if search_encrypted:
+            password_func = puren_tonbo.caching_console_password_prompt
+
         # TODO refactor ptgrep to allow reuse - remove below
         try:
             highlight_text_start, highlight_text_stop = None, None
