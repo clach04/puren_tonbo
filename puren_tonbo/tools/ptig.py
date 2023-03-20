@@ -242,7 +242,20 @@ def main(argv=None):
     else:
         note_encoding = config['codec']
 
-    interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=FakeOptions(options))
+    if ptgrep.colorama:
+        # TODO only do below for Windows? looks like it may be a NOOP so may not need a windows check
+        try:
+            ptgrep.colorama.just_fix_windows_console()
+        except AttributeError:
+            # older version, for example '0.4.4'
+            ptgrep.colorama.init()
+        use_color = True
+    else:
+        use_color = False
+    grep_options = FakeOptions(options)
+    grep_options.use_color = use_color
+
+    interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=grep_options)
     interpreter.onecmd('version')
     interpreter.cmdloop()
 
