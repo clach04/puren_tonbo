@@ -216,6 +216,24 @@ For numbers, 0 (zero) will view last hit.
     do_g = do_grep  # shortcut to save typing
     do_rg = do_grep  # ripgrep alias for convenience
 
+    def do_find(self, line=None):
+        """find to filename, same as grep but only matche filenames"""
+        search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
+        paths_to_search = self.paths_to_search
+        options = self.grep_options
+
+        note_encoding = self.pt_config['codec']
+
+        line_numbers = options.line_numbers
+
+        password_func = options.password or puren_tonbo.caching_console_password_prompt
+        use_color = options.use_color
+        grep_options = FakeOptions(options)
+        grep_options.files_with_matches = True  # same as grep but filenames only
+
+        self.file_hits = ptgrep.grep(search_term, paths_to_search, grep_options, use_color, password_func, note_encoding)
+    do_f = do_find  # shortcut to save typing
+
     def do_config(self, line=None):
         """show puren tonbo config"""
         print('%s' % json.dumps(self.pt_config, indent=4, sort_keys=True))  # TODO color support
