@@ -63,6 +63,7 @@ else:
 # TODO remove/replace args and consolidate into options
 def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding):
     ignore_case = options.ignore_case
+    line_numbers = options.line_numbers == True
     ripgrep = not options.grep
     search_encrypted = options.search_encrypted
     search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
@@ -244,7 +245,6 @@ def main(argv=None):
     """
 
     password_func = password
-    line_numbers = options.line_numbers == True
 
     grep(search_term, paths_to_search, options, use_color, password_func, note_encoding)
 
