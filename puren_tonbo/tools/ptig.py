@@ -35,6 +35,7 @@ is_win = sys.platform.startswith('win')
 
 class FakeOptions:  # to match ptgrep (OptParse) options
     display_full_path = True
+    count_files_matched = True  # prefix filenames with a number, for easy reference/selection
     ignore_case = False
     regex_search = False
     line_numbers = True
@@ -61,6 +62,7 @@ class CommandPrompt(Cmd):
         self.paths_to_search = paths_to_search or ['.']
         self.pt_config = pt_config
         self.grep_options = grep_options or FakeOptions()
+        self.file_hits = []
         #import pdb ; pdb.set_trace()
 
     def emptyline(self):
@@ -166,6 +168,17 @@ Examples
     do_vi = do_pyvim
 
     def do_cat(self, line=None):
+        """cat/view file. Takes either a number or filename.
+For numbers, 0 (zero) will view last hit.
+        """
+        try:
+            file_number = int(line)
+            if file_number > len(self.file_hits):
+                print('result file %d invalid' % file_number)
+                return
+            line = self.file_hits[file_number - 1]
+        except ValueError:
+            pass  # line contains filename
         note_encoding = self.pt_config['codec']
         in_filename = os.path.basename(line)
         note_root = os.path.dirname(line)
@@ -190,7 +203,7 @@ Examples
         password_func = options.password or puren_tonbo.caching_console_password_prompt
         use_color = options.use_color
 
-        ptgrep.grep(search_term, paths_to_search, options, use_color, password_func, note_encoding)
+        self.file_hits = ptgrep.grep(search_term, paths_to_search, options, use_color, password_func, note_encoding)
 
     do_g = do_grep  # shortcut to save typing
     do_rg = do_grep  # ripgrep alias for convenience

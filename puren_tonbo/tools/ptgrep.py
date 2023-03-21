@@ -62,6 +62,7 @@ else:
 
 # TODO remove/replace args and consolidate into options
 def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding):
+    count_files_matched = getattr(options, 'count_files_matched', False)
     ignore_case = options.ignore_case
     line_numbers = options.line_numbers == True
     ripgrep = not options.grep
@@ -76,6 +77,9 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
         else:
             highlight_text_start, highlight_text_stop = None, None
 
+        if count_files_matched:
+            result = []
+            counter = 1  # manually count, rather than use enumerate()
         for path_to_search in paths_to_search:
             print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
             notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
@@ -86,11 +90,16 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
                 if filename:
                     if options.display_full_path:
                         filename = os.path.join(path_to_search, filename)
+                    if count_files_matched:
+                        result.append(filename)
                     if ripgrep or options.files_with_matches:
                         filename = '%s' % filename  # ripgrep/ack/ag uses filename only
                     else:
                         # grep - TODO should this be conditional on line numbers and/or wild card?
                         filename = '%s:' % filename
+                    if count_files_matched:
+                        filename = '[%d] %s' % (counter, filename)
+                        counter += 1
                 else:
                     # Single file grep, rather than recursive search
                     # do not want filename
@@ -127,6 +136,8 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
         end_time = time.time()
         search_time = end_time - start_time
         print('Query time: %.2f seconds' % search_time)
+    if count_files_matched:
+        return result
 
 
 def main(argv=None):
