@@ -197,6 +197,7 @@ For numbers, 0 (zero) will view last hit.
         data = notes.note_contents(in_filename, password)
         #print('%r' % data)
         print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+    do_c = do_cat  # shortcut to save typing
 
     def do_grep(self, line=None):
         """ptgrep/search"""
