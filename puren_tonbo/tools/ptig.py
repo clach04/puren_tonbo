@@ -256,16 +256,19 @@ def main(argv=None):
     else:
         note_encoding = config['codec']
 
-    if ptgrep.colorama:
-        # TODO only do below for Windows? looks like it may be a NOOP so may not need a windows check
-        try:
-            ptgrep.colorama.just_fix_windows_console()
-        except AttributeError:
-            # older version, for example '0.4.4'
-            ptgrep.colorama.init()
-        use_color = True
+    if is_win:
+        if ptgrep.colorama:
+            # TODO only do below for Windows? looks like it may be a NOOP so may not need a windows check
+            try:
+                ptgrep.colorama.just_fix_windows_console()
+            except AttributeError:
+                # older version, for example '0.4.4'
+                ptgrep.colorama.init()
+            use_color = True
+        else:
+            use_color = False
     else:
-        use_color = False
+        use_color = True
     grep_options = FakeOptions(options)
     grep_options.use_color = use_color
 
