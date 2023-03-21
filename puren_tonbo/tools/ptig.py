@@ -201,6 +201,7 @@ For numbers, 0 (zero) will view last hit.
 
     def do_grep(self, line=None):
         """ptgrep/search"""
+        # TODO -i, -r, and -l (instead of find) flag support rather than using config variables?
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
         paths_to_search = self.paths_to_search
         options = self.grep_options
