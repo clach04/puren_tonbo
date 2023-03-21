@@ -39,6 +39,7 @@ class FakeOptions:  # to match ptgrep (OptParse) options
     regex_search = False
     line_numbers = True
     grep = False  # i.e ripgrep=True
+    files_with_matches = False  # set to True to only search on filename
     search_encrypted = False  # TODO add away to change this (set...
     search_is_regex = False
     time = True
