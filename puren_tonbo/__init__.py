@@ -881,8 +881,9 @@ class FileSystemNotes(BaseNotes):
             if progess_callback:
                 progess_callback(filename=x)
             if filename_filter_str:
-                yield (filename, [(1, 'FILENAME SEARCH HIT\n')])
-            include_contents = True
+                if regex_object.search(filename):
+                    yield (filename, [(1, 'FILENAME SEARCH HIT\n')])
+            include_contents = True  # possible override to include line matches but ONLY doing that for filename matches
             include_contents = False
             ## TODO decide what to do with include_contents - default or make a parameter
             if not filename_filter_str or include_contents:

@@ -79,13 +79,14 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
         for path_to_search in paths_to_search:
             print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty
             notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
-            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
+
+            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, findonly_filename=options.files_with_matches, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
                 filename, hit_detail = hit
                 #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
                 if filename:
                     if options.display_full_path:
                         filename = os.path.join(path_to_search, filename)
-                    if ripgrep:
+                    if ripgrep or options.files_with_matches:
                         filename = '%s' % filename  # ripgrep/ack/ag uses filename only
                     else:
                         # grep - TODO should this be conditional on line numbers and/or wild card?
@@ -96,6 +97,9 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
                     filename = ''
                 if use_color:
                     filename = color_filename + filename + color_reset
+                if options.files_with_matches:
+                    print('%s' % (filename, ))
+                    continue
                 if ripgrep:
                     print('%s' % (filename, ))
                 for result_hit_line, result_hit_text in hit_detail:
@@ -138,6 +142,7 @@ def main(argv=None):
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
+    parser.add_option("-l", "--files-with-matches", help="print only names of FILEs with selected lines", action="store_true")
     parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
     parser.add_option("-n", "--line_numbers", help="Print line number with output lines (grep format only)", action="store_true")  # grep uses hypen; --line-number
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")
@@ -154,7 +159,6 @@ def main(argv=None):
     -p, --password=PASSWORD: Password to use for all encrypted notes (if omitted will be prompted for password,
         specifying password at command line can be a security risk as password _may_ be visible in process/task list and/or shell history)
     """
-    # TODO add option to use findonly_filename
     # TODO add option to use search only encrypted files (i.g. ignore *.txt and *.md files)
     # TODO add option similar to grep -A/B/C for lines of context?
 
