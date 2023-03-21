@@ -168,14 +168,14 @@ Examples
             in_filename = line
             #import pdb; pdb.set_trace()
             if not self.grep_options.password:
-                self.grep_options.password = puren_tonbo.caching_console_password_prompt(filename=in_filename, reset=True)
+                self.grep_options.password = puren_tonbo.caching_console_password_prompt(filename=in_filename, reset=True)  # TODO not for .txt and .md files
             ptpyvim.edit([in_filename], password=self.grep_options.password)
-    do_edit = do_pyvim
+    do_edit = do_pyvim  # TODO shell out to EDITOR instead? E.g. vim, assuming pt.vim configured
     do_ptpyvim = do_pyvim
     do_vim = do_pyvim
     do_vi = do_pyvim
 
-    def do_cat(self, line=None):
+    def do_cat(self, line=None):  # TODO pager/less/more option
         """cat/view file. Takes either a number or filename.
 For numbers, 0 (zero) will view last hit.
         """
