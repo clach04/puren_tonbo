@@ -157,6 +157,14 @@ Examples
         def do_pyvim(self, line=None):
             """Edit using built in (vim-like) ptpyvim editor
             """
+            try:
+                file_number = int(line)
+                if file_number > len(self.file_hits):
+                    print('result file %d invalid' % file_number)
+                    return
+                line = self.file_hits[file_number - 1]
+            except ValueError:
+                pass  # line contains filename
             in_filename = line
             #import pdb; pdb.set_trace()
             if not self.grep_options.password:
