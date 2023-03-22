@@ -131,7 +131,7 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
                     else:
                         # grep-like without numbers
                         print('%s%s' % (filename, result_hit_text))
-    except SearchCancelled as info:
+    except (SearchCancelled, KeyboardInterrupt) as info:
         print('search cancelled', info)
     if options.time:
         end_time = time.time()
