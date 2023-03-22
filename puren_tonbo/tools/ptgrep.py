@@ -3,6 +3,7 @@
 # vim:ts=4:sw=4:softtabstop=4:smarttab:expandtab
 """Command line tool to recursively Search Puren Tonbo files (plain text and encrypted notes).
 Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.
+Essentially; ack, ripgrep, pss, ag/The Silver Searcher for plain text and encrypted files.
 
     python -m puren_tonbo.tools.ptgrep -h
     python -m puren_tonbo.tools.ptgrep better puren_tonbo\tests\data
