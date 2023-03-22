@@ -219,7 +219,8 @@ For numbers, 0 (zero) will view last hit.
     do_rg = do_grep  # ripgrep alias for convenience
 
     def do_find(self, line=None):
-        """find to filename, same as grep but only matche filenames"""
+        """find to pathname/filename, same as grep but only matches directory and file names"""
+        # TODO -i, and -r (regex) flag support rather than using config variables?
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
         paths_to_search = self.paths_to_search
         options = self.grep_options
@@ -232,6 +233,7 @@ For numbers, 0 (zero) will view last hit.
         use_color = options.use_color
         grep_options = FakeOptions(options)
         grep_options.files_with_matches = True  # same as grep but filenames only
+        grep_options.search_encrypted = True  # TODO review, this seems like a reasonable default and password not needed for name matching
 
         self.file_hits = ptgrep.grep(search_term, paths_to_search, grep_options, use_color, password_func, note_encoding)
     do_f = do_find  # shortcut to save typing
