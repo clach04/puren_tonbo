@@ -60,6 +60,7 @@ except ImportError:
         import gnupg  # https://github.com/vsajip/python-gnupg
         try:
             gpg = gnupg.GPG()
+            #gpg = gnupg.GPG(ignore_homedir_permissions=True)
         except RuntimeError:
             # Assume;     RuntimeError: GnuPG is not installed!
             gpg = None
@@ -933,6 +934,7 @@ class FileSystemNotes(BaseNotes):
                 # TODO repeat on bad password func
                 log.debug('DEBUG filename %r', fullpath_filename)
 
+                in_file = None
                 try:
                     in_file = open(fullpath_filename, 'rb')  # TODO open once and seek back on failure
                     plain_str = handler.read_from(in_file)
@@ -947,7 +949,8 @@ class FileSystemNotes(BaseNotes):
                         raise
                     reset_password = True
                 finally:
-                    in_file.close()
+                    if in_file:
+                        in_file.close()
         except IOError as info:
             if info.errno == errno.ENOENT:
                 raise PurenTonboIO('Error opening %r file/directory does not exist' % filename)
