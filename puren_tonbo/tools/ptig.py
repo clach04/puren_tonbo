@@ -64,6 +64,11 @@ class CommandPrompt(Cmd):
         self.grep_options = grep_options or FakeOptions()
         self.file_hits = []
         #import pdb ; pdb.set_trace()
+        self.prompt = 'ptig:' + str(paths_to_search) + ' '  # TODO review
+        if self.grep_options.use_color:
+            prompt_color, color_reset = ptgrep.color_linenum, ptgrep.color_reset
+            self.prompt = prompt_color + self.prompt + color_reset
+
 
     def emptyline(self):
         "NOOP - do not repeat last command like cmd.Cmd"
