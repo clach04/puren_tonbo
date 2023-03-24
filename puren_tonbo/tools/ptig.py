@@ -254,6 +254,7 @@ For numbers, 0 (zero) will view last hit.
     def do_version(self, line=None):
         """show version/info"""
         puren_tonbo.print_version_info()
+    do_ver = do_version
     do_info = do_version
 
 
