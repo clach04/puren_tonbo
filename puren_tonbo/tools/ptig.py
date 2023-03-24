@@ -10,6 +10,7 @@ Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip
 import json
 import os
 from optparse import OptionParser
+import pydoc
 import shlex
 import sys
 import time
@@ -32,6 +33,44 @@ from puren_tonbo.tools import ptcat, ptgrep  # FIXME TODO actually use these
 
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
+
+# Python pager, do NOT use temporary files - could be used to monkey patch pydoc.pager
+def getpager_no_temp_files():
+    """Decide what method to use for paging through text.
+    Extracted and modified from pydoc.getpager()"""
+    if not hasattr(sys.stdin, "isatty"):
+        return pydoc.plainpager
+    if not hasattr(sys.stdout, "isatty"):
+        return pydoc.plainpager
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        return pydoc.plainpager
+    use_pager = os.environ.get('MANPAGER') or os.environ.get('PAGER')
+    if use_pager:
+        """
+        if sys.platform == 'win32': # pipes completely broken in Windows
+            return lambda text: tempfilepager(plain(text), use_pager)
+        """
+        if os.environ.get('TERM') in ('dumb', 'emacs'):
+            return lambda text: pydoc.pipepager(plain(text), use_pager)
+        else:
+            return lambda text: pydoc.pipepager(text, use_pager)
+    if os.environ.get('TERM') in ('dumb', 'emacs'):
+        return pydoc.plainpager
+    if hasattr(os, 'system') and os.system('(pager) 2>/dev/null') == 0:
+        return lambda text: pydoc.pipepager(text, 'pager')
+    if hasattr(os, 'system') and os.system('(less) 2>/dev/null') == 0:
+        return lambda text: pydoc.pipepager(text, 'less')
+
+    """
+    try:
+        if hasattr(os, 'system') and os.system('more "%s"' % filename) == 0:  # under unix/linux; "more /dev/null" is a good substitute, without needing temp file writing
+            return lambda text: pydoc.pipepager(text, 'more')
+        else:
+    """
+    return pydoc.ttypager
+
+pager = getpager_no_temp_files()
+print(pager)
 
 class FakeOptions:  # to match ptgrep (OptParse) options
     display_full_path = True
@@ -202,7 +241,8 @@ For numbers, 0 (zero) will view last hit.
         try:
             data = notes.note_contents(in_filename, password)
             #print('%r' % data)
-            print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+            #print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+            pager(data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
         except KeyboardInterrupt:
             print('search cancelled')
 
