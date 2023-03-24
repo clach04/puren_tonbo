@@ -353,8 +353,9 @@ def main(argv=None):
         use_color = True
     grep_options = FakeOptions(options)
     grep_options.use_color = use_color
-    ptig_options = config.get('ptig', {})
-    grep_options.use_pager = ptig_options.get('use_pager', False)
+
+    ptig_options = config['ptig']
+    grep_options.use_pager = ptig_options['use_pager']  # TODO revisit this, should ptig pick this up from pt_config directly instead of grep_options/Fakeoptions
 
     interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=grep_options)
     interpreter.onecmd('version')
