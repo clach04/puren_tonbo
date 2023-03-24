@@ -134,6 +134,8 @@ Examples
     set noignorecase
 
 """
+        # NOTE only sets options in self.grep_options (not self.pt_config, i.e. pt.json)
+        # so use_pager can be controlled via set, but not prompt (at least at the moment)
         if line:
             line = line.strip()
 
@@ -361,7 +363,7 @@ def main(argv=None):
     grep_options.use_color = use_color
 
     ptig_options = config['ptig']
-    grep_options.use_pager = ptig_options['use_pager']  # TODO revisit this, should ptig pick this up from pt_config directly instead of grep_options/Fakeoptions
+    grep_options.use_pager = ptig_options['use_pager']  # TODO revisit this, should ptig pick this up from pt_config directly instead of grep_options/Fakeoptions - see do_set() comments on grep config versus pt_config
 
     interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=grep_options)
     interpreter.onecmd('version')
