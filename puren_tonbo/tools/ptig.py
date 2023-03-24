@@ -199,9 +199,13 @@ For numbers, 0 (zero) will view last hit.
 
         # TODO refactor ptcat
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
-        data = notes.note_contents(in_filename, password)
-        #print('%r' % data)
-        print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+        try:
+            data = notes.note_contents(in_filename, password)
+            #print('%r' % data)
+            print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+        except KeyboardInterrupt:
+            print('search cancelled')
+
     do_c = do_cat  # shortcut to save typing
 
     def do_grep(self, line=None):
