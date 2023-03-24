@@ -1028,9 +1028,10 @@ def get_config(config_filename=None):
         #'': '',
         'ptig': {
             'use_pager': False,
+            'prompt': u'ptig: \U0001f50e ',
         }
     }
-    defaults.update(config)
+    defaults.update(config)  # NOTE this does not handle nested, i.e. if config file has 'ptig' but not ptig.prompt, default above will not be retained
     # TODO codec may need to be parsed if it came from config file as was a comma seperate string
     return defaults
 

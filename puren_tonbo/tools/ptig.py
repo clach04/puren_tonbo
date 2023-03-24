@@ -103,7 +103,10 @@ class CommandPrompt(Cmd):
         self.grep_options = grep_options or FakeOptions()
         self.file_hits = []
         #import pdb ; pdb.set_trace()
-        self.prompt = 'ptig:' + str(paths_to_search) + ' '  # TODO review
+        if self.pt_config['ptig']['prompt']:
+            self.prompt = self.pt_config['ptig']['prompt']
+        else:
+            self.prompt = 'ptig:' + str(paths_to_search) + ' '  # Almost never going to be seen, unless config file entry is false/null, '' empty string, 0, etc.
         if self.grep_options.use_color:
             prompt_color, color_reset = ptgrep.color_linenum, ptgrep.color_reset
             self.prompt = prompt_color + self.prompt + color_reset
@@ -194,6 +197,8 @@ Examples
                 attribute_value = attribute_value.lower() == 'true'
             setattr(self.grep_options, attribute_name, attribute_value)
             return
+
+        # TODO set shoud support prompt change
 
         print('unsupported set operation')
 
