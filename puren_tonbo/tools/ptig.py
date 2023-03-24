@@ -219,10 +219,10 @@ Examples
             if not self.grep_options.password:
                 self.grep_options.password = puren_tonbo.caching_console_password_prompt(filename=in_filename, reset=True)  # TODO not for .txt and .md files
             ptpyvim.edit([in_filename], password=self.grep_options.password)
-    do_edit = do_pyvim  # TODO shell out to EDITOR instead? E.g. vim, assuming pt.vim configured
-    do_ptpyvim = do_pyvim
-    do_vim = do_pyvim
-    do_vi = do_pyvim
+        do_edit = do_pyvim  # TODO shell out to EDITOR instead? E.g. vim, assuming pt.vim configured
+        do_ptpyvim = do_pyvim
+        do_vim = do_pyvim
+        do_vi = do_pyvim
 
     def do_cat(self, line=None):
         """cat/view file. Takes either a number or filename.
