@@ -1026,6 +1026,9 @@ def get_config(config_filename=None):
         #'new_lines': 'dos',
         #'new_lines': 'unix',
         #'': '',
+        'ptig': {
+            'use_pager': False,
+        }
     }
     defaults.update(config)
     # TODO codec may need to be parsed if it came from config file as was a comma seperate string

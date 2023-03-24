@@ -70,7 +70,6 @@ def getpager_no_temp_files():
     return pydoc.ttypager
 
 pager = getpager_no_temp_files()
-print(pager)
 
 class FakeOptions:  # to match ptgrep (OptParse) options
     display_full_path = True
@@ -84,6 +83,7 @@ class FakeOptions:  # to match ptgrep (OptParse) options
     search_is_regex = False
     time = True
     use_color = True
+    use_pager = False  # ptig specific
 
     def __init__(self, options=None):
         if options:
@@ -219,7 +219,7 @@ Examples
     do_vim = do_pyvim
     do_vi = do_pyvim
 
-    def do_cat(self, line=None):  # TODO pager/less/more option
+    def do_cat(self, line=None):
         """cat/view file. Takes either a number or filename.
 For numbers, 0 (zero) will view last hit.
         """
@@ -241,8 +241,10 @@ For numbers, 0 (zero) will view last hit.
         try:
             data = notes.note_contents(in_filename, password)
             #print('%r' % data)
-            #print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
-            pager(data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+            if self.grep_options.use_pager:
+                pager(data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+            else:
+                print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
         except KeyboardInterrupt:
             print('search cancelled')
 
@@ -351,6 +353,8 @@ def main(argv=None):
         use_color = True
     grep_options = FakeOptions(options)
     grep_options.use_color = use_color
+    ptig_options = config.get('ptig', {})
+    grep_options.use_pager = ptig_options.get('use_pager', False)
 
     interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=grep_options)
     interpreter.onecmd('version')
