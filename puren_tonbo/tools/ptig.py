@@ -205,6 +205,36 @@ Examples
 
         print('unsupported set operation')
 
+    def do_edit(self, line=None):
+        """Edit using external $VISUAL or $EDITOR, with fall backs if unset
+        """
+        try:
+            file_number = int(line)
+            if not self.file_hits:
+                print('no results')
+                return
+            if file_number > len(self.file_hits):
+                print('result file %d invalid' % file_number)
+                return
+            line = self.file_hits[file_number - 1]
+        except ValueError:
+            pass  # line contains filename
+        filename = line
+        editor = os.environ.get('VISUAL') or os.environ.get('EDITOR')
+        if not editor:
+            # TODO pickup from config file
+            # default a sane editor
+            if is_win:
+                editor = 'start "ptig"'  # Let Windowsfigure it out based on file extension
+            else:
+                # Assume Linux
+                editor = 'edit' # TODO full path, or xdg-open, jaro, etc.
+        # TODO what about password? For now let external tool handle that. To support tools that don't support password, need to pipe in plain text
+        print('Using: %s' % editor)
+        print('file: %s' % filename)
+        os.system('%s "%s"' % (editor, filename))
+        print('file: %s' % filename)
+
     if ptpyvim:
         def do_pyvim(self, line=None):
             """Edit using built in (vim-like) ptpyvim editor
@@ -222,7 +252,6 @@ Examples
             if not self.grep_options.password:
                 self.grep_options.password = puren_tonbo.caching_console_password_prompt(filename=in_filename, reset=True)  # TODO not for .txt and .md files
             ptpyvim.edit([in_filename], password=self.grep_options.password)
-        do_edit = do_pyvim  # TODO shell out to EDITOR instead? E.g. vim, assuming pt.vim configured
         do_ptpyvim = do_pyvim
         do_vim = do_pyvim
         do_vi = do_pyvim
