@@ -215,7 +215,15 @@ Examples
             print('[%d] %s' % (counter, filename))
 
     def do_edit(self, line=None):
-        """Edit using external $VISUAL or $EDITOR, with fall backs if unset
+        """Edit using external $VISUAL or $EDITOR, with fall backs if unset.
+
+Microsoft Windows will use file associations.
+
+Linux/Unix will use editor, which unde Debian derivatives like
+Ubuntu can be configured via:
+
+    sudo update-alternatives --config editor
+    update-alternatives --list editor
         """
         try:
             file_number = int(line)
