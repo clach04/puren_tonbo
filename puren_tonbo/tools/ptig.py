@@ -244,6 +244,7 @@ Examples
         os.system('%s "%s"' % (editor, filename))
         print('file: %s' % filename)
         print('To display previous results issue: results')
+    do_e = do_edit
 
     if ptpyvim:
         def do_pyvim(self, line=None):
