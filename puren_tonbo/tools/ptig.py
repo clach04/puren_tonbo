@@ -228,7 +228,7 @@ Examples
                 editor = 'start "ptig"'  # Let Windowsfigure it out based on file extension
             else:
                 # Assume Linux
-                editor = 'edit' # TODO full path "/usr/bin/edit", or xdg-open, jaro, etc.
+                editor = 'editor' # TODO full path "/usr/bin/editor" -> /etc/alternatives/editor, or xdg-open, jaro, etc.
         # TODO what about password? For now let external tool handle that. To support tools that don't support password, need to pipe in plain text
         print('Using: %s' % editor)
         print('file: %s' % filename)
