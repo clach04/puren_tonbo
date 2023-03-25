@@ -122,6 +122,7 @@ class CommandPrompt(Cmd):
         return 1
     do_quit = do_exit
     do_bye = do_exit
+    do_EOF = do_exit
 
     def do_set(self, line=None):
         """Set variables/options. No params, show variable settings
@@ -238,6 +239,7 @@ For numbers, 0 (zero) will view last hit.
             line = self.file_hits[file_number - 1]
         except ValueError:
             pass  # line contains filename
+        # TODO display file name (head and tail?)
         note_encoding = self.pt_config['codec']
         in_filename = os.path.basename(line)
         note_root = os.path.dirname(line)
@@ -256,6 +258,7 @@ For numbers, 0 (zero) will view last hit.
             print('search cancelled')
 
     do_c = do_cat  # shortcut to save typing
+    default = do_cat  # shortcut to save even more typing
 
     def do_grep(self, line=None):
         """ptgrep/search"""
