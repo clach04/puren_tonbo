@@ -137,7 +137,7 @@ class PureTonboFileIO(EditorIO):
 
 def edit(locations, password=None):
     password = password or os.environ.get('PT_PASSWORD', '')  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
-    if not isinstance(password, bytes):
+    if not isinstance(password, bytes) and hasattr(password, 'encode'):
         password = password.encode('us-ascii')
 
     pt_file_io = PureTonboFileIO()
