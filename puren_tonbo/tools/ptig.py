@@ -205,6 +205,15 @@ Examples
 
         print('unsupported set operation')
 
+    def do_results(self, line=None):
+        """Redisplay previous filename search results
+        """
+        if not self.file_hits:
+            print('no results')
+            return
+        for counter, filename in enumerate(self.file_hits):
+            print('[%d] %s' % (counter, filename))
+
     def do_edit(self, line=None):
         """Edit using external $VISUAL or $EDITOR, with fall backs if unset
         """
@@ -234,6 +243,7 @@ Examples
         print('file: %s' % filename)
         os.system('%s "%s"' % (editor, filename))
         print('file: %s' % filename)
+        print('To display previous results issue: results')
 
     if ptpyvim:
         def do_pyvim(self, line=None):
