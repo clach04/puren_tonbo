@@ -4,6 +4,7 @@
 """Command line tool to encrypt/decrypt Puren Tonbo files (Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.)
 
     python -m puren_tonbo.tools.ptcipher -h
+    ptcipher -h
 """
 
 import datetime
@@ -75,9 +76,8 @@ def main(argv=None):
         print('')
         print('Formats:')
         print('')
-        for file_extension in puren_tonbo.file_type_handlers:
-            handler_class = puren_tonbo.file_type_handlers[file_extension]
-            print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # TODO description
+        for file_extension, file_type, file_description in puren_tonbo.supported_filetypes_info():
+            print('%17s - %s - %s' % (file_extension[1:], file_type, file_description))
         return 0
 
     def usage():

@@ -633,6 +633,12 @@ caching_console_password_prompt = gen_caching_get_password().gen_func()
 
 any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 
+
+def supported_filetypes_info():
+    for file_extension in file_type_handlers:
+        handler_class = file_type_handlers[file_extension]
+        yield (file_extension, handler_class.__name__, handler_class.description)
+
 def supported_filename_filter(in_filename):
     name = in_filename.lower()
     #print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
@@ -1041,9 +1047,8 @@ def print_version_info():
     print('Puren Tonbo puren_tonbo version %s' % puren_tonbo.__version__)
     print('Formats:')
     print('')
-    for file_extension in puren_tonbo.file_type_handlers:
-        handler_class = puren_tonbo.file_type_handlers[file_extension]
-        print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # TODO description
+    for file_extension, file_type, file_description in supported_filetypes_info():
+        print('%17s - %s - %s' % (file_extension[1:], file_type, file_description))
     print('')
     print('Libs:')
     if chi_io:

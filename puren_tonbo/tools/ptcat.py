@@ -52,7 +52,7 @@ def main(argv=None):
         print('')
         for file_extension in puren_tonbo.file_type_handlers:
             handler_class = puren_tonbo.file_type_handlers[file_extension]
-            print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # TODO description
+            print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # FIXME replace/refactor with shared routine
         return 0
 
     def usage():
