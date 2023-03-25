@@ -258,7 +258,13 @@ For numbers, 0 (zero) will view last hit.
             print('search cancelled')
 
     do_c = do_cat  # shortcut to save typing
-    default = do_cat  # shortcut to save even more typing
+
+    def default(self, line=None):
+        try:
+            file_number = int(line)
+            self.do_cat(line)
+        except ValueError:
+            Cmd.default(self, line)  # Super...
 
     def do_grep(self, line=None):
         """ptgrep/search"""
