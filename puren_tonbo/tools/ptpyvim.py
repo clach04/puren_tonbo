@@ -137,6 +137,26 @@ class PureTonboFileIO(EditorIO):
 
 def edit(locations, password=None):
     password = password or os.environ.get('PT_PASSWORD', '')  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
+    # for now, determine is a password is needed, if so prompt now
+    # either check for known types that need password or don't prompt for txt and md (which is easier/faster but more fragile)
+
+    if not password:
+        password = puren_tonbo.caching_console_password_prompt
+
+    if callable(password):
+        # determine known types that require password
+        file_extensions_requiring_password = []
+        for x in puren_tonbo.supported_filetypes_info():
+            file_extension = x[0]
+            if file_extension not in ('.txt', '.md'):
+                file_extensions_requiring_password.append(file_extension)
+
+        for filename in locations:
+            for file_extension in file_extensions_requiring_password:
+                if filename.endswith(file_extension):
+                    password = password(filename=filename)
+                    break
+
     if not isinstance(password, bytes) and hasattr(password, 'encode'):
         password = password.encode('us-ascii')
 
