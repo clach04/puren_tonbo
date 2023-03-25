@@ -219,7 +219,7 @@ Examples
 
 Microsoft Windows will use file associations.
 
-Linux/Unix will use editor, which unde Debian derivatives like
+Linux/Unix will use editor, which under Debian derivatives like
 Ubuntu can be configured via:
 
     sudo update-alternatives --config editor
