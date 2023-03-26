@@ -26,7 +26,13 @@ Some countries have also have restrictions on import, export, and usage see http
 
 ## Background
 
-Plain text notes Tombo (chi) alternative, also supports AES-256 ZIP AE-1/AE-2 and VimCrypt encrypted files. Work-In-Progress (WIP)!
+Plain text notes search/edit tool that supports encrypted files, formats:
+
+  * AES-256 ZIP AE-1/AE-2 - AES256 (note can also read but not write the old pkzip encrption format)
+  * ccrypt - Rijndael
+  * GnuPG (OpenPGP, gpg)
+  * Tombo (chi) - blowfish
+  * VimCrypt encrypted files READ ONLY - zip, blowfish, and blowfish2
 
 プレーン トンボ
 Purēntonbo
@@ -116,6 +122,17 @@ From source code checkout:
 
 The chi file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ and clones
 
+
+#### ccrypt CPT
+
+Symmetric encryption/decryption from passphase.
+
+Requires a ccrypt binary, download from https://ccrypt.sourceforge.net/ (or debian apt)
+
+    python -m puren_tonbo.tools.ptcipher --cipher=cpt -e -p test README.md -o README.cpt
+
+    ccrypt -c README.cpt
+    ccrypt -c -K test README.cpt
 
 #### OpenPGP - gpg / pgp
 
