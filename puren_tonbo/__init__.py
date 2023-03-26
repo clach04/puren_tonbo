@@ -174,9 +174,11 @@ class EncryptedFile:
     ## TODO rename read_from() -> read() - NOTE this would not be file-like
     # TODO add wrapper class for file-like object api
     def read_from(self, file_object):
+        """Decrypt"""
         raise NotImplementedError
 
     def write_to(self, file_object, byte_data):
+        """Encrypt"""
         raise NotImplementedError
 
 
