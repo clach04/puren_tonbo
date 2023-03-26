@@ -82,12 +82,16 @@ Purēntonbo
 
 ## Examples
 
+    ptconfig
     python -m puren_tonbo.tools.ptconfig
 
 
 ### ptcat
 
+    ptcat  puren_tonbo/tests/data/aesop.txt
     python -m puren_tonbo.tools.ptcat  puren_tonbo/tests/data/aesop.txt
+
+    ptcat -p password puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
     python -m puren_tonbo.tools.ptcat -p password puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
 
 
@@ -95,6 +99,8 @@ Purēntonbo
 
 A grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/ripgrep), [silver-searcher](https://geoff.greer.fm/ag/), [pss](https://github.com/eliben/pss) like tool that works on encrypted (and plain text) files.
 
+    ptgrep better
+    ptgrep -i better
     python -m puren_tonbo.tools.ptgrep better
     python -m puren_tonbo.tools.ptgrep -e -p password Better
     python -m puren_tonbo.tools.ptgrep -e -p password Better
@@ -212,6 +218,7 @@ Symmetric encryption/decryption from passphase.
 
 Requires a ccrypt binary, download from https://ccrypt.sourceforge.net/ (or debian apt)
 
+    ptcipher --cipher=cpt -e -p test README.md -o README.cpt
     python -m puren_tonbo.tools.ptcipher --cipher=cpt -e -p test README.md -o README.cpt
 
     ccrypt -c README.cpt
@@ -333,7 +340,7 @@ TODO consider using (OpenSSL) https://www.vim.org/scripts/script.php?script_id=2
 
 ### High Level Overview
 
-All encryption/decryption is file based.
+All encryption/decryption is file object based.
 Low level routines (EncryptedFile) use file-like objects, for in-memory encryption/decryption use BytesIO
 (see test suite, `puren_tonbo/tests/testsuite.py`).
 
@@ -343,5 +350,6 @@ There is also the note abstraction (FileSystemNotes) which is filename based.
 
 Thanks and kudos to:
 
+  * Tomohisa Hirami - the original creator of Tombo
   * [maxpat78](https://github.com/maxpat78) for the Python 2 (and 3) fall back code for AES zip support, [relicensed with permission](https://github.com/maxpat78/CryptoPad/issues/2) from https://github.com/maxpat78/CryptoPad
   * Noah Spurrier who's Public Domain OpenSSL vim plugin is the inspiration for the PT vim support (using functions) https://www.vim.org/scripts/script.php?script_id=2012
