@@ -28,11 +28,11 @@ Some countries have also have restrictions on import, export, and usage see http
 
 Plain text notes search/edit tool that supports encrypted files, formats:
 
-  * AES-256 ZIP AE-1/AE-2 - AES256 (note can also read but not write the old pkzip encrption format)
+  * AES-256 ZIP AE-1/AE-2 created with 7z (does NOT support encrypted 7z files), WinZIP, WinRAR - AES256 (under Python 3 can also read (but not write) the original ZipCrypto zip format)
   * ccrypt - Rijndael
   * GnuPG (OpenPGP, gpg)
   * Tombo (chi) - blowfish
-  * VimCrypt encrypted files READ ONLY - zip, blowfish, and blowfish2
+  * VimCrypt encrypted files READ ONLY - VimCrypt (1-3) zip, blowfish, and blowfish2
 
 プレーン トンボ
 Purēntonbo
@@ -47,16 +47,14 @@ Purēntonbo
 
 ## Features
 
-None right now!
-
   * Plain text files notes (potentially with no formatting or in Markdown, reStructuredText, etc.)
   * Nested directories of notes
-  * Supports reading and writing from/to encrypted chi files that are compatible with:
-      * Tombo Blowfish `*.chi` (note not recommended for new storage)
-      * VimCrypt (1-3)
-      * AE-1/AE-2 AES-256 encrypted zip files created with WinZIP and WinRAR (does NOT support encrypted 7z files)
-          * under Python 3 can also read (but not write) the original ZipCrypto zip format
-  * Currently limited to local file system and stdin/out for files.
+  * Supports reading and writing from/to encrypted files that are compatible with other formats/tools (there is no intention to create a new crypto format/algorithm in this tool)
+  * Currently limited to local file system and stdin/out for files
+  * Command line tools; `ptcat` and `ptcipher` to encrypt/decrypt and view plain text files
+  * `ptgrep` - a grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/ripgrep), [silver-searcher](https://geoff.greer.fm/ag/), [pss](https://github.com/eliben/pss) like tool that works on encrypted (and plain text) files
+  * `ptig` an interactive grep like tool that can also view/edit
+  * `ptpyvim` a vim-like editor that works on encrypted (and plain text) files
 
 
 ## Getting Started
@@ -65,8 +63,9 @@ None right now!
 
     pip uninstall puren_tonbo ; python -m pip install --upgrade git+https://github.com/clach04/chi_io.git  git+https://github.com/clach04/puren_tonbo.git
 
-NOTE be aware test suite will not pass due to missing data files,
-issue https://github.com/clach04/puren_tonbo/issues/38
+    # sanity check, and dump sample config to stdout
+    ptconfig
+    python -m puren_tonbo.tools.ptconfig
 
 ### From a source code checkout
 
@@ -100,6 +99,114 @@ A grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/
     python -m puren_tonbo.tools.ptgrep -e -p password Better
     python -m puren_tonbo.tools.ptgrep -e -p password Better
 
+### ptig
+
+Command line interactive search tool, that also supports viewing and editing.
+
+    ptig
+    python -m puren_tonbo.tools.ptig
+
+#### Sample ptig session
+
+    $ ptig --note-root=puren_tonbo/tests/data
+    3.8.10 (default, Mar 15 2022, 12:22:08)
+    [GCC 9.4.0]
+
+    Puren Tonbo puren_tonbo version 0.0.3.git
+    Formats:
+
+                  txt - RawFile - Raw file, no encryption support
+                   md - RawFile - Raw file, no encryption support
+                  chi - TomboBlowfish - Tombo Blowfish ECB (not recommended)
+                  gpg - GnuPG - gpg (GnuPG) symmetric 1.x and 2.x, does NOT uses keys
+                  asc - GnuPGascii - gpg (GnuPG) symmetric 1.x and 2.x, does NOT uses keys
+                  cpt - Ccrypt - ccrypt symmetric Rijndael
+              aes.zip - ZipAES - AES-256 ZIP AE-1 DEFLATED (regular compression)
+           aes256.zip - ZipAES - AES-256 ZIP AE-1 DEFLATED (regular compression)
+               aeszip - ZipAES - AES-256 ZIP AE-1 DEFLATED (regular compression)
+              old.zip - ZipAES - AES-256 ZIP AE-1 DEFLATED (regular compression)
+     aes256stored.zip - ZipNoCompressionAES - AES-256 ZIP AE-1 STORED (uncompressed)
+        oldstored.zip - ZipNoCompressionAES - AES-256 ZIP AE-1 STORED (uncompressed)
+       aes256lzma.zip - ZipLzmaAES - AES-256 ZIP AE-1 LZMA
+      aes256bzip2.zip - ZipBzip2AES - AES-256 ZIP AE-1 BZIP2
+             vimcrypt - VimDecrypt - vimcrypt 1, 2, 3
+            vimcrypt1 - VimDecrypt - vimcrypt 1, 2, 3
+            vimcrypt2 - VimDecrypt - vimcrypt 1, 2, 3
+            vimcrypt3 - VimDecrypt - vimcrypt 1, 2, 3
+
+    Libs:
+            chi_io.implementation: using PyCrypto 3.15.0
+            python-gnupg version: 0.5.0
+            gpg version: (2, 2, 19)
+            pyzipper version: 0.3.6
+
+    ptig: 🔎 rg better
+    Query time: 0.01 seconds
+    ptig: 🔎 set ic
+    ptig: 🔎 rg better
+    [1] puren_tonbo/tests/data/aesop.txt
+    7:Better no rule than cruel rule.
+    Query time: 0.01 seconds
+    ptig: 🔎 find ccrypt
+    [1] puren_tonbo/tests/data/aesop_win_ccrypt.cpt
+    Query time: 0.00 seconds
+    ptig: 🔎 f ccrypt
+    [1] puren_tonbo/tests/data/aesop_win_ccrypt.cpt
+    Query time: 0.00 seconds
+    ptig: 🔎 cat 0
+    Password for file aesop_win_ccrypt.cpt:
+    ptig: 🔎 set search_encrypted=True
+    ptig: 🔎 rg better
+    [1] puren_tonbo/tests/data/aesop.chi
+    7:Better no rule than cruel rule.
+    [2] puren_tonbo/tests/data/aesop.txt
+    7:Better no rule than cruel rule.
+    [3] puren_tonbo/tests/data/aesop_linux.vimcrypt1
+    7:Better no rule than cruel rule.
+    [4] puren_tonbo/tests/data/aesop_linux.vimcrypt2
+    7:Better no rule than cruel rule.
+    [5] puren_tonbo/tests/data/aesop_linux.vimcrypt3
+    7:Better no rule than cruel rule.
+    [6] puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
+    7:Better no rule than cruel rule.
+    [7] puren_tonbo/tests/data/aesop_linux_7z.aes256stored.zip
+    7:Better no rule than cruel rule.
+    [8] puren_tonbo/tests/data/aesop_linux_7z.old.zip
+    7:Better no rule than cruel rule.
+    [9] puren_tonbo/tests/data/aesop_linux_7z.oldstored.zip
+    7:Better no rule than cruel rule.
+    [10] puren_tonbo/tests/data/aesop_win.vimcrypt1
+    7:Better no rule than cruel rule.
+    [11] puren_tonbo/tests/data/aesop_win.vimcrypt2
+    7:Better no rule than cruel rule.
+    [12] puren_tonbo/tests/data/aesop_win.vimcrypt3
+    7:Better no rule than cruel rule.
+    [13] puren_tonbo/tests/data/aesop_win_7z.aes256.zip
+    7:Better no rule than cruel rule.
+    [14] puren_tonbo/tests/data/aesop_win_7z.aes256stored.zip
+    7:Better no rule than cruel rule.
+    [15] puren_tonbo/tests/data/aesop_win_7z.old.zip
+    7:Better no rule than cruel rule.
+    [16] puren_tonbo/tests/data/aesop_win_7z.oldstored.zip
+    7:Better no rule than cruel rule.
+    [17] puren_tonbo/tests/data/aesop_win_ccrypt.cpt
+    7:Better no rule than cruel rule.
+    [18] puren_tonbo/tests/data/aesop_win_encryptpad.asc
+    7:Better no rule than cruel rule.
+    [19] puren_tonbo/tests/data/aesop_win_encryptpad.gpg
+    7:Better no rule than cruel rule.
+    [20] puren_tonbo/tests/data/aesop_win_winrar.aes256.zip
+    7:Better no rule than cruel rule.
+    [21] puren_tonbo/tests/data/aesop_win_winrar.aes256stored.zip
+    7:Better no rule than cruel rule.
+    Query time: 0.32 seconds
+
+### ptpyvim
+
+If pyvim is available, ptpyvim wraps encryption/decryption support.
+
+    ptpyvim
+    python -m puren_tonbo.tools.ptpyvim
 
 
 ### ptcipher
