@@ -88,6 +88,12 @@ is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
 
 try:
+    FileNotFoundError  # in this module; only used for subprocess, command available check
+except NameError:
+    # Probably Python 2.7 or earlier
+    FileNotFoundError = Exception
+
+try:
     basestring  # only used to determine if parameter is a filename
 except NameError:
     basestring = (
