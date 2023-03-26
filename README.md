@@ -339,6 +339,8 @@ TODO consider using (OpenSSL) https://www.vim.org/scripts/script.php?script_id=2
 
 ## Development and testing
 
+Puren Tonbo is implemented in Python, with support for Python 3.x and 2.7.
+
 
 ### Run test suite
 
