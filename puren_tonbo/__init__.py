@@ -296,18 +296,22 @@ if is_win:
 else:
     expand_shell = False
 
-p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-# timeout not suported by older python versions, pre 3.3?
-stdout_value, stderr_value = p_ccrypt.communicate()
+try:
+    p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # timeout not suported by older python versions, pre 3.3?
+    stdout_value, stderr_value = p_ccrypt.communicate()
 
-# for now ignore result, stdout_value could be parsed for version number
-"""
-print('stdout: %r' % stdout_value)
-print('stderr: %r' % stderr_value)
-print('returncode: %r' % p_ccrypt.returncode)
-"""
-if p_ccrypt.returncode == 0:
-    ccrypt = True
+    # for now ignore result, stdout_value could be parsed for version number
+    """
+    print('stdout: %r' % stdout_value)
+    print('stderr: %r' % stderr_value)
+    print('returncode: %r' % p_ccrypt.returncode)
+    """
+    if p_ccrypt.returncode == 0:
+        ccrypt = True
+except FileNotFoundError:
+    # some (but not all, Windows does not require this) platforms raise exception on missing binary
+    pass  # leave ccrypt as None
 
 class GnuPG(EncryptedFile):
     """GnuPG - GPG binary
