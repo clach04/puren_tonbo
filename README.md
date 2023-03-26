@@ -159,47 +159,19 @@ Command line interactive search tool, that also supports viewing and editing.
     ptig: 🔎 rg better
     [1] puren_tonbo/tests/data/aesop.chi
     7:Better no rule than cruel rule.
-    [2] puren_tonbo/tests/data/aesop.txt
-    7:Better no rule than cruel rule.
-    [3] puren_tonbo/tests/data/aesop_linux.vimcrypt1
-    7:Better no rule than cruel rule.
-    [4] puren_tonbo/tests/data/aesop_linux.vimcrypt2
-    7:Better no rule than cruel rule.
-    [5] puren_tonbo/tests/data/aesop_linux.vimcrypt3
-    7:Better no rule than cruel rule.
-    [6] puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
-    7:Better no rule than cruel rule.
-    [7] puren_tonbo/tests/data/aesop_linux_7z.aes256stored.zip
-    7:Better no rule than cruel rule.
-    [8] puren_tonbo/tests/data/aesop_linux_7z.old.zip
-    7:Better no rule than cruel rule.
-    [9] puren_tonbo/tests/data/aesop_linux_7z.oldstored.zip
-    7:Better no rule than cruel rule.
-    [10] puren_tonbo/tests/data/aesop_win.vimcrypt1
-    7:Better no rule than cruel rule.
-    [11] puren_tonbo/tests/data/aesop_win.vimcrypt2
-    7:Better no rule than cruel rule.
-    [12] puren_tonbo/tests/data/aesop_win.vimcrypt3
-    7:Better no rule than cruel rule.
-    [13] puren_tonbo/tests/data/aesop_win_7z.aes256.zip
-    7:Better no rule than cruel rule.
-    [14] puren_tonbo/tests/data/aesop_win_7z.aes256stored.zip
-    7:Better no rule than cruel rule.
-    [15] puren_tonbo/tests/data/aesop_win_7z.old.zip
-    7:Better no rule than cruel rule.
-    [16] puren_tonbo/tests/data/aesop_win_7z.oldstored.zip
-    7:Better no rule than cruel rule.
-    [17] puren_tonbo/tests/data/aesop_win_ccrypt.cpt
-    7:Better no rule than cruel rule.
-    [18] puren_tonbo/tests/data/aesop_win_encryptpad.asc
-    7:Better no rule than cruel rule.
-    [19] puren_tonbo/tests/data/aesop_win_encryptpad.gpg
-    7:Better no rule than cruel rule.
-    [20] puren_tonbo/tests/data/aesop_win_winrar.aes256.zip
-    7:Better no rule than cruel rule.
+    ..... Truncated
     [21] puren_tonbo/tests/data/aesop_win_winrar.aes256stored.zip
     7:Better no rule than cruel rule.
     Query time: 0.32 seconds
+    ptig: 🔎 help
+
+    Documented commands (type help <topic>):
+    ========================================
+    EOF  c    config  edit  f     g     help  ptpyvim  quit     rg   ver      vi
+    bye  cat  e       exit  find  grep  info  pyvim    results  set  version  vim
+
+    ptig: 🔎 exit
+    Quitting...
 
 ### ptpyvim
 
