@@ -46,7 +46,7 @@ Purēntonbo
 
   * http://tombo.sourceforge.jp/En/
   * https://github.com/clach04/chi_io
-  * https://hg.sr.ht/~clach04/pytombo
+  * https://hg.sr.ht/~clach04/pytombo - NOTE Puren Tonbo is intended to replace PyTombo
 
 
 ## Features
