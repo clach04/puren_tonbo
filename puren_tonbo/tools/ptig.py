@@ -44,6 +44,8 @@ def getpager_no_temp_files():
         return pydoc.plainpager
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         return pydoc.plainpager
+    if is_win:
+        return pydoc.ttypager
     use_pager = os.environ.get('MANPAGER') or os.environ.get('PAGER')
     if use_pager:
         """
@@ -56,6 +58,7 @@ def getpager_no_temp_files():
             return lambda text: pydoc.pipepager(text, use_pager)
     if os.environ.get('TERM') in ('dumb', 'emacs'):
         return pydoc.plainpager
+    # Under windows for each os.system() below will get: The system cannot find the path specified.
     if hasattr(os, 'system') and os.system('(pager) 2>/dev/null') == 0:
         return lambda text: pydoc.pipepager(text, 'pager')
     if hasattr(os, 'system') and os.system('(less) 2>/dev/null') == 0:
