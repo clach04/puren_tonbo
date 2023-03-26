@@ -134,6 +134,13 @@ class TestBaseEncryptedCrypt(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
     test_password_bytes = b'mypassword'
     pt_handler_class = puren_tonbo.Ccrypt
 
+    if not puren_tonbo.ccrypt:
+        def test_get_what_you_put_in(self):
+            self.skip('ccrypt not available')
+        def test_same_input_different_crypted_text(self):
+            self.skip('ccrypt not available')
+
+
 class TestBaseEncryptedPurePyZipAES(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
     test_data_bytes = b"this is just a small piece of text."
     test_password_bytes = b'mypassword'
