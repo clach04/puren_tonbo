@@ -129,6 +129,11 @@ class TestBaseEncryptedFile(TestBaseEncryptedFileBase):  # mix-in with TestBaseE
         self.check_same_input_different_crypted_text(self.test_data_bytes, self.test_password_bytes, self.pt_handler_class)
 
 
+class TestBaseEncryptedCrypt(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.Ccrypt
+
 class TestBaseEncryptedPurePyZipAES(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
     test_data_bytes = b"this is just a small piece of text."
     test_password_bytes = b'mypassword'
@@ -276,7 +281,29 @@ ter no rule than cruel rule.\n'''
         data = note_root.note_contents(test_note_filename, password)
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
-    # TODO skip if gpg missing
+    def test_aesop_win_ccrypt_cpt(self):
+        if not puren_tonbo.ccrypt:
+            self.skip('ccrypt not available')
+
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop_win_ccrypt.cpt'
+        data = note_root.note_contents(test_note_filename, password)
+        if is_win:
+            canon = self.plain_text_data_windows_newlines
+        else:
+            canon = self.plain_text_data_linux_newlines
+        self.assertTrue(data == self.plain_text_data_windows_newlines or data == self.plain_text_data_linux_newlines)
+
+    def test_aesop_win_ccrypt_cpt_bad_password(self):
+        if not puren_tonbo.ccrypt:
+            self.skip('ccrypt not available')
+
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = 'bad'
+        test_note_filename = 'aesop_win_ccrypt.cpt'
+        self.assertRaises(puren_tonbo.BadPassword, note_root.note_contents, test_note_filename, password)
+
     def test_aesop_win_encryptpad_asc(self):
         if not puren_tonbo.gpg:
             self.skip('gpg not available')

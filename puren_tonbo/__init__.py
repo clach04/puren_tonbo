@@ -21,6 +21,7 @@ import locale
 import logging
 import os
 import re
+import subprocess
 import sys
 
 from ._version import __version__, __version_info__
@@ -84,6 +85,7 @@ from puren_tonbo.mzipaes import ZIP_DEFLATED, ZIP_STORED
 
 
 is_py3 = sys.version_info >= (3,)
+is_win = sys.platform.startswith('win')
 
 try:
     basestring  # only used to determine if parameter is a filename
@@ -227,6 +229,83 @@ class VimDecrypt(EncryptedFile):
             # TODO chain exception...
             raise PurenTonboException(info)
 
+
+CCRYPT_EXE = 'ccrypt'
+ccrypt = None
+
+class Ccrypt(EncryptedFile):
+    """ccrypt - ccrypt - https://ccrypt.sourceforge.net/
+    NOTE uses external command line tool, rather than use files
+    with ccrypt exe stdin/stdout is used instead to adhere to
+    API and also avoid hitting filesystem (with plain text).
+    """
+
+    description = 'ccrypt symmetric Rijndael'
+    extensions = [
+        '.cpt',  # binary
+    ]
+
+    def read_from(self, file_object):
+        password = self.key  # TODO enforce byte check?
+        if isinstance(password, bytes):
+            # environment variables (in Microsoft Windows) have to be strings in py3
+            password = password.decode("utf-8")
+
+        CCRYPT_ENVVAR_NAME = 'PT_PASSWORD'
+        os.environ[CCRYPT_ENVVAR_NAME] = password
+        cmd = [CCRYPT_EXE, '-cb', '-E', CCRYPT_ENVVAR_NAME]
+
+        # expand-shell true for windows to avoid pop-up window, no user input used so shell escape/esculation not expected
+        # TODO look at alernative, Windows onlyl startupinfo param STARTUPINFO class, wShowWindow = SW_HIDE
+        #p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=file_object, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # works for real files, fails in test suite under Windows with fake files as Windows stdlib goes looking for a fileno()
+        byte_data = file_object.read()
+        p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # timeout not suported by older python versions, pre 3.3
+        #stdout_value, stderr_value = p_ccrypt.communicate()
+        stdout_value, stderr_value = p_ccrypt.communicate(input=byte_data)
+        if p_ccrypt.returncode != 0:
+            if stderr_value== b'ccrypt: key does not match\n':
+                raise BadPassword('with %r' % file_object)
+            raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
+        return stdout_value
+
+    def write_to(self, file_object, byte_data):
+        password = self.key  # TODO enforce byte check?
+        if isinstance(password, bytes):
+            # environment variables (in Microsoft Windows) have to be strings in py3
+            password = password.decode("utf-8")
+
+        CCRYPT_ENVVAR_NAME = 'PT_PASSWORD'
+        os.environ[CCRYPT_ENVVAR_NAME] = password
+        cmd = [CCRYPT_EXE, '-e', '-E', CCRYPT_ENVVAR_NAME]
+        p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # timeout not suported by older python versions, pre 3.3
+        stdout_value, stderr_value = p_ccrypt.communicate(input=byte_data)
+        if p_ccrypt.returncode != 0:
+            raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
+        file_object.write(stdout_value)  # only write to fileobject on successful encryption
+
+
+cmd = [CCRYPT_EXE, '--version']
+if is_win:
+    expand_shell = True  # avoid pop-up black CMD window - TODO review safety
+else:
+    expand_shell = False
+
+p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+# timeout not suported by older python versions, pre 3.3?
+stdout_value, stderr_value = p_ccrypt.communicate()
+
+# for now ignore result, stdout_value could be parsed for version number
+"""
+print('stdout: %r' % stdout_value)
+print('stderr: %r' % stderr_value)
+print('returncode: %r' % p_ccrypt.returncode)
+"""
+if p_ccrypt.returncode == 0:
+    ccrypt = True
 
 class GnuPG(EncryptedFile):
     """GnuPG - GPG binary
@@ -474,6 +553,11 @@ if chi_io:
 
 if gpg:
     for enc_class in (GnuPG, GnuPGascii):
+        for file_extension in enc_class.extensions:
+            file_type_handlers[file_extension] = enc_class
+
+if ccrypt:
+    for enc_class in (Ccrypt,):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 

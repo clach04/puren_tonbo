@@ -14,6 +14,12 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * password is `password`
       * Approx 1.5Kb.
 
+  * aesop_win_ccrypt.cpt - ccrypt encrypted from `aesop.txt`
+    Created with Windows win32 ccrypt 1.11 https://ccrypt.sourceforge.net/
+      * password is `password`
+      * Approx 1.5Kb.
+      * Command: type aesop.txt | ccrypt -e > aesop_win_ccrypt.cpt
+
   * aesop_win_encryptpad.asc - gpg (GnuPG) encrypted from `aesop.txt`
     Created with Windows win32 encryptpad 0.5.0.2 beta https://github.com/evpo/EncryptPad/
       * password is `password`
