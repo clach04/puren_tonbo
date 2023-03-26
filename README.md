@@ -116,6 +116,10 @@ From source code checkout:
 
 #### Tombo Blowfish CHI
 
+Symmetric encryption/decryption from passphase.
+
+Compatible with http://tombo.osdn.jp/En/ (and others, for example, Kumagusu on Android).
+
     ptcipher -e -p test README.md -o README.chi
 
     ptcipher -v -p test README.chi
@@ -136,7 +140,7 @@ Requires a ccrypt binary, download from https://ccrypt.sourceforge.net/ (or debi
 
 #### OpenPGP - gpg / pgp
 
-Symmetric encryption/decryption, no explict key support.
+Symmetric encryption/decryption from passphase, key support not explictly implemented.
 
 Requires a gpg binary, download from https://gnupg.org/download/
 
@@ -149,6 +153,8 @@ Also see `encryptcli` from https://github.com/evpo/EncryptPad/
 
 
 #### AES-256 zip
+
+Symmetric encryption/decryption from passphase.
 
     ptcipher -e -p test README.md -o README.aes256.zip
 
@@ -163,6 +169,8 @@ For example, 7z can read and write AES zip files:
 
 
 #### VimCrypt
+
+Symmetric encryption/decryption from passphase.
 
 NOTE not implemented in nvim / neovim.
 
