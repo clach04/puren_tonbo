@@ -109,6 +109,8 @@ A grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/
 
 Command line interactive search tool, that also supports viewing and editing.
 
+Also see https://github.com/clach04/puren_tonbo/wiki/tool-ptig
+
     ptig
     python -m puren_tonbo.tools.ptig
 
