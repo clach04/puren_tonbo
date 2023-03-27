@@ -181,6 +181,8 @@ def edit(locations, password=None):
     if os.path.exists(default_pyvimrc):
         run_rc_file(editor, default_pyvimrc)
 
+    editor.enable_mouse_support = False  # Works, may need to call; handle_command(editor, 'set nomouse')
+
     # Load files and run.
     editor.load_initial_files(locations)
     editor.run()
