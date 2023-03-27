@@ -1,3 +1,4 @@
+-*- coding: utf-8 -*-
 # puren_tonbo
 
 Pure Plain Text Notes... with optional encryption.
