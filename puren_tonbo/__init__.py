@@ -238,8 +238,9 @@ class VimDecrypt(EncryptedFile):
             raise PurenTonboException(info)
 
 
-CCRYPT_EXE = 'ccrypt'
+CCRYPT_EXE = os.environ.get('CCRYPT_EXE', 'ccrypt')
 ccrypt = None
+ccrypt_version = None
 
 class Ccrypt(EncryptedFile):
     """ccrypt - ccrypt - https://ccrypt.sourceforge.net/
@@ -307,7 +308,6 @@ try:
     # timeout not suported by older python versions, pre 3.3?
     stdout_value, stderr_value = p_ccrypt.communicate()
 
-    # for now ignore result, stdout_value could be parsed for version number
     """
     print('stdout: %r' % stdout_value)
     print('stderr: %r' % stderr_value)
@@ -315,6 +315,7 @@ try:
     """
     if p_ccrypt.returncode == 0:
         ccrypt = True
+        ccrypt_version = stdout_value.split(b' ', 2)[1].decode('utf-8')
 except FileNotFoundError:
     # some (but not all, Windows does not require this) platforms raise exception on missing binary
     pass  # leave ccrypt as None
@@ -1149,6 +1150,8 @@ def print_version_info():
     print('Libs:')
     if chi_io:
         print('\tchi_io.implementation: %s' % chi_io.implementation)
+    if ccrypt:
+        print('\tccrypt version: %s exe: %s' % (ccrypt_version, CCRYPT_EXE))
     if gnupg:
         print('\tpython-gnupg version: %s' % gnupg.__version__)
     if gpg:
