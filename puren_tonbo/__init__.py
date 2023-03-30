@@ -240,7 +240,7 @@ class VimDecrypt(EncryptedFile):
 
 CCRYPT_EXE = os.environ.get('CCRYPT_EXE', 'ccrypt')
 ccrypt = None
-ccrypt_version = None
+ccrypt_version = 'MISSING'
 
 class Ccrypt(EncryptedFile):
     """ccrypt - ccrypt - https://ccrypt.sourceforge.net/
@@ -1150,8 +1150,7 @@ def print_version_info():
     print('Libs:')
     if chi_io:
         print('\tchi_io.implementation: %s' % chi_io.implementation)
-    if ccrypt:
-        print('\tccrypt version: %s exe: %s' % (ccrypt_version, CCRYPT_EXE))
+    print('\tccrypt version: %s exe: %s' % (ccrypt_version, CCRYPT_EXE))
     if gnupg:
         print('\tpython-gnupg version: %s' % gnupg.__version__)
     if gpg:
