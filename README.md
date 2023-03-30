@@ -223,7 +223,9 @@ The chi file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ a
 
 Symmetric encryption/decryption from passphase.
 
-Requires a ccrypt binary, download from https://ccrypt.sourceforge.net/ (or debian apt)
+Requires a ccrypt binary, download from https://ccrypt.sourceforge.net/
+(or debian apt). ccrypt binary/executable needs to be in the path or
+the environment variable CCRYPT_EXE needs to have the (full) path.
 
     ptcipher --cipher=cpt -e -p test README.md -o README.cpt
     python -m puren_tonbo.tools.ptcipher --cipher=cpt -e -p test README.md -o README.cpt
