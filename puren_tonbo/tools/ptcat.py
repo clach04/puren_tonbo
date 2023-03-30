@@ -47,12 +47,7 @@ def main(argv=None):
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
     if options.list_formats:
-        print('')
-        print('Formats:')
-        print('')
-        for file_extension in puren_tonbo.file_type_handlers:
-            handler_class = puren_tonbo.file_type_handlers[file_extension]
-            print('%17s - %s - %s' % (file_extension[1:], handler_class.__name__, handler_class.description))  # FIXME replace/refactor with shared routine
+        puren_tonbo.print_version_info()
         return 0
 
     def usage():

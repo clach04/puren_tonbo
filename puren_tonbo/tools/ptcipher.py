@@ -73,11 +73,7 @@ def main(argv=None):
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
     if options.list_formats:
-        print('')
-        print('Formats:')
-        print('')
-        for file_extension, file_type, file_description in puren_tonbo.supported_filetypes_info():
-            print('%17s - %s - %s' % (file_extension[1:], file_type, file_description))
+        puren_tonbo.print_version_info()
         return 0
 
     def usage():

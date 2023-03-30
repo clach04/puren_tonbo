@@ -33,6 +33,10 @@ def main(argv=None):
 
     (options, args) = parser.parse_args(argv[1:])
 
+    if options.list_formats:
+        puren_tonbo.print_version_info()
+        return 0
+
     config_filename = puren_tonbo.get_config_path()
     if os.path.exists(config_filename):
         config_filename_exists = True
