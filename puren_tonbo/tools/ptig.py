@@ -127,6 +127,19 @@ class CommandPrompt(Cmd):
     do_bye = do_exit
     do_EOF = do_exit
 
+    def do_ls(self, line=None):
+        note_encoding = self.pt_config['codec']
+        note_root = self.paths_to_search[0]  # TODO just pick the first one, ignore everthing else
+        # for now, ignore line
+        #sub_dir = line
+        sub_dir = None
+        notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+        dir_list, file_list = notes.directory_contents(sub_dir=sub_dir)
+        for x in dir_list:
+            print('%s/' % x)
+        for x in file_list:
+            print('%s' % x)
+
     def do_set(self, line=None):
         """Set variables/options. No params, show variable settings
 

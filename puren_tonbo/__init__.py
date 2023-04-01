@@ -783,6 +783,8 @@ def grep_string(search_text, regex_object, highlight_text_start=None, highlight_
 
 
 class BaseNotes(object):
+    restrict_to_note_root = True  # if True do not allow access to files outside of self.note_root
+
     def __init__(self, note_root, note_encoding=None):
         self.note_root = note_root
         #self.note_encoding = note_encoding or 'utf8'
@@ -861,9 +863,10 @@ def fake_recurse_notes(path_to_search, filename_filter):
     yield path_to_search
 
 
-def directory_contents(dirname):
+def directory_contents(dirname, filename_filter=None):
     """Simple non-recursive Tombo note lister.
     Returns tuple (list of directories, list of files) in @dirname"""
+    filename_filter = filename_filter or supported_filename_filter  # or perhaps any_filename_filter
     ## TODO consider using 'dircache' instead of os.listdir?
     ## should not be re-reading so probably not a good idea
     file_list = []
@@ -872,7 +875,7 @@ def directory_contents(dirname):
         for name in os.listdir(dirname):
             path = os.path.join(dirname, name)
             if os.path.isfile(path):
-                if is_text_or_chi_note_filename_filter(name):
+                if filename_filter(name):
                     file_list.append(name)
             if os.path.isdir(path):
                 dir_list.append(name)
@@ -931,7 +934,7 @@ class FileSystemNotes(BaseNotes):
         return filename
 
     def __init__(self, note_root, note_encoding=None):
-        note_root = self.unicode_path(note_root)
+        note_root = self.unicode_path(note_root)  # either a file or a directory of files
         self.note_root = os.path.abspath(note_root)
         self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash.. unless this is a file
         #self.note_encoding = note_encoding or 'utf8'
@@ -945,7 +948,10 @@ class FileSystemNotes(BaseNotes):
     def directory_contents(self, sub_dir=None):
         """Simple non-recursive Tombo note lister.
         Returns tuple (list of directories, list of files) in @sub_dir"""
-        raise NotImplementedError('Implement in sub-class')
+        if sub_dir and not self.restrict_to_note_root:
+            raise NotImplementedError('sub_dir param not implemented (and restriction code missing)')
+        sub_dir = self.note_root  # TODO implement sub_dir parameter suport
+        return directory_contents(dirname=sub_dir)
 
     #         (self, search_term, search_term_is_a_regex=True,  ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, findonly_filename=None, index_name=None, note_encoding=None):
     #               (search_term, search_term_is_a_regex=True , ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, findonly_filename=None, index_name=None, note_encoding=None):
