@@ -894,6 +894,13 @@ class FileSystemNotes(BaseNotes):
     """PyTombo notes on local file system, just like original Windows Tombo
     """
 
+    def __init__(self, note_root, note_encoding=None):
+        note_root = self.unicode_path(note_root)  # either a file or a directory of files
+        self.note_root = os.path.abspath(note_root)
+        self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash.. unless this is a file
+        #self.note_encoding = note_encoding or 'utf8'
+        self.note_encoding = note_encoding or ('utf8', 'cp1252')
+
     def abspath2relative(self, input_path):
         """returns input_path with (leading) self.note_root removed.
         If ignore_path is not at the start of the input_path, raise error"""
@@ -932,13 +939,6 @@ class FileSystemNotes(BaseNotes):
             # want unicode string so that all file interaction is unicode based
             filename = filename.decode('utf8')  # FIXME hard coded, pick up from config or locale/system encoding
         return filename
-
-    def __init__(self, note_root, note_encoding=None):
-        note_root = self.unicode_path(note_root)  # either a file or a directory of files
-        self.note_root = os.path.abspath(note_root)
-        self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash.. unless this is a file
-        #self.note_encoding = note_encoding or 'utf8'
-        self.note_encoding = note_encoding or ('utf8', 'cp1252')
 
     def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):
         """Recursive Tombo note lister.
