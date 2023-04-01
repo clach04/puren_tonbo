@@ -223,6 +223,8 @@ The chi file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ a
 
 Symmetric encryption/decryption from passphase.
 
+Tested with ccrypt 1.11 and 1.10 (32-bit and 64-bit Intel x86/x64 and arm).
+
 Requires a ccrypt binary, download from https://ccrypt.sourceforge.net/
 (or debian apt). ccrypt binary/executable needs to be in the path or
 the environment variable CCRYPT_EXE needs to have the (full) path.
