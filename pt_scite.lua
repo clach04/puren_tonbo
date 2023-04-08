@@ -27,14 +27,23 @@ local function IsPurenTonboEncryptedFilename(filename)
   return false
 end
 
+local PTCIPHER_EXE = os.getenv('PTCIPHER_EXE') or 'ptcipher'
 
+local function determine_encrypted_file_extensions()
 -- TODO encrypted filename determination PTCIPHER_EXE, '--list-formats', '--no-prompt'
--- local prog = PTCIPHER_EXE .. ' --list-formats --no-prompt'
--- local f = io.popen(prog, 'rb')  -- read
--- program_output = f:read('*a')  -- read entire file
--- print(program_output)
--- local popen_success = f:close()  -- this is nil or boolean, not integer  Lua 5.2 feature?
--- print('popen_success: ' .. tostring(popen_success))
+  local prog = PTCIPHER_EXE .. ' --list-formats --no-prompt'
+  local f = io.popen(prog, 'rb')  -- read
+  -- TODO line at a time...
+  --for line in f:lines() do
+  --    print(line)
+  --end -- for loop
+
+  program_output = f:read('*a')  -- read entire file
+  print(program_output)
+  local popen_success = f:close()  -- this is nil or boolean, not integer  Lua 5.2 feature?
+  print('determine_encrypted_file_extensions popen_success: ' .. tostring(popen_success))
+end
+determine_encrypted_file_extensions()
 
 -- NOTE SaveEncryptedFile() does not (yet) support saving encrypted files, instead it prevents accidental saving
 local function SaveEncryptedFile(filename)
@@ -72,8 +81,6 @@ local function LoadEncryptedFile(filename)
     --editor:SetSavePoint() -- indicate to editor that save happened - whether it really did or not ;-)
     --return false  - reverse value compared with before save, false tells editor to NOT load and to NOT open a new pane
     -- either return false and open new tab and populate OR replace content in tab
-
-    local PTCIPHER_EXE = os.getenv('PTCIPHER_EXE') or 'ptcipher'
 
     -- TODO SciTE 4.4.4 on Windows adds create.hidden.console option to stop console window flashing when Lua script calls os.execute or io.popen.https://groups.google.com/g/scite-interest/c/QOhizNSEejU/m/qXslloxnCgAJ\
     -- getenv works, there is no setenv unless using posix stdlib extension http://luaposix.github.io/luaposix/modules/posix.stdlib.html#setenv
