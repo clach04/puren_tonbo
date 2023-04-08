@@ -18,6 +18,16 @@ local function ends_with(str, ending)
    return ending == "" or str:sub(-#ending) == ending
 end
 
+
+local function IsPurenTonboEncryptedFilename(filename)
+  filename_lower = string.lower(filename)
+  if ends_with(filename_lower, '.chi') then -- Tombo file
+    return true
+  end
+  return false
+end
+
+
 -- TODO encrypted filename determination PTCIPHER_EXE, '--list-formats', '--no-prompt'
 -- local prog = PTCIPHER_EXE .. ' --list-formats --no-prompt'
 -- local f = io.popen(prog, 'rb')  -- read
@@ -30,8 +40,7 @@ end
 local function SaveEncryptedFile(filename)
   --print('OnBeforeSave')  -- to output pane
   --print(filename)  -- to output pane
-  filename_lower = string.lower(filename)
-  if ends_with(filename_lower, '.chi') then -- Tombo file, TODO more formats
+  if IsPurenTonboEncryptedFilename(filename) then
     --print('block CHI save')  -- to output pane
     --print(filename)  -- to output pane
     print('blocked CHI save ' .. filename)  -- to output pane
@@ -56,8 +65,7 @@ end
 local function LoadEncryptedFile(filename)
   --print('OnOpen')  -- to output pane
   --print(filename)  -- to output pane
-  filename_lower = string.lower(filename)
-  if ends_with(filename_lower, '.chi') then -- Tombo file
+  if IsPurenTonboEncryptedFilename(filename) then
     print('DEBUG block CHI load ' .. filename)  -- to output pane
     --editor:EmptyUndoBuffer()
     --editor.UndoCollection=1
