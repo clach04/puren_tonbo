@@ -9,6 +9,13 @@
 --  1) operating system environment variable PT_PASSWORD is set before loading scite
 --  2) that ptcipher is in path or set os env PTCIPHER_EXE to path
 
+-- TODO
+--  * write support - file that was loaded
+--  * write support - file that was loaded - missing exe, password, unsupported extension (maybe lib missing)
+--  * write support - new file
+--  * test utf8 read/write
+--  * test cp1252/latin1 read/write
+
 -- http://lua-users.org/wiki/StringRecipes
 local function starts_with(str, start)
    return str:sub(1, #start) == start
