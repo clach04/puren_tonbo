@@ -19,31 +19,56 @@ local function ends_with(str, ending)
 end
 
 
-local function IsPurenTonboEncryptedFilename(filename)
-  filename_lower = string.lower(filename)
-  if ends_with(filename_lower, '.chi') then -- Tombo file
-    return true
-  end
-  return false
-end
 
 local PTCIPHER_EXE = os.getenv('PTCIPHER_EXE') or 'ptcipher'
 
 local function determine_encrypted_file_extensions()
 -- TODO encrypted filename determination PTCIPHER_EXE, '--list-formats', '--no-prompt'
+  local file_extensions = {}
   local prog = PTCIPHER_EXE .. ' --list-formats --no-prompt'
   local f = io.popen(prog, 'rb')  -- read
-  -- TODO line at a time...
-  --for line in f:lines() do
-  --    print(line)
-  --end -- for loop
+  -- line at a time processing
+  local look_for_file_types=false
+  for line in f:lines() do
+      if starts_with(line, 'Libs:') then
+        look_for_file_types = false
+      end
+      if look_for_file_types then
+        --print(line)
+        for w in line:gmatch("%S+") do
+          --print(w);
+          if (w ~= 'txt') and (w ~= 'md') then
+            --table.insert(file_extensions, w)
+            file_extensions[w] = true
+          end
+          break
+        end
+        -- https://stackoverflow.com/questions/1426954/split-string-in-lua
+        -- http://lua-users.org/wiki/StringTrim
+      end
+      if starts_with(line, 'Formats:') then
+        look_for_file_types = true
+      end
+  end -- for loop
 
-  program_output = f:read('*a')  -- read entire file
-  print(program_output)
   local popen_success = f:close()  -- this is nil or boolean, not integer  Lua 5.2 feature?
   print('determine_encrypted_file_extensions popen_success: ' .. tostring(popen_success))
+  return file_extensions
 end
-determine_encrypted_file_extensions()
+enc_types = determine_encrypted_file_extensions()
+--print(enc_types)  -- does NOT show table contents
+
+local function IsPurenTonboEncryptedFilename(filename)
+  filename_lower = string.lower(filename)
+  --if ends_with(filename_lower, '.chi') then -- Tombo file only (working) check
+  --if enc_types[filename_lower] ~= nil then -- not working yet
+  for k,v in pairs(enc_types) do
+    if ends_with(filename_lower, k) then
+      return true
+    end
+  end
+  return false
+end
 
 -- NOTE SaveEncryptedFile() does not (yet) support saving encrypted files, instead it prevents accidental saving
 local function SaveEncryptedFile(filename)
