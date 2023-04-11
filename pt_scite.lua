@@ -32,7 +32,11 @@ end
 local PTCIPHER_EXE = os.getenv('PTCIPHER_EXE') or 'ptcipher'
 
 local function determine_encrypted_file_extensions()
--- TODO encrypted filename determination PTCIPHER_EXE, '--list-formats', '--no-prompt'
+  local hard_coded_file_extensions = true
+  if hard_coded_file_extensions == true then
+    -- avoids process spawning unless an actual encrypted file is loaded
+    return {'chi', 'aes.zip', 'aes256.zip', 'aeszip', 'old.zip', 'aes256stored.zip', 'oldstored.zip', 'aes256lzma.zip', 'aes256bzip2.zip', 'vimcrypt', 'vimcrypt1', 'vimcrypt2', 'vimcrypt3' }
+  end
   local file_extensions = {}
   local prog = PTCIPHER_EXE .. ' --list-formats --no-prompt'
   local f = io.popen(prog, 'rb')  -- read
@@ -47,8 +51,8 @@ local function determine_encrypted_file_extensions()
         for w in line:gmatch("%S+") do
           --print(w);
           if (w ~= 'txt') and (w ~= 'md') then
-            --table.insert(file_extensions, w)
-            file_extensions[w] = true
+            table.insert(file_extensions, w)
+            --file_extensions[w] = true
           end
           break
         end
@@ -73,7 +77,8 @@ local function IsPurenTonboEncryptedFilename(filename)
   filename_lower = string.lower(filename)
   --if ends_with(filename_lower, '.chi') then -- Tombo file only (working) check
   for k,v in pairs(enc_types) do
-    if ends_with(filename_lower, k) then
+    --if ends_with(filename_lower, k) then
+    if ends_with(filename_lower, v) then
       return true
     end
   end
@@ -119,7 +124,7 @@ local function LoadEncryptedFile(filename)
     -- either return false and open new tab and populate OR replace content in tab
     --  right now current implementation has 2 file reads, once for scite which is thrown away and another for ptcipher so slightly inefficient
 
-    -- TODO SciTE 4.4.4 on Windows adds create.hidden.console option to stop console window flashing when Lua script calls os.execute or io.popen.https://groups.google.com/g/scite-interest/c/QOhizNSEejU/m/qXslloxnCgAJ\
+    -- TODO SciTE 4.4.4 on Windows adds create.hidden.console=1 option to stop console window flashing when Lua script calls os.execute or io.popen.https://groups.google.com/g/scite-interest/c/QOhizNSEejU/m/qXslloxnCgAJ\
     -- getenv works, there is no setenv unless using posix stdlib extension http://luaposix.github.io/luaposix/modules/posix.stdlib.html#setenv
     -- os.environ['PT_PASSWORD'] = 'bad'
     -- NOTE expects PT_PASSWORD to be set, there is no way to set this from lua and do not want to use command line arg to pass password
