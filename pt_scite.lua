@@ -1,6 +1,8 @@
 -- SciTE Lua Puren Tonbo script for reading encrypted files
 -- https://www.scintilla.org/SciTE.html
+--   - see API docs https://www.scintilla.org/PaneAPI.html
 -- https://github.com/clach04/puren_tonbo
+--
 -- Can be used standalone or with ParsKorata (http://lua-users.org/wiki/ParsKorata) mini/simple ExtMan compatible script
 -- Untested with ExtMan - http://lua-users.org/wiki/SciteExtMan
 
@@ -59,7 +61,9 @@ local function determine_encrypted_file_extensions()
   end -- for loop
 
   local popen_success = f:close()  -- this is nil or boolean, not integer  Lua 5.2 feature?
-  print('determine_encrypted_file_extensions popen_success: ' .. tostring(popen_success))
+  if popen_success ~= true then
+    print('determine_encrypted_file_extensions popen_success: ' .. tostring(popen_success))
+  end
   return file_extensions
 end
 enc_types = determine_encrypted_file_extensions()
@@ -68,7 +72,6 @@ enc_types = determine_encrypted_file_extensions()
 local function IsPurenTonboEncryptedFilename(filename)
   filename_lower = string.lower(filename)
   --if ends_with(filename_lower, '.chi') then -- Tombo file only (working) check
-  --if enc_types[filename_lower] ~= nil then -- not working yet
   for k,v in pairs(enc_types) do
     if ends_with(filename_lower, k) then
       return true
@@ -85,6 +88,7 @@ local function SaveEncryptedFile(filename)
     --print('block CHI save')  -- to output pane
     --print(filename)  -- to output pane
     print('blocked CHI save ' .. filename)  -- to output pane
+    -- consider setting editor.ReadOnly to true? But only for files that failed to load, not non-existing (i.e. new) files
     --editor:EmptyUndoBuffer()
     --editor.UndoCollection=1
 
@@ -107,12 +111,13 @@ local function LoadEncryptedFile(filename)
   --print('OnOpen')  -- to output pane
   --print(filename)  -- to output pane
   if IsPurenTonboEncryptedFilename(filename) then
-    print('DEBUG block CHI load ' .. filename)  -- to output pane
+    --print('DEBUG block CHI load ' .. filename)  -- to output pane
     --editor:EmptyUndoBuffer()
     --editor.UndoCollection=1
     --editor:SetSavePoint() -- indicate to editor that save happened - whether it really did or not ;-)
     --return false  - reverse value compared with before save, false tells editor to NOT load and to NOT open a new pane
     -- either return false and open new tab and populate OR replace content in tab
+    --  right now current implementation has 2 file reads, once for scite which is thrown away and another for ptcipher so slightly inefficient
 
     -- TODO SciTE 4.4.4 on Windows adds create.hidden.console option to stop console window flashing when Lua script calls os.execute or io.popen.https://groups.google.com/g/scite-interest/c/QOhizNSEejU/m/qXslloxnCgAJ\
     -- getenv works, there is no setenv unless using posix stdlib extension http://luaposix.github.io/luaposix/modules/posix.stdlib.html#setenv
@@ -130,6 +135,7 @@ local function LoadEncryptedFile(filename)
         editor:SetSavePoint()  -- indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
     else
         -- error handling
+        print('Error Encrypted loading ' .. filename)  -- to output pane
         print('popen_success: ' .. tostring(popen_success))
         -- either nil or false - so far only seen nil for both; failure to launch (missing PTCIPHER_EXE) and also exe launched and returned errors (like bad password)
         -- empty output seen for missing exe and also missing file - TODO consider adding extra output to ptcipher for missing file case
