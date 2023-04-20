@@ -1,6 +1,7 @@
 -- SciTE Lua Puren Tonbo script for reading encrypted files
 -- https://www.scintilla.org/SciTE.html
 --   - see API docs https://www.scintilla.org/PaneAPI.html
+--   - see API docs http://lua-users.org/wiki/UsingLuaWithScite
 -- https://github.com/clach04/puren_tonbo
 --
 -- Can be used standalone or with ParsKorata (http://lua-users.org/wiki/ParsKorata) mini/simple ExtMan compatible script
@@ -17,6 +18,8 @@
 --  * write support - new file
 --  * test utf8 read/write
 --  * test cp1252/latin1 read/write
+
+local is_win = props['PLAT_WIN']=="1"
 
 -- http://lua-users.org/wiki/StringRecipes
 local function starts_with(str, start)
@@ -39,7 +42,14 @@ local function determine_encrypted_file_extensions()
   end
   local file_extensions = {}
   local prog = PTCIPHER_EXE .. ' --list-formats --no-prompt'
-  local f = io.popen(prog, 'rb')  -- read
+  local f
+  if is_win then
+      f = io.popen(prog, 'rb')  -- read
+      -- binary under Linux read fails with; attempt to index a nil value (local 'f')
+  else
+      f = io.popen(prog, 'r')  -- read
+      --works for Linux with scite v4.0.0
+  end
   -- line at a time processing
   local look_for_file_types=false
   for line in f:lines() do
@@ -129,7 +139,15 @@ local function LoadEncryptedFile(filename)
     -- os.environ['PT_PASSWORD'] = 'bad'
     -- NOTE expects PT_PASSWORD to be set, there is no way to set this from lua and do not want to use command line arg to pass password
     local prog = PTCIPHER_EXE .. ' --decrypt "' .. filename .. '" --output=- --no-prompt'
-    local f = io.popen(prog, 'rb')  -- read
+    print(prog)
+    local f
+    if is_win then
+        f = io.popen(prog, 'rb')  -- read
+        -- binary under Linux read fails with; attempt to index a nil value (local 'f')
+    else
+        f = io.popen(prog, 'r')  -- read
+        --works for Linux with scite v4.0.0
+    end
     program_output = f:read('*a')  -- read entire file
     -- TODO FIXME if program_output is empty treat as an error
     --print(program_output)
