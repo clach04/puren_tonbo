@@ -258,7 +258,8 @@ Ubuntu can be configured via:
             # TODO pickup from config file
             # default a sane editor
             if is_win:
-                editor = 'start "ptig"'  # Let Windowsfigure it out based on file extension
+                # NOTE this only works for a single file
+                editor = 'start "ptig"'  # Let Windows figure it out based on file extension
             else:
                 # Assume Linux
                 editor = 'editor' # TODO full path "/usr/bin/editor" -> /etc/alternatives/editor, or xdg-open, jaro, etc.
