@@ -731,8 +731,10 @@ caching_console_password_prompt = gen_caching_get_password().gen_func()
 any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 
 
-def supported_filetypes_info():
+def supported_filetypes_info(encrypted_only=False):
     for file_extension in file_type_handlers:
+        if encrypted_only and file_extension in RawFile.extensions:
+            continue
         handler_class = file_type_handlers[file_extension]
         yield (file_extension, handler_class.__name__, handler_class.description)
 
@@ -748,11 +750,20 @@ def supported_filename_filter(in_filename):
 def plaintext_filename_filter(in_filename):
     name = in_filename.lower()
     #print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
-    for file_extension in ('.txt', '.md', ):  # FIXME hard coded for know plain text extensions
+    for file_extension in ('.txt', '.md', ):  # FIXME hard coded for known plain text extensions that Rawfile is configured with. See supported_filetypes_info() for less fragile approach
         if name.endswith(file_extension):
             # TODO could look at mapping and check that too, e.g. only Raw files
             return True
     return False
+
+encrypted_extensions = puren_tonbo.supported_filetypes_info(encrypted_only=True)
+def encrypted_filename_filter(filename):
+    filename_lower = filename.lower()
+    for file_extension in encrypted_extensions:
+        if filename_lower.endswith(file_extension):
+            return True
+    return False
+is_encrypted = encrypted_filename_filter
 
 ## TODO implement generator function that takes in filename search term
 
