@@ -138,6 +138,10 @@ local function LoadEncryptedFile(filename)
     -- getenv works, there is no setenv unless using posix stdlib extension http://luaposix.github.io/luaposix/modules/posix.stdlib.html#setenv
     -- os.environ['PT_PASSWORD'] = 'bad'
     -- NOTE expects PT_PASSWORD to be set, there is no way to set this from lua and do not want to use command line arg to pass password
+    local PT_PASSWORD = os.getenv('PT_PASSWORD')
+    if PT_PASSWORD==nil then
+        print('WARNING: PT_PASSWORD has not been set')
+    end
     local prog = PTCIPHER_EXE .. ' --decrypt "' .. filename .. '" --output=- --no-prompt'
     print(prog)
     local f
