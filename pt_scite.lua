@@ -132,6 +132,9 @@ local function SaveEncryptedFile(filename)
     --program_output = f:read('*a')  -- read entire file
     --print('read result')
     --print(program_output)  -- nil -- which is expected lua is exclusive or read or write
+    local flush_success = f:close()  -- this is nil or boolean, not integer  Lua 5.2 feature?
+    print('flush result')
+    print(flush_success)
     local popen_success = f:close()  -- this is nil or boolean, not integer  Lua 5.2 feature?
     print('close result')
     print(popen_success)  -- nil  and no debug_scite_test.chi file anywhere :-( - TODO test under Linux and/or debug Python code, may be the buffered/unbuffered issue I saw with vim
