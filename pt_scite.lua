@@ -107,6 +107,38 @@ local function SaveEncryptedFile(filename)
     --editor:EmptyUndoBuffer()
     --editor.UndoCollection=1
 
+    plain_text, plain_text_length = editor:GetText()  -- this returns bytes in editor.CodePage encoding, e.g. if editor set to SC_CP_UTF8 (utf-8) get utf-8 encoded, if codepage/cp1252 get bytes in that encoding
+    print('---------------------')
+    print(plain_text_length)
+    print(plain_text)
+    print('---------------------')
+
+    local prog = PTCIPHER_EXE .. ' --encrypt --output=debug_scite_test.chi --no-prompt -'  -- TODO double quote and filename
+    print(prog)
+    local f
+    if is_win then
+        f = io.popen(prog, 'wb')  -- write
+        --f = io.popen(prog, 'w')  -- write - no difference
+        -- binary under Linux read fails with; attempt to index a nil value (local 'f')
+    else
+        f = io.popen(prog, 'w')  -- write
+        --works for Linux with scite v4.0.0
+    end
+    program_output = f:write(plain_text)  -- write entire file
+    print('write result')
+    print(program_output)  -- file (00E6C318) obeject? when wrong mode saw nil  and no debug_scite_test.chi file anywhere :-(
+    -- TODO FIXME if program_output is empty treat as an error
+    --print(program_output)
+    --program_output = f:read('*a')  -- read entire file
+    --print('read result')
+    --print(program_output)  -- nil -- which is expected lua is exclusive or read or write
+    local popen_success = f:close()  -- this is nil or boolean, not integer  Lua 5.2 feature?
+    print('close result')
+    print(popen_success)  -- nil  and no debug_scite_test.chi file anywhere :-( - TODO test under Linux and/or debug Python code, may be the buffered/unbuffered issue I saw with vim
+    --(py310venv) C:\code\py\puren_tonbo>echo test | ptcipher --encrypt --output=debug_scite_test.chi --no-prompt -
+    --Read in from stdin...DEBUG tmp_out_filename 'C:\\code\\py\\puren_tonbo\\debug_scite_test.chi20230423_121834d2iaf_zk'
+
+
     --editor:SetSavePoint() -- indicate to editor that save happened - whether it really did or not ;-)
     return true -- indicate to editor NOT to save
   end
