@@ -278,7 +278,21 @@ Ubuntu can be configured via:
         # TODO what about password? For now let external tool handle that. To support tools that don't support password, need to pipe in plain text
         print('Using: %s' % editor)
         print('file: %s' % filename)
-        os.system('%s "%s"' % (editor, filename))
+
+        # TODO edit all result filnames
+        #   e !
+        #   e *
+        #   e all
+        if filename == '!' and self.file_hits:  # TODO review
+            filename = '"' + '" "'.join(self.file_hits) + '"'  # each filename wrapped in double quotes
+            # TODO password prompt? above is_encrypted() call won't work
+            # NOTE under Windows only will work for third party text editor/viewers
+            #   notepad will not handle this
+            #print('%r' % self.file_hits)  # DEBUG
+            #print('%s %s' % (editor, filename))  # DEBUG
+            os.system('%s %s' % (editor, filename))  # already escaped list
+        else:
+            os.system('%s "%s"' % (editor, filename))
         print('file: %s' % filename)
         print('To display previous results issue: results')
     do_e = do_edit
