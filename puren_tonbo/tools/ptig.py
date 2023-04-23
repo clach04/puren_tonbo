@@ -254,6 +254,18 @@ Ubuntu can be configured via:
             pass  # line contains filename
         filename = line
         editor = os.environ.get('VISUAL') or os.environ.get('EDITOR')
+        if puren_tonbo.is_encrypted(filename):
+            # Prompt for password for editors that won't prompt
+            # TODO how to indicate whether ptig should prompt (and set environment variable)?
+            # FIXME if a bad password is used, the same bad password will be used on next edit (unless cat is issued first)
+            password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
+            if callable(password_func):
+                password = password_func('Password for %s' % filename)
+            else:
+                password = password_func
+            if password and  isinstance(password, bytes):
+                password = password.decode('us-ascii')
+            os.environ['PT_PASSWORD'] = password  # Python 3.10.4 only supports strings for environment variables
         if not editor:
             # TODO pickup from config file
             # default a sane editor
