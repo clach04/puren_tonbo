@@ -18,6 +18,7 @@ Some countries have also have restrictions on import, export, and usage see http
   - [ptcat](#ptcat)
   - [ptgrep](#ptgrep)
   - [ptig](#ptig)
+  - [pttkview](#pttkview)
   - [ptpyvim](#ptpyvim)
   - [ptcipher](#ptcipher)
 - [ptcat/ptcipher with text editors like vim](#ptcatptcipher-with-text-editors-like-vim)
@@ -185,6 +186,13 @@ Also see https://github.com/clach04/puren_tonbo/wiki/tool-ptig
 
     ptig: 🔎 exit
     Quitting...
+
+### pttkview
+
+A simple GUI viewer using the tk toolkit:
+
+    python -m puren_tonbo.tools.pttkview -h
+    pttkview -h
 
 ### ptpyvim
 

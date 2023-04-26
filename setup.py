@@ -67,6 +67,7 @@ setup(
             'ptconfig = puren_tonbo.tools.ptconfig:main',
             'ptgrep = puren_tonbo.tools.ptgrep:main',
             'ptig = puren_tonbo.tools.ptig:main',
+            'pttkview = puren_tonbo.tools.pttkview:main',  # Assume tk available
         ] + (['ptpyvim = puren_tonbo.tools.ptpyvim:main'] if pyvim else []),
     },
     #data_files=[('.', [readme_filename])],  # does not work :-( ALso tried setup.cfg [metadata]\ndescription-file = README.md # Maybe try include_package_data = True and a MANIFEST.in?
