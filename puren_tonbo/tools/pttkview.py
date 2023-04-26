@@ -87,7 +87,7 @@ def main(argv=None):
 
     st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True)
     st.focus_set()
-    st.pack()  # make visible
+    st.pack(fill=tkinter.BOTH, expand=True)  # make visible, and resizable
 
     st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
     # NOTE Cursor will be at EOF
