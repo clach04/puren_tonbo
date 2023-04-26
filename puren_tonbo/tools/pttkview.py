@@ -8,12 +8,12 @@
 """
 # TODO encrypt support, with safe-save as the default ala ptcipher - either reuse/call ptcipher more move that logic into main lib
 
-import getpass  # TODO FIXME debug, use GUI prompt
 import os
 from optparse import OptionParser
 import sys
 
 import tkinter
+import tkinter.simpledialog
 import tkinter.scrolledtext as ScrolledText
 
 import puren_tonbo
@@ -70,7 +70,7 @@ def main(argv=None):
     """
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or default_password_value
     if not password:
-        password = getpass.getpass("Password:")  # FIXME don't do this
+        password = tkinter.simpledialog.askstring('pttkview', 'Password', show='*')
     if not isinstance(password, bytes):
         password = password.encode('us-ascii')
     note_encoding = options.codec
@@ -90,6 +90,7 @@ def main(argv=None):
 
     st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
 
+    # NOTE alt-f4 under windows appears to also close the CMD window as well?
     main_window.mainloop()  # TODO detect (type of) exit (modified/unmodified), etc.
 
     return 0
