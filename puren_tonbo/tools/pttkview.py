@@ -85,7 +85,7 @@ def main(argv=None):
     main_window = tkinter.Tk()  # TODO title (icon?)
     main_window.title('pttkview')
 
-    st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD)  # TODO enable read-only, undo, ...
+    st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True)
     st.focus_set()
     st.pack()  # make visible
 
