@@ -86,11 +86,12 @@ def main(argv=None):
     main_window.title('pttkview')
 
     st = ScrolledText.ScrolledText(main_window)  # TODO enable read-only, undo, ...
+    st.focus_set()
     st.pack()  # make visible
 
     st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
+    # NOTE Cursor will be at EOF
 
-    # NOTE alt-f4 under windows appears to also close the CMD window as well?
     main_window.mainloop()  # TODO detect (type of) exit (modified/unmodified), etc.
 
     return 0
