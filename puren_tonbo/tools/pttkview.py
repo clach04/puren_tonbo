@@ -182,7 +182,7 @@ def main(argv=None):
     # TODO add Load
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=exit, underline=1)
-    main_window.wm_protocol ("WM_DELETE_WINDOW", exit)
+    main_window.wm_protocol("WM_DELETE_WINDOW", exit)
     main_window.bind('<Control-s>', save_file)
     menubar.add_cascade(label="File", menu=filemenu)
     main_window.config(menu=menubar)
