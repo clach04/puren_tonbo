@@ -108,7 +108,7 @@ def main(argv=None):
                 return
         main_window.destroy()
 
-    filemenu.add_command(label="Save", command=save_file)
+    #filemenu.add_command(label="Save", command=save_file)  # DEBUG/WIP
     # TODO add SaveAs
     # TODO add Load
     filemenu.add_separator()
