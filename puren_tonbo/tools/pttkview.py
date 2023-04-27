@@ -88,7 +88,7 @@ def main(argv=None):
     menubar = tkinter.Menu(main_window)
     filemenu = tkinter.Menu(menubar, tearoff=0)
 
-    st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True)
+    st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True, autoseparators=True, maxundo=-1)
 
     def save_file():
         print('save_file')
@@ -122,6 +122,7 @@ def main(argv=None):
 
     st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
     st.edit_modified(False)
+    st.edit_reset()  # undo/redo reset
     # NOTE Cursor will be at EOF
 
     main_window.mainloop()  # TODO detect (type of) exit (modified/unmodified), etc.
