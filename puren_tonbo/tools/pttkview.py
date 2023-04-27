@@ -8,9 +8,11 @@
 """
 # TODO encrypt support, with safe-save as the default ala ptcipher - either reuse/call ptcipher more move that logic into main lib
 
+import datetime
 import os
 from optparse import OptionParser
 import sys
+import tempfile
 
 import tkinter
 import tkinter.simpledialog
@@ -20,6 +22,57 @@ import puren_tonbo
 
 
 is_py3 = sys.version_info >= (3,)
+
+def file_replace(src, dst):
+    if is_py3:
+        os.replace(src, dst)
+    else:
+        # can't use rename on Windows if file already exists.
+        # Non-Atomic but try and be as safe as possible
+        # aim to avoid clobbering existing files, rather than handling race conditions with concurrency
+
+        if os.path.exists(dst):
+            dest_exists = True
+            t = tempfile.NamedTemporaryFile(
+                mode='wb',
+                dir=os.path.dirname(dst),
+                prefix=os.path.basename(dst) + datetime.datetime.now().strftime('%Y%m%d_%H%M%S'),
+                delete=False
+            )
+            tmp_backup = t.name
+            t.close()
+            os.remove(tmp_backup)
+            os.rename(dst, tmp_backup)
+        else:
+            dest_exists = False
+        os.rename(src, dst)
+        if dest_exists:
+            os.remove(tmp_backup)
+
+def save_to_filename(out_filename, plain_str_bytes, handler, save_tempfile=True, save_backup=True):
+    if save_tempfile:
+        timestamp_now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        out_file = tempfile.NamedTemporaryFile(
+            mode='wb',
+            dir=os.path.dirname(out_filename),
+            prefix=os.path.basename(out_filename) + timestamp_now,
+            delete=False
+        )
+        tmp_out_filename = out_file.name
+        print('DEBUG tmp_out_filename %r' % tmp_out_filename)
+    else:
+        raise NotImplementedError('save_to_filename directly')
+        out_file = open(out_filename, 'wb')
+
+    handler.write_to(out_file, plain_str_bytes)
+    out_file.close()
+
+    if save_backup:
+        if os.path.exists(out_filename):
+            file_replace(out_filename, out_filename + '.bak')  # backup existing
+
+    if save_tempfile:
+        file_replace(tmp_out_filename, out_filename)
 
 def main(argv=None):
     if argv is None:
@@ -78,9 +131,11 @@ def main(argv=None):
     handler_class = puren_tonbo.filename2handler(in_filename)
     handler = handler_class(key=password)
     in_file = open(in_filename, 'rb')
-    plain_str = handler.read_from(in_file)
+    plain_str_bytes = handler.read_from(in_file)
+    print('plain_str_bytes: %r' % plain_str_bytes)
     in_file.close()
-    plain_str = plain_str.decode(note_encoding)  # TODO review other usage of list of encodings..
+    plain_str = plain_str_bytes.decode(note_encoding)  # TODO review other usage of list of encodings..
+    print('plain_str:        %r' % plain_str)
 
     main_window = tkinter.Tk()  # TODO title (icon?)
     main_window.title('pttkview')
@@ -90,10 +145,24 @@ def main(argv=None):
 
     st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True, autoseparators=True, maxundo=-1)
 
-    def save_file():
+    def save_file(p=None, evt=None):
         print('save_file')
+        print('p: %r' % p)
+        print('evt: %r' % evt)
+        if not st.edit_modified():
+            print('no changes, so not saving')
+            return
         print('NOT IMPLEMENTED')
-        # if save successful; st.edit_modified(False)
+        buffer_plain_str = st.get('1.0', tkinter.END + '-1c')  # tk adds a new line by default, skip it
+        print('buffer            %r' % buffer_plain_str)
+        print('%r' % (buffer_plain_str == plain_str))
+        plain_str_bytes = buffer_plain_str.encode(note_encoding)  # TODO review other usage of list of encodings..
+        print('%r' % plain_str_bytes)
+        # reuse handler, no need to reinit
+        save_to_filename(in_filename, plain_str_bytes, handler)
+        # if save successful (no exceptions);
+        st.edit_modified(False)
+        st.edit_separator()
 
     def exit():
         #print('exit')
@@ -108,12 +177,13 @@ def main(argv=None):
                 return
         main_window.destroy()
 
-    #filemenu.add_command(label="Save", command=save_file)  # DEBUG/WIP
+    filemenu.add_command(label="Save", command=save_file, underline=0, accelerator='CTRL+S')  # DEBUG/WIP
     # TODO add SaveAs
     # TODO add Load
     filemenu.add_separator()
-    filemenu.add_command(label="Exit", command=exit)
+    filemenu.add_command(label="Exit", command=exit, underline=1)
     main_window.wm_protocol ("WM_DELETE_WINDOW", exit)
+    main_window.bind('<Control-s>', save_file)
     menubar.add_cascade(label="File", menu=filemenu)
     main_window.config(menu=menubar)
 
