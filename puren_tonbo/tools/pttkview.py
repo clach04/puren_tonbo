@@ -90,6 +90,11 @@ def main(argv=None):
 
     st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True)
 
+    def save_file():
+        print('save_file')
+        print('NOT IMPLEMENTED')
+        # if save successful; st.edit_modified(False)
+
     def exit():
         #print('exit')
         buffer_status = st.edit_modified()
@@ -103,6 +108,9 @@ def main(argv=None):
                 return
         main_window.destroy()
 
+    filemenu.add_command(label="Save", command=save_file)
+    # TODO add SaveAs
+    # TODO add Load
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=exit)
     main_window.wm_protocol ("WM_DELETE_WINDOW", exit)
