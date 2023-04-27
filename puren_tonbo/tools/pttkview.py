@@ -85,11 +85,35 @@ def main(argv=None):
     main_window = tkinter.Tk()  # TODO title (icon?)
     main_window.title('pttkview')
 
+    menubar = tkinter.Menu(main_window)
+    filemenu = tkinter.Menu(menubar, tearoff=0)
+
     st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True)
+
+    def exit():
+        #print('exit')
+        buffer_status = st.edit_modified()
+        #print(buffer_status)
+        if buffer_status:
+            # TODO really want dialog like scite; save changes? yes, no, cancel
+            # Currently hitting enter will exit
+            really_quit_result = tkinter.messagebox.askokcancel('Exit', 'Really exit without saving?')
+            #print(really_quit_result)
+            if not really_quit_result:
+                return
+        main_window.destroy()
+
+    filemenu.add_separator()
+    filemenu.add_command(label="Exit", command=exit)
+    main_window.wm_protocol ("WM_DELETE_WINDOW", exit)
+    menubar.add_cascade(label="File", menu=filemenu)
+    main_window.config(menu=menubar)
+
     st.focus_set()
     st.pack(fill=tkinter.BOTH, expand=True)  # make visible, and resizable
 
     st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
+    st.edit_modified(False)
     # NOTE Cursor will be at EOF
 
     main_window.mainloop()  # TODO detect (type of) exit (modified/unmodified), etc.
