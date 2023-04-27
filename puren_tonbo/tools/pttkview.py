@@ -138,7 +138,7 @@ def main(argv=None):
     print('plain_str:        %r' % plain_str)
 
     main_window = tkinter.Tk()  # TODO title (icon?)
-    main_window.title('pttkview')
+    main_window.title('pttkview - ' + os.path.basename(in_filename))
 
     menubar = tkinter.Menu(main_window)
     filemenu = tkinter.Menu(menubar, tearoff=0)
