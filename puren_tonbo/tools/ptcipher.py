@@ -62,7 +62,6 @@ def main(argv=None):
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--no-prompt", help="do not prompt for password", action="store_true")
     parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint)")
-    parser.add_option("-c", "--codec", help="File encoding", default='utf-8')
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-v", "--verbose", action="store_true")
@@ -98,7 +97,6 @@ def main(argv=None):
         password_file = None
     decrypt = options.decrypt
     out_filename = options.out_filename
-    note_encoding = options.codec
 
     if in_filename == '-':
         if is_py3:
