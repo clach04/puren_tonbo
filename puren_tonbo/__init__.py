@@ -977,6 +977,8 @@ def note_contents_save_filename(note_text, filename=None, original_filename=None
     if note_encoding is None:
         plain_str_bytes = note_text
     else:
+        if dos_newlines:
+            note_text = note_text.replace('\n', '\r\n')  # TODO remove all \r first as a cleaning step?
         # see to_string() for reverse
         if isinstance(note_encoding, basestring):
             plain_str_bytes = note_text.encode(note_encoding)

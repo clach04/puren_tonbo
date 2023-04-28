@@ -84,6 +84,7 @@ def main(argv=None):
     in_file.close()
     plain_str = plain_str_bytes.decode(note_encoding)  # TODO review other usage of list of encodings..
     print('plain_str:        %r' % plain_str)
+    plain_str = plain_str.replace('\r', '')  # assume windows newlines
 
     main_window = tkinter.Tk()  # TODO title (icon?)
     main_window.title('pttkview - ' + os.path.basename(in_filename))
