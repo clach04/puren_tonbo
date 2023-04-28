@@ -159,10 +159,14 @@ def main(argv=None):
         plain_str_bytes = buffer_plain_str.encode(note_encoding)  # TODO review other usage of list of encodings..
         print('%r' % plain_str_bytes)
         # reuse handler, no need to reinit
-        save_to_filename(in_filename, plain_str_bytes, handler)
-        # if save successful (no exceptions);
-        st.edit_modified(False)
-        st.edit_separator()
+        try:
+            save_to_filename(in_filename, plain_str_bytes, handler)
+            # if save successful (no exceptions);
+            st.edit_modified(False)
+            st.edit_separator()
+        except:
+            # anything
+            tkinter.messagebox.showerror('Error', 'while saving %s' % in_filename)
 
     def exit():
         #print('exit')
