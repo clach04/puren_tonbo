@@ -131,8 +131,10 @@ def main(argv=None):
     if options.no_prompt:
         default_password_value = ''  # empty password, cause a bad password error
     else:
-        default_password_value = getpass.getpass("Password:")
+        default_password_value = None
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or default_password_value
+    if password is None:
+        default_password_value = getpass.getpass("Password:")
     if not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
