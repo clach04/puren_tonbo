@@ -1,4 +1,5 @@
 
+import datetime
 import errno
 
 try:
@@ -23,6 +24,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 
 from ._version import __version__, __version_info__
 
@@ -846,6 +848,163 @@ class BaseNotes(object):
 
 
 ##############################
+
+# Local file system functions
+def to_string(data_in_bytes, note_encoding='utf-8'):
+    """Where note_encoding can also be a list, e.g. ['utf8', 'cp1252']
+    """
+    #log.debug('note_encoding %r', note_encoding)
+    #log.debug('data_in_bytes %r', data_in_bytes)
+    if not isinstance(data_in_bytes, (bytes, bytearray)):  # FIXME revisit this, "is string" check
+        return data_in_bytes  # assume a string already
+    if isinstance(note_encoding, basestring):
+        return data_in_bytes.decode(note_encoding)
+    for encoding in note_encoding:
+        try:
+            result = data_in_bytes.decode(encoding)
+            return result
+        except UnicodeDecodeError:
+            pass  # try next
+        # TODO try/except
+
+def unicode_path(filename):
+    if isinstance(filename, bytes):
+        # want unicode string so that all file interaction is unicode based
+        filename = filename.decode('utf8')  # FIXME hard coded, pick up from config or locale/system encoding
+    return filename
+
+def file_replace(src, dst):
+    if is_py3:
+        os.replace(src, dst)
+    else:
+        # can't use rename on Windows if file already exists.
+        # Non-Atomic but try and be as safe as possible
+        # aim to avoid clobbering existing files, rather than handling race conditions with concurrency
+
+        if os.path.exists(dst):
+            dest_exists = True
+            t = tempfile.NamedTemporaryFile(
+                mode='wb',
+                dir=os.path.dirname(dst),
+                prefix=os.path.basename(dst) + datetime.datetime.now().strftime('%Y%m%d_%H%M%S'),
+                delete=False
+            )
+            tmp_backup = t.name
+            t.close()
+            os.remove(tmp_backup)
+            os.rename(dst, tmp_backup)
+        else:
+            dest_exists = False
+        os.rename(src, dst)
+        if dest_exists:
+            os.remove(tmp_backup)
+
+def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None, note_encoding='utf-8'):
+    """Uses local file system IO api
+        @handler dictates encryption mode/format (if any)
+        @filename if handlerommited, extension dictates encryption mode/format (if any)
+        @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'.
+            See caching_console_password_prompt() for an example. API expected:
+                get_pass(filename=filename, reset=reset_password)
+        dos_newlines=True means use Windows/DOS newlines, emulates win32 behavior of Tombo and is the default
+        @return_bytes returns bytes rather than (Unicode) strings
+        @note_encoding can also be a list, e.g. ['utf8', 'cp1252']
+    """
+    try:
+        filename = unicode_path(filename)
+
+        handler_class = handler_class or filename2handler(filename)
+        reset_password = False
+        while True:
+            #import pdb ; pdb.set_trace()
+            if handler_class is RawFile:
+                log.debug('it is plain text')
+                note_password = ''  # fake it. Alternatively override init for RawFile to remove check
+            else:
+                #import pdb ; pdb.set_trace()
+                if callable(get_pass):
+                    note_password = get_pass(filename=filename, reset=reset_password)
+                    # sanity check needed in case function returned string
+                    if not isinstance(note_password, bytes):
+                        note_password = note_password.encode("utf-8")
+                else:
+                    # Assume password bytes passed in
+                    note_password = get_pass
+                if note_password is None:
+                    raise SearchCancelled('empty password for for %s' % filename)
+
+            #import pdb ; pdb.set_trace()
+            handler = handler_class(key=note_password)  # FIXME callback function support for password func
+            # TODO repeat on bad password func
+            log.debug('DEBUG filename %r', fullpath_filename)
+
+            in_file = None
+            try:
+                in_file = open(fullpath_filename, 'rb')  # TODO open once and seek back on failure
+                plain_str = handler.read_from(in_file)
+                if return_bytes:
+                    return plain_str
+                else:
+                    return to_string(plain_str, note_encoding=note_encoding)
+            except BadPassword as info:
+                ## We will try the file again with a new (reset) password
+                if not callable(get_pass):
+                    raise
+                reset_password = True
+            finally:
+                if in_file:
+                    in_file.close()
+    except IOError as info:
+        if info.errno == errno.ENOENT:
+            raise PurenTonboIO('Error opening %r file/directory does not exist' % filename)
+        else:
+            raise
+    except PurenTonboException as info:
+        log.debug("Encrypt/Decrypt problem. %r", (info,))
+        raise
+
+def note_contents_save_filename(note_text, filename=None, original_filename=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8'):
+    """Uses local file system IO api
+    @handler is the encryption file handler to use, that is already initialized with a password
+    @note_encoding if None, assume note_text is bytes, if a string use as the encoding, can also be a list, e.g. ['utf8', 'cp1252'] in which case use the first one
+    """
+    if filename is None:
+        NotImplementedError('filename is None')
+    if original_filename is not None:
+        NotImplementedError('original_filename is not None')
+
+    filename = unicode_path(filename)
+    if note_encoding is None:
+        plain_str_bytes = note_text
+    else:
+        # see to_string() for reverse
+        if isinstance(note_encoding, basestring):
+            plain_str_bytes = note_text.encode(note_encoding)
+        else:
+            plain_str_bytes = note_text.encode(note_encoding[0])
+
+    if use_tempfile:
+        timestamp_now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        out_file = tempfile.NamedTemporaryFile(
+            mode='wb',
+            dir=os.path.dirname(filename),
+            prefix=os.path.basename(filename) + timestamp_now,
+            delete=False
+        )
+        tmp_out_filename = out_file.name
+        log.debug('DEBUG tmp_out_filename %r', tmp_out_filename)
+    else:
+        out_file = open(filename, 'wb')  # Untested
+
+    handler.write_to(out_file, plain_str_bytes)
+    out_file.close()
+
+    if backup:
+        if os.path.exists(filename):
+            file_replace(filename, filename + '.bak')  # backup existing
+
+    if use_tempfile:
+        file_replace(tmp_out_filename, filename)
 
 # Local file system navigation functions
 def recurse_notes(path_to_search, filename_filter):

@@ -8,11 +8,9 @@
 """
 # TODO encrypt support, with safe-save as the default ala ptcipher - either reuse/call ptcipher more move that logic into main lib
 
-import datetime
 import os
 from optparse import OptionParser
 import sys
-import tempfile
 
 import tkinter
 import tkinter.simpledialog
@@ -23,56 +21,6 @@ import puren_tonbo
 
 is_py3 = sys.version_info >= (3,)
 
-def file_replace(src, dst):
-    if is_py3:
-        os.replace(src, dst)
-    else:
-        # can't use rename on Windows if file already exists.
-        # Non-Atomic but try and be as safe as possible
-        # aim to avoid clobbering existing files, rather than handling race conditions with concurrency
-
-        if os.path.exists(dst):
-            dest_exists = True
-            t = tempfile.NamedTemporaryFile(
-                mode='wb',
-                dir=os.path.dirname(dst),
-                prefix=os.path.basename(dst) + datetime.datetime.now().strftime('%Y%m%d_%H%M%S'),
-                delete=False
-            )
-            tmp_backup = t.name
-            t.close()
-            os.remove(tmp_backup)
-            os.rename(dst, tmp_backup)
-        else:
-            dest_exists = False
-        os.rename(src, dst)
-        if dest_exists:
-            os.remove(tmp_backup)
-
-def save_to_filename(out_filename, plain_str_bytes, handler, save_tempfile=True, save_backup=True):
-    if save_tempfile:
-        timestamp_now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        out_file = tempfile.NamedTemporaryFile(
-            mode='wb',
-            dir=os.path.dirname(out_filename),
-            prefix=os.path.basename(out_filename) + timestamp_now,
-            delete=False
-        )
-        tmp_out_filename = out_file.name
-        print('DEBUG tmp_out_filename %r' % tmp_out_filename)
-    else:
-        raise NotImplementedError('save_to_filename directly')
-        out_file = open(out_filename, 'wb')
-
-    handler.write_to(out_file, plain_str_bytes)
-    out_file.close()
-
-    if save_backup:
-        if os.path.exists(out_filename):
-            file_replace(out_filename, out_filename + '.bak')  # backup existing
-
-    if save_tempfile:
-        file_replace(tmp_out_filename, out_filename)
 
 def main(argv=None):
     if argv is None:
@@ -152,21 +100,20 @@ def main(argv=None):
         if not st.edit_modified():
             print('no changes, so not saving')
             return
-        print('NOT IMPLEMENTED')
         buffer_plain_str = st.get('1.0', tkinter.END + '-1c')  # tk adds a new line by default, skip it
-        print('buffer            %r' % buffer_plain_str)
-        print('%r' % (buffer_plain_str == plain_str))
-        plain_str_bytes = buffer_plain_str.encode(note_encoding)  # TODO review other usage of list of encodings..
-        print('%r' % plain_str_bytes)
+        #print('buffer            %r' % buffer_plain_str)
+        #print('%r' % (buffer_plain_str == plain_str))
         # reuse handler, no need to reinit
         try:
-            save_to_filename(in_filename, plain_str_bytes, handler)
+            puren_tonbo.note_contents_save_filename(buffer_plain_str, filename=in_filename, handler=handler, note_encoding=note_encoding)
             # if save successful (no exceptions);
             st.edit_modified(False)
             st.edit_separator()
-        except:
+        except Exception as info:
             # anything
+            print('%r' % info)
             tkinter.messagebox.showerror('Error', 'while saving %s' % in_filename)
+            raise
 
     def exit():
         #print('exit')
