@@ -231,7 +231,7 @@ Examples
             print('[%d] %s' % (counter, filename))
 
     def do_edit(self, line=None):
-        """Edit using external $VISUAL or $EDITOR, with fall backs if unset.
+        """Edit using external $PT_VISUAL, $VISUAL or $EDITOR, with fall backs if unset.
 
 Microsoft Windows will use file associations.
 
@@ -253,7 +253,7 @@ Ubuntu can be configured via:
         except ValueError:
             pass  # line contains filename
         filename = line
-        editor = os.environ.get('VISUAL') or os.environ.get('EDITOR')
+        editor = os.environ.get('PT_VISUAL') or os.environ.get('VISUAL') or os.environ.get('EDITOR')
         if puren_tonbo.is_encrypted(filename):
             # Prompt for password for editors that won't prompt
             # TODO how to indicate whether ptig should prompt (and set environment variable)?
