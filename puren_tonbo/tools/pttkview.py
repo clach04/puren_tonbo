@@ -70,6 +70,10 @@ def main(argv=None):
         default_password_value = getpass.getpass("Password:")  # FIXME don't do this
     """
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or default_password_value
+
+    main_window = tkinter.Tk()  # TODO title (icon?)
+    main_window.title('pttkview - ' + os.path.basename(in_filename))
+
     if not password:
         password = tkinter.simpledialog.askstring('pttkview', 'Password', show='*')
     if not isinstance(password, bytes):
@@ -85,9 +89,6 @@ def main(argv=None):
     plain_str = plain_str_bytes.decode(note_encoding)  # TODO review other usage of list of encodings..
     print('plain_str:        %r' % plain_str)
     plain_str = plain_str.replace('\r', '')  # assume windows newlines
-
-    main_window = tkinter.Tk()  # TODO title (icon?)
-    main_window.title('pttkview - ' + os.path.basename(in_filename))
 
     menubar = tkinter.Menu(main_window)
     filemenu = tkinter.Menu(menubar, tearoff=0)
