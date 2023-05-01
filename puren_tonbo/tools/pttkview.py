@@ -84,7 +84,9 @@ def main(argv=None):
     in_file.close()
     plain_str = plain_str_bytes.decode(note_encoding)  # TODO review other usage of list of encodings..
     print('plain_str:        %r' % plain_str)
-    plain_str = plain_str.replace('\r', '')  # assume windows newlines
+    dos_newlines = True  # assume windows newlines
+    if dos_newlines:
+        plain_str = plain_str.replace('\r', '')
 
     main_window = tkinter.Tk()  # TODO title (icon?)
     main_window.title('pttkview - ' + os.path.basename(in_filename))
@@ -106,7 +108,7 @@ def main(argv=None):
         #print('%r' % (buffer_plain_str == plain_str))
         # reuse handler, no need to reinit
         try:
-            puren_tonbo.note_contents_save_filename(buffer_plain_str, filename=in_filename, handler=handler, note_encoding=note_encoding)
+            puren_tonbo.note_contents_save_filename(buffer_plain_str, filename=in_filename, handler=handler, note_encoding=note_encoding, dos_newlines=dos_newlines)
             # if save successful (no exceptions);
             st.edit_modified(False)
             st.edit_separator()
