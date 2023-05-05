@@ -12,6 +12,11 @@ import os
 from optparse import OptionParser
 import sys
 
+is_win = (sys.platform == 'win32')
+
+if is_win:
+    import ctypes
+
 import tkinter
 import tkinter.simpledialog
 import tkinter.scrolledtext as ScrolledText
@@ -77,6 +82,12 @@ def main(argv=None):
         default_password_value = getpass.getpass("Password:")  # FIXME don't do this
     """
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or default_password_value
+
+    if is_win:
+        # before GUI code, inform Windows to use the icon provided at runtime, not from the (exe) resource
+        myappid = u'mycompany.myproduct.subproduct.version' # arbitrary string
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
 
     main_window = tkinter.Tk()  # TODO title (icon?)
     main_window.title('pttkview - ' + os.path.basename(in_filename))
