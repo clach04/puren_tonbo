@@ -85,6 +85,7 @@ def main(argv=None):
 
     if is_win:
         # before GUI code, inform Windows to use the icon provided at runtime, not from the (exe) resource
+        # https://learn.microsoft.com/en-us/windows/win32/shell/appids?redirectedfrom=MSDN#host
         myappid = u'mycompany.myproduct.subproduct.version' # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
