@@ -199,6 +199,9 @@ class RawFile(EncryptedFile):
     description = 'Raw file, no encryption support'
     extensions = ['.txt', '.md']
 
+    def __init__(self, key=None, password=None, password_encoding='utf8'):
+        pass  # NOOP, password/key is NOT required
+
     def read_from(self, file_object):
         return file_object.read()
 

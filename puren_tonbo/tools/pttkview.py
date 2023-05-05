@@ -92,9 +92,9 @@ def main(argv=None):
     main_window = tkinter.Tk()  # TODO title (icon?)
     main_window.title('pttkview - ' + os.path.basename(in_filename))
 
-    if not password:
+    if not password and puren_tonbo.is_encrypted(in_filename):
         password = tkinter.simpledialog.askstring('pttkview', 'Password', show='*')
-    if not isinstance(password, bytes):
+    if password and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
     handler_class = puren_tonbo.filename2handler(in_filename)
