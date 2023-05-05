@@ -159,13 +159,15 @@ def main(argv=None):
     menubar.add_cascade(label="File", menu=filemenu)
     main_window.config(menu=menubar)
 
-    st.focus_set()
     st.pack(fill=tkinter.BOTH, expand=True)  # make visible, and resizable
 
     st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
     st.edit_modified(False)
     st.edit_reset()  # undo/redo reset
     # NOTE Cursor will be at EOF
+    st.focus_set()  # This is ineffective if password prompt (tkinter.simpledialog.askstring()) took place
+    st.focus_force()  # this ensures window is on top with focus even if askstring() was called
+    # cursor is at EOF, in window but view is of head/top of file
 
     main_window.mainloop()  # TODO detect (type of) exit (modified/unmodified), etc.
 
