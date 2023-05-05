@@ -56,7 +56,9 @@ setup(
     #packages=['puren_tonbo'],
     packages=find_packages(where=os.path.dirname(__file__), include=['*']),
     package_data={
-        'puren_tonbo': [os.path.join(os.path.dirname(__file__), 'puren_tonbo', 'tests', 'data', '*')],
+        'puren_tonbo': [os.path.join(os.path.dirname(__file__), 'puren_tonbo', 'tests', 'data', '*'),
+                        os.path.join(os.path.dirname(__file__), 'puren_tonbo', 'resources', '*'),
+                        ],
     },
     #scripts=['ptcipher.py'],
     #py_modules=[''], # TODO scripts

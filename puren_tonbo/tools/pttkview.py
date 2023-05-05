@@ -89,9 +89,13 @@ def main(argv=None):
         myappid = u'mycompany.myproduct.subproduct.version' # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
+    icon_full_path = os.path.join(os.path.dirname(puren_tonbo.__file__), 'resources', 'icon512x512.png')
 
-    main_window = tkinter.Tk()  # TODO title (icon?)
+    main_window = tkinter.Tk()
     main_window.title('pttkview - ' + os.path.basename(in_filename))
+    #main_window.iconbitmap(default=icon_full_path)  # PNG not supported, needs to be Windows ico (icon) format?
+    main_window.iconphoto(False, tkinter.PhotoImage(file=icon_full_path))  # currently a place holder image
+
 
     if not password and puren_tonbo.is_encrypted(in_filename):
         password = tkinter.simpledialog.askstring('pttkview', 'Password', show='*')
