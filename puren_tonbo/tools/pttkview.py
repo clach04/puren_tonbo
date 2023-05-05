@@ -29,7 +29,8 @@ def main(argv=None):
     usage = "usage: %prog [options] in_filename"
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     # ONLY use filename as format indicator
-    parser.add_option("-c", "--codec", help="File encoding", default='utf-8')
+    parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
+    parser.add_option("--config-file", help="Override config file")
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
@@ -51,6 +52,12 @@ def main(argv=None):
         parser.print_usage()
         return 1
     in_filename = args[0]
+
+    config = puren_tonbo.get_config(options.config_file)
+    if options.codec:
+        note_encoding = options.codec
+    else:
+        note_encoding = config['codec']
 
     if options.password_file:
         f = open(options.password_file, 'rb')
@@ -78,7 +85,6 @@ def main(argv=None):
         password = tkinter.simpledialog.askstring('pttkview', 'Password', show='*')
     if not isinstance(password, bytes):
         password = password.encode('us-ascii')
-    note_encoding = options.codec
 
     handler_class = puren_tonbo.filename2handler(in_filename)
     handler = handler_class(key=password)
@@ -86,7 +92,7 @@ def main(argv=None):
     plain_str_bytes = handler.read_from(in_file)
     print('plain_str_bytes: %r' % plain_str_bytes)
     in_file.close()
-    plain_str = plain_str_bytes.decode(note_encoding)  # TODO review other usage of list of encodings..
+    plain_str = puren_tonbo.to_string(plain_str_bytes, note_encoding=note_encoding)
     print('plain_str:        %r' % plain_str)
     dos_newlines = True  # assume windows newlines
     if dos_newlines:
