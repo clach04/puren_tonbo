@@ -350,8 +350,8 @@ For numbers, 0 (zero) will view last hit.
         print('note_root: %s' % note_root)
         if line is None:
             return
-        #ret = subprocess.Popen(['start', note_root]).wait()  # FIXME Windows only and does only works for paths without spaces :-( start with double quotes does not open the directory
-        ret = subprocess.Popen(['explorer', note_root]).wait()  # FIXME Windows only, xdg-open? - allow config override (e.g. mc, pcfileman, etc.)
+
+        ret = subprocess.Popen([self.pt_config['ptig']['file_browser'], note_root]).wait()
         #print('ret: %r' % ret)  # always 1?
 
     def do_cat(self, line=None):
