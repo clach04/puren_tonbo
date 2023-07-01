@@ -132,7 +132,7 @@ def main(argv=None):
         default_password_value = None
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or default_password_value
     if password is None:
-        default_password_value = getpass.getpass("Password:")
+        password = getpass.getpass("Password:")
     if not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
