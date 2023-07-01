@@ -163,9 +163,18 @@ Examples
                 name_color, value_color, color_reset = ptgrep.color_linenum, ptgrep.color_searchhit, ptgrep.color_reset
             else:
                 name_color, value_color, color_reset = '', '', ''
+            print('Changeable options:')
             for attribute_name in dir(options):
                 if not attribute_name.startswith('_'):
                     attribute_value = getattr(options, attribute_name)
+                    #print('\t%s=%s' % (attribute_name, attribute_value))  # TODO consider sorted dict?
+                    print('\t%s%s%s=%s%s%s' % (name_color, attribute_name, color_reset, value_color, attribute_value, color_reset))  # TODO consider sorted dict?
+            print('')
+            print('ptig (config file) options:')
+            options = self.pt_config['ptig']
+            for attribute_name in options:
+                if not attribute_name.startswith('_'):
+                    attribute_value = options[attribute_name]
                     #print('\t%s=%s' % (attribute_name, attribute_value))  # TODO consider sorted dict?
                     print('\t%s%s%s=%s%s%s' % (name_color, attribute_name, color_reset, value_color, attribute_value, color_reset))  # TODO consider sorted dict?
             return
