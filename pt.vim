@@ -46,7 +46,8 @@ function! s:PurenTonboReadPost()
         " TODO refactor into a function for password prompt
         let $PT_PASSWORD = inputsecret("ptcipher Password: ")
     endif
-    let l:expr = "1,$!ptcipher -d '<afile>'"
+    " let ptcipher determine cipher type from filename
+    let l:expr = "1,$!ptcipher --silent --no-prompt --decrypt '<afile>'"
     silent! execute l:expr
     if v:shell_error
         silent! 0,$y
