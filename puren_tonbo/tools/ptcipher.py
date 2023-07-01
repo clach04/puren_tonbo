@@ -124,7 +124,7 @@ def main(argv=None):
             delete=False
         )
         tmp_out_filename = out_file.name
-        print('DEBUG tmp_out_filename %r' % tmp_out_filename)
+        #print('DEBUG tmp_out_filename %r' % tmp_out_filename)  # TODO replace with logging.debug call
 
     if options.no_prompt:
         default_password_value = ''  # empty password, cause a bad password error
