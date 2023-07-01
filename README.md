@@ -95,6 +95,8 @@ Purēntonbo
 ### ptcat
 
     ptcat  puren_tonbo/tests/data/aesop.txt
+    python -m puren_tonbo.tools.ptcat --note-root . puren_tonbo/tests/data/aesop.txt
+    python -m puren_tonbo.tools.ptcat --note-root . puren_tonbo/tests/data/aesop.chi
     python -m puren_tonbo.tools.ptcat  puren_tonbo/tests/data/aesop.txt
 
     ptcat -p password puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
