@@ -79,6 +79,8 @@ function! s:PurenTonboWritePre()
     "   Read in from stdin...DEBUG tmp_out_filename '/..../puren_tonbo/write.aeszip20230311_170505e0grbho9'
 
     set cmdheight=3
+    set viminfo=
+    set noswapfile
     set shell=/bin/sh
     set bin
 
@@ -95,7 +97,10 @@ function! s:PurenTonboWritePre()
     " TODO prompt twice to avoid incorrect passwords? and/or only prompt if PT_PASSWORD is not set
     " WARNING! end up with "Read in from stdin..." as prefix in file without --silent flag, even though that was sent to stderr
     "let l:expr = "1,$!ptcipher --cipher " . l:file_extension . " -e -o -"
-    let l:expr = "1,$!ptcipher --silent --cipher " . l:file_extension . " -e -o -"
+    "let l:expr = "1,$!ptcipher --silent --cipher " . l:file_extension . " -e -o -"
+    "let l:expr = "1,$!ptcipher --silent --cipher " . l:file_extension . "  --encrypt -o -"
+    let l:expr = "1,$!ptcipher --silent --no-prompt --cipher " . l:file_extension . "  --encrypt -o -"
+
     silent! execute l:expr
     if v:shell_error
         silent! 0,$y
