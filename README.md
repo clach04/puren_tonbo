@@ -342,6 +342,18 @@ https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-pri
 
 See [pt.vim](./pt.vim) - Linux/Unix/Cygwin only for now.
 
+
+#### vim demo
+
+Assuming puren_tonbo has been installed and `ptcipher` is in the
+path (and in source code checkout):
+
+    vim -u pt.vim  puren_tonbo/tests/data/aesop.chi
+
+And enter in the test password, `password`.
+
+Tested under Linux with vim 8.1.
+
 See https://vim.fandom.com/wiki/Encryption for how to configure vim with external tools for (view and edit) of encrypted files with autocmd.
 NOTE under Windows buffered IO can interfere with vim interactions.
 TODO consider using (OpenSSL) https://www.vim.org/scripts/script.php?script_id=2012 as a model for vim plugin (uses functions), also see:
