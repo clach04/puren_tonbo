@@ -13,6 +13,7 @@ from optparse import OptionParser
 import pydoc
 import shlex
 import sys
+import subprocess  # TODO replace os.system() - at least for edit
 import time
 
 try:
@@ -241,17 +242,9 @@ Ubuntu can be configured via:
     sudo update-alternatives --config editor
     update-alternatives --list editor
         """
-        try:
-            file_number = int(line)
-            if not self.file_hits:
-                print('no results')
-                return
-            if file_number > len(self.file_hits):
-                print('result file %d invalid' % file_number)
-                return
-            line = self.file_hits[file_number - 1]
-        except ValueError:
-            pass  # line contains filename
+        line = self.validate_result_id(line)
+        if line is None:
+            return
         filename = line
         editor = os.environ.get('PT_VISUAL') or os.environ.get('VISUAL') or os.environ.get('EDITOR')
         if puren_tonbo.is_encrypted(filename):
@@ -301,14 +294,9 @@ Ubuntu can be configured via:
         def do_pyvim(self, line=None):
             """Edit using built in (vim-like) ptpyvim editor
             """
-            try:
-                file_number = int(line)
-                if file_number > len(self.file_hits):
-                    print('result file %d invalid' % file_number)
-                    return
-                line = self.file_hits[file_number - 1]
-            except ValueError:
-                pass  # line contains filename
+            line = self.validate_result_id(line)
+            if line is None:
+                return
             in_filename = line
             #import pdb; pdb.set_trace()
             if not self.grep_options.password:
@@ -318,18 +306,52 @@ Ubuntu can be configured via:
         do_vim = do_pyvim
         do_vi = do_pyvim
 
+    def validate_result_id(self, line=None):
+        """validate that either have:
+            * a line number (index into previous results) and that it's valid
+            * or assume a filename (which is NOT validated)
+
+        Returns path/filename.
+
+        For numbers, 0 (zero) will view last hit.
+        """
+        if line == '':
+            print('no parameter given')
+            return None
+        try:
+            file_number = int(line)
+            if not self.file_hits:
+                print('no results')
+                return None
+            if file_number > len(self.file_hits):
+                print('result file %d invalid' % file_number)
+                return None
+            line = self.file_hits[file_number - 1]
+        except ValueError:
+            pass  # line contains filename, but filename may not exist
+        return line
+
+    def do_opendir(self, line=None):
+        """Given a filename (or result index number), open native directory file browser.
+For numbers, 0 (zero) will view last hit.
+        """
+        line = self.validate_result_id(line)
+        note_root = os.path.dirname(line)
+        print('line: %r' % line)
+        print('note_root: %s' % note_root)
+        if line is None:
+            return
+        #ret = subprocess.Popen(['start', note_root]).wait()  # FIXME Windows only and does only works for paths without spaces :-( start with double quotes does not open the directory
+        ret = subprocess.Popen(['explorer', note_root]).wait()  # FIXME Windows only, xdg-open? - allow config override (e.g. mc, pcfileman, etc.)
+        #print('ret: %r' % ret)  # always 1?
+
     def do_cat(self, line=None):
         """cat/view file. Takes either a number or filename.
 For numbers, 0 (zero) will view last hit.
         """
-        try:
-            file_number = int(line)
-            if file_number > len(self.file_hits):
-                print('result file %d invalid' % file_number)
-                return
-            line = self.file_hits[file_number - 1]
-        except ValueError:
-            pass  # line contains filename
+        line = self.validate_result_id(line)
+        if line is None:
+            return
         # TODO display file name (head and tail?)
         note_encoding = self.pt_config['codec']
         in_filename = os.path.basename(line)
