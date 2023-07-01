@@ -102,7 +102,7 @@ def OnOpen(filename):
     #print('errors: %r' % p.errors)  # py3 only
 
     # TODO other stuff
-    # for exacmple check exit code and stderr
+    # for example check exit code and stderr
 
     #ScEditor.BeginUndoAction()
     ScEditor.SetText(stdout_value)
