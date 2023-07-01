@@ -83,6 +83,9 @@ function! s:PurenTonboWritePre()
     set noswapfile
     set shell=/bin/sh
     set bin
+    set nofixendofline
+    " noeol has no effect, BUT vim 7.4+ directive nofixendofline does on vim 8.1.2269
+    "set noeol
 
     " 0 and 1 both work so far under Linux
 
