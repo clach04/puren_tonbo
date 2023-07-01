@@ -346,8 +346,9 @@ For numbers, 0 (zero) will view last hit.
         #print('ret: %r' % ret)  # always 1?
 
     def do_cat(self, line=None):
-        """cat/view file. Takes either a number or filename.
-For numbers, 0 (zero) will view last hit.
+        """cat/type/view file. Takes either a number or filename.
+For numbers, 0 (zero) will view last hit. See results command.
+See use_pager option, e.g. set use_pager=True
         """
         line = self.validate_result_id(line)
         if line is None:
@@ -371,6 +372,7 @@ For numbers, 0 (zero) will view last hit.
             print('search cancelled')
 
     do_c = do_cat  # shortcut to save typing
+    do_type = do_cat  # Windows alias
 
     def default(self, line=None):
         try:
