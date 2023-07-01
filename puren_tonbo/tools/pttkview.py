@@ -102,7 +102,7 @@ def main(argv=None):
     if password and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
-    handler_class = puren_tonbo.filename2handler(in_filename)
+    handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
     handler = handler_class(key=password)
     in_file = open(in_filename, 'rb')
     plain_str_bytes = handler.read_from(in_file)
