@@ -595,7 +595,7 @@ if vimdecrypt:
 # TODO? openssl aes-128-cbc -in in_file -out out_file.aes128
 # TODO? openpgp
 
-def filename2handler(filename):
+def filename2handler(filename, default_handler=None):
     filename = filename.lower()
     if filename.endswith('.aes256.zip'):
         file_extn = '.aes.zip'
@@ -613,7 +613,7 @@ def filename2handler(filename):
         _dummy, file_extn = os.path.splitext(filename)
     log.debug('clach04 DEBUG file_extn: %r', file_extn)
     log.debug('clach04 DEBUG file_type_handlers: %r', file_type_handlers)
-    handler_class = file_type_handlers.get(file_extn)
+    handler_class = file_type_handlers.get(file_extn) or default_handler
     if handler_class is None:
         raise UnsupportedFile('no support for %r' % file_extn)
     log.debug('clach04 DEBUG handler_class: %r', handler_class)
