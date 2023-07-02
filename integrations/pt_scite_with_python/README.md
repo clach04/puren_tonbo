@@ -4,14 +4,20 @@ From https://github.com/moltenform/scite-with-python
 
 Tested with 32-bit Windows binaries https://github.com/moltenform/scite-with-python/releases/tag/v0.7.4
 
-Supports loading (decrypting) by spawning  ptcipher.
+Supports:
 
-Does NOT support saving (encrypting).
+  * loading (decrypting) by spawning ptcipher
+  * saving (encrypting) by spawning ptcipher
 
 TODO
 
-  * save support
+  * code clean up
+      * remove/comment out debug code (replace with logging)
+  * look at other ways of passing in password than environment variable
+      * prompt in GUI?
+      * keyring?
   * try importing puren_tonbo instead of using external binary and pipes
+  * find out if there is scite python3?
 
 ## Setup
 

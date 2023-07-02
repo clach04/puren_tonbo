@@ -47,8 +47,24 @@ def OnBeforeSave(filename):
         if filename.lower().endswith(file_extension):
             print('REFUSING to save file %s' % (filename,))
             print('missing save/encrypt support')
+            file_contents, file_contents_len = ScEditor.GetText()
+            # NOTE file_contents is utf-8 encoded and file_contents_len the length of those utf-8 bytes
+            #print('file_contents %r' % (file_contents,))  # DEBUG
+            #print('file_contents len%r' % (len(file_contents),))  # DEBUG
+            #print('file_contents_len %r' % (file_contents_len,))  # DEBUG
             # TODO encrypt file - send scite buffer via stdio of PTCIPHER_EXE and have PTCIPHER_EXE  write to disk
             # assuming no failure; ScEditor.SetSavePoint()  # indicate to editor that save happened and file is unchanged
+            #return ScConst.StopEventPropagation  # works, tells Scite to NOT save
+            expand_shell = True  # avoid pop-up black CMD window
+            cmd = [PTCIPHER_EXE, '--silent', '--no-prompt', '--encrypt', '--cipher', file_extension, '--output', filename]
+            p = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout_value, stderr_value = p.communicate(input=file_contents)
+
+            print('post com')
+            print('stdout: %r' % stdout_value)
+            print('stderr: %r' % stderr_value)
+            print('returncode: %r' % p.returncode)
+            ScEditor.SetSavePoint()  # indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
             return ScConst.StopEventPropagation  # works, tells Scite to NOT save
     return False  # Scite will handle save
     #return "StopEventPropagation"  # works
