@@ -102,15 +102,52 @@ local function SaveEncryptedFile(filename)
   if IsPurenTonboEncryptedFilename(filename) then
     --print('block CHI save')  -- to output pane
     --print(filename)  -- to output pane
-    print('blocked CHI save ' .. filename)  -- to output pane
     -- consider setting editor.ReadOnly to true? But only for files that failed to load, not non-existing (i.e. new) files
     --editor:EmptyUndoBuffer()
     --editor.UndoCollection=1
+    --return true -- indicate to editor NOT to save
+    plain_text = editor:GetText()
+    --print('-------------')  -- to output pane
+    --print(plain_text)  -- to output pane
+    --print('-------------')  -- to output pane
+    -- default encryption type based on file extension
+    local prog = PTCIPHER_EXE .. ' --silent --no-prompt --encrypt --output "' .. filename .. '"'
+    print(prog)
 
-    --editor:SetSavePoint() -- indicate to editor that save happened - whether it really did or not ;-)
+    if is_win then
+        -- https://www.lua.org/manual/5.1/manual.html#pdf-io.popen
+        -- > This function is system dependent and is not available on all platforms.
+        -- does NOT appear to work on my system
+        f = io.popen(prog, 'wb')  -- write
+        -- binary under Linux read fails with; attempt to index a nil value (local 'f')
+    else
+        f = io.popen(prog, 'w')  -- write
+        --works for Linux with scite v4.0.0
+    end -- is win
+    write_result = f:write(plain_text)  -- write entire file, write_result is file pointer/handle?
+    local popen_success = f:close()  -- saw nil on failure and true on success
+    if popen_success == true then
+        -- if no error
+        editor:SetSavePoint()  -- indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
+    else
+        -- error handling
+        print('Error Encrypt write/save' .. filename)  -- to output pane
+        print('popen_success: ' .. tostring(popen_success))
+        -- either nil or false - so far only seen nil for both; failure to launch (missing PTCIPHER_EXE) and also exe launched and returned errors (like bad password)
+        -- empty output seen for missing exe and also missing file - TODO consider adding extra output to ptcipher for missing file case
+        print('failed to load using '.. prog)
+        print('failed to load using '.. PTCIPHER_EXE)
+        --editor:AddText('failed to load using '.. PTCIPHER_EXE)
+        editor:AppendText('\nfailed to load using '.. prog)
+        editor:AppendText('\nSuggestions, check:\n')
+        editor:AppendText('  1) file exists\n')
+        editor:AppendText('  2) environment variable PTCIPHER_EXE - ptcipher script/executable\n')
+        editor:AppendText('  3) environment variable PT_PASSWORD - password\n')
+    end  -- error handling
+
     return true -- indicate to editor NOT to save
-  end
-end
+  end  -- IsPurenTonboEncryptedFilename
+end  -- SaveEncryptedFile
 
 -- parskorata_extman.lua does NOT have scite_OnBeforeSave()
 if scite_OnBeforeSave~=nil then
@@ -162,7 +199,7 @@ local function LoadEncryptedFile(filename)
         editor:SetSavePoint()  -- indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
     else
         -- error handling
-        print('Error Encrypted loading ' .. filename)  -- to output pane
+        print('Error Decrypt loading ' .. filename)  -- to output pane
         print('popen_success: ' .. tostring(popen_success))
         -- either nil or false - so far only seen nil for both; failure to launch (missing PTCIPHER_EXE) and also exe launched and returned errors (like bad password)
         -- empty output seen for missing exe and also missing file - TODO consider adding extra output to ptcipher for missing file case
