@@ -58,6 +58,8 @@ Purēntonbo
   * Supports reading and writing from/to encrypted files that are compatible with other formats/tools (there is no intention to create a new crypto format/algorithm in this tool)
   * Currently limited to local file system and stdin/out for files
   * Command line tools; `ptcat` and `ptcipher` to encrypt/decrypt and view plain text files
+      * `ptcipher` - process raw binary files, controlled via command line and environment variables
+      * `ptcat` - in addition to command line and environment variables, also has an (optional) config file and the concept of a root directory of notes
   * `ptgrep` - a grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/ripgrep), [silver-searcher](https://geoff.greer.fm/ag/), [pss](https://github.com/eliben/pss) like tool that works on encrypted (and plain text) files
   * `ptig` an interactive grep like tool that can also view/edit
   * `ptpyvim` a vim-like editor that works on encrypted (and plain text) files
@@ -206,6 +208,9 @@ If pyvim is available, ptpyvim wraps encryption/decryption support.
 
 ### ptcipher
 
+ptcipher is a tool for dealing with raw (binary, i.e. bytes rather than characters) files for encryption/decryption.
+All options are controlled via command line flag and operating system environment variables.
+
 Assuming installed:
 
     ptcipher -h
@@ -215,6 +220,11 @@ From source code checkout:
     python -m puren_tonbo.tools.ptcipher -h
     python2 -m puren_tonbo.tools.ptcipher -h
     python3 -m puren_tonbo.tools.ptcipher -h
+
+Quick demo:
+
+    ptcipher --password password --decrypt puren_tonbo/tests/data/aesop.chi
+    ptcipher --password password --decrypt puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
 
 #### Tombo Blowfish CHI
 
