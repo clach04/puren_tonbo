@@ -13,6 +13,8 @@ TODO
 
   * code clean up
       * try/finally on save and always return do not save - see if this catches exceptions properly (ended up with crash in save logic saving plain text version)
+          * add exception to plugin
+          * try saving to a vimcrypt format (which should fail)
       * remove/comment out debug code (replace with logging)
   * look at other ways of passing in password than environment variable
       * prompt in GUI?
