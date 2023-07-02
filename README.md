@@ -353,6 +353,11 @@ https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-pri
 See [pt_scite.lua](./pt_scite.lua) - readonly for now (missing write support to pipes in scite lua?).
 See SciTE Python plugin for read and write support.
 
+By default uses `ptcipher` in path, override via `PTCIPHER_EXE` environment variable.
+
+Does NOT prompt for password, requires setting `PT_PASSWORD` environment variable.
+
+
   * Can be used standalone or with ParsKorata (http://lua-users.org/wiki/ParsKorata) mini/simple ExtMan compatible script
   * Untested with ExtMan - http://lua-users.org/wiki/SciteExtMan
 
@@ -401,6 +406,10 @@ NOTE not needed with original full ExtMan.
 
 See [scite with Python README](integrations/pt_scite_with_python/README.md) - read and write support, Windows only (needs polishing).
 
+By default uses `ptcipher` in path, override via `PTCIPHER_EXE` environment variable.
+
+Does NOT prompt for password, requires setting `PT_PASSWORD` environment variable.
+
 
 ### vim plugin
 
@@ -408,6 +417,9 @@ Tested under Linux with vim 8.1.
 
 See [pt.vim](./pt.vim) - Linux/Unix/Cygwin only for now.
 
+By default uses `ptcipher` in path, override via `PTCIPHER_EXE` environment variable.
+
+Will prompt for password, which can be skipped by setting `PT_PASSWORD` environment variable.
 
 #### vim demo
 
