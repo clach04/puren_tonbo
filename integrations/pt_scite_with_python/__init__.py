@@ -59,11 +59,16 @@ def OnBeforeSave(filename):
             p = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout_value, stderr_value = p.communicate(input=file_contents)
 
-            print('post com')
-            print('stdout: %r' % stdout_value)
-            print('stderr: %r' % stderr_value)
-            print('returncode: %r' % p.returncode)
-            ScEditor.SetSavePoint()  # indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
+            if p.returncode == 0 and stdout_value == '' and stderr_value == '':
+                # success!
+                ScEditor.SetSavePoint()  # indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
+            else:
+                print('Error saving/encrypting/writing')
+                print('stdout: %r' % stdout_value)
+                print('stderr: %r' % stderr_value)
+                print('stderr: %s' % stderr_value)
+                print('returncode: %r' % p.returncode)
+                #print('errors: %r' % p.errors)  # py3 only
             return ScConst.StopEventPropagation  # works, tells Scite to NOT save
     return False  # Scite will handle save
     #return "StopEventPropagation"  # works
@@ -110,11 +115,16 @@ def OnOpen(filename):
     """
     stdout_value, stderr_value = p.communicate()
 
-    print('post com')
-    print('stdout: %r' % stdout_value)
-    print('stderr: %r' % stderr_value)
-    print('returncode: %r' % p.returncode)
-    #print('errors: %r' % p.errors)  # py3 only
+    if p.returncode == 0 and stdout_value == '' and stderr_value == '':
+        # success!
+        ScEditor.SetSavePoint()  # indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
+    else:
+        print('Error saving/encrypting/writing')
+        print('stdout: %r' % stdout_value)
+        print('stderr: %r' % stderr_value)
+        print('stderr: %s' % stderr_value)
+        print('returncode: %r' % p.returncode)
+        #print('errors: %r' % p.errors)  # py3 only
 
     # TODO other stuff
     # for example check exit code and stderr
