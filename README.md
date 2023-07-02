@@ -351,7 +351,8 @@ https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-pri
 ### SciTE lua plugin
 
 See [pt_scite.lua](./pt_scite.lua) - read and write support (tested Windows).
-Also see SciTE Python plugin for read and write support.
+NOTE due to lua popen() any helpful error text/information is missing. Diagnosing failures can be difficult, even for trivial errors like directory/disk does not exist as this is not reported to the lua runtime.
+Also see SciTE Python plugin for read and write support with stderror support.
 
 By default uses `ptcipher` in path, override via `PTCIPHER_EXE` environment variable.
 
