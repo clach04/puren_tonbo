@@ -1,6 +1,10 @@
 augroup PurenTonbo_encrypted
 autocmd!
 
+if $PTCIPHER_EXE == ""
+    let $PTCIPHER_EXE = "ptcipher"
+endif
+
 function! s:PurenTonboReadPre()
     set cmdheight=3
     set viminfo=
@@ -26,7 +30,7 @@ function! s:WorksErrorsToBufferPurenTonboReadPost()
     if $PT_PASSWORD == ""
         let $PT_PASSWORD = inputsecret("ptcipher Password: ")
     endif
-    silent 1,$!ptcipher -d '<afile>'
+    silent 1,$!$PTCIPHER_EXE -d '<afile>'
 
     set nobin
     set cmdheight&
@@ -47,7 +51,7 @@ function! s:PurenTonboReadPost()
         let $PT_PASSWORD = inputsecret("ptcipher Password: ")
     endif
     " let ptcipher determine cipher type from filename
-    let l:expr = "1,$!ptcipher --silent --no-prompt --decrypt '<afile>'"
+    let l:expr = "1,$!$PTCIPHER_EXE --silent --no-prompt --decrypt '<afile>'"
     silent! execute l:expr
     if v:shell_error
         silent! 0,$y
@@ -102,7 +106,7 @@ function! s:PurenTonboWritePre()
     "let l:expr = "1,$!ptcipher --cipher " . l:file_extension . " -e -o -"
     "let l:expr = "1,$!ptcipher --silent --cipher " . l:file_extension . " -e -o -"
     "let l:expr = "1,$!ptcipher --silent --cipher " . l:file_extension . "  --encrypt -o -"
-    let l:expr = "1,$!ptcipher --silent --no-prompt --cipher " . l:file_extension . "  --encrypt -o -"
+    let l:expr = "1,$!$PTCIPHER_EXE --silent --no-prompt --cipher " . l:file_extension . "  --encrypt -o -"
 
     silent! execute l:expr
     if v:shell_error
@@ -137,4 +141,3 @@ autocmd BufWritePre,FileWritePre   *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboWr
 autocmd BufWritePost,FileWritePost *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboWritePost()
 
 augroup END
-
