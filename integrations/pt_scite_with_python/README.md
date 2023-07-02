@@ -9,6 +9,11 @@ Supports:
   * loading (decrypting) by spawning ptcipher
   * saving (encrypting) by spawning ptcipher
 
+The scite with python plugin is provided in 2 files:
+
+  * [register.properties](./register.properties) - declares plugin to scite
+  * [__init__.py](./__init__.py) - actual python code for plugin that does the work
+
 TODO
 
   * code clean up
