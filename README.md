@@ -368,6 +368,8 @@ Need to edit SciTEUser.properties:
   * Unix
       * `~/.SciTEUser.properties` or `$HOME/.SciTEUser.properties`
 
+Alternatively, launch scite, then open Options, Open User (or GLobal) Options File.
+
 Windows NOTE to avoid a (typically black) CMD/Command window showing up use SciTE 4.4.4 or later and set `create.hidden.console` in SciTEUser.properties:
 
     # https://groups.google.com/g/scite-interest/c/QOhizNSEejU/m/qXslloxnCgAJ
