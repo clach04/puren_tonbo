@@ -350,6 +350,8 @@ https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-pri
 
 ### vim plugin
 
+Tested under Linux with vim 8.1.
+
 See [pt.vim](./pt.vim) - Linux/Unix/Cygwin only for now.
 
 
@@ -362,7 +364,43 @@ path (and in source code checkout):
 
 And enter in the test password, `password`.
 
-Tested under Linux with vim 8.1.
+#### vim plugin install
+
+As per example above, can use the `-u` parameter but this overrides existing settings.
+
+Vim 8 supports plugins packs, to install:
+
+#### vim plugin install linux/unix
+
+If you do not already have any plugin packs, need to create directory, e.g.:
+
+    mkdir -p ~/.vim/pack/bundle/start/
+
+Where `bundle` is user decided. For the rest of the documentation replace `bundle` with your directory name.
+
+Install from checkout:
+
+    mkdir -p ~/.vim/pack/bundle/start/puren_tonbo/plugin/
+    cp pt.vim ~/.vim/pack/bundle/start/puren_tonbo/plugin/
+
+Then can call vim without `-u`:
+
+    vim puren_tonbo/tests/data/aesop.chi
+    gvim puren_tonbo/tests/data/aesop.chi
+
+
+#### vim plugin install Microsoft Windows
+
+NOTE not working under Windows :-(
+Appear to be buffered files issues with vim/python interaction.
+
+See linux notes, instead of `~/.vim` use %USERPROFILE%\vimfiles (or `$VIM_INSTALLATION_FOLDER\vimfiles`)
+
+    mkdir %USERPROFILE%\vimfiles\pack\bundle\start\puren_tonbo\plugin
+    copy pt.vim %USERPROFILE%\vimfiles\pack\bundle\start\puren_tonbo\plugin
+
+
+#### vim config notes
 
 See https://vim.fandom.com/wiki/Encryption for how to configure vim with external tools for (view and edit) of encrypted files with autocmd.
 NOTE under Windows buffered IO can interfere with vim interactions.
