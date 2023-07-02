@@ -348,6 +348,60 @@ Caution!
 
 https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-private-mode
 
+### SciTE lua plugin
+
+See [pt_scite.lua](./pt_scite.lua) - readonly for now (missing write support to pipes in scite lua?).
+See SciTE Python plugin for read and write support.
+
+  * Can be used standalone or with ParsKorata (http://lua-users.org/wiki/ParsKorata) mini/simple ExtMan compatible script
+  * Untested with ExtMan - http://lua-users.org/wiki/SciteExtMan
+
+Need to edit SciTEUser.properties:
+
+  * Windows
+      * `%USERPROFILE%"\SciTEUser.properties` or `%APPDATA%\scite\SciTEUser.properties`
+  * Unix
+      * `~/.SciTEUser.properties` or `$HOME/.SciTEUser.properties`
+
+Windows NOTE to avoid a (typically black) CMD/Command window showing up use SciTE 4.4.4 or later and set `create.hidden.console` in SciTEUser.properties:
+
+    # https://groups.google.com/g/scite-interest/c/QOhizNSEejU/m/qXslloxnCgAJ
+    # SciTE 4.4.4 on Windows adds create.hidden.console option to stop console window flashing when Lua script calls os.execute or io.popen.
+    create.hidden.console=1
+    # TODO see if this can be set in lua code, to make config easier
+
+#### SciTE lua install without extension manager
+
+If not using a plugin extension manager can simply set `pt_scite.lua` as starting lua script.
+Edit SciTEUser.properties to set lua script:
+
+    ...
+    ext.lua.startup.script=C:\code\py\puren_tonbo\pt_scite.lua
+    create.hidden.console=1
+    ...
+
+#### SciTE lua install with an extension manager
+
+If using an extman like system:
+
+    ...
+    # This is a simplified ExtMan
+    # requires each plugin/add-on to be "registered" or declared, white listed, etc.
+    ext.lua.startup.script=C:\code\scite\extman\parskorata_extman.lua
+    ...
+
+Then edit `parskorata_extman.lua` to add to end:
+
+    mgr:load_files{'pt_scite.lua'}
+
+NOTE not needed with original full ExtMan.
+
+
+### SciTE Python plugin
+
+See [scite with Python README](integrations/pt_scite_with_python/README.md) - read and write support, Windows only (needs polishing).
+
+
 ### vim plugin
 
 Tested under Linux with vim 8.1.
