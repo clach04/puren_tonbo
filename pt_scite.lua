@@ -112,7 +112,7 @@ local function SaveEncryptedFile(filename)
     --print('-------------')  -- to output pane
     -- default encryption type based on file extension
     local prog = PTCIPHER_EXE .. ' --silent --no-prompt --encrypt --output "' .. filename .. '"'
-    print(prog)
+    --print(prog)
 
     if is_win then
         -- https://www.lua.org/manual/5.1/manual.html#pdf-io.popen
@@ -180,7 +180,7 @@ local function LoadEncryptedFile(filename)
         print('WARNING: PT_PASSWORD has not been set')
     end
     local prog = PTCIPHER_EXE .. ' --decrypt "' .. filename .. '" --output=- --no-prompt'
-    print(prog)
+    --print(prog)
     local f
     if is_win then
         f = io.popen(prog, 'rb')  -- read
