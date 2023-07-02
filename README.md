@@ -413,7 +413,7 @@ Does NOT prompt for password, requires setting `PT_PASSWORD` environment variabl
 
 ### vim plugin
 
-Tested under Linux with vim 8.1.
+Tested under Linux with vim 8.0 and 8.1. under x86, x64, and arm 32-bit.
 
 See [pt.vim](./pt.vim) - Linux/Unix/Cygwin only for now.
 
