@@ -22,11 +22,21 @@ def determine_encrypted_file_extensions():
     cmd = [PTCIPHER_EXE, '--list-formats', '--no-prompt']
     p = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout_value, stderr_value = p.communicate()
+    if p.returncode != 0 or stderr_value != '':
+        # error
+        print('Error determining puren tonbo support')
+        print('cmd: %r' % cmd)
+        print('stdout: %r' % stdout_value)
+        print('stderr: %r' % stderr_value)
+        print('stderr: %s' % stderr_value)
+        print('returncode: %r' % p.returncode)
+        #print('errors: %r' % p.errors)  # py3 only
+        return
 
-    print('post com')
-    print('stdout: %r' % stdout_value)
-    print('stderr: %r' % stderr_value)
-    print('returncode: %r' % p.returncode)
+    #print('post com')
+    #print('stdout: %r' % stdout_value)
+    #print('stderr: %r' % stderr_value)
+    #print('returncode: %r' % p.returncode)
 
     for line in stdout_value.decode('utf-8').replace('\r', '').split('\n')[3:]:
         line = line.strip()
@@ -37,12 +47,12 @@ def determine_encrypted_file_extensions():
         if file_extension not in ('txt', 'md'):
             #file_extensions.append(file_extension)
             file_extensions.append('.' + file_extension)
-    print('stdout: %r' % file_extensions)
+    #print('stdout: %r' % file_extensions)
 
 def OnBeforeSave(filename):
     """Save files unless supported encrypted file extension. No support for save/encrypt yet
     """
-    print('plugin %s file %s' % (__file__, filename))  # goes to output pane
+    #print('plugin %s file %s' % (__file__, filename))  # goes to output pane
     for file_extension in file_extensions:
         if filename.lower().endswith(file_extension):
             file_contents, file_contents_len = ScEditor.GetText()
@@ -64,6 +74,7 @@ def OnBeforeSave(filename):
                 ScEditor.SetSavePoint()  # indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
             else:
                 print('Error saving/encrypting/writing')
+                print('cmd: %r' % cmd)
                 print('stdout: %r' % stdout_value)
                 print('stderr: %r' % stderr_value)
                 print('stderr: %s' % stderr_value)
@@ -82,7 +93,7 @@ def OnSave(filename):
 def OnOpen(filename):
     """Opens a file, if supported file extension attempt to decrypt/load by spawning external tool which expects password to be set in OS variable
     """
-    print('plugin saw OnOpen', filename)  # goes to output pane
+    #print('plugin saw OnOpen', filename)  # goes to output pane
     is_encrypted = False
     for file_extension in file_extensions:
         if filename.lower().endswith(file_extension):
@@ -115,11 +126,12 @@ def OnOpen(filename):
     """
     stdout_value, stderr_value = p.communicate()
 
-    if p.returncode == 0 and stdout_value == '' and stderr_value == '':
+    if p.returncode == 0 and stderr_value == '':
         # success!
         ScEditor.SetSavePoint()  # indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
     else:
-        print('Error saving/encrypting/writing')
+        print('Error loading/decrypting')
+        print('cmd: %r' % cmd)
         print('stdout: %r' % stdout_value)
         print('stderr: %r' % stderr_value)
         print('stderr: %s' % stderr_value)
@@ -136,6 +148,8 @@ def OnOpen(filename):
 
 
 
-print('loaded %s', __file__)  # DEBUG goes to output pane
+#log.info('loaded %s', __file__)
+#print('loaded %s' % __file__)  # DEBUG goes to output pane
 determine_encrypted_file_extensions()
-print('completed init %s', __file__)  # DEBUG goes to output pane
+#log.info('completed init %s', % __file__)  # DEBUG goes to output pane
+#print('completed init %s' % __file__)  # DEBUG goes to output pane
