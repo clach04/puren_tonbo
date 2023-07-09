@@ -350,7 +350,7 @@ https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-pri
 
 ### SciTE lua plugin
 
-Tested with versions: 4.1.5 and 5.3.5
+Tested with versions: v4.0.0, 4.1.5, and 5.3.5
 
 See [pt_scite.lua](./pt_scite.lua) - read and write support (tested Windows).
 NOTE due to lua popen() any helpful error text/information is missing. Diagnosing failures can be difficult, even for trivial errors like directory/disk does not exist as this is not reported to the lua runtime.

@@ -95,7 +95,6 @@ local function IsPurenTonboEncryptedFilename(filename)
   return false
 end
 
--- NOTE SaveEncryptedFile() does not (yet) support saving encrypted files, instead it prevents accidental saving
 local function SaveEncryptedFile(filename)
   --print('OnBeforeSave')  -- to output pane
   --print(filename)  -- to output pane
@@ -117,7 +116,6 @@ local function SaveEncryptedFile(filename)
     if is_win then
         -- https://www.lua.org/manual/5.1/manual.html#pdf-io.popen
         -- > This function is system dependent and is not available on all platforms.
-        -- does NOT appear to work on my system
         f = io.popen(prog, 'wb')  -- write
         -- binary under Linux read fails with; attempt to index a nil value (local 'f')
     else
