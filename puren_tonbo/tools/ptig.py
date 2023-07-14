@@ -431,6 +431,12 @@ See use_pager option, e.g. set use_pager=True
 
     def do_config(self, line=None):
         """show puren tonbo config"""
+        config_filename = puren_tonbo.get_config_path()
+        if os.path.exists(config_filename):
+            config_filename_exists = True
+        else:
+            config_filename_exists = False
+        print('config_filename %s (%s)' % (config_filename, 'exists' if config_filename_exists else 'does not exist'))
         print('%s' % json.dumps(self.pt_config, indent=4, sort_keys=True))  # TODO color support
 
     def do_version(self, line=None):
