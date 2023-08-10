@@ -150,6 +150,8 @@ Examples
     set ignorecase
     set noic
     set noignorecase
+    set enc
+    set noenc
 
 """
         # NOTE only sets options in self.grep_options (not self.pt_config, i.e. pt.json)
@@ -182,9 +184,21 @@ Examples
         # vim-like case insensitive
         if line in ('ic', 'ignorecase'):
             self.grep_options.ignore_case = True
+            print('search now case insensitive')
             return
         if line in ('noic', 'noignorecase'):
+            print('search now case sensitive')
             self.grep_options.ignore_case = False
+            return
+
+        # pt specific enc - less typing than full
+        if line in ('enc', 'search_encrypted'):
+            print('search enabled for encrypted files')
+            self.grep_options.search_encrypted = True
+            return
+        if line in ('noenc', 'nosearch_encrypted'):
+            print('search disabled for encrypted files')
+            self.grep_options.search_encrypted = False
             return
 
         if '=' in line:
