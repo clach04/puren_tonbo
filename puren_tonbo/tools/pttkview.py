@@ -8,6 +8,7 @@
 """
 # TODO encrypt support, with safe-save as the default ala ptcipher - either reuse/call ptcipher more move that logic into main lib
 
+import datetime
 import os
 from optparse import OptionParser
 import sys
@@ -104,11 +105,19 @@ def main(argv=None):
 
     handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
     handler = handler_class(key=password)
-    in_file = open(in_filename, 'rb')
-    plain_str_bytes = handler.read_from(in_file)
-    print('plain_str_bytes: %r' % plain_str_bytes)
-    in_file.close()
-    plain_str = puren_tonbo.to_string(plain_str_bytes, note_encoding=note_encoding)
+    if os.path.exists(in_filename):  # FIXME this is limited to native file system
+        in_file = open(in_filename, 'rb')
+        plain_str_bytes = handler.read_from(in_file)
+        print('plain_str_bytes: %r' % plain_str_bytes)
+        in_file.close()
+        plain_str = puren_tonbo.to_string(plain_str_bytes, note_encoding=note_encoding)
+    else:
+        base_filename = os.path.basename(in_filename)  # FIXME this is **probably** limited to native file system
+        for extension in handler_class.extensions:
+            if base_filename.endswith(extension):
+                base_filename = base_filename[:-len(extension)]
+                break
+        plain_str = '%s\n\n%s\n' % (base_filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     print('plain_str:        %r' % plain_str)
     dos_newlines = True  # assume windows newlines
     if dos_newlines:
