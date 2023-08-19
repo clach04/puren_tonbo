@@ -62,10 +62,10 @@ def main(argv=None):
 
 
     # create log
-    log = logging.getLogger("mylogger")
+    log = logging.getLogger("pttkview")
     log.setLevel(logging.DEBUG)
     disable_logging = False
-    disable_logging = True
+    disable_logging = True  # TODO pickup from command line, env, config?
     if disable_logging:
         log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
 
@@ -156,11 +156,11 @@ def main(argv=None):
     st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True, autoseparators=True, maxundo=-1)
 
     def save_file(p=None, evt=None):
-        print('save_file')
-        print('p: %r' % p)
-        print('evt: %r' % evt)
+        log.debug('save_file')
+        log.debug('p: %r', p)
+        log.debug('evt: %r', evt)
         if not st.edit_modified():
-            print('no changes, so not saving')
+            log.info('no changes, so not saving')
             return
         buffer_plain_str = st.get('1.0', tkinter.END + '-1c')  # tk adds a new line by default, skip it
         #print('buffer            %r' % buffer_plain_str)
