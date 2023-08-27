@@ -97,6 +97,7 @@ Purēntonbo
 ### ptcat
 
     ptcat  puren_tonbo/tests/data/aesop.txt
+    ptcat --list-formats
     python -m puren_tonbo.tools.ptcat --note-root . puren_tonbo/tests/data/aesop.txt
     python -m puren_tonbo.tools.ptcat --note-root . puren_tonbo/tests/data/aesop.chi
     python -m puren_tonbo.tools.ptcat  puren_tonbo/tests/data/aesop.txt
