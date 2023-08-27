@@ -74,6 +74,12 @@ except ImportError:
         gpg = gnupg = None
 
 try:
+    import keyring  # python -m pip install keyring
+    import keyring.backend
+except ImportError:
+    keyring = fake_module('keyring')
+
+try:
     import pyzipper  # https://github.com/danifus/pyzipper  NOTE py3 only
 except ImportError:
     pyzipper = fake_module('pyzipper')
@@ -735,6 +741,100 @@ class gen_caching_get_passwordWIP(object):
 
 
 caching_console_password_prompt = gen_caching_get_password().gen_func()
+
+
+if keyring:
+    try:
+        # Py3
+        from urllib.request import urlopen, Request
+        from urllib.parse import urlencode
+    except ImportError:
+        # Py2
+        from urllib2 import urlopen, Request
+        from urllib import urlencode
+
+    def urllib_get_url(url, headers=None, ignore_errors=False):
+        """
+        @url - web address/url (string)
+        @headers - dictionary - optional
+        """
+        log.debug('get_url=%r', url)
+        #log.debug('headers=%r', headers)
+        response = None
+        try:
+            if headers:
+                request = Request(url, headers=headers)
+            else:
+                request = Request(url)  # may not be needed
+            response = urlopen(request)
+            url = response.geturl()  # may have changed in case of redirect
+            code = response.getcode()
+            #log("getURL [{}] response code:{}".format(url, code))
+            result = response.read()
+            return result
+        except:  # HTTPError, ConnectionRefusedError
+            # probably got HTTPError, may be ConnectionRefusedError
+            if ignore_errors:
+               return None
+            else:
+               raise
+        finally:
+            if response != None:
+                response.close()
+
+    # FIXME import from https://github.com/clach04/clach04.keyring.dumbserver instead
+    class DumbServer(keyring.backend.KeyringBackend):
+        """http server access, local only across regular tcp_ip socket (no need for unix domain sockets)
+        ONLY uses GET calls (not POST)
+        """
+        def __init__(self):
+            self._server_url = 'http://127.0.0.1:4277/'
+
+        priority = 0
+
+        def supported(self):
+            return 0
+
+        def get_password(self, service, username):
+            log.debug('get_password called')
+            vars = {
+                'service': service,
+                'username': username,
+            }
+            url = self._server_url + 'get' + '?' + urlencode(vars)
+            log.debug('get_password url=%r', url)
+            password = urllib_get_url(url, ignore_errors=True)
+            if password is not None:
+                password = password.decode('utf-8')
+            return password
+
+        def set_password(self, service, username, password):
+            # NOOP - could do the same as get_password
+            return 0  # return something else?
+
+        def delete_password(self, service, username):
+            # NOOP
+            pass
+
+    if os.environ.get('PT_KEYRING_SERVER'):
+        new_keyring = DumbServer()  # NOTE this introduces a delay if server not present when calling keyring.get_password()
+        keyring.set_keyring(new_keyring)
+
+
+def keyring_get_password():
+    """If keyring lib available, make a lookup
+    Returns None if no password available
+    TODO
+      * Determine which backend
+      * Determine service/username
+    """
+    log.info('keyring_get_password called')
+    if not keyring:
+        return None
+    app, username = 'puren_tonbo', 'dumb'  # TODO review
+    password = keyring.get_password(app, username)
+    return password
+
 
 any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 

@@ -159,7 +159,7 @@ def main(argv=None):
     parser.add_option("-n", "--line_numbers", help="Print line number with output lines (grep format only)", action="store_true")  # grep uses hypen; --line-number
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
-    parser.add_option("-p", "--password", help="password, if omitted and OS env PT_PASSWORD is set use that, if missing prompt")  # TODO keyring support
+    parser.add_option("-p", "--password", help="password, if omitted and OS env PT_PASSWORD is set use that, next checks keyring, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-t", "--time", action="store_true")
     parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
@@ -197,7 +197,7 @@ def main(argv=None):
     else:
         password_file = None
 
-    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.caching_console_password_prompt  # TODO keyring support
+    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or puren_tonbo.caching_console_password_prompt
     if password and not callable(password) and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 

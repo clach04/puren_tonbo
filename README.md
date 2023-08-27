@@ -112,9 +112,10 @@ A grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/
 
     ptgrep better
     ptgrep -i better
-    python -m puren_tonbo.tools.ptgrep better
+    python -m puren_tonbo.tools.ptgrep -i better
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -i better
     python -m puren_tonbo.tools.ptgrep -e -p password Better
-    python -m puren_tonbo.tools.ptgrep -e -p password Better
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -e -p password Better
 
 ### ptig
 

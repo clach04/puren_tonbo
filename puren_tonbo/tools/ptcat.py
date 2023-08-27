@@ -67,7 +67,7 @@ def main(argv=None):
         password_file = None
 
     #password = options.password or password_file or os.environ.get('PT_PASSWORD') or getpass.getpass("Password:")  # TODO FIXME replace with password prompt generator
-    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.caching_console_password_prompt
+    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or puren_tonbo.caching_console_password_prompt
     # TODO text file should NOT prompt for a password
     if password and not callable(password) and not isinstance(password, bytes):
         password = password.encode('us-ascii')

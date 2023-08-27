@@ -469,7 +469,7 @@ def main(argv=None):
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
     parser.add_option("--config-file", help="Override config file")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
-    parser.add_option("-p", "--password", help="password, if omitted and OS env PT_PASSWORD is set use that, if missing prompt")  # TODO keyring support
+    parser.add_option("-p", "--password", help="password, if omitted and OS env PT_PASSWORD is set use that, next checks keyring, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
 
     (options, args) = parser.parse_args(argv[1:])
@@ -481,7 +481,7 @@ def main(argv=None):
     else:
         password_file = None
 
-    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.caching_console_password_prompt  # TODO keyring support
+    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or puren_tonbo.caching_console_password_prompt
     if password and not callable(password) and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 

@@ -136,7 +136,7 @@ class PureTonboFileIO(EditorIO):
 
 
 def edit(locations, password=None):
-    password = password or os.environ.get('PT_PASSWORD', '')  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
+    password = password or os.environ.get('PT_PASSWORD', '') or puren_tonbo.keyring_get_password()  # FIXME! debug hack for testing, bare minimum is pick up from env or keyring. TODO figure out prompting/IO in pyvim
     # for now, determine is a password is needed, if so prompt now
     # either check for known types that need password or don't prompt for txt and md (which is easier/faster but more fragile)
 
