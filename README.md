@@ -360,7 +360,7 @@ Also see SciTE Python plugin for read and write support with stderror support.
 
 By default uses `ptcipher` in path, override via `PTCIPHER_EXE` environment variable.
 
-Does NOT prompt for password, requires setting `PT_PASSWORD` environment variable.
+Does NOT prompt for password, requires setting `PT_PASSWORD` environment variable or use of keyring.
 
   * Can be used standalone or with ParsKorata (http://lua-users.org/wiki/ParsKorata) mini/simple ExtMan compatible script
   * Untested with ExtMan - http://lua-users.org/wiki/SciteExtMan
