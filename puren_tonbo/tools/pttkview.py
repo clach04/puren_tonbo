@@ -8,6 +8,8 @@
 """
 # TODO encrypt support, with safe-save as the default ala ptcipher - either reuse/call ptcipher more move that logic into main lib
 
+import datetime
+import logging
 import os
 from optparse import OptionParser
 import sys
@@ -58,6 +60,32 @@ def main(argv=None):
         return 1
     in_filename = args[0]
 
+
+    # create log
+    log = logging.getLogger("pttkview")
+    log.setLevel(logging.DEBUG)
+    disable_logging = False
+    disable_logging = True  # TODO pickup from command line, env, config?
+    if disable_logging:
+        log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
+
+    ch = logging.StreamHandler()  # use stdio
+
+    if sys.version_info >= (2, 5):
+        # 2.5 added function name tracing
+        logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d %(funcName)s() - %(levelname)s - %(message)s"
+    else:
+        if JYTHON_RUNTIME_DETECTED:
+            # process is None under Jython 2.2
+            logging_fmt_str = "%(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
+        else:
+            logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
+
+    formatter = logging.Formatter(logging_fmt_str)
+    ch.setFormatter(formatter)
+    log.addHandler(ch)
+
+
     config = puren_tonbo.get_config(options.config_file)
     if options.codec:
         note_encoding = options.codec
@@ -104,12 +132,20 @@ def main(argv=None):
 
     handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
     handler = handler_class(key=password)
-    in_file = open(in_filename, 'rb')
-    plain_str_bytes = handler.read_from(in_file)
-    print('plain_str_bytes: %r' % plain_str_bytes)
-    in_file.close()
-    plain_str = puren_tonbo.to_string(plain_str_bytes, note_encoding=note_encoding)
-    print('plain_str:        %r' % plain_str)
+    if os.path.exists(in_filename):  # FIXME this is limited to native file system
+        in_file = open(in_filename, 'rb')
+        plain_str_bytes = handler.read_from(in_file)
+        log.debug('plain_str_bytes: %r', plain_str_bytes)
+        in_file.close()
+        plain_str = puren_tonbo.to_string(plain_str_bytes, note_encoding=note_encoding)
+    else:
+        base_filename = os.path.basename(in_filename)  # FIXME this is **probably** limited to native file system
+        for extension in handler_class.extensions:
+            if base_filename.endswith(extension):
+                base_filename = base_filename[:-len(extension)]
+                break
+        plain_str = '%s\n\n%s\n' % (base_filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    log.debug('plain_str:        %r', plain_str)
     dos_newlines = True  # assume windows newlines
     if dos_newlines:
         plain_str = plain_str.replace('\r', '')
@@ -120,11 +156,11 @@ def main(argv=None):
     st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True, autoseparators=True, maxundo=-1)
 
     def save_file(p=None, evt=None):
-        print('save_file')
-        print('p: %r' % p)
-        print('evt: %r' % evt)
+        log.debug('save_file')
+        log.debug('p: %r', p)
+        log.debug('evt: %r', evt)
         if not st.edit_modified():
-            print('no changes, so not saving')
+            log.info('no changes, so not saving')
             return
         buffer_plain_str = st.get('1.0', tkinter.END + '-1c')  # tk adds a new line by default, skip it
         #print('buffer            %r' % buffer_plain_str)
@@ -137,7 +173,7 @@ def main(argv=None):
             st.edit_separator()
         except Exception as info:
             # anything
-            print('%r' % info)
+            log.error('%r', info, exc_info=1)  # include traceback
             tkinter.messagebox.showerror('Error', 'while saving %s' % in_filename)
             raise
 
