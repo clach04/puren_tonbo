@@ -109,7 +109,7 @@ def main(argv=None):
     else:
         default_password_value = getpass.getpass("Password:")  # FIXME don't do this
     """
-    password = options.password or password_file or os.environ.get('PT_PASSWORD') or default_password_value
+    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or default_password_value
 
     if is_win:
         # before GUI code, inform Windows to use the icon provided at runtime, not from the (exe) resource

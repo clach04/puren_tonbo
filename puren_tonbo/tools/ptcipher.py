@@ -130,7 +130,7 @@ def main(argv=None):
         default_password_value = ''  # empty password, cause a bad password error
     else:
         default_password_value = None
-    password = options.password or password_file or os.environ.get('PT_PASSWORD') or default_password_value
+    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or default_password_value
     if password is None:
         password = getpass.getpass("Password:")
     if not isinstance(password, bytes):
