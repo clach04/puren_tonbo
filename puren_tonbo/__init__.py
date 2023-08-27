@@ -67,6 +67,9 @@ except ImportError:
         except RuntimeError:
             # Assume;     RuntimeError: GnuPG is not installed!
             gpg = None
+        except OSError:
+            # Assume;     GnuPG is not installed!
+            gpg = None
     except ImportError:
         gpg = gnupg = None
 
