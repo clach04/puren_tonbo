@@ -1,6 +1,6 @@
 git+https://github.com/clach04/chi_io.git  # needed for Tombo Blowfish CHI support
 colorama
-keyring  # TODO py2.7 compat version
+keyring==18.0.1  # last py2.7 and Py3 compat version
 pycryptodome  # for performance - actually used by pyzipper so not explictly needed
 pyzipper; python_version > "2.7"
 python-gnupg
