@@ -129,6 +129,9 @@ class CommandPrompt(Cmd):
     do_EOF = do_exit
 
     def do_ls(self, line=None):
+        if line:
+            print('Parameters not supported')
+            return
         note_encoding = self.pt_config['codec']
         note_root = self.paths_to_search[0]  # TODO just pick the first one, ignore everthing else
         # for now, ignore line
