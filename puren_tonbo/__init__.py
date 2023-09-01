@@ -1,4 +1,5 @@
 
+import bisect
 import datetime
 import errno
 
@@ -1115,8 +1116,57 @@ def note_contents_save_filename(note_text, filename=None, original_filename=None
         file_replace(tmp_out_filename, filename)
 
 # Local file system navigation functions
+def walker(directory_name, process_file_function=None, process_dir_function=None, extra_params_dict=None):
+    """extra_params_dict optional dict to be passed into process_file_function() and process_dir_function()
+
+    def process_file_function(full_path, extra_params_dict=None)
+        extra_params_dict = extra_params_dict or {}
+    """
+    extra_params_dict or {}
+    # TODO scandir instead... would be faster - but for py2.7 requires external lib
+    for root, subdirs, files in os.walk(directory_name):
+        if process_file_function:
+            for filepath in files:
+                full_path = os.path.join(root,filepath)
+                process_file_function(full_path, extra_params_dict=extra_params_dict)
+        if process_dir_function:
+            for sub in subdirs:
+                full_path = os.path.join(root, sub)
+                process_dir_function(full_path, extra_params_dict=extra_params_dict)
+
+def recent_files_filter(full_path, extra_params_dict=None):
+    max_recent_files = extra_params_dict['max_recent_files']
+    recent_files = extra_params_dict['recent_files']
+    mtime = int(os.path.getmtime(full_path))
+    list_value = (mtime, full_path)
+    do_insert = False
+    if len(recent_files) < max_recent_files:
+        do_insert = True
+    elif recent_files:
+        oldest_entry = recent_files[0]
+        if list_value > oldest_entry:
+            do_insert = True
+    if do_insert:
+        position = bisect.bisect(recent_files, (mtime, full_path))
+        bisect.insort(recent_files, (mtime, full_path))
+        if len(recent_files) > max_recent_files:
+            del recent_files[0]
+
+def find_recent_files(test_path, number_of_files=20):
+    extra_params_dict = {
+        #'directory_path': directory_path,  # not used
+        #'directory_path_len': directory_path_len,
+        'max_recent_files': 20,
+        'recent_files': [],
+    }
+
+    walker(test_path, process_file_function=recent_files_filter, extra_params_dict=extra_params_dict)
+    recent_files = extra_params_dict['recent_files']
+    for mtime, filename in recent_files:
+        yield filename
+
 def recurse_notes(path_to_search, filename_filter):
-    """Walk directory of notes, directory depth first (just like Tombo find does), returns generator
+    """Walk (local file system) directory of notes, directory depth first (just like Tombo find does), returns generator
     """
     ## Requires os.walk (python 2.3 and later).
     ## Pure Python versions for earlier versions available from:
@@ -1217,6 +1267,11 @@ class FileSystemNotes(BaseNotes):
             # want unicode string so that all file interaction is unicode based
             filename = filename.decode('utf8')  # FIXME hard coded, pick up from config or locale/system encoding
         return filename
+
+    def recent_notes(self, sub_dir=None, number_of_files=20):
+        """Recursive Tombo note lister for recently updated/modified files.
+        Iterator of files in @sub_dir"""
+        return find_recent_files(self.note_root, number_of_files=number_of_files)
 
     def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):
         """Recursive Tombo note lister.

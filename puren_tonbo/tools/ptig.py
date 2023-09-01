@@ -128,6 +128,9 @@ class CommandPrompt(Cmd):
     do_bye = do_exit
     do_EOF = do_exit
 
+
+    #recent_notes
+
     def do_ls(self, line=None):
         if line:
             print('Parameters not supported')
@@ -143,6 +146,30 @@ class CommandPrompt(Cmd):
             print('%s/' % x)
         for x in file_list:
             print('%s' % x)
+
+    def do_recent(self, line=None):
+        use_color = True
+        if line:
+            print('Parameters not supported')
+            return
+        note_encoding = self.pt_config['codec']
+        note_root = self.paths_to_search[0]  # TODO just pick the first one, ignore everthing else
+        # for now, ignore line
+        #sub_dir = line
+        sub_dir = None
+        notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+        hits = []
+        for counter, filename in enumerate(notes.recent_notes(), start=1):
+            hits.append(filename)
+            result_hit_line = '[%d] %s' % (counter, filename)
+            if use_color:
+                result_hit_line = ptgrep.color_filename + str(result_hit_line) + ptgrep.color_reset
+            else:
+                result_hit_line = str(result_hit_line)
+            print(result_hit_line)
+
+        # TODO catch SearchCancelled, KeyboardInterrupt
+        self.file_hits = hits
 
     def do_set(self, line=None):
         """Set variables/options. No params, show variable settings
