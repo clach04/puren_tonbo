@@ -1156,7 +1156,7 @@ def find_recent_files(test_path, number_of_files=20):
     extra_params_dict = {
         #'directory_path': directory_path,  # not used
         #'directory_path_len': directory_path_len,
-        'max_recent_files': 20,
+        'max_recent_files': number_of_files,
         'recent_files': [],
     }
 

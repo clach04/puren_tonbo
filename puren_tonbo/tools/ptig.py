@@ -149,9 +149,13 @@ class CommandPrompt(Cmd):
 
     def do_recent(self, line=None):
         use_color = True
+        number_of_files = 20
         if line:
-            print('Parameters not supported')
-            return
+            try:
+                number_of_files = int(line)
+            except ValueError:
+                print('invalid parameter/number')
+                return
         note_encoding = self.pt_config['codec']
         note_root = self.paths_to_search[0]  # TODO just pick the first one, ignore everthing else
         # for now, ignore line
@@ -159,7 +163,7 @@ class CommandPrompt(Cmd):
         sub_dir = None
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
         hits = []
-        for counter, filename in enumerate(notes.recent_notes(), start=1):
+        for counter, filename in enumerate(notes.recent_notes(number_of_files=number_of_files), start=1):
             hits.append(filename)
             result_hit_line = '[%d] %s' % (counter, filename)
             if use_color:
