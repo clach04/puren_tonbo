@@ -1152,7 +1152,9 @@ def recent_files_filter(full_path, extra_params_dict=None):
         if len(recent_files) > max_recent_files:
             del recent_files[0]
 
-def find_recent_files(test_path, number_of_files=20):
+ORDER_ASCENDING = 'ascending'
+ORDER_DESCENDING = 'descending'
+def find_recent_files(test_path, number_of_files=20, order=ORDER_ASCENDING):
     extra_params_dict = {
         #'directory_path': directory_path,  # not used
         #'directory_path_len': directory_path_len,
@@ -1162,6 +1164,8 @@ def find_recent_files(test_path, number_of_files=20):
 
     walker(test_path, process_file_function=recent_files_filter, extra_params_dict=extra_params_dict)
     recent_files = extra_params_dict['recent_files']
+    if ORDER_DESCENDING == order:
+        recent_files.reverse()
     for mtime, filename in recent_files:
         yield filename
 
@@ -1268,10 +1272,10 @@ class FileSystemNotes(BaseNotes):
             filename = filename.decode('utf8')  # FIXME hard coded, pick up from config or locale/system encoding
         return filename
 
-    def recent_notes(self, sub_dir=None, number_of_files=20):
+    def recent_notes(self, sub_dir=None, number_of_files=20, order=ORDER_ASCENDING):
         """Recursive Tombo note lister for recently updated/modified files.
         Iterator of files in @sub_dir"""
-        return find_recent_files(self.note_root, number_of_files=number_of_files)
+        return find_recent_files(self.note_root, number_of_files=number_of_files, order=order)
 
     def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):
         """Recursive Tombo note lister.

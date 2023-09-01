@@ -163,7 +163,7 @@ class CommandPrompt(Cmd):
         sub_dir = None
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
         hits = []
-        for counter, filename in enumerate(notes.recent_notes(number_of_files=number_of_files), start=1):
+        for counter, filename in enumerate(notes.recent_notes(number_of_files=number_of_files, order=puren_tonbo.ORDER_DESCENDING), start=1):
             hits.append(filename)
             result_hit_line = '[%d] %s' % (counter, filename)
             if use_color:
