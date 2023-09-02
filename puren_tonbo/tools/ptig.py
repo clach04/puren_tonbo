@@ -309,21 +309,38 @@ Examples
     do_r = do_results
 
     def do_edit(self, line=None):
-        """Edit using external $PT_VISUAL, $VISUAL or $EDITOR, with fall backs if unset.
+        """Edit using external $PT_VISUAL, $VISUAL or $EDITOR, ptig.editor in config file with fall backs if unset.
 
-Microsoft Windows will use file associations.
+If not set:
 
-Linux/Unix will use editor, which under Debian derivatives like
-Ubuntu can be configured via:
+  1. Microsoft Windows will use file associations.
 
-    sudo update-alternatives --config editor
-    update-alternatives --list editor
+  2. Linux/Unix will use editor, which under Debian derivatives like
+    Ubuntu can be configured via:
+
+        sudo update-alternatives --config editor
+        update-alternatives --list editor
+
+To set in config file:
+
+    {
+        ....
+        "ptig": {
+            "editor": "start scite",   # Windows
+            "editor": "start gvim",   # Windows
+            "editor": "gvim",   # Linux, etc.
+            ....
+        }
+    }
+
+For Windows use "start" so that ptig does NOT wait for editor to exit.
+Use ptconfig commandline tool to generate skeleton config.
         """
         line = self.validate_result_id(line)
         if line is None:
             return
         filename = line
-        editor = os.environ.get('PT_VISUAL') or os.environ.get('VISUAL') or os.environ.get('EDITOR')
+        editor = os.environ.get('PT_VISUAL') or os.environ.get('VISUAL') or os.environ.get('EDITOR') or self.pt_config['ptig'].get('editor')
         if puren_tonbo.is_encrypted(filename):
             # Prompt for password for editors that won't prompt
             # TODO how to indicate whether ptig should prompt (and set environment variable)?
