@@ -157,7 +157,7 @@ class CommandPrompt(Cmd):
                 print('invalid parameter/number')
                 return
         note_encoding = self.pt_config['codec']
-        note_root = self.paths_to_search[0]  # TODO just pick the first one, ignore everthing else
+        note_root = self.paths_to_search[0]  # TODO loop through them all. For now just pick the first one, ignore everthing else
         # for now, ignore line
         #sub_dir = line
         sub_dir = None
@@ -285,8 +285,28 @@ Examples
         if not self.file_hits:
             print('no results')
             return
+
+        if line:
+            command, arg, orig_line = self.parseline(line) # NOTE undocumented cmd internal
+            #print('%r' % ((command, arg, orig_line),))
+            try:
+                func = getattr(self, 'do_' + command)
+            except AttributeError:
+                print('unknown operation')
+                return
+            try:
+                return func(arg, paths_to_search=self.file_hits)
+            except TypeError:
+                print('operation does not support paths_to_search')
+                return
+
+            # TEST assume find
+            #self.do_find(line=line, paths_to_search=self.file_hits)
+            #self.do_grep(line=line, paths_to_search=self.file_hits)
         for counter, filename in enumerate(self.file_hits):
             print('[%d] %s' % (counter, filename))
+    do_res = do_results
+    do_r = do_results
 
     def do_edit(self, line=None):
         """Edit using external $PT_VISUAL, $VISUAL or $EDITOR, with fall backs if unset.
@@ -438,11 +458,11 @@ See use_pager option, e.g. set use_pager=True
         except ValueError:
             Cmd.default(self, line)  # Super...
 
-    def do_grep(self, line=None):
+    def do_grep(self, line=None, paths_to_search=None):
         """ptgrep/search"""
         # TODO -i, -r, and -l (instead of find) flag support rather than using config variables?
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
-        paths_to_search = self.paths_to_search
+        paths_to_search = paths_to_search or self.paths_to_search
         options = self.grep_options
 
         note_encoding = self.pt_config['codec']
@@ -457,11 +477,11 @@ See use_pager option, e.g. set use_pager=True
     do_g = do_grep  # shortcut to save typing
     do_rg = do_grep  # ripgrep alias for convenience
 
-    def do_find(self, line=None):
+    def do_find(self, line=None, paths_to_search=None):
         """find to pathname/filename, same as grep but only matches directory and file names"""
         # TODO -i, and -r (regex) flag support rather than using config variables?
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
-        paths_to_search = self.paths_to_search
+        paths_to_search = paths_to_search or self.paths_to_search
         options = self.grep_options
 
         note_encoding = self.pt_config['codec']
