@@ -303,7 +303,7 @@ Examples
             # TEST assume find
             #self.do_find(line=line, paths_to_search=self.file_hits)
             #self.do_grep(line=line, paths_to_search=self.file_hits)
-        for counter, filename in enumerate(self.file_hits):
+        for counter, filename in enumerate(self.file_hits, start=1):
             print('[%d] %s' % (counter, filename))
     do_res = do_results
     do_r = do_results
