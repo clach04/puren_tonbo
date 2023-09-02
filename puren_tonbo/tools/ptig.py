@@ -102,6 +102,7 @@ class CommandPrompt(Cmd):
         """If paths_to_search is omitted, defaults to current directory
         """
         Cmd.__init__(self)
+        self.cache = None
         self.paths_to_search = paths_to_search or ['.']
         self.pt_config = pt_config
         self.grep_options = grep_options or FakeOptions()
@@ -146,6 +147,23 @@ class CommandPrompt(Cmd):
             print('%s/' % x)
         for x in file_list:
             print('%s' % x)
+
+    def do_nocache(self, line=None):
+        if line:
+            print('params not supported')
+            return
+        self.cache = None
+        print('cache off')
+
+    def do_cache(self, line=None):
+        if line:
+            if line == 'off':
+                return self.do_nocache()
+        note_root = self.paths_to_search[0]  # TODO loop through them all. For now just pick the first one, ignore everthing else
+        note_encoding = self.pt_config['codec']
+        notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+        print('cache on')
+        self.cache = list(notes.recurse_notes())
 
     def do_recent(self, line=None):
         use_color = True
@@ -479,7 +497,7 @@ See use_pager option, e.g. set use_pager=True
         """ptgrep/search"""
         # TODO -i, -r, and -l (instead of find) flag support rather than using config variables?
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
-        paths_to_search = paths_to_search or self.paths_to_search
+        paths_to_search = paths_to_search or self.cache or self.paths_to_search
         options = self.grep_options
 
         note_encoding = self.pt_config['codec']
@@ -498,7 +516,7 @@ See use_pager option, e.g. set use_pager=True
         """find to pathname/filename, same as grep but only matches directory and file names"""
         # TODO -i, and -r (regex) flag support rather than using config variables?
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
-        paths_to_search = paths_to_search or self.paths_to_search
+        paths_to_search = paths_to_search or self.cache or self.paths_to_search
         options = self.grep_options
 
         note_encoding = self.pt_config['codec']
