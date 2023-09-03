@@ -149,7 +149,7 @@ def main(argv=None):
         stream_encoding = 'utf-8'  # FIXME hard coded
 
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
-    # TODO mix of snake_case and hypen-case flags/options; files_with_matches, config_file, display_full_path and inconsistency with grep for line_numbers (TODO support both with same destination?)
+    # TODO mix of snake_case and hypen-case flags/options; files_with_matches, config_file, display_full_path and inconsistency with grep for line_numbers (TODO support both with same destination. Same idea for files_with_matches?)
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
                             description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
