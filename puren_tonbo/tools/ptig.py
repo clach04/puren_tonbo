@@ -130,8 +130,6 @@ class CommandPrompt(Cmd):
     do_EOF = do_exit
 
 
-    #recent_notes
-
     def do_ls(self, line=None):
         if line:
             print('Parameters not supported')
@@ -166,6 +164,15 @@ class CommandPrompt(Cmd):
         self.cache = list(notes.recurse_notes())
 
     def do_recent(self, line=None):
+        """list recent notes, newest at the top.
+Optionay specify number of items to list. Defaults to 20.
+
+Examples
+
+    recent
+    recent 5
+    recent 24
+        """
         use_color = True
         number_of_files = 20
         if line:
