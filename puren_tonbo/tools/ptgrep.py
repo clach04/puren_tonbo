@@ -155,7 +155,7 @@ def main(argv=None):
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
-    parser.add_option("-l", "--files-with-matches", help="print only names of FILEs with selected lines", action="store_true")  # FIXME files_with_matches
+    parser.add_option("-l", "--files-with-matches", help="print only names of FILEs with selected lines", action="store_true")  # BUG this only searches filenames, it does NOT restrict display to only filenames. https://github.com/clach04/puren_tonbo/issues/69 FIXME files_with_matches
     parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
     parser.add_option("-n", "--line_numbers", help="Print line number with output lines (grep format only)", action="store_true")  # grep uses hypen; --line-number
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")
