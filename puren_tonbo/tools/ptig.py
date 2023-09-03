@@ -102,11 +102,12 @@ class CommandPrompt(Cmd):
         """If paths_to_search is omitted, defaults to current directory
         """
         Cmd.__init__(self)
+        self.bookmarks = {}
         self.cache = None
         self.paths_to_search = paths_to_search or ['.']
         self.pt_config = pt_config
         self.grep_options = grep_options or FakeOptions()
-        self.file_hits = []
+        self.file_hits = []  # results
         #import pdb ; pdb.set_trace()
         if self.pt_config['ptig']['prompt']:
             self.prompt = self.pt_config['ptig']['prompt']
@@ -145,6 +146,41 @@ class CommandPrompt(Cmd):
             print('%s/' % x)
         for x in file_list:
             print('%s' % x)
+
+    def do_bookmarks(self, line=None):
+        """Bookmark result (filenames)
+Examples:
+
+Show bookmarks
+    bookmarks
+
+Set/Create
+    bookmark set bookmark_name
+
+Get/lookup
+    bookmark get bookmark_name
+    bookmark bookmark_name
+
+        """
+        if not line:
+            # display bookmarks
+            bookmark_names = list(self.bookmarks.keys())
+            bookmark_names.sort()
+            for bookmark_name in bookmark_names:
+                print('\t%s' % bookmark_name)
+            return
+        parsed_line = shlex.split(line)
+        if parsed_line[0] == 'set':
+            assert len(parsed_line) == 2
+            bookmark_name = parsed_line[1]
+            self.bookmarks[bookmark_name] = self.file_hits.copy()
+        else:
+            # assume get
+            if len(parsed_line) == 1:
+                bookmark_name = parsed_line[0]
+            else:
+                bookmark_name = parsed_line[1]
+            self.file_hits = self.bookmarks[bookmark_name].copy()  # is a copy needed? Safer to do so..
 
     def do_nocache(self, line=None):
         if line:
