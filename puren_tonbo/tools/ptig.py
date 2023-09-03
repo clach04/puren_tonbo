@@ -170,7 +170,7 @@ Get/lookup
                 print('\t%s' % bookmark_name)
             return
         parsed_line = shlex.split(line)
-        if parsed_line[0] == 'set':
+        if parsed_line[0] == 'set':  # TODO consider "s" as short cut, would mean that bookmarks called "s" would be a special case
             assert len(parsed_line) == 2
             bookmark_name = parsed_line[1]
             self.bookmarks[bookmark_name] = self.file_hits.copy()
@@ -181,6 +181,8 @@ Get/lookup
             else:
                 bookmark_name = parsed_line[1]
             self.file_hits = self.bookmarks[bookmark_name].copy()  # is a copy needed? Safer to do so..
+    do_bookmark = do_bookmarks
+    do_b = do_bookmarks
 
     def do_nocache(self, line=None):
         if line:
