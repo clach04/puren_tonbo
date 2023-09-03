@@ -135,7 +135,6 @@ class CommandPrompt(Cmd):
         if self.grep_options.use_color:
             prompt_color, color_reset = ptgrep.color_linenum, ptgrep.color_reset
             self.prompt = prompt_color + self.prompt + color_reset
-        #self.do_grep.__doc__ = grep_parser.format_help()  #not allowed AttributeError: attribute '__doc__' of 'method' objects is not writable
 
     def emptyline(self):
         "NOOP - do not repeat last command like cmd.Cmd"
@@ -558,7 +557,6 @@ See use_pager option, e.g. set use_pager=True
             Cmd.default(self, line)  # Super...
 
     def do_grep(self, line=None, paths_to_search=None):
-        #__doc__ = grep_parser.format_help()  # this did not work
         if not line:
             print('Need a search term')  # TODO show help?
             return
@@ -632,7 +630,6 @@ See use_pager option, e.g. set use_pager=True
     do_info = do_version
 
 
-#CommandPrompt.do_grep.__func__.__doc__ = grep_parser.format_help() # does not work py311 AttributeError: 'function' object has no attribute '__func__'. Did you mean: '__doc__'?
 CommandPrompt.do_grep.__doc__ = grep_parser.format_help()
 
 def main(argv=None):
