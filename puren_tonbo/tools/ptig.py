@@ -109,11 +109,7 @@ grep_parser.add_option("-i", "--ignore_case", help="Case insensitive search", ac
 grep_parser.add_option("-l", "--files-with-matches", help="print only names of FILEs with selected lines", action="store_true")    # BUG this only searches filenames, it does NOT restrict display to only filenames. https://github.com/clach04/puren_tonbo/issues/69 FIXME files_with_matches # FIXME files_with_matches
 grep_parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
 grep_parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
-print(grep_parser)
-print(dir(grep_parser))
 grep_help = grep_parser.format_help()
-print(grep_help)
-#raise shields
 
 
 class CommandPrompt(Cmd):
@@ -569,6 +565,9 @@ See use_pager option, e.g. set use_pager=True
             if not grep_parser_args:
                 print('Need a search term')  # TODO show help?
                 return
+            if len(grep_parser_args) != 1:
+                print('Too many search terms (use quotes)')  # TODO show help?
+                return
             search_term = grep_parser_args[0]
             # TODO consider a loop of get /set attr
             options.ignore_case = options.ignore_case or grep_parser_options.ignore_case
@@ -630,7 +629,7 @@ See use_pager option, e.g. set use_pager=True
     do_info = do_version
 
 
-CommandPrompt.do_grep.__doc__ = grep_parser.format_help()
+CommandPrompt.do_grep.__doc__ = grep_help
 
 def main(argv=None):
     if argv is None:
