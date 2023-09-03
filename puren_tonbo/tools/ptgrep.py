@@ -149,13 +149,13 @@ def main(argv=None):
         stream_encoding = 'utf-8'  # FIXME hard coded
 
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
-    # TODO mix of snake_case and hypen-case flags/options
+    # TODO mix of snake_case and hypen-case flags/options; files_with_matches, config_file, display_full_path and inconsistency with grep for line_numbers (TODO support both with same destination?)
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
                             description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
-    parser.add_option("-l", "--files-with-matches", help="print only names of FILEs with selected lines", action="store_true")
+    parser.add_option("-l", "--files-with-matches", help="print only names of FILEs with selected lines", action="store_true")  # FIXME files_with_matches
     parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
     parser.add_option("-n", "--line_numbers", help="Print line number with output lines (grep format only)", action="store_true")  # grep uses hypen; --line-number
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")
@@ -165,9 +165,9 @@ def main(argv=None):
     parser.add_option("-t", "--time", action="store_true")
     parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
     parser.add_option("-v", "--verbose", help='Print query search time', action="store_true")
-    parser.add_option("--config-file", help="Override config file")
+    parser.add_option("--config-file", help="Override config file")  # FIXME config_file
     parser.add_option("--grep", help='Use grep-like output format instead of ripgrep-like', action="store_true")
-    parser.add_option("--display-full-path", help='Display full/absolute path/URI in results for note filename', action="store_true")
+    parser.add_option("--display-full-path", help='Display full/absolute path/URI in results for note filename', action="store_true")  # FIXME display_full_path
     """ TODO
     -p, --password=PASSWORD: Password to use for all encrypted notes (if omitted will be prompted for password,
         specifying password at command line can be a security risk as password _may_ be visible in process/task list and/or shell history)
