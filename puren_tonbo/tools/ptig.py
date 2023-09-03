@@ -7,6 +7,7 @@ Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip
     python -m puren_tonbo.tools.ptig -h
 """
 
+import copy
 import json
 import os
 from optparse import OptionParser
@@ -82,7 +83,7 @@ class FakeOptions:  # to match ptgrep (OptParse) options
     regex_search = False
     line_numbers = True
     grep = False  # i.e ripgrep=True
-    files_with_matches = False  # set to True to only search on filename
+    files_with_matches = False  # set to True to only search on filename - FIXME BUG this only searches filenames, it does NOT restrict display to only filenames. https://github.com/clach04/puren_tonbo/issues/69
     search_encrypted = False  # TODO add away to change this (set...
     search_is_regex = False
     time = True
@@ -95,6 +96,24 @@ class FakeOptions:  # to match ptgrep (OptParse) options
                 if not attribute_name.startswith('_'):
                     attribute_value = getattr(options, attribute_name)
                     setattr(self, attribute_name, attribute_value)
+    def __repr__(self):
+        return '<%s (%r)>' % (self.__class__.__name__, self.__dict__)
+
+
+# Extracted (subset) from ptgrep.main()
+# TODO mix of snake_case and hypen-case flags/options, e.g. files_with_matches
+grep_parser = OptionParser(usage='usage: %prog [options] [search_term]',
+                        prog='grep',
+                        description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
+grep_parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
+grep_parser.add_option("-l", "--files-with-matches", help="print only names of FILEs with selected lines", action="store_true")    # BUG this only searches filenames, it does NOT restrict display to only filenames. https://github.com/clach04/puren_tonbo/issues/69 FIXME files_with_matches # FIXME files_with_matches
+grep_parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
+grep_parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
+print(grep_parser)
+print(dir(grep_parser))
+grep_help = grep_parser.format_help()
+print(grep_help)
+#raise shields
 
 
 class CommandPrompt(Cmd):
@@ -116,7 +135,7 @@ class CommandPrompt(Cmd):
         if self.grep_options.use_color:
             prompt_color, color_reset = ptgrep.color_linenum, ptgrep.color_reset
             self.prompt = prompt_color + self.prompt + color_reset
-
+        #self.do_grep.__doc__ = grep_parser.format_help()  #not allowed AttributeError: attribute '__doc__' of 'method' objects is not writable
 
     def emptyline(self):
         "NOOP - do not repeat last command like cmd.Cmd"
@@ -539,11 +558,29 @@ See use_pager option, e.g. set use_pager=True
             Cmd.default(self, line)  # Super...
 
     def do_grep(self, line=None, paths_to_search=None):
-        """ptgrep/search"""
-        # TODO -i, -r, and -l (instead of find) flag support rather than using config variables?
-        search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
+        #__doc__ = grep_parser.format_help()  # this did not work
+        if not line:
+            print('Need a search term')  # TODO show help?
+            return
+        options = copy.copy(self.grep_options)
+        if line[0] != '-':
+            search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
+        else:
+            parsed_line = shlex.split(line)
+            (grep_parser_options, grep_parser_args) = grep_parser.parse_args(parsed_line)
+            if not grep_parser_args:
+                print('Need a search term')  # TODO show help?
+                return
+            search_term = grep_parser_args[0]
+            # TODO consider a loop of get /set attr
+            options.ignore_case = options.ignore_case or grep_parser_options.ignore_case
+            options.files_with_matches = options.files_with_matches or grep_parser_options.files_with_matches
+            options.regex_search = options.regex_search or grep_parser_options.regex_search
+            options.search_encrypted = options.search_encrypted or grep_parser_options.search_encrypted
+        if not search_term:
+            print('Need a search term')  # TODO show help?
+            return
         paths_to_search = paths_to_search or self.cache or self.paths_to_search
-        options = self.grep_options
 
         note_encoding = self.pt_config['codec']
 
@@ -557,6 +594,7 @@ See use_pager option, e.g. set use_pager=True
     do_g = do_grep  # shortcut to save typing
     do_rg = do_grep  # ripgrep alias for convenience
 
+    # TODO refactor to call do_grep() to remove code duplication
     def do_find(self, line=None, paths_to_search=None):
         """find to pathname/filename, same as grep but only matches directory and file names"""
         # TODO -i, and -r (regex) flag support rather than using config variables?
@@ -593,6 +631,9 @@ See use_pager option, e.g. set use_pager=True
     do_ver = do_version
     do_info = do_version
 
+
+#CommandPrompt.do_grep.__func__.__doc__ = grep_parser.format_help() # does not work py311 AttributeError: 'function' object has no attribute '__func__'. Did you mean: '__doc__'?
+CommandPrompt.do_grep.__doc__ = grep_parser.format_help()
 
 def main(argv=None):
     if argv is None:
