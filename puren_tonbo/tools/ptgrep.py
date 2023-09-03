@@ -150,7 +150,8 @@ def main(argv=None):
 
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
     # TODO mix of snake_case and hypen-case flags/options
-    parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
+    parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
+                            description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
