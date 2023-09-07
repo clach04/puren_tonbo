@@ -149,13 +149,13 @@ def main(argv=None):
         stream_encoding = 'utf-8'  # FIXME hard coded
 
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
-    # TODO mix of snake_case and hypen-case flags/options; files_with_matches and inconsistency with grep for line_numbers (TODO support both with same destination. Same idea for files_with_matches?)
+    # TODO mix of snake_case and hypen-case flags/options; list-formats/list_formats and note-root/note_root
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
                             description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
-    parser.add_option("-l", "--files-with-matches", help="print only names of FILEs with selected lines", action="store_true")  # BUG this only searches filenames, it does NOT restrict display to only filenames. https://github.com/clach04/puren_tonbo/issues/69 FIXME files_with_matches
+    parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="print only names of FILEs with selected lines", action="store_true")  # BUG this only searches filenames, it does NOT restrict display to only filenames. https://github.com/clach04/puren_tonbo/issues/69
     parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
     parser.add_option("-n", "--line_numbers", help="Print line number with output lines (grep format only)", action="store_true")  # grep uses hypen; --line-number
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")

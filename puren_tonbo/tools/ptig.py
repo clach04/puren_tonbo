@@ -106,7 +106,7 @@ grep_parser = OptionParser(usage='usage: %prog [options] [search_term]',
                         prog='grep',
                         description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
 grep_parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
-grep_parser.add_option("-l", "--files-with-matches", help="print only names of FILEs with selected lines", action="store_true")    # BUG this only searches filenames, it does NOT restrict display to only filenames. https://github.com/clach04/puren_tonbo/issues/69 FIXME files_with_matches # FIXME files_with_matches
+grep_parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="print only names of FILEs with selected lines", action="store_true")
 grep_parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
 grep_parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
 grep_help = grep_parser.format_help()
