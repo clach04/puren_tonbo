@@ -38,7 +38,7 @@ def main(argv=None):
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
-    parser.add_option("--config-file", help="Override config file")
+    parser.add_option("--config-file", "--config_file", help="Override config file")
     parser.add_option("-v", "--verbose", action="store_true")
 
     (options, args) = parser.parse_args(argv[1:])

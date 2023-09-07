@@ -37,7 +37,7 @@ def main(argv=None):
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     # ONLY use filename as format indicator
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
-    parser.add_option("--config-file", help="Override config file")
+    parser.add_option("--config-file", "--config_file", help="Override config file")
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")

@@ -27,7 +27,7 @@ def main(argv=None):
 
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
-    parser.add_option("--config-file", help="Config file path")
+    parser.add_option("--config-file", "--config_file", help="Override config file")
     parser.add_option("--note-root", help="Override Directory of notes")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
 

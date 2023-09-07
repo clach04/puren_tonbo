@@ -638,7 +638,7 @@ def main(argv=None):
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
-    parser.add_option("--config-file", help="Override config file")
+    parser.add_option("--config-file", "--config_file", help="Override config file")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-p", "--password", help="password, if omitted and OS env PT_PASSWORD is set use that, next checks keyring, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
