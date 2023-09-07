@@ -149,7 +149,7 @@ def main(argv=None):
         stream_encoding = 'utf-8'  # FIXME hard coded
 
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
-    # TODO mix of snake_case and hypen-case flags/options; files_with_matches, display_full_path and inconsistency with grep for line_numbers (TODO support both with same destination. Same idea for files_with_matches?)
+    # TODO mix of snake_case and hypen-case flags/options; files_with_matches and inconsistency with grep for line_numbers (TODO support both with same destination. Same idea for files_with_matches?)
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
                             description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
@@ -167,7 +167,7 @@ def main(argv=None):
     parser.add_option("-v", "--verbose", help='Print query search time', action="store_true")
     parser.add_option("--config-file", "--config_file", help="Override config file")
     parser.add_option("--grep", help='Use grep-like output format instead of ripgrep-like', action="store_true")
-    parser.add_option("--display-full-path", help='Display full/absolute path/URI in results for note filename', action="store_true")  # FIXME display_full_path
+    parser.add_option("--display-full-path", "--display_full_path", help='Display full/absolute path/URI in results for note filename', action="store_true")
     """ TODO
     -p, --password=PASSWORD: Password to use for all encrypted notes (if omitted will be prompted for password,
         specifying password at command line can be a security risk as password _may_ be visible in process/task list and/or shell history)
