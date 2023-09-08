@@ -85,7 +85,7 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
             #print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty and/or log instead
             notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
 
-            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, findonly_filename=options.files_with_matches, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
+            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, find_only_filename=options.files_with_matches, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
                 filename, hit_detail = hit
                 #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
                 if filename:

@@ -1290,9 +1290,9 @@ class FileSystemNotes(BaseNotes):
         sub_dir = self.note_root  # TODO implement sub_dir parameter suport
         return directory_contents(dirname=sub_dir)
 
-    #         (self, search_term, search_term_is_a_regex=True,  ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, findonly_filename=None, index_name=None, note_encoding=None):
-    #               (search_term, search_term_is_a_regex=True , ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, findonly_filename=None, index_name=None, note_encoding=None):
-    def search(self, search_term, search_term_is_a_regex=False, ignore_case=False, search_encrypted=False, findonly_filename=False, get_password_callback=None, progess_callback=None, highlight_text_start=None, highlight_text_stop=None):
+    #         (self, search_term, search_term_is_a_regex=True,  ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, find_only_filename=None, index_name=None, note_encoding=None):
+    #               (search_term, search_term_is_a_regex=True , ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, find_only_filename=None, index_name=None, note_encoding=None):
+    def search(self, search_term, search_term_is_a_regex=False, ignore_case=False, search_encrypted=False, find_only_filename=False, get_password_callback=None, progess_callback=None, highlight_text_start=None, highlight_text_stop=None):
         """search note directory, grep/regex like actualy an iterator"""
         #print('get_password_callback %r' % get_password_callback)
 
@@ -1308,7 +1308,7 @@ class FileSystemNotes(BaseNotes):
         else:
             regex_object = re.compile(search_term)
         filename_filter_str = None
-        if findonly_filename:
+        if find_only_filename:
             filename_filter_str = regex_object
         #is_note_filename_filter = pytombo.search.note_filename_filter_gen(allow_encrypted=search_encrypted, filename_filter_str=filename_filter_str)  # FIXME implement
         if search_encrypted:
