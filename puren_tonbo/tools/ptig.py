@@ -84,6 +84,7 @@ class FakeOptions:  # to match ptgrep (OptParse) options
     line_numbers = True
     grep = False  # i.e ripgrep=True
     find_only_filename = False  # set to True to only search on filename
+    files_with_matches = False  # set to True to only list filenames (not lines/hits)
     search_encrypted = False  # TODO add away to change this (set...
     search_is_regex = False
     time = True
@@ -106,7 +107,7 @@ grep_parser = OptionParser(usage='usage: %prog [options] [search_term]',
                         description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
 grep_parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
 grep_parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")
-grep_parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="print only names of FILEs with selected lines", action="store_true")  # BUG NOOP
+grep_parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="Only print filenames that contain matches", action="store_true")
 grep_parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
 grep_parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
 grep_help = grep_parser.format_help()
@@ -572,6 +573,7 @@ See use_pager option, e.g. set use_pager=True
             # TODO consider a loop of get /set attr
             options.ignore_case = options.ignore_case or grep_parser_options.ignore_case
             options.find_only_filename = options.find_only_filename or grep_parser_options.find_only_filename
+            options.files_with_matches = options.files_with_matches or grep_parser_options.files_with_matches
             options.regex_search = options.regex_search or grep_parser_options.regex_search
             options.search_encrypted = options.search_encrypted or grep_parser_options.search_encrypted
         if not search_term:

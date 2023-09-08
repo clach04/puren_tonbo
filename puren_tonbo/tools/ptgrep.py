@@ -69,6 +69,7 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
     ripgrep = not options.grep
     search_encrypted = options.search_encrypted
     search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
+    only_filename_results = options.find_only_filename or options.files_with_matches
 
     if options.time:
         start_time = time.time()
@@ -85,7 +86,7 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
             #print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty and/or log instead
             notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
 
-            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, find_only_filename=options.find_only_filename, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
+            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, find_only_filename=options.find_only_filename, files_with_matches=options.files_with_matches, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
                 filename, hit_detail = hit
                 #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
                 if filename:
@@ -93,7 +94,7 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
                         filename = os.path.join(path_to_search, filename)
                     if count_files_matched:
                         result.append(filename)
-                    if ripgrep or options.find_only_filename:
+                    if ripgrep or only_filename_results:
                         filename = '%s' % filename  # ripgrep/ack/ag uses filename only
                     else:
                         # grep - TODO should this be conditional on line numbers and/or wild card?
@@ -107,7 +108,7 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
                     filename = ''
                 if use_color:
                     filename = color_filename + filename + color_reset
-                if options.find_only_filename:
+                if only_filename_results:
                     print('%s' % (filename, ))
                     continue
                 if ripgrep:
@@ -156,7 +157,7 @@ def main(argv=None):
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
     parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")
-    parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="print only names of FILEs with selected lines", action="store_true")  # BUG this us currently a NOOP https://github.com/clach04/puren_tonbo/issues/69
+    parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="Only print filenames that contain matches", action="store_true")
     parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
     parser.add_option("-n", "--line_numbers", help="Print line number with output lines (grep format only)", action="store_true")  # grep uses hypen; --line-number
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")
