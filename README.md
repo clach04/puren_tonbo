@@ -117,6 +117,14 @@ A grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/
     python -m puren_tonbo.tools.ptgrep -e -p password Better
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -e -p password Better
 
+Find all instances of "king", case-insensitive (note; matches `taking`):
+
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -i king
+
+Find all words "king", case-insensitive:
+
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -i -r \bking\b
+
 ### ptig
 
 Command line interactive search tool, that also supports viewing and editing.
