@@ -83,7 +83,7 @@ class FakeOptions:  # to match ptgrep (OptParse) options
     regex_search = False
     line_numbers = True
     grep = False  # i.e ripgrep=True
-    files_with_matches = False  # set to True to only search on filename - FIXME BUG this only searches filenames, it does NOT restrict display to only filenames. https://github.com/clach04/puren_tonbo/issues/69
+    find_only_filename = False  # set to True to only search on filename
     search_encrypted = False  # TODO add away to change this (set...
     search_is_regex = False
     time = True
@@ -101,12 +101,12 @@ class FakeOptions:  # to match ptgrep (OptParse) options
 
 
 # Extracted (subset) from ptgrep.main()
-# TODO mix of snake_case and hypen-case flags/options, e.g. files_with_matches
 grep_parser = OptionParser(usage='usage: %prog [options] [search_term]',
                         prog='grep',
                         description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
 grep_parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
-grep_parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="print only names of FILEs with selected lines", action="store_true")
+grep_parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")
+grep_parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="print only names of FILEs with selected lines", action="store_true")  # BUG NOOP
 grep_parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
 grep_parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
 grep_help = grep_parser.format_help()
@@ -571,7 +571,7 @@ See use_pager option, e.g. set use_pager=True
             search_term = grep_parser_args[0]
             # TODO consider a loop of get /set attr
             options.ignore_case = options.ignore_case or grep_parser_options.ignore_case
-            options.files_with_matches = options.files_with_matches or grep_parser_options.files_with_matches
+            options.find_only_filename = options.find_only_filename or grep_parser_options.find_only_filename
             options.regex_search = options.regex_search or grep_parser_options.regex_search
             options.search_encrypted = options.search_encrypted or grep_parser_options.search_encrypted
         if not search_term:
@@ -606,7 +606,7 @@ See use_pager option, e.g. set use_pager=True
         password_func = options.password or puren_tonbo.caching_console_password_prompt
         use_color = options.use_color
         grep_options = FakeOptions(options)
-        grep_options.files_with_matches = True  # same as grep but filenames only
+        grep_options.find_only_filename = True  # same as grep but filenames only
         grep_options.search_encrypted = True  # TODO review, this seems like a reasonable default and password not needed for name matching
 
         self.file_hits = ptgrep.grep(search_term, paths_to_search, grep_options, use_color, password_func, note_encoding)
