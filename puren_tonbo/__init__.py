@@ -865,7 +865,7 @@ def plaintext_filename_filter(in_filename):
             return True
     return False
 
-encrypted_extensions = puren_tonbo.supported_filetypes_info(encrypted_only=True)
+encrypted_extensions = list(puren_tonbo.supported_filetypes_info(encrypted_only=True))  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
 def encrypted_filename_filter(filename):
     filename_lower = filename.lower()
     for file_extension in encrypted_extensions:
