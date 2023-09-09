@@ -60,7 +60,8 @@ def main(argv=None):
     parser.add_option("-e", "--encrypt", action="store_false", dest="decrypt",
                         help="encrypt in_filename")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
-    parser.add_option("--no-prompt", help="do not prompt for password", action="store_true")
+    parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; any,text", default="any")
+    parser.add_option("--no-prompt", "--no_prompt", help="do not prompt for password", action="store_true")
     parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint)")
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
@@ -127,12 +128,14 @@ def main(argv=None):
         #print('DEBUG tmp_out_filename %r' % tmp_out_filename)  # TODO replace with logging.debug call
 
     if options.no_prompt:
+        options.password_prompt = None
         default_password_value = ''  # empty password, cause a bad password error
     else:
+        options.password_prompt = options.password_prompt.split(',')  # TODO validation options? for now rely on puren_tonbo.getpassfunc()
         default_password_value = None
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or default_password_value
     if password is None:
-        password = getpass.getpass("Password:")
+        password = puren_tonbo.getpassfunc("Password:", preference_list=options.password_prompt)
     if not isinstance(password, bytes):
         password = password.encode('us-ascii')
 

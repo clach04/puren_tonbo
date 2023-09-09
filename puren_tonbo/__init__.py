@@ -652,7 +652,11 @@ def debug_get_password():
 
 #################
 
-def getpassfunc(prompt=None):
+# TODO replace with plugin classes
+# TODO see dirname param in gen_caching_get_password()
+def getpassfunc(prompt=None, preference_list=None):
+    preference_list = preference_list or ['any']
+    # text
     if prompt:
         if sys.platform == 'win32':  # and isinstance(prompt, unicode):  # FIXME better windows check and unicode check
             #if windows, deal with unicode problem in console
