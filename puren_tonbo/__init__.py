@@ -653,6 +653,9 @@ def debug_get_password():
 #################
 
 # TODO replace with plugin classes
+def supported_password_prompt_mechanisms():
+    return ('any', 'text')
+
 # TODO see dirname param in gen_caching_get_password()
 def getpassfunc(prompt=None, preference_list=None):
     preference_list = preference_list or ['any']

@@ -60,7 +60,7 @@ def main(argv=None):
     parser.add_option("-e", "--encrypt", action="store_false", dest="decrypt",
                         help="encrypt in_filename")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
-    parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; any,text", default="any")
+    parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; " + ','.join(puren_tonbo.supported_password_prompt_mechanisms()), default="any")
     parser.add_option("--no-prompt", "--no_prompt", help="do not prompt for password", action="store_true")
     parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint)")
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
