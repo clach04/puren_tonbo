@@ -20,6 +20,7 @@
 --  * test cp1252/latin1 read/write
 
 local is_win = props['PLAT_WIN']=="1"
+local disable_save = false
 
 -- http://lua-users.org/wiki/StringRecipes
 local function starts_with(str, start)
@@ -101,6 +102,10 @@ local function SaveEncryptedFile(filename)
   if IsPurenTonboEncryptedFilename(filename) then
     --print('block CHI save')  -- to output pane
     --print(filename)  -- to output pane
+    if disable_save then
+        print('Refusing to save, saving disabled (probably due to failed decryption/load)')
+        return true -- indicate to editor NOT to save
+    end -- if disable_save
     -- consider setting editor.ReadOnly to true? But only for files that failed to load, not non-existing (i.e. new) files
     --editor:EmptyUndoBuffer()
     --editor.UndoCollection=1
@@ -197,6 +202,9 @@ local function LoadEncryptedFile(filename)
         editor:SetSavePoint()  -- indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
     else
         -- error handling
+        disable_save = true  -- don't allow accidental saving, this impacts all tabs for safety
+        -- https://github.com/clach04/puren_tonbo/issues/73 - scite lua integration will allow user to accidentally overrwrite encrypted files with error messages
+
         print('Error Decrypt loading ' .. filename)  -- to output pane
         print('popen_success: ' .. tostring(popen_success))
         -- either nil or false - so far only seen nil for both; failure to launch (missing PTCIPHER_EXE) and also exe launched and returned errors (like bad password)
