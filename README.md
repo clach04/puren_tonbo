@@ -259,6 +259,7 @@ Requires a ccrypt binary, download from https://ccrypt.sourceforge.net/
 (or debian apt). ccrypt binary/executable needs to be in the path or
 the environment variable CCRYPT_EXE needs to have the (full) path.
 
+    python -m puren_tonbo.tools.ptcipher --password password puren_tonbo/tests/data/aesop_win_ccrypt.cpt
     ptcipher --cipher=cpt -e -p test README.md -o README.cpt
     python -m puren_tonbo.tools.ptcipher --cipher=cpt -e -p test README.md -o README.cpt
 
