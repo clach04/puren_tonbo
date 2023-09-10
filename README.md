@@ -68,6 +68,8 @@ Purēntonbo
 ## Getting Started
 
     sudo apt-get install python-tk
+    sudo apt-get install ccrypt
+
 
 ### Without a source code checkout
 
