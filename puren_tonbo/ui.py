@@ -45,7 +45,7 @@ def supported_password_prompt_mechanisms():
 def getpassfunc(prompt=None, preference_list=None):
     preference_list = preference_list or ['any']
     # TODO text first?
-    if tkinter and ('tk' in preference_list or 'any' in preference_list):
+    if tkinter and ('tk' in preference_list or 'gui' in preference_list or 'any' in preference_list):
         return tk_getpass(prompt)
 
     # text
