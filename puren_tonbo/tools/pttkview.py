@@ -19,9 +19,18 @@ is_win = (sys.platform == 'win32')
 if is_win:
     import ctypes
 
-import tkinter
-import tkinter.simpledialog
-import tkinter.scrolledtext as ScrolledText
+try:
+    # Python 3
+    import tkinter
+    #import tkinter.simpledialog
+    from tkinter.simpledialog import askstring
+    import tkinter.scrolledtext as ScrolledText
+except ImportError:
+    # Python 2
+    import Tkinter as tkinter
+    from tkSimpleDialog import askstring
+    import ScrolledText
+
 
 import puren_tonbo
 
@@ -65,7 +74,7 @@ def main(argv=None):
     log = logging.getLogger("pttkview")
     log.setLevel(logging.DEBUG)
     disable_logging = False
-    disable_logging = True  # TODO pickup from command line, env, config?
+    #disable_logging = True  # TODO pickup from command line, env, config?
     if disable_logging:
         log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
 
@@ -122,11 +131,31 @@ def main(argv=None):
     main_window = tkinter.Tk()
     main_window.title('pttkview - ' + os.path.basename(in_filename))
     #main_window.iconbitmap(default=icon_full_path)  # PNG not supported, needs to be Windows ico (icon) format?
-    main_window.iconphoto(False, tkinter.PhotoImage(file=icon_full_path))  # currently a place holder image
+    try:
+        main_window.iconphoto(False, tkinter.PhotoImage(file=icon_full_path))  # currently a place holder image  - py3
+    except AttributeError:
+        # py2
+        pass  # take default for now
+        #icon_full_path = os.path.join(os.path.dirname(puren_tonbo.__file__), 'resources', 'icon512x512.gif')
+        #main_window.iconbitmap(False, tkinter.PhotoImage(canvas=tkinter.Canvas(main_window, width=512, height=512, bg="#000000"), file=icon_full_path))  # py2?
+    #iconbitmap = wm_iconbitmap(self, bitmap=None, default=None)
+    """
+    iconbitmap = wm_iconbitmap(self, bitmap=None, default=None)
+        Set bitmap for the iconified widget to BITMAP. Return
+        the bitmap if None is given.
+
+        Under Windows, the DEFAULT parameter can be used to set the icon
+        for the widget and any descendents that don't have an icon set
+        explicitly.  DEFAULT can be the relative path to a .ico file
+        (example: root.iconbitmap(default='myicon.ico') ).  See Tk
+        documentation for more information.
+    """
 
 
     if not password and puren_tonbo.is_encrypted(in_filename):
-        password = tkinter.simpledialog.askstring('pttkview', 'Password', show='*')
+        main_window.withdraw()  # hide/remove blank window that shows up with Python 2.7, not seen with 3.11
+        password = askstring('pttkview', 'Password', show='*')
+        main_window.deiconify()  # restore hidden window
     if password and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
