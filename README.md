@@ -205,6 +205,33 @@ Also see https://github.com/clach04/puren_tonbo/wiki/tool-ptig
     ptig: 🔎 exit
     Quitting...
 
+#### ptig config
+
+Config for ptig is the regular config file, with additional (optional) ptig section:
+
+    {
+        "_version_created_with": "0.0.dev3",
+        "codec": [
+            "utf8",
+            "cp1252"
+        ],
+        "default_encryption_ext": "chi",
+        "default_text_ext": "txt",
+        "note_root": "C:\\Users\\yourname\\tombo",
+        "ptig": {
+            "#init": ["set ic", "set enc"],
+            "init": ["set ic"],
+            "editor": "start scite",
+            "file_browser": "explorer",
+            "prompt": "ptig: ? ",
+            "use_pager": false
+        }
+    }
+
+NOTE options for editor along with `init` which is a **list** of commands to issue on start up.
+For example, enabling case insensitive search. There is a commented out example which enables encrypted file search.
+
+
 ### pttkview
 
 A simple GUI viewer using the tk toolkit:

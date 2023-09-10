@@ -693,6 +693,8 @@ def main(argv=None):
 
     interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=grep_options)
     interpreter.onecmd('version')
+    for command in ptig_options.get('init', []):
+        interpreter.onecmd(command)
     interpreter.cmdloop()
 
     return 0
