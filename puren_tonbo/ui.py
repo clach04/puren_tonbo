@@ -31,7 +31,7 @@ except ImportError:
 
 def tk_getpass(prompt):
     tkinter.Tk().withdraw()
-    password = askstring('pttkview', 'Password', show='*')
+    password = askstring('puren tonbo', 'Password', show='*')
     if password and not isinstance(password, bytes):
         password = password.encode('us-ascii')
     return password
