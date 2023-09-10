@@ -67,6 +67,8 @@ Purēntonbo
 
 ## Getting Started
 
+    sudo apt-get install python-tk
+
 ### Without a source code checkout
 
     pip uninstall puren_tonbo ; python -m pip install --upgrade git+https://github.com/clach04/chi_io.git  git+https://github.com/clach04/puren_tonbo.git
@@ -235,6 +237,8 @@ Quick demo:
 
     ptcipher --password password --decrypt puren_tonbo/tests/data/aesop.chi
     ptcipher --password password --decrypt puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
+    python -m puren_tonbo.tools.ptcipher --password password --decrypt puren_tonbo/tests/data/aesop.chi
+
 
 #### Tombo Blowfish CHI
 
