@@ -1,5 +1,9 @@
 # UI
 
+import os
+import sys
+
+
 try:
     import getpass
 except ImportError:
@@ -45,15 +49,17 @@ def supported_password_prompt_mechanisms():
 def getpassfunc(prompt=None, preference_list=None):
     preference_list = preference_list or ['any']
     # TODO text first?
+    if getpass and ('text' in preference_list or 'any' in preference_list):
+        # text
+        if prompt:
+            if sys.platform == 'win32':  # and isinstance(prompt, unicode):  # FIXME better windows check and unicode check
+                #if windows, deal with unicode problem in console
+                # TODO add Windows check here!
+                prompt = repr(prompt)  # consider us-ascii with replacement character encoding...
+            return getpass.getpass(prompt)
+        else:
+            return getpass.getpass()
+
     if tkinter and ('tk' in preference_list or 'gui' in preference_list or 'any' in preference_list):
         return tk_getpass(prompt)
 
-    # text
-    if prompt:
-        if sys.platform == 'win32':  # and isinstance(prompt, unicode):  # FIXME better windows check and unicode check
-            #if windows, deal with unicode problem in console
-            # TODO add Windows check here!
-            prompt = repr(prompt)  # consider us-ascii with replacement character encoding...
-        return getpass.getpass(prompt)
-    else:
-        return getpass.getpass()
