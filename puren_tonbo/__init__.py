@@ -2,22 +2,6 @@
 import bisect
 import datetime
 import errno
-
-try:
-    import getpass
-except ImportError:
-    class getpass(object):
-        def getpass(cls, prompt=None, stream=None):
-            if prompt is None:
-                prompt=''
-            if stream is None:
-                stream=sys.stdout
-            prompt=prompt+ ' (warning password WILL echo): '
-            stream.write(prompt)
-            result = raw_input('') # or simply ignore stream??
-            return result
-        getpass = classmethod(getpass)
-
 import json
 import locale
 import logging
@@ -28,6 +12,7 @@ import sys
 import tempfile
 
 from ._version import __version__, __version_info__
+from . import ui
 
 def fake_module(name):
     # Fail with a clear message (possibly at an unexpected time)
@@ -653,22 +638,6 @@ def debug_get_password():
 #################
 
 # TODO replace with plugin classes
-def supported_password_prompt_mechanisms():
-    return ('any', 'text')
-
-# TODO see dirname param in gen_caching_get_password()
-def getpassfunc(prompt=None, preference_list=None):
-    preference_list = preference_list or ['any']
-    # text
-    if prompt:
-        if sys.platform == 'win32':  # and isinstance(prompt, unicode):  # FIXME better windows check and unicode check
-            #if windows, deal with unicode problem in console
-            # TODO add Windows check here!
-            prompt = repr(prompt)  # consider us-ascii with replacement character encoding...
-        return getpass.getpass(prompt)
-    else:
-        return getpass.getpass()
-
 class gen_caching_get_password(object):
     def __init__(self, dirname=None):
         """If dirname is specified, removes that part of the pathname when prompting for the password for that file"""
@@ -693,7 +662,7 @@ class gen_caching_get_password(object):
                             prompt = "Password for note %s:" % filename
                         else:
                             prompt = "Password for file %s:" % filename
-                self.user_password = getpassfunc(prompt)
+                self.user_password = ui.getpassfunc(prompt)
                 if self.user_password  is None or self.user_password  == b'':
                     self.user_password = None
                 """
@@ -711,7 +680,7 @@ class gen_caching_get_passwordWIP(object):
         self.user_password = None
         self.dirname = dirname
         if promptfunc is None:
-            promptfunc = getpassfunc
+            promptfunc = ui.getpassfunc
         self.promptfunc = promptfunc
     def gen_func(self):
         ## TODO add (optional) timeout "forget"/wipe password from memory
