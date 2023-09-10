@@ -386,7 +386,24 @@ Examples
     do_res = do_results
     do_r = do_results
 
-    def do_edit(self, line=None):
+    def do_edit_multiple(self, line=None):
+        """edit multiple files from numbers
+            en 1,3
+            en 1 3
+        would send all two files (assuming there are at least 3 hits) to editor
+        NOTE can potentially include filenames (assuming no spaces, there is no lexing going on [yet])
+        More control than `edit !`
+        """
+        if line is None:
+            return
+        line = line.replace(',', ' ')
+        filename_list = []
+        for entry in line.split():
+            filename_list.append(self.validate_result_id(entry))
+        self.do_edit(line=None, filename_list=filename_list)
+    do_en = do_em = do_editmultiple = do_edit_multiple
+
+    def do_edit(self, line=None, filename_list=None):
         """Edit using external $PT_VISUAL, $VISUAL or $EDITOR, ptig.editor in config file with fall backs if unset.
 
 If not set:
@@ -414,23 +431,32 @@ To set in config file:
 For Windows use "start" so that ptig does NOT wait for editor to exit.
 Use ptconfig commandline tool to generate skeleton config.
         """
-        line = self.validate_result_id(line)
-        if line is None:
-            return
-        filename = line
+        filename_list = filename_list or []
+        if not filename_list:
+            line = self.validate_result_id(line)
+            if line is None and filename_list is None:
+                return
+            filename = line
+            if filename == '!':
+                filename_list = filename_list or self.file_hits
+        else:
+            filename = None
+        #import pdb; pdb.set_trace()
+        # TODO debug "e `" editor got opened, not a valid file should this be caught? see validate_result_id() which currently does NOT validate filenames (callers do that later)
         editor = os.environ.get('PT_VISUAL') or os.environ.get('VISUAL') or os.environ.get('EDITOR') or self.pt_config['ptig'].get('editor')
-        if puren_tonbo.is_encrypted(filename):
-            # Prompt for password for editors that won't prompt
-            # TODO how to indicate whether ptig should prompt (and set environment variable)?
-            # FIXME if a bad password is used, the same bad password will be used on next edit (unless cat is issued first)
-            password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
-            if callable(password_func):
-                password = password_func('Password for %s' % filename)
-            else:
-                password = password_func
-            if password and  isinstance(password, bytes):
-                password = password.decode('us-ascii')
-            os.environ['PT_PASSWORD'] = password  # Python 3.10.4 only supports strings for environment variables
+        if not filename_list:
+            if puren_tonbo.is_encrypted(filename):
+                # Prompt for password for editors that won't prompt
+                # TODO how to indicate whether ptig should prompt (and set environment variable)?
+                # FIXME if a bad password is used, the same bad password will be used on next edit (unless cat is issued first)
+                password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
+                if callable(password_func):
+                    password = password_func('Password for %s' % filename)
+                else:
+                    password = password_func
+                if password and  isinstance(password, bytes):
+                    password = password.decode('us-ascii')
+                os.environ['PT_PASSWORD'] = password  # Python 3.10.4 only supports strings for environment variables
         if not editor:
             # TODO pickup from config file
             # default a sane editor
@@ -444,16 +470,16 @@ Use ptconfig commandline tool to generate skeleton config.
         print('Using: %s' % editor)
         print('file: %s' % filename)
 
-        # TODO edit all result filnames
+        # TODO edit all result filenames
         #   e !
         #   e *
         #   e all
-        if filename == '!' and self.file_hits:  # TODO review
-            filename = '"' + '" "'.join(self.file_hits) + '"'  # each filename wrapped in double quotes
+        if filename_list:  # TODO review
+            filename = '"' + '" "'.join(filename_list) + '"'  # each filename wrapped in double quotes
             # TODO password prompt? above is_encrypted() call won't work
             # NOTE under Windows only will work for third party text editor/viewers
             #   notepad will not handle this
-            #print('%r' % self.file_hits)  # DEBUG
+            #print('%r' % filename_list)  # DEBUG
             #print('%s %s' % (editor, filename))  # DEBUG
             os.system('%s %s' % (editor, filename))  # already escaped list
         else:
