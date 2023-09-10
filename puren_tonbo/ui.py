@@ -44,7 +44,8 @@ def supported_password_prompt_mechanisms():
 # TODO see dirname param in gen_caching_get_password()
 def getpassfunc(prompt=None, preference_list=None):
     preference_list = preference_list or ['any']
-    if 'tk' in preference_list or 'any' in preference_list:
+    # TODO text first?
+    if tkinter and ('tk' in preference_list or 'any' in preference_list):
         return tk_getpass(prompt)
 
     # text
