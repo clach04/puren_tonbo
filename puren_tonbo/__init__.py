@@ -806,7 +806,7 @@ def keyring_get_password():
       * Determine service/username
     """
     log.info('keyring_get_password called')
-    if not keyring:
+    if not keyring or os.environ.get('PT_USE_KEYRING') is None:
         return None
     app, username = 'puren_tonbo', 'dumb'  # TODO review
     password = keyring.get_password(app, username)
