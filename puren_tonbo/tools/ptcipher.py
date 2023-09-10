@@ -15,6 +15,7 @@ import sys
 import tempfile
 
 import puren_tonbo
+import puren_tonbo.ui
 
 
 is_py3 = sys.version_info >= (3,)
@@ -60,7 +61,7 @@ def main(argv=None):
     parser.add_option("-e", "--encrypt", action="store_false", dest="decrypt",
                         help="encrypt in_filename")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
-    parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; " + ','.join(puren_tonbo.supported_password_prompt_mechanisms()), default="any")
+    parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; " + ','.join(puren_tonbo.ui.supported_password_prompt_mechanisms()), default="any")
     parser.add_option("--no-prompt", "--no_prompt", help="do not prompt for password", action="store_true")
     parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint)")
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
@@ -135,7 +136,7 @@ def main(argv=None):
         default_password_value = None
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or default_password_value
     if password is None:
-        password = puren_tonbo.getpassfunc("Password:", preference_list=options.password_prompt)
+        password = puren_tonbo.ui.getpassfunc("Password:", preference_list=options.password_prompt)
     if not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
