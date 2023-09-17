@@ -76,6 +76,7 @@ def main(argv=None):
     safe_mkdir(data_folder)
 
     test_table = generate_cp1252_extended_ascii_table()
+    three_lines = '\n' + 'line 1\nline 2\nline 3\n'
 
 
     note_encoding = ('utf8', 'cp1252')
@@ -83,6 +84,42 @@ def main(argv=None):
     handler_class = puren_tonbo.RawFile
     handler = handler_class()
 
+    def create_file(first_line, note_content=three_lines, file_extension='.txt'):
+        note_root.note_contents_save(note_text=first_line + note_content, filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_CLEAN)
+
+    create_file('001')
+    create_file('002')
+    create_file('')  # empty, memo
+    create_file('')  # repeat empty, memo(1)
+    #create_file('003.chi')  # TODO
+
+    backup_note_encoding = copy.copy(note_root.note_encoding)
+    note_root.note_encoding = 'cp1252'
+    create_file(u'table cp1252 encoded in cp1252' + u'\n' + test_table, note_content=test_table)
+    # restore
+    note_root.note_encoding = backup_note_encoding
+    create_file(u'table cp1252 encoded in utf8' + u'\n' + test_table, note_content=test_table)
+
+    safe_mkdir(os.path.join(data_folder, 'dir01'))  # note_root.note_contents_save() willl fail if directory does not aready exist
+    safe_mkdir(os.path.join(data_folder, 'dir02'))
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=None, backup=False, handler_class=handler_class)  # guess filename
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_CLEAN)  # guess filename
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_SNAKE_CASE)  # guess filename
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_KEBAB_CASE)  # guess filename
+
+    #import pdb ; pdb.set_trace()
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('dir01', '001.txt'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('dir01', '002.txt'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('dir02', '001.txt'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('dir02', '002.txt'), backup=False, handler_class=handler_class)
+    # TODO additiona nested directory with content
+
+    # create some empty directory trees
+    safe_mkdir(os.path.join(data_folder, 'a', 'b', 'c'))
+    safe_mkdir(os.path.join(data_folder, 'a', 'b', 'a'))
+    safe_mkdir(os.path.join(data_folder, 'a', 'd'))
+
+    """
     # no handler
     #puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in cp1252' + u'\n' + test_table, filename=u'1.txt', backup=False, use_tempfile=False, note_encoding='cp1252')
     #puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=u'2.txt', backup=False, use_tempfile=False, note_encoding='utf-8')
@@ -108,9 +145,11 @@ def main(argv=None):
     note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_KEBAB_CASE)  # guess filename
     note_root.note_contents_save(note_text = u'' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class)  # empty first line; guess filename
 
+
     # different each run
     note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_TIMESTAMP)  # guess filename
     note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_UUID4)  # guess filename
+    """
 
     return 0
 
