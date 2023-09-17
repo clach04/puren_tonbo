@@ -93,7 +93,11 @@ def main(argv=None):
         argv = sys.argv
 
     puren_tonbo.print_version_info()
-    config = puren_tonbo.get_config()  # TODO config filename as parameter
+    try:
+        config_filename = argv[1]
+    except:
+        config_filename = None
+    config = puren_tonbo.get_config(config_filename=config_filename)
     print('%s' % json.dumps(config, indent=4, sort_keys=True))
 
     print('Python %s on %s' % (sys.version, sys.platform))
