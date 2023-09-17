@@ -1107,6 +1107,18 @@ FILENAME_FIRSTLINE_SNAKE_CASE = 'FIRSTLINE_SNAKE_CASE'
 FILENAME_FIRSTLINE_KEBAB_CASE = 'FIRSTLINE_KEBAB_CASE'
 FILENAME_UUID4 = 'UUID4'
 
+
+def validate_filename_generator(filename_generator):
+    if filename_generator not in (
+        FILENAME_TIMESTAMP,
+        FILENAME_FIRSTLINE,
+        FILENAME_FIRSTLINE_CLEAN,
+        FILENAME_FIRSTLINE_SNAKE_CASE,
+        FILENAME_FIRSTLINE_KEBAB_CASE,
+        FILENAME_UUID4,
+    ):
+        raise NotImplementedError('filename generator %r' % filename_generator)
+
 def note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
     """Save/write/encrypt the notes contents, also see note_contents()
 
@@ -1121,15 +1133,8 @@ def note_contents_save_filename(note_text, filename=None, original_filename=None
 
     See note_contents_save_native_filename() docs
     """
-    if filename_generator not in (
-        FILENAME_TIMESTAMP,
-        FILENAME_FIRSTLINE,
-        FILENAME_FIRSTLINE_CLEAN,
-        FILENAME_FIRSTLINE_SNAKE_CASE,
-        FILENAME_FIRSTLINE_KEBAB_CASE,
-        FILENAME_UUID4,
-    ):
-        NotImplementedError('filename generator %r' % filename_generator)
+    validate_filename_generator(filename_generator)
+
     return note_contents_save_native_filename(note_text, filename=filename, original_filename=original_filename, handler=handler, dos_newlines=dos_newlines, backup=backup, use_tempfile=use_tempfile, note_encoding=note_encoding)
 
 
@@ -1279,6 +1284,19 @@ class FileSystemNotes(BaseNotes):
             raise PurenTonboIO('outside of note tree root')
         return fullpath_filename
 
+    def to_bytes(self, data_in_string):
+        if isinstance(data_in_string, (bytes, bytearray)):
+            return data_in_string  # assume bytes already
+        if isinstance(self.note_encoding, basestring):
+            return data_in_string.encode(self.note_encoding)
+        for encoding in self.note_encoding:
+            try:
+                result = data_in_string.encode(encoding)
+                return result
+            except UnicodeEncodeError:
+                pass  # try next
+        raise NotImplementedError('ran out of valid encodings to try')
+
     def to_string(self, data_in_bytes):
         #log.debug('self.note_encoding %r', self.note_encoding)
         #log.debug('data_in_bytes %r', data_in_bytes)
@@ -1293,6 +1311,7 @@ class FileSystemNotes(BaseNotes):
             except UnicodeDecodeError:
                 pass  # try next
             # TODO try/except
+        raise NotImplementedError('ran out of valid encodings to try')
 
     def unicode_path(self, filename):
         if isinstance(filename, bytes):
@@ -1381,6 +1400,7 @@ class FileSystemNotes(BaseNotes):
                 get_pass(filename=filename, reset=reset_password)
         dos_newlines=True means use Windows/DOS newlines, emulates win32 behavior of Tombo and is the default
         @return_bytes returns bytes rather than (Unicode) strings
+        @handler_class override handler, if ommited filename derives handler
         """
         try:
             filename = self.unicode_path(filename)
@@ -1438,7 +1458,7 @@ class FileSystemNotes(BaseNotes):
             log.debug("Encrypt/Decrypt problem. %r", (info,))
             raise
 
-    def note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE):
+    def note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
         """Save/write/encrypt the notes contents, also see note_contents()
 
         @note_text string contents to Save/write/encrypt, using self.to_string() to encode to disk (if bytes use as-is)
@@ -1447,12 +1467,78 @@ class FileSystemNotes(BaseNotes):
         if sub_dir is not specified `self.note_root` is assumed
         @original_full_filename should be relative to `self.note_root` and include directory name - will also help determine type and potentially remove once saved if filename has changed
         force  encryption or is filename the only technique?
+        @handler_class override handler, if ommited filename derives handler
         Failures during call should leave original filename present and untouched
 
 
         See note_contents_save_native_filename() docs
         """
-        raise NotImplementedError('TODO should call generate filename if required and call note_contents_save_filename()')
+        # sanity checks
+        if filename is not None and folder is not None:
+            raise NotImplementedError('incompatible/inconsistent filename: %r folder: %r ' % (filename, folder))
+        if original_filename is not None and folder is not None:
+            raise NotImplementedError('incompatible/inconsistent original_filename: %r folder: %r ' % (original_filename, folder))
+        if filename is None and original_filename:
+            raise NotImplementedError('renaming files base on content - incompatible/inconsistent original_filename: %r filename: %r ' % (original_filename, filename))
+        validate_filename_generator(filename_generator)
+
+
+        if original_filename:
+            # TODO just use the old name? or handle rename. rename depends on filename generator
+            if filename_generator in (FILENAME_TIMESTAMP, FILENAME_UUID4):
+                # do not rename... or they could have passed in the "new name"
+                filename = original_filename
+
+        if filename is None:
+            if handler_class is None:
+                raise NotImplementedError('Missing handler_class for missing filename, could default to Raw - make decision')
+            file_extension = handler_class=extensions[0]  # pick the first one
+            if folder:
+                native_folder = self.native_full_path(folder)
+            else:
+                native_folder = self.note_root
+            if filename_generator != 'FILENAME_TIMESTAMP':
+                raise NotImplementedError('filename_generator support of any kind')
+            filename_without_path_and_extension = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')  # FILENAME_TIMESTAMP
+            native_filename = os.path.join(native_folder, filename_without_path_and_extension + file_extension)
+            filename = self.abspath2relative(native_filename)
+
+
+        filename = self.unicode_path(filename)
+        fullpath_native_filename = self.native_full_path(filename)
+        handler_class = handler_class or filename2handler(filename)
+        #handler = handler_class(key=note_password)
+        handler = handler_class()
+
+        # x TODO unicode filename
+        # x TODO handler lookup
+        # TODO handler password pass in - see load code above
+        # TODO original filename and rename
+        plain_str_bytes = self.to_bytes(note_text)
+
+        use_tempfile = True  # do not offer external control over this
+        if use_tempfile:
+            timestamp_now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            out_file = tempfile.NamedTemporaryFile(
+                mode='wb',
+                dir=os.path.dirname(fullpath_native_filename),
+                prefix=os.path.basename(fullpath_native_filename) + timestamp_now,
+                delete=False
+            )
+            tmp_out_filename = out_file.name
+            log.debug('DEBUG tmp_out_filename %r', tmp_out_filename)
+        else:
+            out_file = open(fullpath_native_filename, 'wb')  # Untested
+
+        handler.write_to(out_file, plain_str_bytes)
+        out_file.close()
+
+        if backup:
+            if os.path.exists(fullpath_native_filename):
+                file_replace(fullpath_native_filename, fullpath_native_filename + '.bak')  # backup existing
+
+        if use_tempfile:
+            file_replace(tmp_out_filename, fullpath_native_filename)
 
     def note_delete(self, filename, backup=True):
         pass
