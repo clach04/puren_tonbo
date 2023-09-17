@@ -35,7 +35,7 @@ import time
 
 
 try:
-    #raise ImportError  # force use of dietcherrypy
+    if os.environ.get('FORCE_DIETCHERRYPY'):  raise ImportError()  # force usage of dietcherrypy
     import cherrypy
     dietcherrypy = dietcherrypy_wsgi = None
 except ImportError:
