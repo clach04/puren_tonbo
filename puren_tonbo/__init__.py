@@ -1766,7 +1766,7 @@ def get_config(config_filename=None):
     return defaults
 
 def print_version_info():
-    print(sys.version)
+    print(sys.version.replace('\n', ' '))
     print('')
     print('Puren Tonbo puren_tonbo version %s' % puren_tonbo.__version__)
     print('Formats:')
