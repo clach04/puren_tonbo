@@ -1263,9 +1263,12 @@ class FileSystemNotes(BaseNotes):
     def directory_contents(self, sub_dir=None):
         """Simple non-recursive Tombo note lister.
         Returns tuple (list of directories, list of files) in @sub_dir"""
-        if sub_dir and not self.restrict_to_note_root:
-            raise NotImplementedError('sub_dir param not implemented (and restriction code missing)')
-        sub_dir = self.note_root  # TODO implement sub_dir parameter suport
+        if sub_dir:
+            sub_dir = self.abspath(self.note_root, sub_dir)  # see if path is valid
+            sub_dir = self.abspath2relative(sub_dir)  # TODO handle exception
+            sub_dir = self.abspath(self.note_root, sub_dir)  # get real path now validation is complete
+        if sub_dir is None:
+            sub_dir = self.note_root
         return directory_contents(dirname=sub_dir)
 
     # FIXME Consider adding dictionary parameter for search options rather than new keywords each time?
