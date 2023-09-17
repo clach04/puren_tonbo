@@ -1052,15 +1052,17 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
         log.debug("Encrypt/Decrypt problem. %r", (info,))
         raise
 
-def note_contents_save_filename(note_text, filename=None, original_filename=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8'):
-    """Uses local file system IO api
+def note_contents_save_native_filename(note_text, filename=None, original_filename=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8'):
+    """Uses native/local file system IO api
     @handler is the encryption file handler to use, that is already initialized with a password
     @note_encoding if None, assume note_text is bytes, if a string use as the encoding, can also be a list, e.g. ['utf8', 'cp1252'] in which case use the first one
     """
     if filename is None:
-        NotImplementedError('filename is None')
+        raise NotImplementedError('filename is None')
     if original_filename is not None:
-        NotImplementedError('original_filename is not None')
+        raise NotImplementedError('original_filename is not None')
+    if handler is None:
+        raise NotImplementedError('handler is required')
 
     filename = unicode_path(filename)
     if note_encoding is None:
@@ -1096,6 +1098,40 @@ def note_contents_save_filename(note_text, filename=None, original_filename=None
 
     if use_tempfile:
         file_replace(tmp_out_filename, filename)
+
+# filename derivation/generation options/techniques
+FILENAME_TIMESTAMP = 'TIMESTAMP'  # could have lots of options, this one will be YYYY-MM-DD_hhmmss ## TODO handle case whdre generate more than one file in less than a sec?
+FILENAME_FIRSTLINE = 'FIRSTLINE'  # Tombo like, needs to be file system safe but retains spaces
+FILENAME_FIRSTLINE_CLEAN = 'FIRSTLINE_CLEAN'  # TODO firstline but clean, remove dupe hypens, underscores, spaces, etc.
+FILENAME_FIRSTLINE_SNAKE_CASE = 'FIRSTLINE_SNAKE_CASE'
+FILENAME_FIRSTLINE_KEBAB_CASE = 'FIRSTLINE_KEBAB_CASE'
+FILENAME_UUID4 = 'UUID4'
+
+def note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
+    """Save/write/encrypt the notes contents, also see note_contents()
+
+    @note_text string contents to Save/write/encrypt, using self.to_string() to encode to disk (if bytes use as-is)
+    @filename if specified is the filename to save to should be relative to `self.note_root` and include directory name
+        - if missing/None/False, use @folder to determine (new) location and original_filename to determine file type with @filename_generator to determine new filename
+    if sub_dir is not specified `self.note_root` is assumed
+    @original_full_filename should be relative to `self.note_root` and include directory name - will also help determine type and potentially remove once saved if filename has changed
+    force  encryption or is filename the only technique?
+    Failures during call should leave original filename present and untouched
+
+
+    See note_contents_save_native_filename() docs
+    """
+    if filename_generator not in (
+        FILENAME_TIMESTAMP,
+        FILENAME_FIRSTLINE,
+        FILENAME_FIRSTLINE_CLEAN,
+        FILENAME_FIRSTLINE_SNAKE_CASE,
+        FILENAME_FIRSTLINE_KEBAB_CASE,
+        FILENAME_UUID4,
+    ):
+        NotImplementedError('filename generator %r' % filename_generator)
+    return note_contents_save_native_filename(note_text, filename=filename, original_filename=original_filename, handler=handler, dos_newlines=dos_newlines, backup=backup, use_tempfile=use_tempfile, note_encoding=note_encoding)
+
 
 # Local file system navigation functions
 def walker(directory_name, process_file_function=None, process_dir_function=None, extra_params_dict=None):
@@ -1402,14 +1438,19 @@ class FileSystemNotes(BaseNotes):
             log.debug("Encrypt/Decrypt problem. %r", (info,))
             raise
 
-    def note_contents_save(self, note_text, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
-        """Save/write/encrypt the contents, also see note_contents()
+    def note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE):
+        """Save/write/encrypt the notes contents, also see note_contents()
 
-        Save contents of the string @note_text, to @filename if specified else derive filename from first line in note.
+        @note_text string contents to Save/write/encrypt, using self.to_string() to encode to disk (if bytes use as-is)
+        @filename if specified is the filename to save to should be relative to `self.note_root` and include directory name
+            - if missing/None/False, use @folder to determine (new) location and original_filename to determine file type with @filename_generator to determine new filename
         if sub_dir is not specified `self.note_root` is assumed
         @original_full_filename should be relative to `self.note_root` and include directory name - will also help determine type and potentially remove once saved if filename has changed
         force  encryption or is filename the only technique?
         Failures during call should leave original filename present and untouched
+
+
+        See note_contents_save_native_filename() docs
         """
         raise NotImplementedError('TODO should call generate filename if required and call note_contents_save_filename()')
 
