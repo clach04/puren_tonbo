@@ -28,6 +28,14 @@ http://localhost:8888/view?note=aesop_win_encryptpad.gpg&password=password
 
 """
 
+try:
+    # Python 3.8 and later
+    # py3
+    from html import escape as escapecgi
+except ImportError:
+    # py2
+    from cgi import escape as escapecgi
+
 import json
 import os
 import sys
@@ -51,6 +59,13 @@ except ImportError:
 
 
 import puren_tonbo
+
+
+def filename_no_path(in_path):
+    """basically os.path.basename(), but can potentially work on a path/URI that is not OS native
+    """
+    pos = in_path.rfind('/')
+    return in_path[pos + 1:]
 
 
 class Root(object):
@@ -86,6 +101,68 @@ class Root(object):
         return data
     view.exposed = True
 
+    # TODO file metadata; size, date
+    # TODO navigation links (parent directory, root directory)
+    # TODO recent (recursive)
+    def list(self, s=None, recursive=True):
+        """s is the subdir
+        """
+        ## aggressive, no caching (http 1.1) headers
+        cherrypy.response.headers['Expires'] = 'Sun, 19 Nov 1978 05:00:00 GMT'
+        cherrypy.response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
+        cherrypy.response.headers['Pragma'] = 'no-cache'
+
+        result = []
+        if s:
+            result.append('%s' % escapecgi(s))
+            result.append('</br>')
+            result.append('</br>')
+
+        if recursive:
+            if recursive in ('n', 'f', 'no', 'false'):
+                recursive = False
+            elif recursive in ('y', 't', 'yes', 'true'):
+                recursive = True
+            else:
+                recursive = False
+        if recursive:
+            dirnames = []
+            note_names = self.note_store.recurse_notes(sub_dir=s)  # TODO
+        else:
+            #import pdb ; pdb.set_trace()
+            dirnames, note_names = self.notes.directory_contents(s)
+        for dirname in dirnames:
+            if s:
+                note_sub_dir_urls_concat = s + '/' + dirname
+            else:
+                note_sub_dir_urls_concat = dirname
+            tmp_link = '<a href="list?recursive=n&s=%s">%s</a></br>' % (note_sub_dir_urls_concat, dirname)  # TODO unicode pathnames
+            result.append(tmp_link)
+        for filename in note_names:
+            if s:
+                filename = s + '/' + filename  # TODO could end up outside (parent of) note dir (../../)
+                disp_filename = filename_no_path(filename)
+            else:
+                disp_filename = filename
+            # TODO use a table? consider right-justifying links (or maybe move left?)
+            """TODO
+            <a href="view?note=%s&html=true">html</a>
+
+            <a href="markdown?note=%s">markdown note</a>
+
+            <a href="view?edit=true&note=%s">Edit</a>
+            """
+            tmp_html = """%s
+            <a href="view?note=%s">Raw Text</a>
+
+            </br>
+            """ % (escapecgi(disp_filename), filename, )
+            #""" % (escapecgi(disp_filename), filename, filename, filename, filename, )
+            result.append(tmp_html)
+        cherrypy.response.headers['Content-Type'] = 'text/html'
+        text_res = '\n'.join(result)  # TODO html escape......
+        return text_res
+    list.exposed = True
 
 
 def main(argv=None):
