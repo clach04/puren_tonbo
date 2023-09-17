@@ -106,8 +106,9 @@ def main(argv=None):
     webapp = Root(config)
 
     # TODO server_port in config
-    server_port = os.environ.get('DIFF_PORT') or 8888
+    server_port = os.environ.get('LISTEN_PORT') or 8888
     server_port = int(server_port) or 8888
+    print('http://localhost:%d' % server_port)
     if dietcherrypy:
         cherrypy.dietcherry_start(server_host=None, server_port=server_port, root_class=webapp)
     else:
