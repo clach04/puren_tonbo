@@ -1212,16 +1212,26 @@ class FileSystemNotes(BaseNotes):
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
 
     def abspath2relative(self, input_path):
-        """returns input_path with (leading) self.note_root removed.
-        If ignore_path is not at the start of the input_path, raise error"""
+        """validate absolute native path, return relative path with with (leading) self.note_root removed.
+        If ignore_path is not at the start of the input_path, raise error
+        TODO how is the root dir handled? return / or '' empty string?"""
+        print('')
+        print('abspath2relative input_path:%r' % input_path)
         abs_ignore_path = self.abs_ignore_path
         #abs_input_path = os.path.abspath(input_path)
         abs_input_path = input_path
+        print('abspath2relative abs_input_path:%r' % abs_input_path)
+        print('abspath2relative abs_ignore_path:%r' % abs_ignore_path)
         if abs_input_path.startswith(abs_ignore_path):
+            print('abspath2relative return:%r' % abs_input_path[len(abs_ignore_path):])
             return abs_input_path[len(abs_ignore_path):]
+        elif abs_input_path + '/' == abs_ignore_path:
+            return ''
         raise PurenTonboException('path not in note tree')
 
-    def abspath(self, sub_dir, filename):
+    def native_full_path(self, filename):
+        """validate and convert relative path to absolute native path
+        """
         filename = self.unicode_path(filename)
         fullpath_filename = os.path.join(self.note_root, filename)
         fullpath_filename = os.path.abspath(fullpath_filename)
@@ -1264,10 +1274,8 @@ class FileSystemNotes(BaseNotes):
         """Simple non-recursive Tombo note lister.
         Returns tuple (list of directories, list of files) in @sub_dir"""
         if sub_dir:
-            sub_dir = self.abspath(self.note_root, sub_dir)  # see if path is valid
-            sub_dir = self.abspath2relative(sub_dir)  # TODO handle exception
-            sub_dir = self.abspath(self.note_root, sub_dir)  # get real path now validation is complete
-        if sub_dir is None:
+            sub_dir = self.native_full_path(sub_dir)  # see if path is valid, get native path
+        else:
             sub_dir = self.note_root
         return directory_contents(dirname=sub_dir)
 
@@ -1334,7 +1342,7 @@ class FileSystemNotes(BaseNotes):
         """
         try:
             filename = self.unicode_path(filename)
-            fullpath_filename = self.abspath(self.note_root, filename)
+            fullpath_filename = self.native_full_path(filename)
 
 
             handler_class = handler_class or filename2handler(filename)

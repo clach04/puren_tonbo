@@ -132,12 +132,18 @@ class Root(object):
         else:
             #import pdb ; pdb.set_trace()
             dirnames, note_names = self.notes.directory_contents(s)
+        if s:
+            # parent dir
+            sub_dir = self.notes.native_full_path(s)  # validate path  # TODO this is overkill and essentially the same check twice
+            sub_dir = self.notes.abspath2relative(sub_dir)  # validate path
+            parent_dir = sub_dir + '/..'
+            result.append('<a href="list?recursive=n&s=%s">..</a></br></br>' % parent_dir)  # TODO escape/URI encoding needed here?
         for dirname in dirnames:
             if s:
                 note_sub_dir_urls_concat = s + '/' + dirname
             else:
                 note_sub_dir_urls_concat = dirname
-            tmp_link = '<a href="list?recursive=n&s=%s">%s</a></br>' % (note_sub_dir_urls_concat, dirname)  # TODO unicode pathnames
+            tmp_link = '<a href="list?recursive=n&s=%s">%s</a></br>' % (note_sub_dir_urls_concat, dirname)  # TODO unicode pathnames   # TODO escape/URI encoding needed here?
             result.append(tmp_link)
         for filename in note_names:
             if s:
