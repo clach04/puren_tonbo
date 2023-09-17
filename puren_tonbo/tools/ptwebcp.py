@@ -137,6 +137,8 @@ class Root(object):
             sub_dir = self.notes.native_full_path(s)  # validate path  # TODO this is overkill and essentially the same check twice
             sub_dir = self.notes.abspath2relative(sub_dir)  # validate path
             parent_dir = sub_dir + '/..'
+            parent_dir = self.notes.native_full_path(parent_dir)  # validate path  # TODO this is overkill and essentially the same check twice
+            parent_dir = self.notes.abspath2relative(parent_dir)  # validate path
             result.append('<a href="list?recursive=n&s=%s">..</a></br></br>' % parent_dir)  # TODO escape/URI encoding needed here?
         for dirname in dirnames:
             if s:
