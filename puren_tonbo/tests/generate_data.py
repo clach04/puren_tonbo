@@ -59,49 +59,61 @@ def generate_cp1252_extended_ascii_table():
         result.append(u'%3d  0x%02x  %s' % (counter, counter, single_char))
     return u'\n'.join(result)
 
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
 
-print('Python %s on %s' % (sys.version, sys.platform))
+    puren_tonbo.print_version_info()
+    #print('Python %s on %s' % (sys.version, sys.platform))
 
-data_folder = os.path.join(
-                os.path.dirname(puren_tonbo.tests.__file__),
-                'tempdata'
-)
-safe_mkdir(data_folder)
+    try:
+        data_folder = argv[1]
+    except IndexError:
+        data_folder = os.path.join(
+                        os.path.dirname(puren_tonbo.tests.__file__),
+                        'tempdata'
+        )
+    safe_mkdir(data_folder)
 
-test_table = generate_cp1252_extended_ascii_table()
-
-
-note_encoding = ('utf8', 'cp1252')
-note_root = puren_tonbo.FileSystemNotes(data_folder, note_encoding)
-handler_class = puren_tonbo.RawFile
-handler = handler_class()
-
-# no handler
-#puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in cp1252' + u'\n' + test_table, filename=u'1.txt', backup=False, use_tempfile=False, note_encoding='cp1252')
-#puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=u'2.txt', backup=False, use_tempfile=False, note_encoding='utf-8')
-
-#puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in cp1252' + u'\n' + test_table, filename=u'1.txt', handler=handler, backup=False, use_tempfile=False, note_encoding='cp1252')
-#puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=u'2.txt', handler=handler, backup=False, use_tempfile=False, note_encoding='utf-8')
+    test_table = generate_cp1252_extended_ascii_table()
 
 
-backup_note_encoding = copy.copy(note_root.note_encoding)
-print(backup_note_encoding, note_root.note_encoding)
-note_root.note_encoding = 'cp1252'
-print(backup_note_encoding, note_root.note_encoding)
-note_root.note_contents_save(note_text = u'table cp1252 encoded in cp1252' + u'\n' + test_table, filename=u'1.txt', backup=False, handler_class=handler_class)  # guess encoding.. so it tries utf8 which of course works fine, both files end up as utf8
+    note_encoding = ('utf8', 'cp1252')
+    note_root = puren_tonbo.FileSystemNotes(data_folder, note_encoding)
+    handler_class = puren_tonbo.RawFile
+    handler = handler_class()
 
-# restore
-note_root.note_encoding = backup_note_encoding
-print(backup_note_encoding, note_root.note_encoding)
-note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=u'2.txt', backup=False, handler_class=handler_class)  # guess encoding
+    # no handler
+    #puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in cp1252' + u'\n' + test_table, filename=u'1.txt', backup=False, use_tempfile=False, note_encoding='cp1252')
+    #puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=u'2.txt', backup=False, use_tempfile=False, note_encoding='utf-8')
 
-note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class)  # guess filename
-note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_CLEAN)  # guess filename
-note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_SNAKE_CASE)  # guess filename
-note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_KEBAB_CASE)  # guess filename
-note_root.note_contents_save(note_text = u'' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class)  # empty first line; guess filename
+    #puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in cp1252' + u'\n' + test_table, filename=u'1.txt', handler=handler, backup=False, use_tempfile=False, note_encoding='cp1252')
+    #puren_tonbo.note_contents_save_filename(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=u'2.txt', handler=handler, backup=False, use_tempfile=False, note_encoding='utf-8')
 
-# different each run
-note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_TIMESTAMP)  # guess filename
-note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_UUID4)  # guess filename
 
+    backup_note_encoding = copy.copy(note_root.note_encoding)
+    print(backup_note_encoding, note_root.note_encoding)
+    note_root.note_encoding = 'cp1252'
+    print(backup_note_encoding, note_root.note_encoding)
+    note_root.note_contents_save(note_text = u'table cp1252 encoded in cp1252' + u'\n' + test_table, filename=u'1.txt', backup=False, handler_class=handler_class)  # guess encoding.. so it tries utf8 which of course works fine, both files end up as utf8
+
+    # restore
+    note_root.note_encoding = backup_note_encoding
+    print(backup_note_encoding, note_root.note_encoding)
+    note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=u'2.txt', backup=False, handler_class=handler_class)  # guess encoding
+
+    note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class)  # guess filename
+    note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_CLEAN)  # guess filename
+    note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_SNAKE_CASE)  # guess filename
+    note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_KEBAB_CASE)  # guess filename
+    note_root.note_contents_save(note_text = u'' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class)  # empty first line; guess filename
+
+    # different each run
+    note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_TIMESTAMP)  # guess filename
+    note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_UUID4)  # guess filename
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
