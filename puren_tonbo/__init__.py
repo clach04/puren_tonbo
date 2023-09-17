@@ -1110,7 +1110,7 @@ FILENAME_UUID4 = 'UUID4'
 def validate_filename_generator(filename_generator):
     if filename_generator not in (
         FILENAME_TIMESTAMP,
-        FILENAME_FIRSTLINE,  # TODO Tombo like, empty should be "memo", "memo(1)", "memo(2)", ....
+        FILENAME_FIRSTLINE,  # TODO Tombo like, for missing first line returns "memo", "memo(1)", "memo(2)", ....
         FILENAME_FIRSTLINE_CLEAN,
         FILENAME_FIRSTLINE_SNAKE_CASE,
         FILENAME_FIRSTLINE_KEBAB_CASE,
@@ -1214,7 +1214,7 @@ def safe_filename(filename, replacement_char='_', allow_space=False, max_filenam
 
 
     if new_filename == '':
-        new_filename = 'unname_file'
+        new_filename = 'memo'
 
     if max_filename_length:
         if len(new_filename) > max_filename_length:
@@ -1615,6 +1615,7 @@ class FileSystemNotes(BaseNotes):
                 # do not rename... or they could have passed in the "new name"
                 filename = original_filename
 
+        generated_filename = False
         if filename is None:
             if handler_class is None:
                 raise NotImplementedError('Missing handler_class for missing filename, could default to Raw - make decision')
@@ -1625,11 +1626,20 @@ class FileSystemNotes(BaseNotes):
                 native_folder = self.note_root
             filename_without_path_and_extension = filename_generator_func(note_text)
             native_filename = os.path.join(native_folder, filename_without_path_and_extension + file_extension)
+            # now check if generated filename already exists, if so need to make unique
+            unique_counter = 1
+            while os.path.exists(native_filename):
+                #log.warn('generated filename %r already exists', native_filename)
+                unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
+                native_filename = os.path.join(native_folder, filename_without_path_and_extension + unique_part + file_extension)
+                unique_counter += 1
             filename = self.abspath2relative(native_filename)
+            generated_filename = True
 
 
         filename = self.unicode_path(filename)
         fullpath_native_filename = self.native_full_path(filename)
+
         handler_class = handler_class or filename2handler(filename)
         #handler = handler_class(key=note_password)
         handler = handler_class()
