@@ -55,6 +55,7 @@ class TestUtil(unittest.TestCase):
             """
 
 
+# (In Memory) encrypt/decryption tests for handlers
 
 class TestBaseEncryptedFileUtilBase(TestUtil):
     def check_get_what_you_put_in(self, test_data_bytes, test_password_bytes, encrypt_pt_handler_class, decrypt_pt_handler_class=None):
@@ -206,6 +207,8 @@ class TestBaseEncryptedFileVimDecrypt(TestBaseEncryptedFileUtil, TestBaseEncrypt
     def test_same_input_different_crypted_text(self):
         self.skip('VimCrypt encryption not implemented yet')
 
+
+# Tests decryption (read ONLY) of sample test data
 
 class TestFileSystemNotes(TestUtil):
     data_folder = os.path.join(
