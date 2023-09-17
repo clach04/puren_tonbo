@@ -95,4 +95,6 @@ note_root.note_encoding = backup_note_encoding
 print(backup_note_encoding, note_root.note_encoding)
 note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=u'2.txt', backup=False, handler_class=handler_class)  # guess encoding
 
+note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_TIMESTAMP)  # guess filename
+
 

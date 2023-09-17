@@ -1107,17 +1107,147 @@ FILENAME_FIRSTLINE_SNAKE_CASE = 'FIRSTLINE_SNAKE_CASE'
 FILENAME_FIRSTLINE_KEBAB_CASE = 'FIRSTLINE_KEBAB_CASE'
 FILENAME_UUID4 = 'UUID4'
 
-
 def validate_filename_generator(filename_generator):
     if filename_generator not in (
         FILENAME_TIMESTAMP,
-        FILENAME_FIRSTLINE,
+        FILENAME_FIRSTLINE,  # TODO Tombo like, empty should be "memo", "memo(1)", "memo(2)", ....
         FILENAME_FIRSTLINE_CLEAN,
         FILENAME_FIRSTLINE_SNAKE_CASE,
         FILENAME_FIRSTLINE_KEBAB_CASE,
-        FILENAME_UUID4,
+        FILENAME_UUID4,  # TODO
     ):
         raise NotImplementedError('filename generator %r' % filename_generator)
+
+def filename_generator_timestamp(note_text):
+    """FILENAME_TIMESTAMP
+    """
+    filename_without_path_and_extension = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')  # FILENAME_TIMESTAMP
+    return filename_without_path_and_extension
+
+
+def safe_filename(filename, replacement_char='_', allow_space=False, max_filename_length=100):
+    """safe filename for almost any platform, NOTE filename NOT pathname
+    does NOT handle paths, see blocked_filenames comments section below for details/example.
+    aka slugify()
+    # TODO max filename truncation?
+    """
+
+    if allow_space:  # UNTESTED
+        additional_allowed_characters = '-_ '
+    else:
+        additional_allowed_characters = '-_'
+    result = []
+    last_char = ''
+    for x in filename:
+        if not(x.isalnum() or x in additional_allowed_characters):
+            x = replacement_char
+        if x not in ['-', replacement_char] or last_char not in ['-', replacement_char]:
+            # avoid duplicate '_'
+            result.append(x)
+        last_char = x
+
+    new_filename = ''.join(result)
+    """now prefix _ infront of special names, mostly impacts Windows.
+    For example handle this sort of mess:
+
+        C:\tmp>echo hello > con.txt
+        hello
+
+        C:\tmp>echo hello > \tmp\con.txt
+        hello
+
+        C:\tmp>echo hello > C:\tmp\con.txt
+        hello
+
+        C:\tmp>echo hello > C:\tmp\_con.txt
+        C:\tmp>echo hello > C:\tmp\con_.txt
+
+    Doc refs:
+    * https://en.wikipedia.org/wiki/Filename#In_Windows
+    * https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file?redirectedfrom=MSDN
+        blocked_filenames = 'CON, PRN, AUX, NUL, COM0, COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9, LPT0, LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, LPT9'
+        and NULL for good measure
+
+    """
+    blocked_filenames = [
+        'CON',
+        'PRN',
+        'AUX',
+        'NUL',
+        'NULL',  # redundant but here for saftey incase approach changes
+        'COM0',
+        'COM1',
+        'COM2',
+        'COM3',
+        'COM4',
+        'COM5',
+        'COM6',
+        'COM7',
+        'COM8',
+        'COM9',
+        'LPT0',
+        'LPT1',
+        'LPT2',
+        'LPT3',
+        'LPT4',
+        'LPT5',
+        'LPT6',
+        'LPT7',
+        'LPT8',
+        'LPT9'
+        ]
+    new_filename_upper = new_filename.upper()
+    for device_name in blocked_filenames:
+        """
+        if new_filename_upper.startswith(device_name):
+            new_filename = '_' + new_filename
+            break
+        """
+        #if new_filename_upper == device_name or new_filename_upper.startswith(device_name + '.'):
+        # postfix an underscore/bar '_'  # TODO use double do help id possible problem filenames?
+        if new_filename_upper == device_name:
+            new_filename = new_filename + '_'
+            break
+        elif new_filename_upper.startswith(device_name + '.'):
+            new_filename = new_filename[:len(device_name)] + '_' +new_filename[len(device_name):]
+            break
+
+
+    if new_filename == '':
+        new_filename = 'unname_file'
+
+    if max_filename_length:
+        if len(new_filename) > max_filename_length:
+            new_filename = new_filename[:max_filename_length-2] + '__'  # append multiple '__' to indicate may want review
+
+    return new_filename
+
+def filename_generator_firstline(note_text):
+    """FILENAME_FIRSTLINE
+    """
+    generated_name = note_text[:note_text.find('\n')].strip()
+    return safe_filename(generated_name, allow_space=True)
+
+def filename_generator_firstline_clean_kebab_case(note_text):
+    """FILENAME_FIRSTLINE_KEBAB_CASE
+    """
+    generated_name = note_text[:note_text.find('\n')].strip()
+    return safe_filename(generated_name, replacement_char='-')
+
+def filename_generator_firstline_clean(note_text):
+    """FILENAME_FIRSTLINE_CLEAN
+    """
+    generated_name = note_text[:note_text.find('\n')].strip()
+    return safe_filename(generated_name)
+
+filename_generators = {
+    FILENAME_FIRSTLINE: filename_generator_firstline,
+    FILENAME_FIRSTLINE_CLEAN: filename_generator_firstline_clean,
+    FILENAME_FIRSTLINE_SNAKE_CASE: filename_generator_firstline_clean,
+    FILENAME_FIRSTLINE_KEBAB_CASE: filename_generator_firstline_clean_kebab_case,
+    FILENAME_TIMESTAMP: filename_generator_timestamp,
+}
+
 
 def note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
     """Save/write/encrypt the notes contents, also see note_contents()
@@ -1260,15 +1390,10 @@ class FileSystemNotes(BaseNotes):
         """validate absolute native path, return relative path with with (leading) self.note_root removed.
         If ignore_path is not at the start of the input_path, raise error
         TODO how is the root dir handled? return / or '' empty string?"""
-        print('')
-        print('abspath2relative input_path:%r' % input_path)
         abs_ignore_path = self.abs_ignore_path
         #abs_input_path = os.path.abspath(input_path)
         abs_input_path = input_path
-        print('abspath2relative abs_input_path:%r' % abs_input_path)
-        print('abspath2relative abs_ignore_path:%r' % abs_ignore_path)
         if abs_input_path.startswith(abs_ignore_path):
-            print('abspath2relative return:%r' % abs_input_path[len(abs_ignore_path):])
             return abs_input_path[len(abs_ignore_path):]
         elif abs_input_path + '/' == abs_ignore_path:
             return ''
@@ -1481,6 +1606,7 @@ class FileSystemNotes(BaseNotes):
         if filename is None and original_filename:
             raise NotImplementedError('renaming files base on content - incompatible/inconsistent original_filename: %r filename: %r ' % (original_filename, filename))
         validate_filename_generator(filename_generator)
+        filename_generator_func = filename_generators[filename_generator]
 
 
         if original_filename:
@@ -1492,14 +1618,12 @@ class FileSystemNotes(BaseNotes):
         if filename is None:
             if handler_class is None:
                 raise NotImplementedError('Missing handler_class for missing filename, could default to Raw - make decision')
-            file_extension = handler_class=extensions[0]  # pick the first one
+            file_extension = handler_class.extensions[0]  # pick the first one
             if folder:
                 native_folder = self.native_full_path(folder)
             else:
                 native_folder = self.note_root
-            if filename_generator != 'FILENAME_TIMESTAMP':
-                raise NotImplementedError('filename_generator support of any kind')
-            filename_without_path_and_extension = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')  # FILENAME_TIMESTAMP
+            filename_without_path_and_extension = filename_generator_func(note_text)
             native_filename = os.path.join(native_folder, filename_without_path_and_extension + file_extension)
             filename = self.abspath2relative(native_filename)
 
