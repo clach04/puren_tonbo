@@ -126,6 +126,7 @@ class Root(object):
             else:
                 recursive = False
         if recursive:
+            raise NotImplementedError('recursive listings')
             dirnames = []
             note_names = self.note_store.recurse_notes(sub_dir=s)  # TODO
         else:
