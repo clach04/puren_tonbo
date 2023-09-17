@@ -906,7 +906,9 @@ class BaseNotes(object):
         raise NotImplementedError('Implement in sub-class')
 
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
-        """@filename is relative to `self.note_root` and includes directory name if not in the root.
+        """load/read/decrypt notes file, also see note_contents_save()
+
+        @filename is relative to `self.note_root` and includes directory name if not in the root.
         @filename (extension) dictates encryption mode/format (if any)
         @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'. See caching_console_password_prompt() for an example.
             get_pass(filename=filename, reset=reset_password)
@@ -916,7 +918,9 @@ class BaseNotes(object):
         raise NotImplementedError('Implement in sub-class')
 
     def note_contents_save(self, note_text, sub_dir=None, filename=None, original_full_filename=None, get_pass=None, dos_newlines=True, backup=True):
-        """Save the contents in the string @note_text, to @filename if specified else derive filename from first line in note.
+        """Save/write/encrypt the contents, also see note_contents()
+
+        Save contents of the string @note_text, to @filename if specified else derive filename from first line in note.
         if sub_dir is not specified `self.note_root` is assumed
         @original_full_filename should be relative to `self.note_root` and include directory name - will also help determine type and potentially remove once saved if filename has changed
         force  encryption or is filename the only technique?
@@ -1332,7 +1336,9 @@ class FileSystemNotes(BaseNotes):
 
 
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
-        """@filename is relative to `self.note_root` and includes directory name if not in the root.
+        """load/read/decrypt notes file, also see note_contents_save()
+
+        @filename is relative to `self.note_root` and includes directory name if not in the root.
         @filename (extension) dictates encryption mode/format (if any)
         @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'.
             See caching_console_password_prompt() for an example. API expected:
@@ -1397,7 +1403,15 @@ class FileSystemNotes(BaseNotes):
             raise
 
     def note_contents_save(self, note_text, filename=None, original_filename=None, get_pass=None, dos_newlines=True, backup=True):
-        raise NotImplementedError('Implement in sub-class')
+        """Save/write/encrypt the contents, also see note_contents()
+
+        Save contents of the string @note_text, to @filename if specified else derive filename from first line in note.
+        if sub_dir is not specified `self.note_root` is assumed
+        @original_full_filename should be relative to `self.note_root` and include directory name - will also help determine type and potentially remove once saved if filename has changed
+        force  encryption or is filename the only technique?
+        Failures during call should leave original filename present and untouched
+        """
+        raise NotImplementedError('TODO should call generate filename if required and call note_contents_save_filename()')
 
     def note_delete(self, filename, backup=True):
         pass
