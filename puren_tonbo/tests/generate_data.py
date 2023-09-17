@@ -98,7 +98,9 @@ note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n'
 note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_TIMESTAMP)  # guess filename
 note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class)  # guess filename
 note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_CLEAN)  # guess filename
+note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_SNAKE_CASE)  # guess filename
 note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_KEBAB_CASE)  # guess filename
+note_root.note_contents_save(note_text = u'table cp1252 encoded in utf8' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_UUID4)  # guess filename
 note_root.note_contents_save(note_text = u'' + u'\n' + test_table,   filename=None, backup=False, handler_class=handler_class)  # empty first line; guess filename
 
 

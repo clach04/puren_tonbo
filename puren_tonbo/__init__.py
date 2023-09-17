@@ -10,6 +10,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import uuid
 
 from ._version import __version__, __version_info__
 from . import ui
@@ -1240,12 +1241,18 @@ def filename_generator_firstline_clean(note_text):
     generated_name = note_text[:note_text.find('\n')].strip()
     return safe_filename(generated_name)
 
+def filename_generator_uuid4(note_text):
+    """FILENAME_FIRSTLINE_UUID4
+    """
+    return str(uuid.uuid4())
+
 filename_generators = {
     FILENAME_FIRSTLINE: filename_generator_firstline,
     FILENAME_FIRSTLINE_CLEAN: filename_generator_firstline_clean,
     FILENAME_FIRSTLINE_SNAKE_CASE: filename_generator_firstline_clean,
     FILENAME_FIRSTLINE_KEBAB_CASE: filename_generator_firstline_clean_kebab_case,
     FILENAME_TIMESTAMP: filename_generator_timestamp,
+    FILENAME_UUID4: filename_generator_uuid4,
 }
 
 
