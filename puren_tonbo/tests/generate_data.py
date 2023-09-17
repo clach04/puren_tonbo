@@ -112,7 +112,15 @@ def main(argv=None):
     note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('dir01', '002.txt'), backup=False, handler_class=handler_class)
     note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('dir02', '001.txt'), backup=False, handler_class=handler_class)
     note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('dir02', '002.txt'), backup=False, handler_class=handler_class)
-    # TODO additiona nested directory with content
+    # TODO additional nested directory with content
+    safe_mkdir(os.path.join(data_folder, 'Refreshments', 'food'))
+    safe_mkdir(os.path.join(data_folder, 'Refreshments', 'drink'))
+    note_root.note_contents_save(note_text=u'sandwich' + u'\n' + u'', folder=os.path.join('Refreshments', 'food'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'fries' + u'\n' + u'', folder=os.path.join('Refreshments', 'food'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'cola' + u'\n' + u'', folder=os.path.join('Refreshments', 'drink'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'liquor' + u'\n' + u'', folder=os.path.join('Refreshments', 'drink'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'tea' + u'\n' + u'', folder=os.path.join('Refreshments', 'drink'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'\u9152' + u'\n' + u'', folder=os.path.join('Refreshments', 'drink'), backup=False, handler_class=handler_class)
 
     # create some empty directory trees
     safe_mkdir(os.path.join(data_folder, 'a', 'b', 'c'))
