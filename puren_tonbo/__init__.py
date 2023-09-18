@@ -1646,6 +1646,8 @@ class FileSystemNotes(BaseNotes):
 
         filename = self.unicode_path(filename)
         fullpath_native_filename = self.native_full_path(filename)
+        if original_filename and filename != original_filename:
+            raise NotImplementedError('renaming files not yet supported; original_filename !=  filename  %r != %r ' % (original_filename, filename))
 
         handler_class = handler_class or filename2handler(filename)
         #handler = handler_class(key=note_password)
