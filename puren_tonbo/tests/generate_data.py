@@ -77,6 +77,31 @@ def main(argv=None):
 
     test_table = generate_cp1252_extended_ascii_table()
     three_lines = '\n' + 'line 1\nline 2\nline 3\n'
+    aesop_frog_king = \
+'''\n\nThe Frogs Desiring a King\n\nThe Frogs were l\
+iving as happy as could be in a marshy swamp that just suited the\
+m; they went splashing about caring for nobody and nobody troubli\
+ng with them. But some of them thought that this was not right, t\
+hat they should have a king and a proper constitution, so they de\
+termined to send up a petition to Jove to give them what they wan\
+ted. "Mighty Jove," they cried, "send unto us a king that will ru\
+le over us and keep us in order." Jove laughed at their croaking,\
+ and threw down into the swamp a huge Log, which came down splash\
+ing into the swamp. The Frogs were frightened out of their lives \
+by the commotion made in their midst, and all rushed to the bank \
+to look at the horrible monster; but after a time, seeing that it\
+ did not move, one or two of the boldest of them ventured out tow\
+ards the Log, and even dared to touch it; still it did not move. \
+Then the greatest hero of the Frogs jumped upon the Log and comme\
+nced dancing up and down upon it, thereupon all the Frogs came an\
+d did the same; and for some time the Frogs went about their busi\
+ness every day without taking the slightest notice of their new K\
+ing Log lying in their midst. But this did not suit them, so they\
+ sent another petition to Jove, and said to him, "We want a real \
+king; one that will really rule over us." Now this made Jove angr\
+y, so he sent among them a big Stork that soon set to work gobbli\
+ng them all up. Then the Frogs repented when too late.\n\nBet\
+ter no rule than cruel rule.\n'''
 
 
     note_encoding = ('utf8', 'cp1252')
@@ -89,6 +114,7 @@ def main(argv=None):
 
     create_file('001')
     create_file('002')
+    create_file('aesop', note_content=aesop_frog_king)
     create_file('')  # empty, memo
     create_file('')  # repeat empty, memo(1)
     #create_file('003.chi')  # TODO
