@@ -110,10 +110,15 @@ ter no rule than cruel rule.\n'''
     handler = handler_class()
 
     def create_file(first_line, note_content=three_lines, file_extension='.txt'):
+        # FIXME `file_extension` currently a NOOP and ignored!
         note_root.note_contents_save(note_text=first_line + note_content, filename=None, backup=False, handler_class=handler_class, filename_generator=puren_tonbo.FILENAME_FIRSTLINE_CLEAN)
 
     create_file('001')
     create_file('002')
+    create_file('lower_text', file_extension='.txt')
+    create_file('upper_text', file_extension='.TXT')  # NOT working/implemented yet
+    create_file('lower_markdown', file_extension='.md')  # NOT working/implemented yet
+    create_file('upper_markdown', file_extension='.MD')  # NOT working/implemented yet
     create_file('aesop', note_content=aesop_frog_king)
     create_file('')  # empty, memo
     create_file('')  # repeat empty, memo(1)
@@ -147,6 +152,12 @@ ter no rule than cruel rule.\n'''
     note_root.note_contents_save(note_text=u'liquor' + u'\n' + u'', folder=os.path.join('Refreshments', 'drink'), backup=False, handler_class=handler_class)
     note_root.note_contents_save(note_text=u'tea' + u'\n' + u'', folder=os.path.join('Refreshments', 'drink'), backup=False, handler_class=handler_class)
     note_root.note_contents_save(note_text=u'\u9152' + u'\n' + u'', folder=os.path.join('Refreshments', 'drink'), backup=False, handler_class=handler_class)
+
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('real_lower_text.txt'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('real_upper_text.TXT'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('real_lower_markdown.md'), backup=False, handler_class=handler_class)
+    note_root.note_contents_save(note_text=u'test different styles' + u'\n' + three_lines, filename=os.path.join('real_upper_markdown.MD'), backup=False, handler_class=handler_class)
+
 
     # create some empty directory trees
     safe_mkdir(os.path.join(data_folder, 'a', 'b', 'c'))
