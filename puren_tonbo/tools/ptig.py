@@ -543,6 +543,8 @@ For numbers, 0 (zero) will view last hit.
         ret = subprocess.Popen([self.pt_config['ptig']['file_browser'], note_root]).wait()
         #print('ret: %r' % ret)  # always 1?
 
+    do_od = do_opendir
+
     def do_cat(self, line=None):
         """cat/type/view file. Takes either a number or filename.
 For numbers, 0 (zero) will view last hit. See results command.
