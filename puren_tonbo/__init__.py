@@ -1501,6 +1501,8 @@ class FileSystemNotes(BaseNotes):
             recurse_notes_func = fake_recurse_notes
         else:
             recurse_notes_func = self.recurse_notes
+        ignore_unsupported_filetypes = True
+        #ignore_unsupported_filetypes = False  # original behavior
         for tmp_filename in recurse_notes_func(search_path, is_note_filename_filter):
             if recurse_notes_func == fake_recurse_notes:
                 filename = tmp_filename  # already absolute?  TODO check abspath2relative() - could sanity check already absoloute?
@@ -1516,7 +1518,18 @@ class FileSystemNotes(BaseNotes):
             ## TODO decide what to do with include_contents - default or make a parameter
             if not filename_filter_str or include_contents:
                 #import pdb ; pdb.set_trace()
-                note_text = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
+                try:
+                    note_text = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
+                except UnsupportedFile:
+                    # TODO - what!? options; ignore, raise, treat as RawFile type
+                    log.warn('UnsupportedFile Ignored %r', filename)
+                    if ignore_unsupported_filetypes:
+                        pass
+                        note_text = ''
+                        continue
+                    else:
+                        log.error('UnsupportedFile %r', filename)  # todo exception trace?
+                        raise
                 search_res = grep_string(note_text, regex_object, highlight_text_start, highlight_text_stop, files_with_matches=files_with_matches)
                 if search_res:
                     yield (filename, search_res)
