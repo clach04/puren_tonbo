@@ -158,34 +158,45 @@ def main(argv=None):
     if password and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
-    handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
-    handler = handler_class(key=password)
-    if os.path.exists(in_filename):  # FIXME this is limited to native file system
-        in_file = open(in_filename, 'rb')
-        plain_str_bytes = handler.read_from(in_file)
-        log.debug('plain_str_bytes: %r', plain_str_bytes)
-        in_file.close()
-        plain_str = puren_tonbo.to_string(plain_str_bytes, note_encoding=note_encoding)
-    else:
-        base_filename = os.path.basename(in_filename)  # FIXME this is **probably** limited to native file system
-        for extension in handler_class.extensions:
-            if base_filename.endswith(extension):
-                base_filename = base_filename[:-len(extension)]
-                break
-        plain_str = '%s\n\n%s\n' % (base_filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    log.debug('plain_str:        %r', plain_str)
-    dos_newlines = True  # assume windows newlines
-    if dos_newlines:
-        plain_str = plain_str.replace('\r', '')
-
     menubar = tkinter.Menu(main_window)
     filemenu = tkinter.Menu(menubar, tearoff=0)
 
     st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True, autoseparators=True, maxundo=-1)
 
-    # TODO def load_file()
     def insert_timestamp(p=None, evt=None):
         st.insert(tkinter.INSERT, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))  # inserts at current cursor position
+
+    def load_file(p=None, evt=None):
+        # TODO move password prompt logic here?, password expected to be set earlier
+        log.debug('save_file')
+        log.debug('p: %r', p)
+        log.debug('evt: %r', evt)
+        if st.edit_modified():
+            raise NotImplementedError('Loading when text buffer has been modified')
+        handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
+        handler = handler_class(key=password)
+        if os.path.exists(in_filename):  # FIXME this is limited to native file system
+            in_file = open(in_filename, 'rb')
+            plain_str_bytes = handler.read_from(in_file)
+            log.debug('plain_str_bytes: %r', plain_str_bytes)
+            in_file.close()
+            plain_str = puren_tonbo.to_string(plain_str_bytes, note_encoding=note_encoding)
+        else:
+            base_filename = os.path.basename(in_filename)  # FIXME this is **probably** limited to native file system
+            for extension in handler_class.extensions:
+                if base_filename.endswith(extension):
+                    base_filename = base_filename[:-len(extension)]
+                    break
+            plain_str = '%s\n\n%s\n' % (base_filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        log.debug('plain_str:        %r', plain_str)
+        dos_newlines = True  # assume windows newlines
+        if dos_newlines:
+            plain_str = plain_str.replace('\r', '')
+        st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
+        st.edit_modified(False)
+        st.edit_reset()  # undo/redo reset
+        # NOTE Cursor will be at EOF.. BUT scroll/view will be top of the file
+
 
     def save_file(p=None, evt=None):
         log.debug('save_file')
@@ -236,10 +247,7 @@ def main(argv=None):
 
     st.pack(fill=tkinter.BOTH, expand=True)  # make visible, and resizable
 
-    st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
-    st.edit_modified(False)
-    st.edit_reset()  # undo/redo reset
-    # NOTE Cursor will be at EOF
+    load_file()  # NOTE in_filename needs to be set
     st.focus_set()  # This is ineffective if password prompt (tkinter.simpledialog.askstring()) took place
     st.focus_force()  # this ensures window is on top with focus even if askstring() was called
     # cursor is at EOF, in window but view is of head/top of file
