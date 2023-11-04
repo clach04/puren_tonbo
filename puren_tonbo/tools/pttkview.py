@@ -183,6 +183,10 @@ def main(argv=None):
 
     st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True, autoseparators=True, maxundo=-1)
 
+    # TODO def load_file()
+    def insert_timestamp(p=None, evt=None):
+        st.insert(tkinter.INSERT, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))  # inserts at current cursor position
+
     def save_file(p=None, evt=None):
         log.debug('save_file')
         log.debug('p: %r', p)
@@ -225,6 +229,8 @@ def main(argv=None):
     filemenu.add_command(label="Exit", command=exit, underline=1)
     main_window.wm_protocol("WM_DELETE_WINDOW", exit)
     main_window.bind('<Control-s>', save_file)
+    #main_window.bind('<Control-1>', insert_timestamp)  # this is Control and mouse button 1 (left/primary mouse button)
+    main_window.bind('<Control-Key-1>', insert_timestamp)  # Control and number one on keyboard NOT the Numeric Keypad
     menubar.add_cascade(label="File", menu=filemenu)
     main_window.config(menu=menubar)
 
