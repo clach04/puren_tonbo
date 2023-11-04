@@ -57,6 +57,7 @@ def main(argv=None):
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--no-prompt", help="do not prompt for password", action="store_true")
+    parser.add_option("--gen-filename", "--gen_filename", help="generate filename (based on first line. TODO options)", action="store_true")
     parser.add_option("-v", "--verbose", action="store_true")
     (options, args) = parser.parse_args(argv[1:])
     #print('%r' % ((options, args),))
@@ -212,13 +213,40 @@ def main(argv=None):
         log.debug('p: %r', p)
         log.debug('evt: %r', evt)
         log.debug('in_filename: %r', in_filename)
+
+        #"""
         if not st.edit_modified():
             log.info('no changes, so not saving')
             return
+        #"""
         buffer_plain_str = st.get('1.0', tkinter.END + '-1c')  # tk adds a new line by default, skip it
         #print('buffer            %r' % buffer_plain_str)
         #print('%r' % (buffer_plain_str == plain_str))
         # reuse handler, no need to reinit
+
+        if options.gen_filename:
+            filename_generator = puren_tonbo.FILENAME_FIRSTLINE
+            puren_tonbo.validate_filename_generator(filename_generator)
+            filename_generator_func = puren_tonbo.filename_generators[filename_generator]
+            original_filename = in_filename
+            _dummy, file_extn = os.path.splitext(original_filename)
+            log.debug('original file_extn: %r', file_extn)
+            if filename_generator in (puren_tonbo.FILENAME_TIMESTAMP, puren_tonbo.FILENAME_UUID4):
+                # do not rename... or they could have passed in the "new name"
+                filename = original_filename
+            else:
+                handler_class = puren_tonbo.filename2handler(original_filename, default_handler=puren_tonbo.RawFile)
+                file_extension = file_extn or handler_class.extensions[0]  # pick the first one
+                filename_without_path_and_extension = filename_generator_func(buffer_plain_str)
+                filename = os.path.join(os.path.dirname(original_filename), filename_without_path_and_extension + file_extension)
+            log.debug('generated filename: %r', filename)
+            if filename != original_filename:
+                log.error('not implemented deleting old filename')
+        # DEBUG remove, and uncomment orig
+        if not st.edit_modified():
+            log.info('no changes, so not saving')
+            return
+
         try:
             puren_tonbo.note_contents_save_filename(buffer_plain_str, filename=in_filename, handler=handler, note_encoding=note_encoding, dos_newlines=dos_newlines)
             # if save successful (no exceptions);

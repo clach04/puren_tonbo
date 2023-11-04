@@ -1604,7 +1604,7 @@ class FileSystemNotes(BaseNotes):
             raise
 
     def note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
-        """Save/write/encrypt the notes contents, also see note_contents()
+        """Save/write/encrypt the notes contents, also see note_contents() for load/read/decrypt
 
         @note_text string contents to Save/write/encrypt, using self.to_string() to encode to disk (if bytes use as-is)
         @filename if specified is the filename to save to should be relative to `self.note_root` and include directory name
@@ -1617,6 +1617,7 @@ class FileSystemNotes(BaseNotes):
 
 
         See note_contents_save_native_filename() docs
+        TODO refactor, there is code duplication (and some differences) between method note_contents_save() and functions note_contents_save_filename() / note_contents_save_native_filename()
         """
         # sanity checks
         if filename is not None and folder is not None:
