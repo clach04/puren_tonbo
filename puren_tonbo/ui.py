@@ -44,6 +44,7 @@ def tk_getpass(prompt):
 # TODO replace with plugin classes
 def supported_password_prompt_mechanisms():
     return ('any', 'text', 'gui', 'tk')
+    # TODO return ('any', 'text', 'gui', 'tk', 'psidialog' , 'external')  # external would use os var PT_ASKPASS
 
 # TODO see dirname param in gen_caching_get_password()
 def getpassfunc(prompt=None, preference_list=None):
