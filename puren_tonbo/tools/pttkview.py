@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: us-ascii -*-
 # vim:ts=4:sw=4:softtabstop=4:smarttab:expandtab
-"""tk GUI tool to decrypt/view Puren Tonbo files (Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.)
+"""tk GUI tool to decrypt/view as well as encrypt/edit Puren Tonbo text files (plain text/markdown, Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.)
 
     python -m puren_tonbo.tools.pttkview -h
     pttkview -h
 """
-# TODO encrypt support, with safe-save as the default ala ptcipher - either reuse/call ptcipher more move that logic into main lib
 
 import datetime
 import logging
