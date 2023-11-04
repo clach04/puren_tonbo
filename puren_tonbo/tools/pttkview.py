@@ -37,6 +37,13 @@ import puren_tonbo
 is_py3 = sys.version_info >= (3,)
 
 
+debug_dump_data = os.environ.get('PTTKVIEW_DATA', False)
+if debug_dump_data:
+    debug_dump_data = True
+else:
+    debug_dump_data = False
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -178,7 +185,8 @@ def main(argv=None):
         if os.path.exists(in_filename):  # FIXME this is limited to native file system
             in_file = open(in_filename, 'rb')
             plain_str_bytes = handler.read_from(in_file)
-            log.debug('plain_str_bytes: %r', plain_str_bytes)
+            if debug_dump_data:
+                log.debug('plain_str_bytes: %r', plain_str_bytes)
             in_file.close()
             plain_str = puren_tonbo.to_string(plain_str_bytes, note_encoding=note_encoding)
         else:
@@ -188,7 +196,8 @@ def main(argv=None):
                     base_filename = base_filename[:-len(extension)]
                     break
             plain_str = '%s\n\n%s\n' % (base_filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-        log.debug('plain_str:        %r', plain_str)
+        if debug_dump_data:
+            log.debug('plain_str:        %r', plain_str)
         dos_newlines = True  # assume windows newlines
         if dos_newlines:
             plain_str = plain_str.replace('\r', '')
@@ -202,6 +211,7 @@ def main(argv=None):
         log.debug('save_file')
         log.debug('p: %r', p)
         log.debug('evt: %r', evt)
+        log.debug('in_filename: %r', in_filename)
         if not st.edit_modified():
             log.info('no changes, so not saving')
             return
