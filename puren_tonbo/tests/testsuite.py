@@ -12,6 +12,8 @@ Sample usage:
 
 import os
 import sys
+import shutil
+import tempfile
 
 from io import BytesIO as FakeFile  # py3
 
@@ -271,12 +273,13 @@ ng them all up. Then the Frogs repented when too late.\n\nBet\
 ter no rule than cruel rule.\n'''
 
     #C:\code\py\puren_tonbo\puren_tonbo\tests\data\README.md
+    # TODO refactor to use (more) shared code
     def test_aesop_txt(self):
         #print(self.data_folder)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop.txt'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         #print('%r' % self.plain_text_data_windows_newlines)
         #print('%r' % data)
         if is_win:
@@ -288,7 +291,7 @@ ter no rule than cruel rule.\n'''
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop.chi'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_ccrypt_cpt(self):
@@ -298,7 +301,7 @@ ter no rule than cruel rule.\n'''
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_ccrypt.cpt'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         if is_win:
             canon = self.plain_text_data_windows_newlines
         else:
@@ -321,7 +324,7 @@ ter no rule than cruel rule.\n'''
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_encryptpad.asc'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         if is_win:
             canon = self.plain_text_data_windows_newlines
         else:
@@ -336,7 +339,7 @@ ter no rule than cruel rule.\n'''
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_encryptpad.gpg'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         if is_win:
             canon = self.plain_text_data_windows_newlines
         else:
@@ -352,7 +355,7 @@ ter no rule than cruel rule.\n'''
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes.decode('us-ascii')
         test_note_filename = 'aesop_win_encryptpad.gpg'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         if is_win:
             canon = self.plain_text_data_windows_newlines
         else:
@@ -374,7 +377,7 @@ ter no rule than cruel rule.\n'''
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux_7z.old.zip'
         if puren_tonbo.pyzipper:
-            data = note_root.note_contents(test_note_filename, password)
+            data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
             self.assertEqual(self.plain_text_data_linux_newlines, data)
         else:
             self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
@@ -384,7 +387,7 @@ ter no rule than cruel rule.\n'''
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux_7z.oldstored.zip'
         if puren_tonbo.pyzipper:
-            data = note_root.note_contents(test_note_filename, password)
+            data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
             self.assertEqual(self.plain_text_data_linux_newlines, data)
         else:
             self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
@@ -401,7 +404,7 @@ ter no rule than cruel rule.\n'''
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.old.zip'
         if puren_tonbo.pyzipper:
-            data = note_root.note_contents(test_note_filename, password)
+            data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
             self.assertEqual(self.plain_text_data_windows_newlines, data)
         else:
             self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
@@ -411,7 +414,7 @@ ter no rule than cruel rule.\n'''
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.oldstored.zip'
         if puren_tonbo.pyzipper:
-            data = note_root.note_contents(test_note_filename, password)
+            data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
             self.assertEqual(self.plain_text_data_windows_newlines, data)
         else:
             self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
@@ -420,70 +423,70 @@ ter no rule than cruel rule.\n'''
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_winrar.aes256.zip'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_winrar_aes256stored_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_winrar.aes256stored.zip'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_linux_7z_aes256_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux_7z.aes256.zip'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
     def test_aesop_linux_7z_aes256stored_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux_7z.aes256stored.zip'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
     def test_aesop_win_7z_aes256_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.aes256.zip'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_7z_aes256stored_zip(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.aes256stored.zip'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_7z_aes256_zip_using_purepyzipaes(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.aes256.zip'
-        data = note_root.note_contents(test_note_filename, password, handler_class=puren_tonbo.PurePyZipAES)  # force usage of PurePyZipAES, for when pyzipper is available and the default
+        data = note_root.note_contents(test_note_filename, password, handler_class=puren_tonbo.PurePyZipAES, dos_newlines=False)  # force usage of PurePyZipAES, for when pyzipper is available and the default
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_vimcrypt3(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win.vimcrypt3'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_vimcrypt2(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win.vimcrypt2'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_vimcrypt1(self):
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win.vimcrypt1'
-        data = note_root.note_contents(test_note_filename, password)
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_linux_vimcrypt3(self):
@@ -506,6 +509,89 @@ ter no rule than cruel rule.\n'''
         test_note_filename = 'aesop_linux.vimcrypt1'
         data = note_root.note_contents(test_note_filename, password)
         self.assertEqual(self.plain_text_data_linux_newlines, data)
+
+
+# Tests write/encryption to disk
+
+class TestFileSystemNotesWrite(TestUtil):
+    # data_folder setup in setUpClass()
+    test_password_bytes = b'password'
+    note_encoding = 'us-ascii'
+
+    @classmethod
+    def setUpClass(self):
+        self.data_folder = tempfile.mkdtemp(prefix='TestFileSystemNotesWrite_tmp')
+        #print('self.data_folder %s' % self.data_folder)
+
+    @classmethod
+    def tearDownClass(self):
+        shutil.rmtree(self.data_folder)
+
+    # TODO new test without password
+    def do_one_test(self, in_filename, buffer_plain_str, dos_newlines=None, test_password_bytes=None):
+        filename_no_path = in_filename
+        in_filename = os.path.join(self.data_folder, in_filename)
+        try:
+            handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
+            password = self.test_password_bytes
+            handler = handler_class(key=password)
+
+            if dos_newlines is None:
+                # tests with default newline setting
+                puren_tonbo.note_contents_save_filename(buffer_plain_str, filename=in_filename, handler=handler)
+            else:
+                puren_tonbo.note_contents_save_filename(buffer_plain_str, filename=in_filename, handler=handler, dos_newlines=dos_newlines)
+            # TODO with and without filename_generatordos newlines
+            # TODO with and without filename_generator
+            # TODO handler is currently required, support NOT passing it in? see class method version
+
+            note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+            test_note_filename = in_filename
+            #import pdb ; pdb.set_trace()
+            if dos_newlines is None:
+                # tests with default newline setting
+                data = note_root.note_contents(test_note_filename, password)
+            else:
+                data = note_root.note_contents(test_note_filename, password, dos_newlines=dos_newlines)
+            self.assertEqual(buffer_plain_str, data)
+            #glob
+            #import pdb ; pdb.set_trace()
+            #print('')
+            for (dirname, dirnames, filenames) in os.walk(self.data_folder):
+                #print(dirname, dirnames, filenames)
+                self.assertEqual((self.data_folder, [], [filename_no_path]), (dirname, dirnames, filenames))
+        finally:
+            os.remove(in_filename) # TODO ignore does not exist errors (only)
+
+    def test_file_one_with_dos_newlines(self):
+        in_filename = 'one.txt'
+        dos_newlines = True
+        buffer_plain_str = '''one
+
+file one.
+
+'''
+        self.do_one_test(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
+
+    def test_file_one_without_dos_newlines(self):
+        in_filename = 'one.txt'
+        dos_newlines = False
+        buffer_plain_str = '''one
+
+file one.
+
+'''
+        self.do_one_test(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
+
+    def test_file_one_with_default_dos_newlines(self):
+        in_filename = 'one.txt'
+        dos_newlines = None
+        buffer_plain_str = '''one
+
+file one.
+
+'''
+        self.do_one_test(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
 
 
 

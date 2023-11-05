@@ -1581,6 +1581,10 @@ class FileSystemNotes(BaseNotes):
                 try:
                     in_file = open(fullpath_filename, 'rb')  # TODO open once and seek back on failure
                     plain_str = handler.read_from(in_file)
+                    if dos_newlines:
+                        # NOTE this will NOT work for utf-16
+                        plain_str = plain_str.replace(b'\r\n', b'\n')  # TODO consider remove all \r first as a cleaning step?
+
                     # TODO could stash away handler..key for reuse as self.last_used_key .... or derived_key (which would be a new attribute)
                     if return_bytes:
                         return plain_str
