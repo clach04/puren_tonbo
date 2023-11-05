@@ -170,6 +170,7 @@ def main(argv=None):
     filemenu = tkinter.Menu(menubar, tearoff=0)
 
     st = ScrolledText.ScrolledText(main_window, wrap=tkinter.WORD, undo=True, autoseparators=True, maxundo=-1)
+    dos_newlines = True  # assume windows newlines
 
     def insert_timestamp(p=None, evt=None):
         st.insert(tkinter.INSERT, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))  # inserts at current cursor position
@@ -199,7 +200,6 @@ def main(argv=None):
             plain_str = '%s\n\n%s\n' % (base_filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         if debug_dump_data:
             log.debug('plain_str:        %r', plain_str)
-        dos_newlines = True  # assume windows newlines
         if dos_newlines:
             plain_str = plain_str.replace('\r', '')
         st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
@@ -223,19 +223,21 @@ def main(argv=None):
         #print('buffer            %r' % buffer_plain_str)
         #print('%r' % (buffer_plain_str == plain_str))
         # reuse handler, no need to reinit
+        original_filename = in_filename
+        handler_class = puren_tonbo.filename2handler(original_filename, default_handler=puren_tonbo.RawFile)
+        handler = handler_class(key=password)
 
         if options.gen_filename:
             filename_generator = puren_tonbo.FILENAME_FIRSTLINE
             puren_tonbo.validate_filename_generator(filename_generator)
             filename_generator_func = puren_tonbo.filename_generators[filename_generator]
-            original_filename = in_filename
             _dummy, file_extn = os.path.splitext(original_filename)
             log.debug('original file_extn: %r', file_extn)
+
             if filename_generator in (puren_tonbo.FILENAME_TIMESTAMP, puren_tonbo.FILENAME_UUID4):
                 # do not rename... or they could have passed in the "new name"
                 filename = original_filename
             else:
-                handler_class = puren_tonbo.filename2handler(original_filename, default_handler=puren_tonbo.RawFile)
                 file_extension = file_extn or handler_class.extensions[0]  # pick the first one
                 filename_without_path_and_extension = filename_generator_func(buffer_plain_str)
                 filename = os.path.join(os.path.dirname(original_filename), filename_without_path_and_extension + file_extension)
