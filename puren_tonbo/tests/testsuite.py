@@ -554,6 +554,7 @@ class TestFileSystemNotesWrite(TestUtil):
             else:
                 data = note_root.note_contents(test_note_filename, password, dos_newlines=dos_newlines)
             self.assertEqual(buffer_plain_str, data)
+            # TODO manually read file (for local native filesystem( and perform validation checks; 1. matches input 2. \r (DOS) present/not-present as per dos_newlines expected setting
             #glob
             #import pdb ; pdb.set_trace()
             #print('')
@@ -593,7 +594,11 @@ file one.
 '''
         self.do_one_test(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
 
-
+    # TODO test write file, then save/edit once - confirm have backup and new file
+    # TODO test write file auto generate name
+    # TODO test write file, then edit with (new/modified first line) auto generate name should be different
+    # TODO test write file with characters outside of encoding
+    # TODO test write file, then write 2nd time this time with characters outside of encoding - to generate error - existing file should be preserved
 
 def main():
     puren_tonbo.print_version_info()
