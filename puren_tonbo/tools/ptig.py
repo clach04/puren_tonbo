@@ -148,7 +148,7 @@ class CommandPrompt(Cmd):
 
     def do_ls(self, line=None):
         if line:
-            print('Parameters not supported')
+            print('Parameters not supported')  # TODO handle and also cwd support
             return
         note_encoding = self.pt_config['codec']
         note_root = self.paths_to_search[0]  # TODO just pick the first one, ignore everthing else
@@ -163,7 +163,7 @@ class CommandPrompt(Cmd):
             print('%s' % x)
 
     def do_bookmarks(self, line=None):
-        """Bookmark result (filenames)
+        """Bookmark result (filenames), for use with `results` command
 Examples:
 
 Show bookmarks
@@ -200,6 +200,9 @@ Get/lookup
     do_b = do_bookmarks
 
     def do_nocache(self, line=None):
+        """Disables cache for find and grep
+Also see `cache`.
+        """
         if line:
             print('params not supported')
             return
@@ -207,6 +210,22 @@ Get/lookup
         print('cache off')
 
     def do_cache(self, line=None):
+        """Caches filenames for searching in memory. Avoids hitting disk to determine which files to search
+Also see `nocache`.
+
+Usage:
+
+    cache off
+    cache
+    cache on
+
+To disable/enable cache.
+
+find (filename) and grep will then no longer determine filenames on disk dynamically but use the cached version.
+
+NOTE on machines with fast CPU and disk (SSD) cache can be slower for some operations (like filename find).
+
+        """
         if line:
             if line == 'off':
                 return self.do_nocache()
@@ -217,8 +236,8 @@ Get/lookup
         self.cache = list(notes.recurse_notes())
 
     def do_recent(self, line=None):
-        """list recent notes, newest at the top.
-Optionay specify number of items to list. Defaults to 20.
+        """list recently modified/updated/edited notes, newest at the top.
+Optionally specify number of items to list. Defaults to 20.
 
 Examples
 
@@ -265,7 +284,7 @@ Examples
     set enc
     set noenc
 
-"""
+""" ## TODO more examples
         # NOTE only sets options in self.grep_options (not self.pt_config, i.e. pt.json)
         # so use_pager can be controlled via set, but not prompt (at least at the moment)
         if line:
@@ -358,7 +377,24 @@ Examples
         print('unsupported set operation')
 
     def do_results(self, line=None):
-        """Redisplay previous filename search results
+        """Redisplay previous filename search results or perform additional search on previous results
+Also see `bookmarks` command. Alias `r`
+
+Usage:
+
+    results
+
+Shows last result set.
+
+Usage:
+
+    results find file_name_term
+    results grep search_term
+    results rg search_term
+    r rg search_term
+
+Search previous results for search term.
+
         """
         if not self.file_hits:
             print('no results')
@@ -387,7 +423,7 @@ Examples
     do_r = do_results
 
     def do_edit_multiple(self, line=None):
-        """edit multiple files from numbers
+        """edit multiple files from numbers. Also see `edit`. Alias `en`
             en 1,3
             en 1 3
         would send all two files (assuming there are at least 3 hits) to editor
@@ -405,6 +441,7 @@ Examples
 
     def do_edit(self, line=None, filename_list=None):
         """Edit using external $PT_VISUAL, $VISUAL or $EDITOR, ptig.editor in config file with fall backs if unset.
+Also see `edit_multiple` (alias `en`)
 
 If not set:
 
@@ -430,6 +467,18 @@ To set in config file:
 
 For Windows use "start" so that ptig does NOT wait for editor to exit.
 Use ptconfig commandline tool to generate skeleton config.
+
+Usage:
+
+    edit path/filename
+
+    edit n
+        where n is an integer number from find/grep search
+
+    edit !
+    edit *
+    edit all
+
         """
         filename_list = filename_list or []
         if not filename_list:
@@ -491,6 +540,8 @@ Use ptconfig commandline tool to generate skeleton config.
     if ptpyvim:
         def do_pyvim(self, line=None):
             """Edit using built in (vim-like) ptpyvim editor
+Also see `edit`
+Aliases; vim, vi
             """
             line = self.validate_result_id(line)
             if line is None:
@@ -549,6 +600,7 @@ For numbers, 0 (zero) will view last hit.
         """cat/type/view file. Takes either a number or filename.
 For numbers, 0 (zero) will view last hit. See results command.
 See use_pager option, e.g. set use_pager=True
+Also see `edit`
         """
         line = self.validate_result_id(line)
         if line is None:
@@ -582,6 +634,7 @@ See use_pager option, e.g. set use_pager=True
             Cmd.default(self, line)  # Super...
 
     def do_grep(self, line=None, paths_to_search=None):
+        # Doc comment updated in code; CommandPrompt.do_grep.__doc__ - TODO list aliases?
         if not line:
             print('Need a search term')  # TODO show help?
             return
