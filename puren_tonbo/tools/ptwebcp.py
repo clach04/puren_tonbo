@@ -111,6 +111,8 @@ class Root(object):
         cherrypy.response.headers['Expires'] = 'Sun, 19 Nov 1978 05:00:00 GMT'
         cherrypy.response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'
         cherrypy.response.headers['Pragma'] = 'no-cache'
+        # TODO https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified support
+        # note note class will need to provide metadata (mtime and size)
 
         result = []
         if s:
