@@ -125,7 +125,7 @@ class CommandPrompt(Cmd):
         self.grep_options = grep_options or FakeOptions()
         self.file_hits = []  # results
         #import pdb ; pdb.set_trace()
-        if self.pt_config['ptig']['prompt']:
+        if self.pt_config['ptig'].get('prompt'):
             self.prompt = self.pt_config['ptig']['prompt']
         else:
             self.prompt = 'ptig:' + str(paths_to_search) + ' '  # Almost never going to be seen, unless config file entry is false/null, '' empty string, 0, etc.
