@@ -282,8 +282,11 @@ Examples
     set ignorecase
     set noic
     set noignorecase
-    set enc
     set noenc
+    set search_encrypted
+    set enc
+    set enconly
+    set search_encrypted_only
 
 """ ## TODO more examples
         # NOTE only sets options in self.grep_options (not self.pt_config, i.e. pt.json)
@@ -327,6 +330,10 @@ Examples
         if line in ('enc', 'search_encrypted'):
             print('search enabled for encrypted files')
             self.grep_options.search_encrypted = True
+            return
+        if line in ('enconly', 'search_encrypted_only'):
+            print('search enabled for encrypted files ONLY')
+            self.grep_options.search_encrypted = 'only'
             return
         if line in ('noenc', 'nosearch_encrypted'):
             print('search disabled for encrypted files')
