@@ -133,7 +133,12 @@ class CommandPrompt(Cmd):
         if self.pt_config['ptig'].get('prompt'):
             self.prompt = self.pt_config['ptig']['prompt']
         else:
-            self.prompt = 'ptig:' + str(self.paths_to_search) + ' '  # Almost never going to be seen, unless config file entry is false/null, '' empty string, 0, etc.
+            if len(self.paths_to_search) == 1:
+                str_paths_to_search = self.paths_to_search[0]
+                str_paths_to_search = os.path.basename(str_paths_to_search)  # TODO option trim? Other idea is to add template support for prompt config
+            else:
+                str_paths_to_search = str(self.paths_to_search)  # TODO review
+            self.prompt = 'ptig:' + str_paths_to_search + ' '  # Almost never going to be seen, unless config file entry is false/null, '' empty string, 0, etc.
         if self.grep_options.use_color:
             prompt_color, color_reset = ptgrep.color_linenum, ptgrep.color_reset
             self.prompt = prompt_color + self.prompt + color_reset
