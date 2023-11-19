@@ -777,11 +777,13 @@ def main(argv=None):
     #import pdb ; pdb.set_trace()
     config = puren_tonbo.get_config(options.config_file)
     if options.note_root:
-        paths_to_search = [options.note_root]
+        relative_paths_to_search = [options.note_root]
     else:
-        paths_to_search = args or [config.get('note_root', '.')]
-        if not paths_to_search:
+        relative_paths_to_search = args or [config.get('note_root', '.')]
+        if not relative_paths_to_search:
             usage_error('ERROR: Missing search path/directory')  # should never happen now, here just-in-case
+    paths_to_search = [os.path.abspath(x) for x in relative_paths_to_search]
+    config['note_root'] = paths_to_search  # ensure config updated with path(s) override from command line
 
     if options.codec:
         note_encoding = options.codec
