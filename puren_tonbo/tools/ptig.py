@@ -121,7 +121,11 @@ class CommandPrompt(Cmd):
         Cmd.__init__(self)
         self.bookmarks = {}
         self.cache = None
-        self.paths_to_search = paths_to_search or ['.']
+        self.paths_to_search = []
+        #import pdb ; pdb.set_trace()
+        paths_to_search = paths_to_search or ['.']
+        for note_path in paths_to_search:
+            self.paths_to_search.append(os.path.abspath(note_path))  # TODO future warning native file path code
         self.pt_config = pt_config
         self.grep_options = grep_options or FakeOptions()
         self.file_hits = []  # results
@@ -129,7 +133,7 @@ class CommandPrompt(Cmd):
         if self.pt_config['ptig'].get('prompt'):
             self.prompt = self.pt_config['ptig']['prompt']
         else:
-            self.prompt = 'ptig:' + str(paths_to_search) + ' '  # Almost never going to be seen, unless config file entry is false/null, '' empty string, 0, etc.
+            self.prompt = 'ptig:' + str(self.paths_to_search) + ' '  # Almost never going to be seen, unless config file entry is false/null, '' empty string, 0, etc.
         if self.grep_options.use_color:
             prompt_color, color_reset = ptgrep.color_linenum, ptgrep.color_reset
             self.prompt = prompt_color + self.prompt + color_reset
@@ -765,6 +769,7 @@ def main(argv=None):
     if password and not callable(password) and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
+    #import pdb ; pdb.set_trace()
     config = puren_tonbo.get_config(options.config_file)
     if options.note_root:
         paths_to_search = [options.note_root]
