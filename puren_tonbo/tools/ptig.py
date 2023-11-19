@@ -287,6 +287,10 @@ Examples
     set enc
     set enconly
     set search_encrypted_only
+    set use_pager
+    set no use_pager
+    set use_pager=True
+    set use_pager=false
 
 """ ## TODO more examples
         # NOTE only sets options in self.grep_options (not self.pt_config, i.e. pt.json)
@@ -380,8 +384,19 @@ Examples
             setattr(self.grep_options, attribute_name, attribute_value)
             return
 
-        # TODO set shoud support prompt change
+        # assume bool flag
+        # e.g. set user_pager
+        # e.g. set no user_pager
+        # TODO handle "set no " with no other arguments
+        if line.startswith('no '):
+            print('Assume turn OFF bool option')
+            setattr(self.grep_options, line[len('no '):].lstrip(), False)
+        else:
+            print('Assume turn ON bool option')
+            setattr(self.grep_options, line, True)
+        return
 
+        # TODO set should support prompt change
         print('unsupported set operation')
 
     def do_results(self, line=None):
