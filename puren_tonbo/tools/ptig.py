@@ -711,8 +711,11 @@ Also see `edit`
     do_ver = do_version
     do_info = do_version
 
-
-CommandPrompt.do_grep.__doc__ = grep_help
+try:
+    CommandPrompt.do_grep.__doc__ = grep_help
+except AttributeError:
+    # AttributeError: attribute '__doc__' of 'instancemethod' objects is not writable
+    pass  # assumue Python 2.7
 
 def main(argv=None):
     if argv is None:
