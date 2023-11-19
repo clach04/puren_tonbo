@@ -110,6 +110,7 @@ grep_parser.add_option("-y", "--find-only-filename", "--find_only_filename", hel
 grep_parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="Only print filenames that contain matches", action="store_true")
 grep_parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
 grep_parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
+grep_parser.add_option("-k", "--search_encrypted_only", help='Search encrypted files (default false)', action="store_const", const='only', dest='search_encrypted')
 grep_help = grep_parser.format_help()
 
 

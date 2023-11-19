@@ -155,7 +155,7 @@ class SearchCancelled(SearchException):
         return repr(self.value)
 
 
-class EncryptedFile:
+class BaseFile:
 
     description = 'Base Encrypted File'
     extensions = []  # non-empty list of file extensions, first is the default (e.g. for writing)
@@ -186,7 +186,10 @@ class EncryptedFile:
         raise NotImplementedError
 
 
-class RawFile(EncryptedFile):
+class EncryptedFile(BaseFile):
+    pass
+
+class RawFile(BaseFile):
     """Raw/binary/text file - Read/write raw bytes. 
     Use for plain text files.
     TODO this requires a password on init, plain text/unencrypted files should not need a password
@@ -615,6 +618,11 @@ def filename2handler(filename, default_handler=None):
     log.debug('clach04 DEBUG handler_class: %r', handler_class)
     return handler_class
 
+encrypted_file_extensions = []
+for file_extension in file_type_handlers.keys():
+    if isinstance(file_type_handlers[file_extension], EncryptedFile):
+        encrypted_file_extensions.append(file_extension)
+
 def debug_get_password():
     # DEBUG this should be a callback mechanism
     crypto_key = os.getenv('DEBUG_CRYPTO_KEY', 'test')  # dumb default password, should raise exception on missing password
@@ -823,6 +831,13 @@ def supported_filetypes_info(encrypted_only=False):
             continue
         handler_class = file_type_handlers[file_extension]
         yield (file_extension, handler_class.__name__, handler_class.description)
+
+def encrypted_filename_filter(in_filename):
+    name = in_filename.lower()
+    for file_extension in encrypted_file_extensions:
+        if name.endswith(file_extension):
+            return True
+    return False
 
 def supported_filename_filter(in_filename):
     name = in_filename.lower()
@@ -1480,7 +1495,10 @@ class FileSystemNotes(BaseNotes):
     #         (self, search_term, search_term_is_a_regex=True,  ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, find_only_filename=None, index_name=None, note_encoding=None):
     #               (search_term, search_term_is_a_regex=True , ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, find_only_filename=None, index_name=None, note_encoding=None):
     def search(self, search_term, search_term_is_a_regex=False, ignore_case=False, search_encrypted=False, find_only_filename=False, files_with_matches=False, get_password_callback=None, progess_callback=None, highlight_text_start=None, highlight_text_stop=None):
-        """search note directory, grep/regex like actualy an iterator"""
+        """search note directory, grep/regex like actualy an iterator
+
+        search_encrypted - special value "only" means will only search encrypted files (based on filename) either truthy check performed
+        """
         #print('get_password_callback %r' % get_password_callback)
 
         search_path = self.note_root
@@ -1499,7 +1517,10 @@ class FileSystemNotes(BaseNotes):
             filename_filter_str = regex_object
         #is_note_filename_filter = pytombo.search.note_filename_filter_gen(allow_encrypted=search_encrypted, filename_filter_str=filename_filter_str)  # FIXME implement
         if search_encrypted:
-            is_note_filename_filter = supported_filename_filter
+            if search_encrypted == 'only':
+                is_note_filename_filter = encrypted_filename_filter
+            else:
+                is_note_filename_filter = supported_filename_filter
         else:
             # plain text only, right now this is hard coded
             is_note_filename_filter = plaintext_filename_filter

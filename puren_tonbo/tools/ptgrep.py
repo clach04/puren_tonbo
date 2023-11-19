@@ -166,6 +166,7 @@ def main(argv=None):
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-t", "--time", action="store_true")
     parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")
+    parser.add_option("-k", "--search_encrypted_only", help='Search encrypted files (default false)', action="store_const", const='only', dest='search_encrypted')
     parser.add_option("-v", "--verbose", help='Print query search time', action="store_true")
     parser.add_option("--config-file", "--config_file", help="Override config file")
     parser.add_option("--grep", help='Use grep-like output format instead of ripgrep-like', action="store_true")
@@ -178,7 +179,7 @@ def main(argv=None):
     # TODO add option similar to grep -A/B/C for lines of context?
 
     (options, args) = parser.parse_args(argv[1:])
-    #print('%r' % ((options, args),))
+    #print('%r' % ((options, args),))  # DEBUG
     verbose = options.verbose
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
