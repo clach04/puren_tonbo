@@ -1301,7 +1301,8 @@ def walker(directory_name, process_file_function=None, process_dir_function=None
     # TODO scandir instead... would be faster - but for py2.7 requires external lib
     for root, subdirs, files in os.walk(directory_name):
         # skip .git directories hack/side effect
-        subdirs.remove('.git')
+        if '.git' in subdirs:
+            subdirs.remove('.git')
         # TODO even more hacky, exclude list/set parameter:
         #dirs[:] = [d for d in dirs if d not in exclude]
         # for d in exclude: subdirs.remove(d)
