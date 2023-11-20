@@ -1296,11 +1296,13 @@ def walker(directory_name, process_file_function=None, process_dir_function=None
 
     def process_file_function(full_path, extra_params_dict=None)
         extra_params_dict = extra_params_dict or {}
+
+    Also see recurse_notes()
     """
     extra_params_dict or {}
     # TODO scandir instead... would be faster - but for py2.7 requires external lib
     for root, subdirs, files in os.walk(directory_name):
-        # skip .git directories hack/side effect
+        # skip .git directories hack/side effect - also see recurse_notes()
         if '.git' in subdirs:
             subdirs.remove('.git')
         # TODO even more hacky, exclude list/set parameter:
@@ -1353,13 +1355,27 @@ def find_recent_files(test_path, number_of_files=20, order=ORDER_ASCENDING):
 
 def recurse_notes(path_to_search, filename_filter):
     """Walk (local file system) directory of notes, directory depth first (just like Tombo find does), returns generator
+
+    Also see walker()
     """
     ## Requires os.walk (python 2.3 and later).
     ## Pure Python versions for earlier versions available from:
     ##  http://osdir.com/ml/lang.jython.user/2006-04/msg00032.html
     ## but lacks "topdown" support, walk class later
-    for dirpath, dirnames, filenames in os.walk(path_to_search, topdown=False):
+    #import pdb ; pdb.set_trace()
+    #topdown = False
+    topdown = True
+    for dirpath, dirnames, filenames in os.walk(path_to_search, topdown=topdown):
         #print('walker', repr((dirnames, filenames)))
+
+        # skip .git directories hack/side effect - also see recurse_notes()
+        # hacking directory requires topdown=True... else need to filter files to ignore directory
+        if '.git' in dirnames:
+            dirnames.remove('.git')
+        # TODO even more hacky, exclude list/set parameter:
+        #dirs[:] = [d for d in dirnames if d not in exclude]
+        # for d in exclude: dirnames.remove(d)
+
         filenames.sort()
         #print('walker', repr((dirnames, filenames)))
         for temp_filename in filenames:
@@ -1387,6 +1403,8 @@ def directory_contents(dirname, filename_filter=None):
     dir_list = []
     if os.path.isdir(dirname):
         for name in os.listdir(dirname):
+            if '.git' == name:
+                continue
             path = os.path.join(dirname, name)
             if os.path.isfile(path):
                 if filename_filter(name):
