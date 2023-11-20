@@ -38,6 +38,7 @@ except ImportError:
 
 import json
 import os
+from optparse import OptionParser
 import sys
 import time
 
@@ -73,6 +74,7 @@ class Root(object):
         self.config = config
         note_encoding = config['codec']
         note_root = config.get('note_root', '.')
+        note_root = note_root[0]  # TODO actually handle multiple directories (like ptig/ptgrep)
         self.config['note_root'] = note_root
 
         self.notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
@@ -128,9 +130,8 @@ class Root(object):
             else:
                 recursive = False
         if recursive:
-            raise NotImplementedError('recursive listings')
             dirnames = []
-            note_names = self.note_store.recurse_notes(sub_dir=s)  # TODO
+            note_names = self.notes.recurse_notes(sub_dir=s)
         else:
             #import pdb ; pdb.set_trace()
             dirnames, note_names = self.notes.directory_contents(s)
@@ -181,11 +182,28 @@ def main(argv=None):
         argv = sys.argv
 
     puren_tonbo.print_version_info()
-    try:
-        config_filename = argv[1]
-    except:
-        config_filename = None
-    config = puren_tonbo.get_config(config_filename=config_filename)
+    usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
+    parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
+    parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
+    parser.add_option("--config-file", "--config_file", help="Override config file")
+    parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
+    # TODO password options?
+    (options, args) = parser.parse_args(argv[1:])
+    config = puren_tonbo.get_config(options.config_file)
+    if options.note_root:
+        relative_paths_to_search = [options.note_root]
+    else:
+        relative_paths_to_search = args or [config.get('note_root', '.')]
+        if not relative_paths_to_search:
+            usage_error('ERROR: Missing search path/directory')  # should never happen now, here just-in-case
+    paths_to_search = [os.path.abspath(x) for x in relative_paths_to_search]
+    config['note_root'] = paths_to_search  # ensure config updated with path(s) override from command line
+
+    if options.codec:
+        note_encoding = options.codec
+    else:
+        note_encoding = config['codec']
+
     print('%s' % json.dumps(config, indent=4, sort_keys=True))
 
     print('Python %s on %s' % (sys.version, sys.platform))
