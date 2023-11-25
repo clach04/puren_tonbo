@@ -396,7 +396,7 @@ https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-pri
 
 Tested with versions: v4.0.0, 4.1.5, and 5.3.5
 
-See [pt_scite.lua](./pt_scite.lua) - read and write support (tested Windows).
+See [pt_scite.lua](integrations/scite/pt_scite.lua) - read and write support (tested Windows).
 NOTE due to lua popen() any helpful error text/information is missing. Diagnosing failures can be difficult, even for trivial errors like directory/disk does not exist as this is not reported to the lua runtime.
 Also see SciTE Python plugin for read and write support with stderror support.
 
@@ -463,7 +463,7 @@ Does NOT prompt for password, requires setting `PT_PASSWORD` environment variabl
 
 Tested under Linux with vim 8.0 and 8.1. under x86, x64, and arm 32-bit.
 
-See [pt.vim](./pt.vim) - Linux/Unix/Cygwin only for now.
+See [pt.vim](integrations/vim/pt.vim) - Linux/Unix/Cygwin only for now.
 
 By default uses `ptcipher` in path, override via `PTCIPHER_EXE` environment variable.
 
