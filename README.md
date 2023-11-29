@@ -207,7 +207,7 @@ Also see https://github.com/clach04/puren_tonbo/wiki/tool-ptig
 
 #### ptig config
 
-Config for ptig is the regular config file, with additional (optional) ptig section:
+Config for ptig is the regular config file `pt.json`, with additional (optional) ptig section:
 
     {
         "_version_created_with": "0.0.dev3",
