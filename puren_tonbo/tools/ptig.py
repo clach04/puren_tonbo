@@ -610,7 +610,24 @@ Aliases; vim, vi
                 return None
             line = self.file_hits[file_number - 1]
         except ValueError:
-            pass  # line contains filename, but filename may not exist
+            # line contains filename, but filename may not exist
+            note_encoding = self.pt_config['codec']
+            if is_win:
+                return line  # skip for now
+            # attempt to validate
+            if line.startswith('/'):
+                return line  # absolute path, for now supported as pass-thru (and skip directory jail)
+            # Assume relative path, enforce
+            for note_root in self.paths_to_search:
+                notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+                fullpath = notes.native_full_path(line)  # relative2abspath()
+                if os.path.exists(fullpath):
+                    return fullpath
+            # so file does not exist, assume new file in first directory
+            note_root = self.paths_to_search[0]
+            notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+            fullpath = notes.native_full_path(line)
+            return fullpath
         return line
 
     def do_opendir(self, line=None):
