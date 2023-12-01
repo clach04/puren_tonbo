@@ -171,6 +171,7 @@ class CommandPrompt(Cmd):
             print('%s/' % x)
         for x in file_list:
             print('%s' % x)
+    do_dir = do_ls
 
     def do_bookmarks(self, line=None):
         """Bookmark result (filenames), for use with `results` command
