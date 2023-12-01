@@ -670,7 +670,11 @@ Also see `edit`
                 pager(data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
             else:
                 print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+        except (puren_tonbo.PurenTonboIO, puren_tonbo.UnsupportedFile) as info:
+            # TODO color support?
+            print('Error opening file %r' % info)
         except KeyboardInterrupt:
+            # TODO color support?
             print('search cancelled')
 
     do_c = do_cat  # shortcut to save typing
