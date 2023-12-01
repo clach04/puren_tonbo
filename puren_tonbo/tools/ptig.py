@@ -671,11 +671,16 @@ Also see `edit`
             else:
                 print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
         except (puren_tonbo.PurenTonboIO, puren_tonbo.UnsupportedFile) as info:
-            # TODO color support?
-            print('Error opening file %r' % info)
+            message = 'Error opening file %r' % info
+            if self.grep_options.use_color:
+                message = ptgrep.color_error + message + ptgrep.color_reset
+            print('%s' % message)
         except KeyboardInterrupt:
             # TODO color support?
-            print('search cancelled')
+            message = 'search cancelled'
+            if self.grep_options.use_color:
+                message = ptgrep.color_error + message + ptgrep.color_reset
+            print('%s' % message)
 
     do_c = do_cat  # shortcut to save typing
     do_type = do_cat  # Windows alias

@@ -46,6 +46,7 @@ is_win = sys.platform.startswith('win')
 
 if colorama:
     # TODO options for these? These are close facimiles to ripgrep default
+    color_error = colorama.Fore.RED  # Background instead?
     color_filename = colorama.Fore.BLUE
     color_linenum = colorama.Fore.GREEN
     color_searchhit = colorama.Fore.RED
@@ -54,6 +55,7 @@ else:
     # might be linux (not Windows)
     if not is_win:
         # ansi color escape sequences
+        color_error = '\x1b[31m'  # Fore.RED
         color_filename = '\x1b[01;34m'  # Fore.BLUE
         color_linenum = '\x1b[01;32m'  # Fore.GREEN
         #color_searchhit = '\x1b[01;05;37;41m'  # Background Red, foreground flasshing white
