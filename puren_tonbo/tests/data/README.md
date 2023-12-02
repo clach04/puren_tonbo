@@ -159,6 +159,14 @@ Ideally generated with external tools that Puren Tonbo can validate against.
   * latin.txt - plain text file, single byte encoding
       * Approx 3.2Kb.
       * ISO-8859-1/Windows-1252 encoding
+  * pg28_the_fables_of_aesop_utf8.txt - plain text file, utf-8 multi byte encoding
+      * Approx 100Kb.
+      * utf-8 encoding
+      * From https://www.gutenberg.org/ebooks/28 - larger than 64Kb, yet not too big
+  * pg28_the_fables_of_aesop_utf8.chi - Tombo Blowfish encrypted from `pg28_the_fables_of_aesop_utf8.txt`
+      * Approx 100Kb.
+      * utf-8 encoding
+      * Created with `TomboCrypt.exe enc pg28_the_fables_of_aesop_utf8.chi password<pg28_the_fables_of_aesop_utf8.txt` from Tombo https://github.com/clach04/tombo
   * utf8_latin.txt - plain text file, utf-8 multi byte encoding
       * Approx 3.4Kb.
       * utf-8 encoding
