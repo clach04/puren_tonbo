@@ -163,10 +163,32 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * Approx 100Kb.
       * utf-8 encoding
       * From https://www.gutenberg.org/ebooks/28 - larger than 64Kb, yet not too big
+      * NOTE includes BOM at start of file
+      * compatabilty notes
+        * Tombo 1.17 - Windows
+          * will load BUT will display question mark for the BOM that is present (even when utf-8 is the encoding option)
+          * will save cleanly - not sure how with 30Kb limits seen when copy/pasting
+        * Tombo 2.0 beta 5 - Windows
+          * will load BUT will display question mark for the BOM that is present (even when utf-8 is the encoding option)
+          * will save cleanly
+        * Kumagusu 1.21 - Android
+          * will load, no BOM issues
   * pg28_the_fables_of_aesop_utf8.chi - Tombo Blowfish encrypted from `pg28_the_fables_of_aesop_utf8.txt`
       * Approx 100Kb.
       * utf-8 encoding
+      * NOTE includes BOM at start of file
       * Created with `TomboCrypt.exe enc pg28_the_fables_of_aesop_utf8.chi password<pg28_the_fables_of_aesop_utf8.txt` from Tombo https://github.com/clach04/tombo
+      * compatabilty notes
+        * Tombo 1.17 - Windows
+          * similar to the text file will load BUT will display question mark for the BOM that is present (even when utf-8 is the encoding option)
+          * new lines missing, not a problem with text file (or Tombo 2.0 beta 5)
+        * Tombo 2.0 beta 5 - Windows
+          * will load BUT will display question mark for the BOM that is present (even when utf-8 is the encoding option)
+          * no new line issues, that 1.17 has
+          * will save cleanly
+        * Kumagusu 1.21 - Android
+          * will load, no BOM issues
+          * will save cleanly
   * utf8_latin.txt - plain text file, utf-8 multi byte encoding
       * Approx 3.4Kb.
       * utf-8 encoding
