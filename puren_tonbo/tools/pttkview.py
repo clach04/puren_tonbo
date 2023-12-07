@@ -182,16 +182,12 @@ def main(argv=None):
         log.debug('evt: %r', evt)
         if st.edit_modified():
             raise NotImplementedError('Loading when text buffer has been modified')
-        handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
-        handler = handler_class(key=password)
+
         if os.path.exists(in_filename):  # FIXME this is limited to native file system
-            in_file = open(in_filename, 'rb')
-            plain_str_bytes = handler.read_from(in_file)
-            if debug_dump_data:
-                log.debug('plain_str_bytes: %r', plain_str_bytes)
-            in_file.close()
-            plain_str = puren_tonbo.to_string(plain_str_bytes, note_encoding=note_encoding)
+            plain_str = note_contents_load_filename(in_filename, get_pass=password, dos_newlines=dos_newlines, return_bytes=False, note_encoding=note_encoding)
         else:
+            handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
+            handler = handler_class(key=password)
             base_filename = os.path.basename(in_filename)  # FIXME this is **probably** limited to native file system
             for extension in handler_class.extensions:
                 if base_filename.endswith(extension):
@@ -202,6 +198,7 @@ def main(argv=None):
             log.debug('plain_str:        %r', plain_str)
         if dos_newlines:
             plain_str = plain_str.replace('\r', '')
+
         st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
         st.edit_modified(False)
         st.edit_reset()  # undo/redo reset
