@@ -955,6 +955,19 @@ class BaseNotes(object):
 ##############################
 
 # Local file system functions
+def to_bytes(data_in_string, note_encoding='utf-8'):
+    if isinstance(data_in_string, (bytes, bytearray)):
+        return data_in_string  # assume bytes already
+    if isinstance(note_encoding, basestring):
+        return data_in_string.encode(note_encoding)
+    for encoding in note_encoding:
+        try:
+            result = data_in_string.encode(encoding)
+            return result
+        except UnicodeEncodeError:
+            pass  # try next
+    raise NotImplementedError('ran out of valid encodings to try')
+
 def to_string(data_in_bytes, note_encoding='utf-8'):
     """Where note_encoding can also be a list, e.g. ['utf8', 'cp1252']
     """
@@ -1073,6 +1086,8 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
         log.debug("Encrypt/Decrypt problem. %r", (info,))
         raise
 
+#          note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
+#             note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
 def note_contents_save_native_filename(note_text, filename=None, original_filename=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8'):
     """Uses native/local file system IO api
     @handler is the encryption file handler to use, that is already initialized with a password
@@ -1080,23 +1095,89 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     """
     if filename is None:
         raise NotImplementedError('filename is None')
+    else:
+        filename = unicode_path(filename)
     if original_filename is not None:
         raise NotImplementedError('original_filename is not None')
+        #original_filename = unicode_path(original_filename)
+
     if handler is None:
         raise NotImplementedError('handler is required')
+    """
+    # sanity checks
+    if filename is not None and folder is not None:
+        raise NotImplementedError('incompatible/inconsistent filename: %r folder: %r ' % (filename, folder))
+    if original_filename is not None and folder is not None:
+        raise NotImplementedError('incompatible/inconsistent original_filename: %r folder: %r ' % (original_filename, folder))
+    if filename is None and original_filename:
+        raise NotImplementedError('renaming files base on content - incompatible/inconsistent original_filename: %r filename: %r ' % (original_filename, filename))
+    validate_filename_generator(filename_generator)
+    filename_generator_func = filename_generators[filename_generator]
 
-    filename = unicode_path(filename)
+
+    if original_filename:
+        # TODO just use the old name? or handle rename. rename depends on filename generator
+        if filename_generator in (FILENAME_TIMESTAMP, FILENAME_UUID4):
+            # do not rename... or they could have passed in the "new name"
+            filename = original_filename
+
+    # START FROM pttkview save_file()
+    filename_generator = puren_tonbo.FILENAME_FIRSTLINE
+    puren_tonbo.validate_filename_generator(filename_generator)
+    filename_generator_func = puren_tonbo.filename_generators[filename_generator]
+    _dummy, file_extn = os.path.splitext(original_filename)
+    log.debug('original file_extn: %r', file_extn)
+
+    if filename_generator in (puren_tonbo.FILENAME_TIMESTAMP, puren_tonbo.FILENAME_UUID4):
+        # do not rename... or they could have passed in the "new name"
+        filename = original_filename
+    else:
+        file_extension = file_extn or handler_class.extensions[0]  # pick the first one
+        filename_without_path_and_extension = filename_generator_func(buffer_plain_str)
+        filename = os.path.join(os.path.dirname(original_filename), filename_without_path_and_extension + file_extension)
+    log.debug('generated filename: %r', filename)
+    if filename != original_filename:
+        log.error('not implemented deleting old filename')
+    # END FROM pttkview save_file()
+
+    generated_filename = False
+    if filename is None:
+        if handler_class is None:
+            raise NotImplementedError('Missing handler_class for missing filename, could default to Raw - make decision')
+        file_extension = handler_class.extensions[0]  # pick the first one
+        if folder:
+            native_folder = self.native_full_path(folder)
+        else:
+            native_folder = self.note_root
+        filename_without_path_and_extension = filename_generator_func(note_text)
+        native_filename = os.path.join(native_folder, filename_without_path_and_extension + file_extension)
+        # now check if generated filename already exists, if so need to make unique
+        unique_counter = 1
+        while os.path.exists(native_filename):
+            #log.warn('generated filename %r already exists', native_filename)
+            unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
+            native_filename = os.path.join(native_folder, filename_without_path_and_extension + unique_part + file_extension)
+            unique_counter += 1
+        filename = self.abspath2relative(native_filename)
+        generated_filename = True
+
+    if original_filename and filename != original_filename:
+        raise NotImplementedError('renaming files not yet supported; original_filename !=  filename  %r != %r ' % (original_filename, filename))
+
+    handler_class = handler_class or filename2handler(filename)
+    #handler = handler_class(key=note_password)
+    handler = handler_class()
+    """
+
     if note_encoding is None:
-        plain_str_bytes = note_text
+        plain_str_bytes = note_text  # Assume bytes passed in (if so.. why not check here to enforce)
     else:
         if dos_newlines:
             note_text = note_text.replace('\n', '\r\n')  # TODO remove all \r first as a cleaning step?
         # see to_string() for reverse
-        if isinstance(note_encoding, basestring):
-            plain_str_bytes = note_text.encode(note_encoding)
-        else:
-            plain_str_bytes = note_text.encode(note_encoding[0])
+        plain_str_bytes = to_bytes(note_text, note_encoding)
 
+    ### same below as class methoed()
     if use_tempfile:
         timestamp_now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         out_file = tempfile.NamedTemporaryFile(
@@ -1275,7 +1356,7 @@ filename_generators = {
     FILENAME_UUID4: filename_generator_uuid4,
 }
 
-
+#      note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
 def note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
     """Save/write/encrypt the notes contents, also see note_contents()
 
@@ -1462,6 +1543,7 @@ class FileSystemNotes(BaseNotes):
         return fullpath_filename
 
     def to_bytes(self, data_in_string):
+        # FIXME refactor TODO call to_bytes() instead
         if isinstance(data_in_string, (bytes, bytearray)):
             return data_in_string  # assume bytes already
         if isinstance(self.note_encoding, basestring):
@@ -1475,6 +1557,7 @@ class FileSystemNotes(BaseNotes):
         raise NotImplementedError('ran out of valid encodings to try')
 
     def to_string(self, data_in_bytes):
+        # FIXME refactor TODO call to_string() instead
         #log.debug('self.note_encoding %r', self.note_encoding)
         #log.debug('data_in_bytes %r', data_in_bytes)
         if not isinstance(data_in_bytes, (bytes, bytearray)):  # FIXME revisit this, "is string" check
