@@ -177,7 +177,7 @@ def main(argv=None):
 
     def load_file(p=None, evt=None):
         # TODO move password prompt logic here?, password expected to be set earlier
-        log.debug('save_file')
+        log.debug('load_file')
         log.debug('p: %r', p)
         log.debug('evt: %r', evt)
         if st.edit_modified():
@@ -194,6 +194,7 @@ def main(argv=None):
                     base_filename = base_filename[:-len(extension)]
                     break
             plain_str = '%s\n\n%s\n' % (base_filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            # FIXME TODO mark as modified / dirty
         if debug_dump_data:
             log.debug('plain_str:        %r', plain_str)
         if dos_newlines:
@@ -224,6 +225,9 @@ def main(argv=None):
         handler_class = puren_tonbo.filename2handler(original_filename, default_handler=puren_tonbo.RawFile)
         handler = handler_class(key=password)
 
+        # note_contents_save_native_filename(note_text, filename=None, original_filename=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8'):
+        # TODO transplant into note_contents_save_native_filename()
+        # TODO original_filename should be passed in
         if options.gen_filename:
             filename_generator = puren_tonbo.FILENAME_FIRSTLINE
             puren_tonbo.validate_filename_generator(filename_generator)
