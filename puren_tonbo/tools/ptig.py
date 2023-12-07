@@ -173,6 +173,7 @@ class CommandPrompt(Cmd):
             print('%s/' % x)
         for x in file_list:
             print('%s' % x)
+    do_dir = do_ls
 
     def do_bookmarks(self, line=None):
         """Bookmark result (filenames), for use with `results` command
@@ -611,7 +612,24 @@ Aliases; vim, vi
                 return None
             line = self.file_hits[file_number - 1]
         except ValueError:
-            pass  # line contains filename, but filename may not exist
+            # line contains filename, but filename may not exist
+            note_encoding = self.pt_config['codec']
+            if is_win:
+                return line  # skip for now
+            # attempt to validate
+            if line.startswith('/'):
+                return line  # absolute path, for now supported as pass-thru (and skip directory jail)
+            # Assume relative path, enforce
+            for note_root in self.paths_to_search:
+                notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+                fullpath = notes.native_full_path(line)  # relative2abspath()
+                if os.path.exists(fullpath):
+                    return fullpath
+            # so file does not exist, assume new file in first directory
+            note_root = self.paths_to_search[0]
+            notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+            fullpath = notes.native_full_path(line)
+            return fullpath
         return line
 
     def do_opendir(self, line=None):
@@ -654,8 +672,17 @@ Also see `edit`
                 pager(data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
             else:
                 print('%s' % data)  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
+        except (puren_tonbo.PurenTonboIO, puren_tonbo.UnsupportedFile) as info:
+            message = 'Error opening file %r' % info
+            if self.grep_options.use_color:
+                message = ptgrep.color_error + message + ptgrep.color_reset
+            print('%s' % message)
         except KeyboardInterrupt:
-            print('search cancelled')
+            # TODO color support?
+            message = 'search cancelled'
+            if self.grep_options.use_color:
+                message = ptgrep.color_error + message + ptgrep.color_reset
+            print('%s' % message)
 
     do_c = do_cat  # shortcut to save typing
     do_type = do_cat  # Windows alias

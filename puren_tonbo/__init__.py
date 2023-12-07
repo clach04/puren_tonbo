@@ -1007,7 +1007,7 @@ def file_replace(src, dst):
 def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None, note_encoding='utf-8'):
     """Uses local file system IO api
         @handler dictates encryption mode/format (if any)
-        @filename if handlerommited, extension dictates encryption mode/format (if any)
+        @filename if handler is ommited, file extension derives handler - i.e. encryption mode/format (if any)
         @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'.
             See caching_console_password_prompt() for an example. API expected:
                 get_pass(filename=filename, reset=reset_password)
@@ -1041,12 +1041,17 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
             #import pdb ; pdb.set_trace()
             handler = handler_class(key=note_password)  # FIXME callback function support for password func
             # TODO repeat on bad password func
-            log.debug('DEBUG filename %r', fullpath_filename)
+            log.debug('DEBUG filename %r', filename)
 
             in_file = None
             try:
-                in_file = open(fullpath_filename, 'rb')  # TODO open once and seek back on failure
+                in_file = open(filename, 'rb')  # TODO open once and seek back on failure
                 plain_str = handler.read_from(in_file)
+                if dos_newlines:
+                    # FIXME TODO only do newline processing after decode
+                    # NOTE this will NOT work for utf-16
+                    plain_str = plain_str.replace(b'\r\n', b'\n')  # TODO consider remove all \r first as a cleaning step?
+
                 if return_bytes:
                     return plain_str
                 else:
@@ -1583,6 +1588,7 @@ class FileSystemNotes(BaseNotes):
 
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
         """load/read/decrypt notes file, also see note_contents_save()
+        TODO take/merge doc comments from function note_contents_load_filename()
 
         @filename is relative to `self.note_root` and includes directory name if not in the root.
         @filename (extension) dictates encryption mode/format (if any)
@@ -1593,68 +1599,17 @@ class FileSystemNotes(BaseNotes):
         @return_bytes returns bytes rather than (Unicode) strings
         @handler_class override handler, if ommited filename derives handler
         """
-        try:
-            filename = self.unicode_path(filename)
-            fullpath_filename = self.native_full_path(filename)
-
-
-            handler_class = handler_class or filename2handler(filename)
-            reset_password = False
-            while True:
-                #import pdb ; pdb.set_trace()
-                if handler_class is RawFile:
-                    log.debug('it is plain text')
-                    note_password = ''  # fake it. Alternatively override init for RawFile to remove check
-                else:
-                    #import pdb ; pdb.set_trace()
-                    if callable(get_pass):
-                        note_password = get_pass(filename=filename, reset=reset_password)
-                        # sanity check needed in case function returned string
-                        if not isinstance(note_password, bytes):
-                            note_password = note_password.encode("utf-8")
-                    else:
-                        # Assume password bytes passed in
-                        note_password = get_pass
-                    if note_password is None:
-                        raise SearchCancelled('empty password for for %s' % filename)
-
-                #import pdb ; pdb.set_trace()
-                handler = handler_class(key=note_password)  # FIXME callback function support for password func
-                # TODO repeat on bad password func
-                log.debug('DEBUG filename %r', fullpath_filename)
-
-                in_file = None
-                try:
-                    in_file = open(fullpath_filename, 'rb')  # TODO open once and seek back on failure
-                    plain_str = handler.read_from(in_file)
-                    if dos_newlines:
-                        # NOTE this will NOT work for utf-16
-                        plain_str = plain_str.replace(b'\r\n', b'\n')  # TODO consider remove all \r first as a cleaning step?
-
-                    # TODO could stash away handler..key for reuse as self.last_used_key .... or derived_key (which would be a new attribute)
-                    if return_bytes:
-                        return plain_str
-                    else:
-                        return self.to_string(plain_str)
-                except BadPassword as info:
-                    ## We will try the file again with a new (reset) password
-                    if not callable(get_pass):
-                        raise
-                    reset_password = True
-                finally:
-                    if in_file:
-                        in_file.close()
-        except IOError as info:
-            if info.errno == errno.ENOENT:
-                raise PurenTonboIO('Error opening %r file/directory does not exist' % filename)
-            else:
-                raise
-        except PurenTonboException as info:
-            log.debug("Encrypt/Decrypt problem. %r", (info,))
-            raise
+        filename = self.unicode_path(filename)
+        fullpath_filename = self.native_full_path(filename)
+        plain_str = note_contents_load_filename(fullpath_filename, get_pass=get_pass, dos_newlines=dos_newlines, return_bytes=True, handler_class=handler_class)
+        if return_bytes:
+            return plain_str
+        else:
+            return self.to_string(plain_str)
 
     def note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
         """Save/write/encrypt the notes contents, also see note_contents() for load/read/decrypt
+        FIXME make calls to note_contents_save_filename() function instead
 
         @note_text string contents to Save/write/encrypt, using self.to_string() to encode to disk (if bytes use as-is)
         @filename if specified is the filename to save to should be relative to `self.note_root` and include directory name
