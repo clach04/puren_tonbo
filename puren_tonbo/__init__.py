@@ -1583,6 +1583,7 @@ class FileSystemNotes(BaseNotes):
 
     def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
         """load/read/decrypt notes file, also see note_contents_save()
+        FIXME call function note_contents_load_filename() instead
 
         @filename is relative to `self.note_root` and includes directory name if not in the root.
         @filename (extension) dictates encryption mode/format (if any)
@@ -1655,6 +1656,7 @@ class FileSystemNotes(BaseNotes):
 
     def note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
         """Save/write/encrypt the notes contents, also see note_contents() for load/read/decrypt
+        FIXME make calls to note_contents_save_filename() function instead
 
         @note_text string contents to Save/write/encrypt, using self.to_string() to encode to disk (if bytes use as-is)
         @filename if specified is the filename to save to should be relative to `self.note_root` and include directory name
