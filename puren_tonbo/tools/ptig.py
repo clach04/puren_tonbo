@@ -5,6 +5,8 @@
 Example encryption file formats; Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.
 
     python -m puren_tonbo.tools.ptig -h
+
+TODO delete support (with confirmation)
 """
 
 import copy
