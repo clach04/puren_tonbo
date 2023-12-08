@@ -184,7 +184,8 @@ def main(argv=None):
             raise NotImplementedError('Loading when text buffer has been modified')
 
         if os.path.exists(in_filename):  # FIXME this is limited to native file system
-            plain_str = note_contents_load_filename(in_filename, get_pass=password, dos_newlines=dos_newlines, return_bytes=False, note_encoding=note_encoding)
+            plain_str = puren_tonbo.note_contents_load_filename(in_filename, get_pass=password, dos_newlines=dos_newlines, return_bytes=False, note_encoding=note_encoding)
+            modfied = False
         else:
             handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
             handler = handler_class(key=password)
@@ -194,14 +195,14 @@ def main(argv=None):
                     base_filename = base_filename[:-len(extension)]
                     break
             plain_str = '%s\n\n%s\n' % (base_filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-            # FIXME TODO mark as modified / dirty
+            modfied = True
         if debug_dump_data:
             log.debug('plain_str:        %r', plain_str)
         if dos_newlines:
             plain_str = plain_str.replace('\r', '')
 
         st.insert(tkinter.INSERT, plain_str)  # TODO review usage, pass into ScrolledText instead?
-        st.edit_modified(False)
+        st.edit_modified(modfied)
         st.edit_reset()  # undo/redo reset
         # NOTE Cursor will be at EOF.. BUT scroll/view will be top of the file
 
@@ -244,7 +245,7 @@ def main(argv=None):
                 filename = os.path.join(os.path.dirname(original_filename), filename_without_path_and_extension + file_extension)
             log.debug('generated filename: %r', filename)
             if filename != original_filename:
-                log.error('not implemented deleting old filename')
+                log.error('not implemented deleting old filename')  # NOTE also doesn't actualy save to the new name, overwrites the original name
         # DEBUG remove, and uncomment orig
         if not st.edit_modified():
             log.info('no changes, so not saving')
