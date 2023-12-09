@@ -138,6 +138,9 @@ class UnsupportedFile(PurenTonboException):
 class PurenTonboIO(PurenTonboException):
     '''(File) I/O exception'''
 
+class PurenTonboBadCall(PurenTonboException):
+    '''Incorrect API call'''
+
 
 class SearchException(Exception):
     def __init__(self, value):
@@ -167,7 +170,7 @@ class BaseFile:
         password_encoding is used to create key from password if key is not provided
         """
         if key is None and password is None:
-            raise RuntimeError('need password or key')  # TODO custom exception (needed for read_from()/write_to() failures
+            raise PurenTonboBadCall('need password or key')
         if key is not None:
             self.key = key
         elif password:
