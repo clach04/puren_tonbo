@@ -338,7 +338,7 @@ class GnuPG(EncryptedFile):
         # TODO catch exceptions and raise PurenTonboException()
         # bad passwords result in empty string results
         password = self.key
-        """
+        r"""
 when bytes passed actually get misleading error:
 
 Traceback (most recent call last):
@@ -1249,7 +1249,7 @@ def safe_filename(filename, replacement_char='_', allow_space=False, max_filenam
         last_char = x
 
     new_filename = ''.join(result)
-    """now prefix _ infront of special names, mostly impacts Windows.
+    r"""now prefix _ infront of special names, mostly impacts Windows.
     For example handle this sort of mess:
 
         C:\tmp>echo hello > con.txt
