@@ -1752,8 +1752,10 @@ class FileSystemNotes(BaseNotes):
             raise NotImplementedError('renaming files not yet supported; original_filename !=  filename  %r != %r ' % (original_filename, filename))
 
         handler_class = handler_class or filename2handler(filename)
-        #handler = handler_class(key=note_password)
-        handler = handler_class()
+        if get_pass:
+            handler = handler_class(key=get_pass)
+        else:
+            handler = handler_class()
 
         # x TODO unicode filename
         # x TODO handler lookup

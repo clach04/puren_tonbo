@@ -596,6 +596,145 @@ file one.
 '''
         self.do_one_test_simple(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
 
+
+# Filename generation (rename) tests
+class TestFileSystemNotesWriteClassSave(TestUtil):
+    # data_folder setup in setUpClass()
+    test_password_bytes = b'password'
+    note_encoding = 'us-ascii'
+
+    @classmethod
+    def setUpClass(self):
+        self.data_folder = tempfile.mkdtemp(prefix='TestFileSystemNotesWrite_tmp')
+        #print('self.data_folder %s' % self.data_folder)
+
+    @classmethod
+    def tearDownClass(self):
+        shutil.rmtree(self.data_folder)
+
+    def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
+        if not expected_filenames:
+            self.assertTrue(False, 'expected_filenames required... not implemented')
+        test_note_filename = new_filename or expected_filenames[0]
+        folder = folder or self.data_folder
+        try:
+
+            # TODO test withOUT handler
+            if test_password_bytes:
+                # for now default to chi
+                handler_class = default_handler=puren_tonbo.TomboBlowfish
+            else:
+                handler_class = default_handler=puren_tonbo.RawFile
+            password = test_password_bytes or self.test_password_bytes
+
+            kwargs = dict(
+                filename_generator=filename_generator,
+            )
+            if dos_newlines is not None:
+                kwargs['dos_newlines'] = dos_newlines
+            if new_filename:
+                kwargs['filename'] = new_filename
+            if original_filename:
+                kwargs['original_filename'] = original_filename
+            """
+            if folder:
+                kwargs['folder'] = folder
+            """
+            if password:
+                kwargs['get_pass'] = password
+            #import pdb ; pdb.set_trace()
+            if handler_class:
+                kwargs['handler_class'] = handler_class
+
+            note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
+            note_root.note_contents_save(buffer_plain_str, **kwargs)
+
+            # load / decrypt / validation
+            # TODO kwargs params
+            if dos_newlines is None:
+                # tests with default newline setting
+                data = note_root.note_contents(test_note_filename, password)
+            else:
+                data = note_root.note_contents(test_note_filename, password, dos_newlines=dos_newlines)
+            self.assertEqual(buffer_plain_str, data)
+
+            for (dirname, dirnames, filenames) in os.walk(folder):
+                #print(dirname, dirnames, filenames)
+                self.assertEqual((folder, [], expected_filenames), (dirname, dirnames, filenames))
+
+        finally:
+            # cleanup file(s)
+            for filename in expected_filenames:
+                os.remove(os.path.join(folder, filename)) # TODO ignore does not exist errors (only)
+
+    def test_filename_gen_one_chi(self):
+        buffer_plain_str = '''one
+
+file one.
+
+'''
+        self.do_one_test(buffer_plain_str, dos_newlines=False, test_password_bytes=self.test_password_bytes, expected_filenames=['one.chi'])
+
+    def test_filename_gen_one_txt(self):
+        buffer_plain_str = '''one
+
+file one.
+
+'''
+        self.do_one_test(buffer_plain_str, dos_newlines=False, expected_filenames=['one.txt'])
+
+
+class TestFileSystemNotesWriteFunctionSave(TestFileSystemNotesWriteClassSave):
+    def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
+        if not expected_filenames:
+            self.assertTrue(False, 'expected_filenames required... not implemented')
+        test_note_filename = new_filename or expected_filenames[0]
+        folder = folder or self.data_folder
+        try:
+
+            # TODO test withOUT handler
+            if test_password_bytes:
+                # for now default to chi
+                handler_class = default_handler=puren_tonbo.TomboBlowfish
+            else:
+                handler_class = default_handler=puren_tonbo.RawFile
+            password = test_password_bytes or self.test_password_bytes
+            handler = handler_class(key=password)
+
+            kwargs = dict(
+                filename_generator=filename_generator,
+            )
+            if dos_newlines is not None:
+                kwargs['dos_newlines'] = dos_newlines
+            if new_filename:
+                kwargs['filename'] = new_filename
+            if original_filename:
+                kwargs['original_filename'] = original_filename
+            if handler:
+                kwargs['handler'] = handler
+
+            puren_tonbo.note_contents_save_filename(buffer_plain_str, **kwargs)
+
+            # load / decrypt / validation
+            note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
+            # TODO kwargs params
+            if dos_newlines is None:
+                # tests with default newline setting
+                data = note_root.note_contents(test_note_filename, password)
+            else:
+                data = note_root.note_contents(test_note_filename, password, dos_newlines=dos_newlines)
+            self.assertEqual(buffer_plain_str, data)
+
+            for (dirname, dirnames, filenames) in os.walk(folder):
+                #print(dirname, dirnames, filenames)
+                self.assertEqual((folder, [], expected_filenames), (dirname, dirnames, filenames))
+
+        finally:
+            # cleanup file(s)
+            for filename in expected_filenames:
+                os.remove(os.path.join(folder, filename)) # TODO ignore does not exist errors (only)
+
+
     # TODO test write file, then save/edit once - confirm have backup and new file
     # TODO test write file auto generate name
     # TODO test write file, then edit with (new/modified first line) auto generate name should be different
