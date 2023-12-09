@@ -1101,6 +1101,12 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     @handler is the encryption file handler to use, that is already initialized with a password
     @note_encoding if None, assume note_text is bytes, if a string use as the encoding, can also be a list, e.g. ['utf8', 'cp1252'] in which case use the first one
     """
+    # Start - restrictions/checks that should be removed
+    if original_filename is not None:
+        raise NotImplementedError('original_filename is not None')
+        #original_filename = unicode_path(original_filename)
+    # End - restrictions/checks that should be removed
+
     if handler is None:
         raise NotImplementedError('handler is required')
     if filename is None:
@@ -1116,9 +1122,6 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
         log.debug('generated filename: %r', filename)
     else:
         filename = unicode_path(filename)
-    if original_filename is not None:
-        raise NotImplementedError('original_filename is not None')
-        #original_filename = unicode_path(original_filename)
 
 
     """
@@ -1195,7 +1198,7 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
         # see to_string() for reverse
         plain_str_bytes = to_bytes(note_text, note_encoding)
 
-    ### same below as class methoed()
+    ### same below as class method()
     if use_tempfile:
         timestamp_now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         out_file = tempfile.NamedTemporaryFile(
