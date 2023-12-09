@@ -742,6 +742,7 @@ class TestFileSystemNotesWriteFunctionSave(TestFileSystemNotesWriteClassSave):
     # TODO test write file, then edit with (new/modified first line) auto generate name should be different
     # TODO test write file with characters outside of encoding
     # TODO test write file, then write 2nd time this time with characters outside of encoding - to generate error - existing file should be preserved
+    # TODO no filename, generator set to none. ensure reasonable error generated
 
 def main():
     puren_tonbo.print_version_info()
