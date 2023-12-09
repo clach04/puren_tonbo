@@ -11,9 +11,11 @@ Sample usage:
 """
 
 import os
+import pdb
 import sys
 import shutil
 import tempfile
+import traceback
 
 from io import BytesIO as FakeFile  # py3
 
@@ -598,10 +600,11 @@ file one.
 
 
 # Filename generation (rename) tests
-class TestFileSystemNotesWriteClassSave(TestUtil):
+class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
     # data_folder setup in setUpClass()
     test_password_bytes = b'password'
     note_encoding = 'us-ascii'
+    handler_class = puren_tonbo.RawFile  # text / txt
 
     @classmethod
     def setUpClass(self):
@@ -620,12 +623,8 @@ class TestFileSystemNotesWriteClassSave(TestUtil):
         try:
 
             # TODO test withOUT handler
-            if test_password_bytes:
-                # for now default to chi
-                handler_class = default_handler=puren_tonbo.TomboBlowfish ## TODO replace with class attribute, that sub classes override 
-            else:
-                handler_class = default_handler=puren_tonbo.RawFile
-            password = test_password_bytes or self.test_password_bytes
+            handler_class = self.handler_class
+            password = test_password_bytes
 
             kwargs = dict(
                 filename_generator=filename_generator,
@@ -665,26 +664,41 @@ class TestFileSystemNotesWriteClassSave(TestUtil):
         finally:
             # cleanup file(s)
             for filename in expected_filenames:
-                os.remove(os.path.join(folder, filename)) # TODO ignore does not exist errors (only)
+                full_pathname = os.path.join(folder, filename)
+                if os.path.exists(full_pathname):
+                    os.remove(full_pathname) # TODO ignore does not exist errors (only), for now skip attempt
 
-    def test_filename_gen_one_chi(self):
+    def test_filename_gen_one_with_password(self):
         buffer_plain_str = '''one
 
 file one.
 
 '''
-        self.do_one_test(buffer_plain_str, dos_newlines=False, test_password_bytes=self.test_password_bytes, expected_filenames=['one.chi'])
+        #pdb.set_trace()
+        file_extension = self.handler_class.extensions[0]  # pick the first one
+        self.do_one_test(buffer_plain_str, dos_newlines=False, test_password_bytes=self.test_password_bytes, expected_filenames=['one' + file_extension])
 
-    def test_filename_gen_one_txt(self):
+    def test_filename_gen_one_no_password(self):
         buffer_plain_str = '''one
 
 file one.
 
 '''
-        self.do_one_test(buffer_plain_str, dos_newlines=False, expected_filenames=['one.txt'])
+        file_extension = self.handler_class.extensions[0]  # pick the first one
+        # do NOT pass in test_password_bytes
+        #pdb.set_trace()
+        #if self.handler_class is puren_tonbo.RawFile:
+        if isinstance(self.handler_class(key=b'junk'), puren_tonbo.RawFile):
+            self.do_one_test(buffer_plain_str, dos_newlines=False, expected_filenames=['one' + file_extension])
+        else:
+            self.assertRaises(puren_tonbo.PurenTonboBadCall, self.do_one_test, buffer_plain_str, dos_newlines=False, expected_filenames=['one' + file_extension])
 
 
-class TestFileSystemNotesWriteFunctionSave(TestFileSystemNotesWriteClassSave):
+class TestFileSystemNotesWriteClassSaveEncryptedChi(TestFileSystemNotesWriteClassSaveRawPlainText):
+    handler_class = puren_tonbo.TomboBlowfish # Tombo chi
+
+
+class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteClassSaveRawPlainText):
     def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
         if not expected_filenames:
             self.assertTrue(False, 'expected_filenames required... not implemented')
@@ -693,12 +707,8 @@ class TestFileSystemNotesWriteFunctionSave(TestFileSystemNotesWriteClassSave):
         try:
 
             # TODO test withOUT handler
-            if test_password_bytes:
-                # for now default to chi
-                handler_class = default_handler=puren_tonbo.TomboBlowfish
-            else:
-                handler_class = default_handler=puren_tonbo.RawFile
-            password = test_password_bytes or self.test_password_bytes
+            handler_class = self.handler_class
+            password = test_password_bytes
             handler = handler_class(key=password)
 
             kwargs = dict(
@@ -734,8 +744,12 @@ class TestFileSystemNotesWriteFunctionSave(TestFileSystemNotesWriteClassSave):
         finally:
             # cleanup file(s)
             for filename in expected_filenames:
-                os.remove(os.path.join(folder, filename)) # TODO ignore does not exist errors (only)
+                full_pathname = os.path.join(folder, filename)
+                if os.path.exists(full_pathname):
+                    os.remove(full_pathname) # TODO ignore does not exist errors (only), for now skip attempt
 
+class TestFileSystemNotesWriteFunctionSaveEncryptedChi(TestFileSystemNotesWriteFunctionSaveRawPlainText):
+    handler_class = puren_tonbo.TomboBlowfish # Tombo chi
 
     # TODO test write file, then save/edit once - confirm have backup and new file
     # TODO test write file auto generate name
@@ -744,9 +758,30 @@ class TestFileSystemNotesWriteFunctionSave(TestFileSystemNotesWriteClassSave):
     # TODO test write file, then write 2nd time this time with characters outside of encoding - to generate error - existing file should be preserved
     # TODO no filename, generator set to none. ensure reasonable error generated
 
+def debugTestRunner(post_mortem=None):
+    """unittest runner doing post mortem debugging on failing tests"""
+    if post_mortem is None:
+        post_mortem = pdb.post_mortem
+    class DebugTestResult(unittest.TextTestResult):
+        def addError(self, test, err):
+            # called before tearDown()
+            traceback.print_exception(*err)
+            post_mortem(err[2])
+            super(DebugTestResult, self).addError(test, err)
+        def addFailure(self, test, err):
+            traceback.print_exception(*err)
+            post_mortem(err[2])
+            super(DebugTestResult, self).addFailure(test, err)
+    return unittest.TextTestRunner(resultclass=DebugTestResult)
+
 def main():
     puren_tonbo.print_version_info()
-    unittest.main()
+    if os.environ.get('DEBUG_ON_FAIL'):
+        unittest.main(testRunner=debugTestRunner())
+        ##unittest.main(testRunner=debugTestRunner(pywin.debugger.post_mortem))
+        ##unittest.findTestCases(__main__).debug()
+    else:
+        unittest.main()
 
 if __name__ == '__main__':
     main()
