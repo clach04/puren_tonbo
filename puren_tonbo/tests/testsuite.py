@@ -710,6 +710,8 @@ class TestFileSystemNotesWriteFunctionSave(TestFileSystemNotesWriteClassSave):
                 kwargs['filename'] = new_filename
             if original_filename:
                 kwargs['original_filename'] = original_filename
+            if folder:
+                kwargs['folder'] = folder
             if handler:
                 kwargs['handler'] = handler
 

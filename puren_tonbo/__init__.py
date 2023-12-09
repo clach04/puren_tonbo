@@ -1017,6 +1017,14 @@ def file_replace(src, dst):
         if dest_exists:
             os.remove(tmp_backup)
 
+# filename derivation/generation options/techniques
+FILENAME_TIMESTAMP = 'TIMESTAMP'  # could have lots of options, this one will be YYYY-MM-DD_hhmmss ## TODO handle case whdre generate more than one file in less than a sec?
+FILENAME_FIRSTLINE = 'FIRSTLINE'  # Tombo like, needs to be file system safe but retains spaces
+FILENAME_FIRSTLINE_CLEAN = 'FIRSTLINE_CLEAN'  # TODO firstline but clean, remove dupe hypens, underscores, spaces, etc.
+FILENAME_FIRSTLINE_SNAKE_CASE = 'FIRSTLINE_SNAKE_CASE'
+FILENAME_FIRSTLINE_KEBAB_CASE = 'FIRSTLINE_KEBAB_CASE'
+FILENAME_UUID4 = 'UUID4'
+
 def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None, note_encoding='utf-8'):
     """Uses local file system IO api
         @handler dictates encryption mode/format (if any)
@@ -1088,21 +1096,31 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
 
 #          note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
 #             note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
-def note_contents_save_native_filename(note_text, filename=None, original_filename=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8'):
+def note_contents_save_native_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
     """Uses native/local file system IO api
     @handler is the encryption file handler to use, that is already initialized with a password
     @note_encoding if None, assume note_text is bytes, if a string use as the encoding, can also be a list, e.g. ['utf8', 'cp1252'] in which case use the first one
     """
+    if handler is None:
+        raise NotImplementedError('handler is required')
     if filename is None:
-        raise NotImplementedError('filename is None')
+        validate_filename_generator(filename_generator)
+        filename_generator_func = filename_generators[filename_generator]
+        file_extension = handler.extensions[0]  # pick the first one
+        filename_without_path_and_extension = filename_generator_func(note_text)
+        # TODO handle format conversion (e.g. original text, new encrypted)
+        if original_filename:
+            filename = os.path.join(os.path.dirname(original_filename), filename_without_path_and_extension + file_extension)
+        else:
+            filename = os.path.join(folder, filename_without_path_and_extension + file_extension)
+        log.debug('generated filename: %r', filename)
     else:
         filename = unicode_path(filename)
     if original_filename is not None:
         raise NotImplementedError('original_filename is not None')
         #original_filename = unicode_path(original_filename)
 
-    if handler is None:
-        raise NotImplementedError('handler is required')
+
     """
     # sanity checks
     if filename is not None and folder is not None:
@@ -1200,14 +1218,6 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
 
     if use_tempfile:
         file_replace(tmp_out_filename, filename)
-
-# filename derivation/generation options/techniques
-FILENAME_TIMESTAMP = 'TIMESTAMP'  # could have lots of options, this one will be YYYY-MM-DD_hhmmss ## TODO handle case whdre generate more than one file in less than a sec?
-FILENAME_FIRSTLINE = 'FIRSTLINE'  # Tombo like, needs to be file system safe but retains spaces
-FILENAME_FIRSTLINE_CLEAN = 'FIRSTLINE_CLEAN'  # TODO firstline but clean, remove dupe hypens, underscores, spaces, etc.
-FILENAME_FIRSTLINE_SNAKE_CASE = 'FIRSTLINE_SNAKE_CASE'
-FILENAME_FIRSTLINE_KEBAB_CASE = 'FIRSTLINE_KEBAB_CASE'
-FILENAME_UUID4 = 'UUID4'
 
 def validate_filename_generator(filename_generator):
     if filename_generator not in (
@@ -1373,7 +1383,7 @@ def note_contents_save_filename(note_text, filename=None, original_filename=None
     """
     validate_filename_generator(filename_generator)
 
-    return note_contents_save_native_filename(note_text, filename=filename, original_filename=original_filename, handler=handler, dos_newlines=dos_newlines, backup=backup, use_tempfile=use_tempfile, note_encoding=note_encoding)
+    return note_contents_save_native_filename(note_text, filename=filename, original_filename=original_filename, folder=folder, handler=handler, dos_newlines=dos_newlines, backup=backup, use_tempfile=use_tempfile, note_encoding=note_encoding, filename_generator=filename_generator)
 
 
 # Local file system navigation functions
