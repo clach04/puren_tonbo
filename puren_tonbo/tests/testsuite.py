@@ -10,6 +10,7 @@ Sample usage:
 
 """
 
+import glob
 import os
 import pdb
 import sys
@@ -615,7 +616,7 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
     def tearDownClass(self):
         shutil.rmtree(self.data_folder)
 
-    def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
+    def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, backup=True, use_tempfile=True, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
         if not expected_filenames:
             self.assertTrue(False, 'expected_filenames required... not implemented')
         test_note_filename = new_filename or expected_filenames[0]
@@ -628,6 +629,8 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
 
             kwargs = dict(
                 filename_generator=filename_generator,
+                backup=backup,
+                use_tempfile=use_tempfile,
             )
             if dos_newlines is not None:
                 kwargs['dos_newlines'] = dos_newlines
@@ -667,6 +670,39 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
                 full_pathname = os.path.join(folder, filename)
                 if os.path.exists(full_pathname):
                     os.remove(full_pathname) # TODO ignore does not exist errors (only), for now skip attempt
+
+            # simple, flat, non-nested cleanup
+            for filename in glob.glob(os.path.join(folder, '*')):
+                os.remove(filename)
+
+    def test_filename_gen_one_rename_two_with_password_with_backup(self):
+        buffer_plain_str = '''two
+
+file WAS one.
+
+'''
+        #pdb.set_trace()
+        file_extension = self.handler_class.extensions[0]  # pick the first one
+        folder = self.data_folder
+        note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
+        note_root.note_contents_save('junk', filename='one' + file_extension, filename_generator=None, get_pass=self.test_password_bytes)
+
+        # NOTE implicit backup
+        self.do_one_test(buffer_plain_str, original_filename='one' + file_extension, dos_newlines=False, test_password_bytes=self.test_password_bytes, expected_filenames=['two' + file_extension, 'one.txt.bak'])
+
+    def test_filename_gen_one_rename_two_with_password_with_nobackup(self):
+        buffer_plain_str = '''two
+
+file WAS one.
+
+'''
+        #pdb.set_trace()
+        file_extension = self.handler_class.extensions[0]  # pick the first one
+        folder = self.data_folder
+        note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
+        note_root.note_contents_save('junk', filename='one' + file_extension, filename_generator=None, get_pass=self.test_password_bytes)
+
+        self.do_one_test(buffer_plain_str, original_filename='one' + file_extension, dos_newlines=False, test_password_bytes=self.test_password_bytes, backup=False, expected_filenames=['two' + file_extension])
 
     def test_filename_gen_one_with_password_already_exist(self):
         buffer_plain_str = '''one
@@ -710,7 +746,7 @@ file one.
 
 
 class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteClassSaveRawPlainText):
-    def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
+    def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, backup=True, use_tempfile=True, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
         if not expected_filenames:
             self.assertTrue(False, 'expected_filenames required... not implemented')
         test_note_filename = new_filename or expected_filenames[0]
@@ -724,6 +760,8 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteC
 
             kwargs = dict(
                 filename_generator=filename_generator,
+                backup=backup,
+                use_tempfile=use_tempfile,
             )
             if dos_newlines is not None:
                 kwargs['dos_newlines'] = dos_newlines
@@ -749,7 +787,9 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteC
                 data = note_root.note_contents(test_note_filename, password, dos_newlines=dos_newlines)
             self.assertEqual(buffer_plain_str, data)
 
+            expected_filenames.sort()
             for (dirname, dirnames, filenames) in os.walk(folder):
+                filenames.sort()
                 #print(dirname, dirnames, filenames)
                 self.assertEqual((folder, [], expected_filenames), (dirname, dirnames, filenames))
 
@@ -759,6 +799,10 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteC
                 full_pathname = os.path.join(folder, filename)
                 if os.path.exists(full_pathname):
                     os.remove(full_pathname) # TODO ignore does not exist errors (only), for now skip attempt
+
+            # simple, flat, non-nested cleanup
+            for filename in glob.glob(os.path.join(folder, '*')):
+                os.remove(filename)
 
 class TestFileSystemNotesWriteClassSaveEncryptedChi(TestFileSystemNotesWriteClassSaveRawPlainText):
     handler_class = puren_tonbo.TomboBlowfish # Tombo chi
