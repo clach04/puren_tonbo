@@ -622,7 +622,7 @@ class TestFileSystemNotesWriteClassSave(TestUtil):
             # TODO test withOUT handler
             if test_password_bytes:
                 # for now default to chi
-                handler_class = default_handler=puren_tonbo.TomboBlowfish
+                handler_class = default_handler=puren_tonbo.TomboBlowfish ## TODO replace with class attribute, that sub classes override 
             else:
                 handler_class = default_handler=puren_tonbo.RawFile
             password = test_password_bytes or self.test_password_bytes
