@@ -641,10 +641,10 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
             """
             if password:
                 kwargs['get_pass'] = password
-            #import pdb ; pdb.set_trace()
             if handler_class:
                 kwargs['handler_class'] = handler_class
 
+            #pdb.set_trace()
             note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
             note_root.note_contents_save(buffer_plain_str, **kwargs)
 
@@ -667,6 +667,20 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
                 full_pathname = os.path.join(folder, filename)
                 if os.path.exists(full_pathname):
                     os.remove(full_pathname) # TODO ignore does not exist errors (only), for now skip attempt
+
+    def test_filename_gen_one_with_password_already_exist(self):
+        buffer_plain_str = '''one
+
+file one.
+
+'''
+        #pdb.set_trace()
+        file_extension = self.handler_class.extensions[0]  # pick the first one
+        folder = self.data_folder
+        note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
+        note_root.note_contents_save('junk', filename='one' + file_extension, filename_generator=None)
+
+        self.do_one_test(buffer_plain_str, dos_newlines=False, test_password_bytes=self.test_password_bytes, expected_filenames=['one(1)' + file_extension, 'one' + file_extension])
 
     def test_filename_gen_one_with_password(self):
         buffer_plain_str = '''one
@@ -722,6 +736,7 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteC
             if handler:
                 kwargs['handler'] = handler
 
+            #pdb.set_trace()
             puren_tonbo.note_contents_save_filename(buffer_plain_str, **kwargs)
 
             # load / decrypt / validation

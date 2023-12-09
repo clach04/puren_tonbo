@@ -1103,6 +1103,7 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     """Uses native/local file system IO api
     @handler is the encryption file handler to use, that is already initialized with a password
     @note_encoding if None, assume note_text is bytes, if a string use as the encoding, can also be a list, e.g. ['utf8', 'cp1252'] in which case use the first one
+    folder - if specified (new) filename and original_filename are relative. if missing filename and original_filename are absolute
     """
     # Start - restrictions/checks that should be removed
     if original_filename is not None:
@@ -1113,15 +1114,30 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     if handler is None:
         raise NotImplementedError('handler is required')
     if filename is None:
+        if folder:
+            # relative path names for files as given as input to this function
+            if original_filename:
+                original_filename = os.path.join(folder, original_filename)  # TODO abspath for safety?
+                folder = os.path.dirname(original_filename)
+        else:
+            # folder not set, so absolute paths given as input to this function
+            folder = os.path.dirname(original_filename)
+
         validate_filename_generator(filename_generator)
         filename_generator_func = filename_generators[filename_generator]
         file_extension = handler.extensions[0]  # pick the first one
         filename_without_path_and_extension = filename_generator_func(note_text)
+
+        filename = os.path.join(folder, filename_without_path_and_extension + file_extension)
+        # now check if generated filename already exists, if so need to make unique
+        unique_counter = 1
+        while os.path.exists(filename):
+            #log.warn('generated filename %r already exists', filename)
+            unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
+            filename = os.path.join(folder, filename_without_path_and_extension + unique_part + file_extension)
+            unique_counter += 1
+
         # TODO handle format conversion (e.g. original text, new encrypted)
-        if original_filename:
-            filename = os.path.join(os.path.dirname(original_filename), filename_without_path_and_extension + file_extension)
-        else:
-            filename = os.path.join(folder, filename_without_path_and_extension + file_extension)
         log.debug('generated filename: %r', filename)
     else:
         filename = unicode_path(filename)
@@ -1730,13 +1746,14 @@ class FileSystemNotes(BaseNotes):
             raise NotImplementedError('incompatible/inconsistent original_filename: %r folder: %r ' % (original_filename, folder))
         if filename is None and original_filename:
             raise NotImplementedError('renaming files base on content - incompatible/inconsistent original_filename: %r filename: %r ' % (original_filename, filename))
-        validate_filename_generator(filename_generator)
-        filename_generator_func = filename_generators[filename_generator]
+        if filename_generator:
+            validate_filename_generator(filename_generator)
+            filename_generator_func = filename_generators[filename_generator]
 
 
         if original_filename:
             # TODO just use the old name? or handle rename. rename depends on filename generator
-            if filename_generator in (FILENAME_TIMESTAMP, FILENAME_UUID4):
+            if filename_generator in (None, FILENAME_TIMESTAMP, FILENAME_UUID4):
                 # do not rename... or they could have passed in the "new name"
                 filename = original_filename
 
