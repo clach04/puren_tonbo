@@ -694,9 +694,6 @@ file one.
             self.assertRaises(puren_tonbo.PurenTonboBadCall, self.do_one_test, buffer_plain_str, dos_newlines=False, expected_filenames=['one' + file_extension])
 
 
-class TestFileSystemNotesWriteClassSaveEncryptedChi(TestFileSystemNotesWriteClassSaveRawPlainText):
-    handler_class = puren_tonbo.TomboBlowfish # Tombo chi
-
 
 class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteClassSaveRawPlainText):
     def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
@@ -748,8 +745,23 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteC
                 if os.path.exists(full_pathname):
                     os.remove(full_pathname) # TODO ignore does not exist errors (only), for now skip attempt
 
+class TestFileSystemNotesWriteClassSaveEncryptedChi(TestFileSystemNotesWriteClassSaveRawPlainText):
+    handler_class = puren_tonbo.TomboBlowfish # Tombo chi
+
 class TestFileSystemNotesWriteFunctionSaveEncryptedChi(TestFileSystemNotesWriteFunctionSaveRawPlainText):
     handler_class = puren_tonbo.TomboBlowfish # Tombo chi
+
+class TestFileSystemNotesWriteClassSaveEncryptedCcrypt(TestFileSystemNotesWriteClassSaveRawPlainText):
+    handler_class = puren_tonbo.Ccrypt
+
+class TestFileSystemNotesWriteFunctionSaveEncryptedCcrypt(TestFileSystemNotesWriteFunctionSaveRawPlainText):
+    handler_class = puren_tonbo.Ccrypt
+
+""" TODO implement TestFileSystemNotesWriteClassSaveRawPlainText and TestFileSystemNotesWriteFunctionSaveRawPlainText for:
+grep '(EncryptedFile):' puren_tonbo/__init__.py
+grep '(ZipEncryptedFileBase):' puren_tonbo/__init__.py
+
+"""
 
     # TODO test write file, then save/edit once - confirm have backup and new file
     # TODO test write file auto generate name
