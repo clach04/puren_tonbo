@@ -530,7 +530,7 @@ class TestFileSystemNotesWrite(TestUtil):
         shutil.rmtree(self.data_folder)
 
     # TODO new test without password
-    def do_one_test(self, in_filename, buffer_plain_str, dos_newlines=None, test_password_bytes=None):
+    def do_one_test_simple(self, in_filename, buffer_plain_str, dos_newlines=None, test_password_bytes=None):
         filename_no_path = in_filename
         in_filename = os.path.join(self.data_folder, in_filename)
         try:
@@ -574,7 +574,7 @@ class TestFileSystemNotesWrite(TestUtil):
 file one.
 
 '''
-        self.do_one_test(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
+        self.do_one_test_simple(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
 
     def test_file_one_without_dos_newlines(self):
         in_filename = 'one.txt'
@@ -584,7 +584,7 @@ file one.
 file one.
 
 '''
-        self.do_one_test(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
+        self.do_one_test_simple(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
 
     def test_file_one_with_default_dos_newlines(self):
         in_filename = 'one.txt'
@@ -594,7 +594,7 @@ file one.
 file one.
 
 '''
-        self.do_one_test(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
+        self.do_one_test_simple(in_filename, buffer_plain_str, dos_newlines=dos_newlines, test_password_bytes=self.test_password_bytes)
 
     # TODO test write file, then save/edit once - confirm have backup and new file
     # TODO test write file auto generate name
