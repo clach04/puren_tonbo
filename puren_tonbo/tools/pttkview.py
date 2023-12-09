@@ -5,6 +5,9 @@
 
     python -m puren_tonbo.tools.pttkview -h
     pttkview -h
+
+TODO support directory (and generate filename) and then create new file
+TODO implement GUI menu Save As (allow changing/saving as different type, retain original file if present)
 """
 
 import datetime
