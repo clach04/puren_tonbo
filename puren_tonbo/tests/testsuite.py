@@ -678,7 +678,7 @@ file one.
         file_extension = self.handler_class.extensions[0]  # pick the first one
         folder = self.data_folder
         note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
-        note_root.note_contents_save('junk', filename='one' + file_extension, filename_generator=None)
+        note_root.note_contents_save('junk', filename='one' + file_extension, filename_generator=None, test_password_bytes=self.test_password_bytes)
 
         self.do_one_test(buffer_plain_str, dos_newlines=False, test_password_bytes=self.test_password_bytes, expected_filenames=['one(1)' + file_extension, 'one' + file_extension])
 
