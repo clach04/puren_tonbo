@@ -1766,8 +1766,10 @@ class FileSystemNotes(BaseNotes):
             raise NotImplementedError('incompatible/inconsistent filename: %r folder: %r ' % (filename, folder))
         if original_filename is not None and folder is not None:
             raise NotImplementedError('incompatible/inconsistent original_filename: %r folder: %r ' % (original_filename, folder))
+        """
         if filename is None and original_filename:
             raise NotImplementedError('renaming files base on content - incompatible/inconsistent original_filename: %r filename: %r ' % (original_filename, filename))
+        """
         if filename_generator:
             validate_filename_generator(filename_generator)
             filename_generator_func = filename_generators[filename_generator]
@@ -1802,8 +1804,10 @@ class FileSystemNotes(BaseNotes):
 
         filename = self.unicode_path(filename)
         fullpath_native_filename = self.native_full_path(filename)
+        """
         if original_filename and filename != original_filename:
             raise NotImplementedError('renaming files not yet supported; original_filename !=  filename  %r != %r ' % (original_filename, filename))
+        """
 
         handler_class = handler_class or filename2handler(filename)
         if get_pass:
