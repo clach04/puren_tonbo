@@ -1119,6 +1119,10 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     @note_encoding if None, assume note_text is bytes, if a string use as the encoding, can also be a list, e.g. ['utf8', 'cp1252'] in which case use the first one
     folder - if specified (new) filename and original_filename are relative. if missing filename and original_filename are absolute
     """
+    #import pdb; pdb.set_trace()
+    #log.setLevel(logging.DEBUG)
+    log.debug('original file %r', original_filename)
+    log.debug('new file %r', filename)
     # Start - restrictions/checks that should be removed
     """
     if original_filename is not None:
@@ -1149,17 +1153,19 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
 
             validate_filename_generator(filename_generator)
             filename_generator_func = filename_generators[filename_generator]
+            log.debug('filename_generator_func %r', filename_generator_func)
             file_extension = handler.extensions[0]  # pick the first one
             filename_without_path_and_extension = filename_generator_func(note_text)
 
             filename = os.path.join(folder, filename_without_path_and_extension + file_extension)
-            # now check if generated filename already exists, if so need to make unique
-            unique_counter = 1
-            while os.path.exists(filename):
-                #log.warn('generated filename %r already exists', filename)
-                unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
-                filename = os.path.join(folder, filename_without_path_and_extension + unique_part + file_extension)
-                unique_counter += 1
+            if filename != original_filename:  # TODO folder check....
+                # now check if generated filename already exists, if so need to make unique
+                unique_counter = 1
+                while os.path.exists(filename):
+                    #log.warn('generated filename %r already exists', filename)
+                    unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
+                    filename = os.path.join(folder, filename_without_path_and_extension + unique_part + file_extension)
+                    unique_counter += 1
 
             # TODO handle format conversion (e.g. original text, new encrypted)
             log.debug('generated filename: %r', filename)
@@ -1253,26 +1259,36 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
         tmp_out_filename = out_file.name
         log.debug('DEBUG tmp_out_filename %r', tmp_out_filename)
     else:
+        log.debug('about to open %r', filename)
         out_file = open(filename, 'wb')  # Untested
 
+    log.debug('writting bytes')
+    #log.setLevel(logging.NOTSET)
     handler.write_to(out_file, plain_str_bytes)
+    #log.setLevel(logging.DEBUG)
     out_file.close()
 
     if backup:
         if os.path.exists(filename):
+            log.debug('about to perform backup %r', filename)
             file_replace(filename, filename + '.bak')  # backup existing
         elif original_filename and os.path.exists(original_filename):
+            log.debug('about to perform RENAME backup %r', original_filename)
             file_replace(original_filename, original_filename + '.bak')  # backup existing
         # TODO do the same for original
 
     if use_tempfile:
+        log.debug('about to replace %r with temporary file %r', filename, tmp_out_filename)
         file_replace(tmp_out_filename, filename)
 
     # handle rename/delete
     if filename_generator_func:
         # filename generator was used, have have an old file to cleanup
         if original_filename and filename != original_filename and os.path.exists(original_filename):
+            log.debug('about to remove original file %r', original_filename)
             os.remove(original_filename)
+
+    return filename
 
 def validate_filename_generator(filename_generator):
     if filename_generator not in (
