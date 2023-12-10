@@ -618,9 +618,12 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
     def tearDownClass(self):
         shutil.rmtree(self.data_folder)
 
-    def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, backup=True, use_tempfile=True, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
+    def check_skip(self):
         if self.handler_class not in puren_tonbo.supported_handlers:
             self.skip('%r not available (likely missing dependencies)' % self.handler_class)
+
+    def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, backup=True, use_tempfile=True, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
+        self.check_skip()
         if not expected_filenames:
             self.assertTrue(False, 'expected_filenames required... not implemented')
         test_note_filename = new_filename or expected_filenames[0]
@@ -680,6 +683,7 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
                 os.remove(filename)
 
     def test_filename_gen_one_rename_two_with_password_with_backup(self):
+        self.check_skip()
         buffer_plain_str = '''two
 
 file WAS one.
@@ -695,6 +699,7 @@ file WAS one.
         self.do_one_test(buffer_plain_str, original_filename='one' + file_extension, dos_newlines=False, test_password_bytes=self.test_password_bytes, expected_filenames=['two' + file_extension, 'one' + file_extension + '.bak'])
 
     def test_filename_gen_one_rename_two_with_password_with_nobackup(self):
+        self.check_skip()
         buffer_plain_str = '''two
 
 file WAS one.
@@ -709,6 +714,7 @@ file WAS one.
         self.do_one_test(buffer_plain_str, original_filename='one' + file_extension, dos_newlines=False, test_password_bytes=self.test_password_bytes, backup=False, expected_filenames=['two' + file_extension])
 
     def test_filename_gen_one_with_password_already_exist(self):
+        self.check_skip()
         buffer_plain_str = '''one
 
 file one.
@@ -751,8 +757,7 @@ file one.
 
 class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteClassSaveRawPlainText):
     def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, backup=True, use_tempfile=True, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
-        if self.handler_class not in puren_tonbo.supported_handlers:
-            self.skip('%r not available (likely missing dependencies)' % self.handler_class)
+        self.check_skip()
         if not expected_filenames:
             self.assertTrue(False, 'expected_filenames required... not implemented')
         test_note_filename = new_filename or expected_filenames[0]
