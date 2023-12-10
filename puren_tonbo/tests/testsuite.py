@@ -408,6 +408,7 @@ ter no rule than cruel rule.\n'''
             self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
 
     def test_aesop_win_7z_old_zip_using_purepyzipaes(self):
+        self.skip_if_missing_handler(puren_tonbo.PurePyZipAES)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.old.zip'
@@ -477,6 +478,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_7z_aes256_zip_using_purepyzipaes(self):
+        self.skip_if_missing_handler(puren_tonbo.PurePyZipAES)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.aes256.zip'
