@@ -298,6 +298,7 @@ ter no rule than cruel rule.\n'''
             self.assertEqual(self.plain_text_data_linux_newlines, data)
 
     def test_aesop_chi(self):
+        self.skip_if_missing_handler(puren_tonbo.TomboBlowfish)  # Tombo chi
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop.chi'
