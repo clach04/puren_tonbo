@@ -1106,11 +1106,13 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     folder - if specified (new) filename and original_filename are relative. if missing filename and original_filename are absolute
     """
     # Start - restrictions/checks that should be removed
+    """
     if original_filename is not None:
         # then if folder specified, original_filename MUST be absolute path
         # then if folder missing , original_filename MUST be relative path
         raise NotImplementedError('original_filename is not None')
         #original_filename = unicode_path(original_filename)
+    """
     # End - restrictions/checks that should be removed
 
     if handler is None:
