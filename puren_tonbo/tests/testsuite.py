@@ -64,6 +64,12 @@ class TestUtil(unittest.TestCase):
         if handler_class not in puren_tonbo.supported_handlers:
             self.skip('%r not available (likely missing dependencies)' % handler_class)
 
+    def skip_if_missing_handlers(self, *handler_class_list):
+        for handler_class in handler_class_list:
+            if handler_class in puren_tonbo.supported_handlers:
+                return
+        self.skip('One or more of %r not available (likely missing dependencies)' % (handler_class_list, ))
+
 
 # (In Memory) encrypt/decryption tests for handlers
 
@@ -416,6 +422,7 @@ ter no rule than cruel rule.\n'''
         self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password, handler_class=puren_tonbo.PurePyZipAES)
 
     def test_aesop_win_7z_old_zip(self):
+        self.skip_if_missing_handlers(puren_tonbo.PurePyZipAES, puren_tonbo.ZipAES)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.old.zip'
@@ -426,6 +433,7 @@ ter no rule than cruel rule.\n'''
             self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
 
     def test_aesop_win_7z_oldstored_zip(self):
+        self.skip_if_missing_handlers(puren_tonbo.PurePyZipAES, puren_tonbo.ZipAES)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.oldstored.zip'
@@ -436,6 +444,7 @@ ter no rule than cruel rule.\n'''
             self.assertRaises(puren_tonbo.UnsupportedFile, note_root.note_contents, test_note_filename, password)
 
     def test_aesop_win_winrar_aes256_zip(self):
+        self.skip_if_missing_handlers(puren_tonbo.PurePyZipAES, puren_tonbo.ZipAES)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_winrar.aes256.zip'
@@ -443,6 +452,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_winrar_aes256stored_zip(self):
+        self.skip_if_missing_handlers(puren_tonbo.PurePyZipAES, puren_tonbo.ZipAES)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_winrar.aes256stored.zip'
@@ -450,6 +460,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_linux_7z_aes256_zip(self):
+        self.skip_if_missing_handlers(puren_tonbo.PurePyZipAES, puren_tonbo.ZipAES)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux_7z.aes256.zip'
@@ -457,6 +468,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
     def test_aesop_linux_7z_aes256stored_zip(self):
+        self.skip_if_missing_handlers(puren_tonbo.PurePyZipAES, puren_tonbo.ZipAES)  # TODO stored check instead?
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux_7z.aes256stored.zip'
@@ -464,6 +476,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
     def test_aesop_win_7z_aes256_zip(self):
+        self.skip_if_missing_handlers(puren_tonbo.PurePyZipAES, puren_tonbo.ZipAES)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.aes256.zip'
@@ -471,6 +484,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_7z_aes256stored_zip(self):
+        self.skip_if_missing_handlers(puren_tonbo.PurePyZipAES, puren_tonbo.ZipAES)  # TODO stored check instead?
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win_7z.aes256stored.zip'
