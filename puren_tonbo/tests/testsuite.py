@@ -616,7 +616,7 @@ file one.
 
 
 # Filename generation (rename) tests
-class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
+class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestUtil):
     # data_folder setup in setUpClass()
     test_password_bytes = b'password'
     note_encoding = 'us-ascii'
@@ -646,6 +646,7 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
             # TODO test withOUT handler
             handler_class = self.handler_class
             password = test_password_bytes
+            handler = handler_class(key=password)
 
             kwargs = dict(
                 filename_generator=filename_generator,
@@ -658,20 +659,16 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
                 kwargs['filename'] = new_filename
             if original_filename:
                 kwargs['original_filename'] = original_filename
-            """
             if folder:
                 kwargs['folder'] = folder
-            """
-            if password:
-                kwargs['get_pass'] = password
-            if handler_class:
-                kwargs['handler_class'] = handler_class
+            if handler:
+                kwargs['handler'] = handler
 
             #pdb.set_trace()
-            note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
-            note_root.note_contents_save(buffer_plain_str, **kwargs)
+            puren_tonbo.note_contents_save_filename(buffer_plain_str, **kwargs)
 
             # load / decrypt / validation
+            note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
             # TODO kwargs params
             if dos_newlines is None:
                 # tests with default newline setting
@@ -680,7 +677,9 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
                 data = note_root.note_contents(test_note_filename, password, dos_newlines=dos_newlines)
             self.assertEqual(buffer_plain_str, data)
 
+            expected_filenames.sort()
             for (dirname, dirnames, filenames) in os.walk(folder):
+                filenames.sort()
                 #print(dirname, dirnames, filenames)
                 self.assertEqual((folder, [], expected_filenames), (dirname, dirnames, filenames))
 
@@ -767,8 +766,7 @@ file one.
             self.assertRaises(puren_tonbo.PurenTonboBadCall, self.do_one_test, buffer_plain_str, dos_newlines=False, expected_filenames=['one' + file_extension])
 
 
-
-class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteClassSaveRawPlainText):
+class TestFileSystemNotesWriteClassSaveRawPlainText(TestFileSystemNotesWriteFunctionSaveRawPlainText):
     def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, backup=True, use_tempfile=True, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
         self.check_skip()
         if not expected_filenames:
@@ -780,7 +778,6 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteC
             # TODO test withOUT handler
             handler_class = self.handler_class
             password = test_password_bytes
-            handler = handler_class(key=password)
 
             kwargs = dict(
                 filename_generator=filename_generator,
@@ -793,16 +790,20 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteC
                 kwargs['filename'] = new_filename
             if original_filename:
                 kwargs['original_filename'] = original_filename
+            """
             if folder:
                 kwargs['folder'] = folder
-            if handler:
-                kwargs['handler'] = handler
+            """
+            if password:
+                kwargs['get_pass'] = password
+            if handler_class:
+                kwargs['handler_class'] = handler_class
 
             #pdb.set_trace()
-            puren_tonbo.note_contents_save_filename(buffer_plain_str, **kwargs)
+            note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
+            note_root.note_contents_save(buffer_plain_str, **kwargs)
 
             # load / decrypt / validation
-            note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
             # TODO kwargs params
             if dos_newlines is None:
                 # tests with default newline setting
@@ -811,9 +812,7 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteC
                 data = note_root.note_contents(test_note_filename, password, dos_newlines=dos_newlines)
             self.assertEqual(buffer_plain_str, data)
 
-            expected_filenames.sort()
             for (dirname, dirnames, filenames) in os.walk(folder):
-                filenames.sort()
                 #print(dirname, dirnames, filenames)
                 self.assertEqual((folder, [], expected_filenames), (dirname, dirnames, filenames))
 
@@ -827,6 +826,12 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteC
             # simple, flat, non-nested cleanup
             for filename in glob.glob(os.path.join(folder, '*')):
                 os.remove(filename)
+
+    def test_filename_gen_one_rename_two_with_password_with_backup(self):
+        self.skip('FIXME not implemented yet in class code')
+    def test_filename_gen_one_rename_two_with_password_with_nobackup(self):
+        self.skip('FIXME not implemented yet in class code')
+
 
 class TestFileSystemNotesWriteClassSaveEncryptedChi(TestFileSystemNotesWriteClassSaveRawPlainText):
     handler_class = puren_tonbo.TomboBlowfish # Tombo chi
