@@ -96,6 +96,7 @@ class TestBaseEncryptedFileUtilBase(TestUtil):
 
 class TestBaseEncryptedFileUtil(TestBaseEncryptedFileUtilBase):
     def check_same_input_different_crypted_text(self, test_data_bytes, test_password_bytes, pt_handler_class):
+        self.skip_if_missing_handler(pt_handler_class)
         if hasattr(self, 'pt_handler_class_conditional'):
             pt_handler_class_conditional = self.pt_handler_class_conditional
             if not getattr(puren_tonbo, pt_handler_class_conditional, True):
