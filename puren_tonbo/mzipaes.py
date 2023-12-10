@@ -30,7 +30,8 @@
 
 from __future__ import print_function
 import zlib, struct, time, sys
-from ctypes import *
+from ctypes import *  # FIXME only import what's explictly used, then wrap CDLL with shutil.which() - appears to be required for Python 3.12 (maybe others)
+import shutil
 
 if sys.version_info < (3,0):
     range = xrange
@@ -274,12 +275,17 @@ class Crypto_NSS:
         _fields_ = [('SECItemType', c_uint), ('data', POINTER(c_char)), ('len', c_uint)]
 
     def __init__(p):
+        #import pdb; pdb.set_trace()
         p.loaded = 0
         try:
             if sys.platform != 'win32':
                 p.handle = CDLL('libnss3.so')
             else:
-                p.handle = CDLL('nss3')
+                full_dll_path = None  # shutil.which('nss3.dll')  # disabled, NSS3 does not appear to work with Windows. FF 120.0.1 (64-bit) and 3.12.0 (tags/v3.12.0:0fb18b0, Oct  2 2023, 13:03:39) [MSC v.1935 64 bit (AMD64)]. exception: access violation on PK11_PBEKeyGen()
+                if full_dll_path:
+                    p.handle = CDLL(full_dll_path)
+                else:
+                    p.handle = CDLL('nss3')
             p.handle.NSS_NoDB_Init(".")
             # Servono almeno le DLL nss3, softokn3, freebl3, mozglue
             if not p.handle.NSS_IsInitialized():
