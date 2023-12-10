@@ -6,6 +6,7 @@
     python -m puren_tonbo.tools.pttkview -h
     pttkview -h
 
+TODO catch exceptions and open a message box (trace window maybe missed, or even hidden)
 TODO support directory (and generate filename) and then create new file
 TODO implement GUI menu Save As (allow changing/saving as different type, retain original file if present)
 """
@@ -77,6 +78,8 @@ def main(argv=None):
     if not args:
         parser.print_usage()
         return 1
+
+    global in_filename
     in_filename = args[0]
 
 
@@ -211,6 +214,7 @@ def main(argv=None):
 
 
     def save_file(p=None, evt=None):
+        global in_filename
         log.debug('save_file')
         log.debug('p: %r', p)
         log.debug('evt: %r', evt)
@@ -229,6 +233,7 @@ def main(argv=None):
         handler_class = puren_tonbo.filename2handler(original_filename, default_handler=puren_tonbo.RawFile)
         handler = handler_class(key=password)
 
+        """
         # note_contents_save_native_filename(note_text, filename=None, original_filename=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8'):
         # TODO transplant into note_contents_save_native_filename()
         # TODO original_filename should be passed in
@@ -250,12 +255,18 @@ def main(argv=None):
             if filename != original_filename:
                 log.error('not implemented deleting old filename')  # NOTE also doesn't actualy save to the new name, overwrites the original name
         # DEBUG remove, and uncomment orig
+        """
         if not st.edit_modified():
             log.info('no changes, so not saving')
             return
 
         try:
-            puren_tonbo.note_contents_save_filename(buffer_plain_str, filename=in_filename, handler=handler, note_encoding=note_encoding, dos_newlines=dos_newlines)
+            if options.gen_filename:
+                #FIXME need new name back, so can reset original_name for multiple save requests
+                brand_new_name = puren_tonbo.note_contents_save_filename(buffer_plain_str, filename=None, original_filename=original_filename, handler=handler, note_encoding=note_encoding, dos_newlines=dos_newlines)
+                in_filename = brand_new_name  # reset name
+            else:
+                puren_tonbo.note_contents_save_filename(buffer_plain_str, filename=in_filename, original_filename=original_filename, handler=handler, note_encoding=note_encoding, dos_newlines=dos_newlines)
             # if save successful (no exceptions);
             st.edit_modified(False)
             st.edit_separator()
