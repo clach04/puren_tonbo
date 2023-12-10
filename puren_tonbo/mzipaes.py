@@ -581,6 +581,7 @@ NOTE: AE-1 preserves CRC-32 on uncompressed data, AE-2 sets it to zero.
 
 
 crypto_kit = None
+#import pdb ; pdb.set_trace()
 for C in (Crypto_PyCrypto, Crypto_OpenSSL, Crypto_Botan, Crypto_NSS, Crypto_GCrypt):
     try:
         test_crypto_kit = C()

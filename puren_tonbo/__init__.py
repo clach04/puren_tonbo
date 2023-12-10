@@ -588,12 +588,12 @@ if ccrypt:
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 
-if pyzipper:
-    for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES, ZipBzip2AES):
+if mzipaes:
+    for enc_class in (PurePyZipAES, ZipNoCompressionPurePyZipAES):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
-elif mzipaes:
-    for enc_class in (PurePyZipAES, ZipNoCompressionPurePyZipAES):
+if pyzipper:  # potentially overwrite PurePyZipAES and ZipNoCompressionPurePyZipAES as default zip support
+    for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES, ZipBzip2AES):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 if vimdecrypt:
@@ -634,6 +634,11 @@ for file_extension in file_type_handlers.keys():
     supported_handlers[file_type_handlers[file_extension]] = file_type_handlers[file_extension].extensions[0]
     if isinstance(file_type_handlers[file_extension], EncryptedFile):
         encrypted_file_extensions.append(file_extension)
+if mzipaes:
+    for enc_class in (PurePyZipAES, ZipNoCompressionPurePyZipAES):
+        if enc_class not in supported_handlers:
+            supported_handlers[enc_class] = enc_class.extensions[0]
+
 
 def debug_get_password():
     # DEBUG this should be a callback mechanism
