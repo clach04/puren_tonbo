@@ -619,6 +619,8 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
         shutil.rmtree(self.data_folder)
 
     def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, backup=True, use_tempfile=True, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
+        if self.handler_class not in puren_tonbo.supported_handlers:
+            self.skip('%r not available (likely missing dependencies)' % self.handler_class)
         if not expected_filenames:
             self.assertTrue(False, 'expected_filenames required... not implemented')
         test_note_filename = new_filename or expected_filenames[0]
@@ -749,6 +751,8 @@ file one.
 
 class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestFileSystemNotesWriteClassSaveRawPlainText):
     def do_one_test(self, buffer_plain_str, new_filename=None, original_filename=None, folder=None, dos_newlines=None, test_password_bytes=None, backup=True, use_tempfile=True, filename_generator=puren_tonbo.FILENAME_FIRSTLINE, expected_filenames=None):
+        if self.handler_class not in puren_tonbo.supported_handlers:
+            self.skip('%r not available (likely missing dependencies)' % self.handler_class)
         if not expected_filenames:
             self.assertTrue(False, 'expected_filenames required... not implemented')
         test_note_filename = new_filename or expected_filenames[0]

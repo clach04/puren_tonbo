@@ -622,7 +622,9 @@ def filename2handler(filename, default_handler=None):
     return handler_class
 
 encrypted_file_extensions = []
+supported_handlers = {}  # supported handlers, mapped to first (default) filename extension
 for file_extension in file_type_handlers.keys():
+    supported_handlers[file_type_handlers[file_extension]] = file_type_handlers[file_extension].extensions[0]
     if isinstance(file_type_handlers[file_extension], EncryptedFile):
         encrypted_file_extensions.append(file_extension)
 
