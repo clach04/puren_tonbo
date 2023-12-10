@@ -306,7 +306,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_ccrypt_cpt(self):
-        if not puren_tonbo.ccrypt:
+        if not puren_tonbo.ccrypt:  # TODO replace with calls to skip_if_missing_handler()
             self.skip('ccrypt not available')
 
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
@@ -329,7 +329,7 @@ ter no rule than cruel rule.\n'''
         self.assertRaises(puren_tonbo.BadPassword, note_root.note_contents, test_note_filename, password)
 
     def test_aesop_win_encryptpad_asc(self):
-        if not puren_tonbo.gpg:
+        if not puren_tonbo.gpg:  # TODO replace with calls to skip_if_missing_handler()
             self.skip('gpg not available')
 
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
