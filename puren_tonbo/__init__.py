@@ -1107,38 +1107,46 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     """
     # Start - restrictions/checks that should be removed
     if original_filename is not None:
+        # then if folder specified, original_filename MUST be absolute path
+        # then if folder missing , original_filename MUST be relative path
         raise NotImplementedError('original_filename is not None')
         #original_filename = unicode_path(original_filename)
     # End - restrictions/checks that should be removed
 
     if handler is None:
-        raise NotImplementedError('handler is required')
+        raise NotImplementedError('handler is required')  # Idea filename required, then use that to detemine handler
+    filename_generator_func = None
     if filename is None:
-        if folder:
-            # relative path names for files as given as input to this function
-            if original_filename:
-                original_filename = os.path.join(folder, original_filename)  # TODO abspath for safety?
-                folder = os.path.dirname(original_filename)
+        if original_filename and filename_generator in (None, FILENAME_TIMESTAMP, FILENAME_UUID4):
+            # do not rename... or they could have passed in the "new name"
+            filename = original_filename
+            log.debug('filename is original_filename: %r', filename)
         else:
-            # folder not set, so absolute paths given as input to this function
-            folder = os.path.dirname(original_filename)
+            if folder:
+                # relative path names for files as given as input to this function
+                if original_filename:
+                    original_filename = os.path.join(folder, original_filename)  # TODO abspath for safety?
+                    folder = os.path.dirname(original_filename)
+            else:
+                # folder not set, so absolute paths given as input to this function
+                folder = os.path.dirname(original_filename)
 
-        validate_filename_generator(filename_generator)
-        filename_generator_func = filename_generators[filename_generator]
-        file_extension = handler.extensions[0]  # pick the first one
-        filename_without_path_and_extension = filename_generator_func(note_text)
+            validate_filename_generator(filename_generator)
+            filename_generator_func = filename_generators[filename_generator]
+            file_extension = handler.extensions[0]  # pick the first one
+            filename_without_path_and_extension = filename_generator_func(note_text)
 
-        filename = os.path.join(folder, filename_without_path_and_extension + file_extension)
-        # now check if generated filename already exists, if so need to make unique
-        unique_counter = 1
-        while os.path.exists(filename):
-            #log.warn('generated filename %r already exists', filename)
-            unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
-            filename = os.path.join(folder, filename_without_path_and_extension + unique_part + file_extension)
-            unique_counter += 1
+            filename = os.path.join(folder, filename_without_path_and_extension + file_extension)
+            # now check if generated filename already exists, if so need to make unique
+            unique_counter = 1
+            while os.path.exists(filename):
+                #log.warn('generated filename %r already exists', filename)
+                unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
+                filename = os.path.join(folder, filename_without_path_and_extension + unique_part + file_extension)
+                unique_counter += 1
 
-        # TODO handle format conversion (e.g. original text, new encrypted)
-        log.debug('generated filename: %r', filename)
+            # TODO handle format conversion (e.g. original text, new encrypted)
+            log.debug('generated filename: %r', filename)
     else:
         filename = unicode_path(filename)
 
@@ -1237,9 +1245,18 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     if backup:
         if os.path.exists(filename):
             file_replace(filename, filename + '.bak')  # backup existing
+        elif original_filename and os.path.exists(original_filename):
+            file_replace(original_filename, original_filename + '.bak')  # backup existing
+        # TODO do the same for original
 
     if use_tempfile:
         file_replace(tmp_out_filename, filename)
+
+    # handle rename/delete
+    if filename_generator_func:
+        # filename generator was used, have have an old file to cleanup
+        if original_filename and filename != original_filename and os.path.exists(original_filename):
+            os.remove(original_filename)
 
 def validate_filename_generator(filename_generator):
     if filename_generator not in (
@@ -1722,7 +1739,7 @@ class FileSystemNotes(BaseNotes):
         else:
             return self.to_string(plain_str)
 
-    def note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
+    def note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, use_tempfile=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
         """Save/write/encrypt the notes contents, also see note_contents() for load/read/decrypt
         FIXME make calls to note_contents_save_filename() function instead
 
@@ -1796,7 +1813,7 @@ class FileSystemNotes(BaseNotes):
         # TODO original filename and rename
         plain_str_bytes = self.to_bytes(note_text)
 
-        use_tempfile = True  # do not offer external control over this
+        #use_tempfile = True  # do not offer external control over this?
         if use_tempfile:
             timestamp_now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
             out_file = tempfile.NamedTemporaryFile(
