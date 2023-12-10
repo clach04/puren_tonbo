@@ -535,7 +535,8 @@ class TestFileSystemNotesWrite(TestUtil):
     # TODO new test without password
     def do_one_test_simple(self, in_filename, buffer_plain_str, dos_newlines=None, test_password_bytes=None):
         filename_no_path = in_filename
-        in_filename = os.path.join(self.data_folder, in_filename)
+        folder = self.data_folder
+        in_filename = os.path.join(folder, in_filename)
         try:
             handler_class = puren_tonbo.filename2handler(in_filename, default_handler=puren_tonbo.RawFile)
             password = self.test_password_bytes
@@ -550,7 +551,7 @@ class TestFileSystemNotesWrite(TestUtil):
             # TODO with and without filename_generator
             # TODO handler is currently required, support NOT passing it in? see class method version
 
-            note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+            note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
             test_note_filename = in_filename
             #import pdb ; pdb.set_trace()
             if dos_newlines is None:
@@ -563,6 +564,7 @@ class TestFileSystemNotesWrite(TestUtil):
             #glob
             #import pdb ; pdb.set_trace()
             #print('')
+            expected_filenames = [filename_no_path]
             expected_filenames.sort()
             for (dirname, dirnames, filenames) in os.walk(folder):
                 filenames.sort()
