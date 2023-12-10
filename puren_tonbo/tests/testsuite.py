@@ -69,6 +69,9 @@ class TestUtil(unittest.TestCase):
 
 class TestBaseEncryptedFileUtilBase(TestUtil):
     def check_get_what_you_put_in(self, test_data_bytes, test_password_bytes, encrypt_pt_handler_class, decrypt_pt_handler_class=None):
+        self.skip_if_missing_handler(encrypt_pt_handler_class)
+        if decrypt_pt_handler_class:
+            self.skip_if_missing_handler(decrypt_pt_handler_class)
         if hasattr(self, 'pt_handler_class_conditional'):
             pt_handler_class_conditional = self.pt_handler_class_conditional
             if not getattr(puren_tonbo, pt_handler_class_conditional, True):

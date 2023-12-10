@@ -577,13 +577,15 @@ NOTE: AE-1 preserves CRC-32 on uncompressed data, AE-2 sets it to zero.
 crypto_kit = None
 for C in (Crypto_PyCrypto, Crypto_OpenSSL, Crypto_Botan, Crypto_NSS, Crypto_GCrypt):
     try:
-        crypto_kit = C()
-        if crypto_kit.loaded:
+        test_crypto_kit = C()
+        if test_crypto_kit.loaded:
+            crypto_kit = test_crypto_kit
             break
     except:
         continue
 if crypto_kit == None:
-    raise UnsupportedFile("NO CRYPTO KIT FOUND - ABORTED!")  # this check does not work
+    #raise UnsupportedFile("NO CRYPTO KIT FOUND - ABORTED!")
+    raise ImportError
 
 # constants for Zip file compression methods
 ZIP_STORED = 0

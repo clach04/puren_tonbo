@@ -78,8 +78,15 @@ except ImportError:
     vimdecrypt = fake_module('vimdecrypt')
 
 
-import puren_tonbo.mzipaes
-from puren_tonbo.mzipaes import ZIP_DEFLATED, ZIP_STORED
+try:
+    import puren_tonbo.mzipaes as mzipaes
+    from puren_tonbo.mzipaes import ZIP_DEFLATED, ZIP_STORED
+except ImportError:
+    mzipaes = fake_module('mzipaes')
+    #ZIP_DEFLATED, ZIP_STORED = mzipaes.ZIP_DEFLATED, mzipaes.ZIP_STORED
+    ZIP_STORED = 0
+    ZIP_DEFLATED = 8
+
 
 
 is_py3 = sys.version_info >= (3,)
@@ -585,7 +592,7 @@ if pyzipper:
     for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES, ZipBzip2AES):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
-else:
+elif mzipaes:
     for enc_class in (PurePyZipAES, ZipNoCompressionPurePyZipAES):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
@@ -862,7 +869,7 @@ def plaintext_filename_filter(in_filename):
             return True
     return False
 
-encrypted_extensions = list(puren_tonbo.supported_filetypes_info(encrypted_only=True))  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
+encrypted_extensions = list(supported_filetypes_info(encrypted_only=True))  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
 def encrypted_filename_filter(filename):
     filename_lower = filename.lower()
     for file_extension in encrypted_extensions:
@@ -1928,7 +1935,7 @@ def get_config(config_filename=None):
 def print_version_info():
     print(sys.version.replace('\n', ' '))
     print('')
-    print('Puren Tonbo puren_tonbo version %s' % puren_tonbo.__version__)
+    print('Puren Tonbo puren_tonbo version %s' % __version__)
     print('Formats:')
     print('')
     for file_extension, file_type, file_description in supported_filetypes_info():
