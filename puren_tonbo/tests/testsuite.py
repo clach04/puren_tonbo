@@ -675,7 +675,7 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestUtil):
             for filename in glob.glob(os.path.join(folder, '*')):
                 os.remove(filename)
 
-    def test_filename_gen_one_rename_two_with_password_with_backup(self):
+    def test_filename_gen_one_rename_two_with_password_with_backup_implict(self):
         buffer_plain_str = '''two
 
 file WAS one.
@@ -689,6 +689,21 @@ file WAS one.
 
         # NOTE implicit backup
         self.do_one_test(buffer_plain_str, original_filename='one' + file_extension, dos_newlines=False, test_password_bytes=self.test_password_bytes, expected_filenames=['two' + file_extension, 'one' + file_extension + '.bak'])
+
+    def test_filename_gen_one_rename_two_with_password_with_backup_explict(self):
+        buffer_plain_str = '''two
+
+file WAS one.
+
+'''
+        #pdb.set_trace()
+        file_extension = self.handler_class.extensions[0]  # pick the first one
+        folder = self.data_folder
+        note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
+        note_root.note_contents_save('junk', filename='one' + file_extension, filename_generator=None, get_pass=self.test_password_bytes)
+
+        # NOTE implicit backup
+        self.do_one_test(buffer_plain_str, original_filename='one' + file_extension, dos_newlines=False, test_password_bytes=self.test_password_bytes, backup=True, expected_filenames=['two' + file_extension, 'one' + file_extension + '.bak'])
 
     def test_filename_gen_one_rename_two_with_password_with_nobackup(self):
         buffer_plain_str = '''two

@@ -1099,12 +1099,13 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
 
 #          note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
 #             note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
-def note_contents_save_native_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
+def note_contents_save_native_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE, handler_class=None, get_pass=None):
     """Uses native/local file system IO api
     @handler is the encryption file handler to use, that is already initialized with a password
     @note_encoding if None, assume note_text is bytes, if a string use as the encoding, can also be a list, e.g. ['utf8', 'cp1252'] in which case use the first one
     folder - if specified (new) filename and original_filename are relative. if missing filename and original_filename are absolute
     """
+    #import pdb ; pdb.set_trace()
     # Start - restrictions/checks that should be removed
     """
     if original_filename is not None:
@@ -1116,7 +1117,13 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     # End - restrictions/checks that should be removed
 
     if handler is None:
-        raise NotImplementedError('handler is required')  # Idea filename required, then use that to detemine handler
+        #raise NotImplementedError('handler is required')  # Idea filename required, then use that to detemine handler
+        filename_to_check = filename or original_filename
+        handler_class = handler_class or filename2handler(filename)
+        if get_pass:
+            handler = handler_class(key=get_pass)
+        else:
+            handler = handler_class()
     filename_generator_func = None
     if filename is None:
         if original_filename and filename_generator in (None, FILENAME_TIMESTAMP, FILENAME_UUID4):
@@ -1241,6 +1248,7 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     else:
         out_file = open(filename, 'wb')  # Untested
 
+    #import pdb ; pdb.set_trace()
     handler.write_to(out_file, plain_str_bytes)
     out_file.close()
 
@@ -1759,7 +1767,11 @@ class FileSystemNotes(BaseNotes):
         TODO refactor, there is code duplication (and some differences) between method note_contents_save() and functions note_contents_save_filename() / note_contents_save_native_filename()
         """
         # FIXME filename/path validation shold take place first before calling note_contents_save_native_filename()
-        #return note_contents_save_native_filename(note_text, filename=filename, original_filename=original_filename, folder=folder, handler=handler_class, dos_newlines=dos_newlines, backup=backup, use_tempfile=use_tempfile, note_encoding=self.note_encoding, filename_generator=filename_generator)
+        if folder:
+            folder2pass = self.native_full_path(folder)
+        else:
+            folder2pass = self.native_full_path('.')
+        return note_contents_save_native_filename(note_text, filename=filename, original_filename=original_filename, folder=folder2pass, handler=None, dos_newlines=dos_newlines, backup=backup, use_tempfile=use_tempfile, note_encoding=self.note_encoding, filename_generator=filename_generator, handler_class=handler_class, get_pass=get_pass)
 
         # sanity checks
         if filename is not None and folder is not None:
@@ -1809,6 +1821,7 @@ class FileSystemNotes(BaseNotes):
             raise NotImplementedError('renaming files not yet supported; original_filename !=  filename  %r != %r ' % (original_filename, filename))
         """
 
+        #import pdb ; pdb.set_trace()
         handler_class = handler_class or filename2handler(filename)
         if get_pass:
             handler = handler_class(key=get_pass)
@@ -1820,7 +1833,7 @@ class FileSystemNotes(BaseNotes):
         # folder=None
         return note_contents_save_native_filename(note_text, filename=fullpath_native_filename, original_filename=original_filename, folder=None, handler=handler, dos_newlines=dos_newlines, backup=backup, use_tempfile=use_tempfile, note_encoding=self.note_encoding, filename_generator=filename_generator)
 
-
+        """
         # x TODO unicode filename
         # x TODO handler lookup
         # TODO handler password pass in - see load code above
@@ -1850,6 +1863,7 @@ class FileSystemNotes(BaseNotes):
 
         if use_tempfile:
             file_replace(tmp_out_filename, fullpath_native_filename)
+        """
 
     def note_delete(self, filename, backup=True):
         pass
