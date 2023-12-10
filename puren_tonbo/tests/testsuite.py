@@ -563,9 +563,11 @@ class TestFileSystemNotesWrite(TestUtil):
             #glob
             #import pdb ; pdb.set_trace()
             #print('')
-            for (dirname, dirnames, filenames) in os.walk(self.data_folder):
+            expected_filenames.sort()
+            for (dirname, dirnames, filenames) in os.walk(folder):
+                filenames.sort()
                 #print(dirname, dirnames, filenames)
-                self.assertEqual((self.data_folder, [], [filename_no_path]), (dirname, dirnames, filenames))
+                self.assertEqual((folder, [], expected_filenames), (dirname, dirnames, filenames))
         finally:
             os.remove(in_filename) # TODO ignore does not exist errors (only)
 
