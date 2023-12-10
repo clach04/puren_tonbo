@@ -59,6 +59,11 @@ class TestUtil(unittest.TestCase):
             #raise Exception(reason)
             """
 
+    # this maybe better off in a different class
+    def skip_if_missing_handler(self, handler_class):
+        if handler_class not in puren_tonbo.supported_handlers:
+            self.skip('%r not available (likely missing dependencies)' % handler_class)
+
 
 # (In Memory) encrypt/decryption tests for handlers
 
@@ -474,6 +479,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_vimcrypt3(self):
+        self.skip_if_missing_handler(puren_tonbo.VimDecrypt)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win.vimcrypt3'
@@ -481,6 +487,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_vimcrypt2(self):
+        self.skip_if_missing_handler(puren_tonbo.VimDecrypt)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win.vimcrypt2'
@@ -488,6 +495,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_win_vimcrypt1(self):
+        self.skip_if_missing_handler(puren_tonbo.VimDecrypt)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_win.vimcrypt1'
@@ -495,6 +503,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_windows_newlines, data)
 
     def test_aesop_linux_vimcrypt3(self):
+        self.skip_if_missing_handler(puren_tonbo.VimDecrypt)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux.vimcrypt3'
@@ -502,6 +511,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
     def test_aesop_linux_vimcrypt2(self):
+        self.skip_if_missing_handler(puren_tonbo.VimDecrypt)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux.vimcrypt2'
@@ -509,6 +519,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
     def test_aesop_linux_vimcrypt1(self):
+        self.skip_if_missing_handler(puren_tonbo.VimDecrypt)
         note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
         password = self.test_password_bytes
         test_note_filename = 'aesop_linux.vimcrypt1'
