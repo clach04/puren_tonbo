@@ -833,7 +833,9 @@ class TestFileSystemNotesWriteClassSaveRawPlainText(TestFileSystemNotesWriteFunc
                 data = note_root.note_contents(test_note_filename, password, dos_newlines=dos_newlines)
             self.assertEqual(buffer_plain_str, data)
 
+            expected_filenames.sort()
             for (dirname, dirnames, filenames) in os.walk(folder):
+                filenames.sort()
                 #print(dirname, dirnames, filenames)
                 self.assertEqual((folder, [], expected_filenames), (dirname, dirnames, filenames))
 
