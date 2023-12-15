@@ -258,7 +258,7 @@ Examples
     recent 5
     recent 24
         """
-        use_color = True
+        use_color = self.grep_options.use_color
         number_of_files = 20
         if line:
             try:
@@ -832,9 +832,10 @@ def main(argv=None):
             use_color = False
     else:
         use_color = True
+    options.use_color = use_color
     options.password = password
     grep_options = FakeOptions(options)
-    grep_options.use_color = use_color
+    grep_options.use_color = use_color  # redundant?
 
     ptig_options = config['ptig']
     grep_options.use_pager = ptig_options['use_pager']  # TODO revisit this, should ptig pick this up from pt_config directly instead of grep_options/Fakeoptions - see do_set() comments on grep config versus pt_config
