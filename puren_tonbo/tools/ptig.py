@@ -248,6 +248,28 @@ NOTE on machines with fast CPU and disk (SSD) cache can be slower for some opera
         print('cache on')
         self.cache = list(notes.recurse_notes())
 
+    def do_find_foreign(self, line=None):
+        """list files not supported by PurenTonbo
+        """
+        use_color = self.grep_options.use_color
+        note_encoding = self.pt_config['codec']
+        note_root = self.paths_to_search[0]  # TODO loop through them all. For now just pick the first one, ignore everthing else
+        # for now, ignore line
+        notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+        hits = []
+        for counter, filename in enumerate(puren_tonbo.find_unsupported_files(note_root, order=puren_tonbo.ORDER_DESCENDING), start=1):
+            hits.append(filename)
+            result_hit_line = '[%d] %s' % (counter, filename)
+            if use_color:
+                result_hit_line = ptgrep.color_filename + str(result_hit_line) + ptgrep.color_reset
+            else:
+                result_hit_line = str(result_hit_line)
+            print(result_hit_line)
+
+        # TODO catch SearchCancelled, KeyboardInterrupt
+        self.file_hits = hits
+    do_ff = do_find_foreign
+
     def do_recent(self, line=None):
         """list recently modified/updated/edited notes, newest at the top.
 Optionally specify number of items to list. Defaults to 20.

@@ -1520,6 +1520,28 @@ def find_recent_files(test_path, number_of_files=20, order=ORDER_ASCENDING):
     for mtime, filename in recent_files:
         yield filename
 
+def unsupported_files_filter(full_path, extra_params_dict=None):
+    for extn in extra_params_dict['supported_extensions']:
+        if full_path.endswith(extn):
+            return
+    extra_params_dict['unsupported_files'].append(full_path)
+
+def find_unsupported_files(test_path, order=ORDER_ASCENDING):
+    extra_params_dict = {
+        #'directory_path': directory_path,  # not used
+        #'directory_path_len': directory_path_len,
+        'unsupported_files': [],
+        'supported_extensions': [],
+    }
+
+    for handler in supported_handlers:
+        extra_params_dict['supported_extensions'] += handler.extensions
+    walker(test_path, process_file_function=unsupported_files_filter, extra_params_dict=extra_params_dict)
+    if ORDER_DESCENDING == order:
+        extra_params_dict['unsupported_files'].reverse()
+    for filename in extra_params_dict['unsupported_files']:
+        yield filename
+
 def recurse_notes(path_to_search, filename_filter):
     """Walk (local file system) directory of notes, directory depth first (just like Tombo find does), returns generator
 
