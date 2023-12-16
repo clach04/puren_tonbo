@@ -1958,6 +1958,7 @@ def get_config(config_filename=None):
         #'new_lines': 'dos',
         #'new_lines': 'unix',
         #'': '',
+        'ignore_file_extensions': ['.bak', '~', '_MOD'],  # currently ptig only
         'ptig': {
             'init': ['set ic', ],
             'use_pager': False,

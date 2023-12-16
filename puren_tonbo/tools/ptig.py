@@ -255,7 +255,7 @@ NOTE on machines with fast CPU and disk (SSD) cache can be slower for some opera
         note_encoding = self.pt_config['codec']
         note_root = self.paths_to_search[0]  # TODO loop through them all. For now just pick the first one, ignore everthing else
         # for now, ignore line
-        ignore_files = ['.bak', '~', '_MOD']
+        ignore_files = self.pt_config['ignore_file_extensions']
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
         hits = []
         for counter, filename in enumerate(puren_tonbo.find_unsupported_files(note_root, order=puren_tonbo.ORDER_DESCENDING, ignore_files=ignore_files), start=1):
