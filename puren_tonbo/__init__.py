@@ -1521,18 +1521,22 @@ def find_recent_files(test_path, number_of_files=20, order=ORDER_ASCENDING):
         yield filename
 
 def unsupported_files_filter(full_path, extra_params_dict=None):
+    # TODO lower filename
     for extn in extra_params_dict['supported_extensions']:
         if full_path.endswith(extn):
             return
     extra_params_dict['unsupported_files'].append(full_path)
 
-def find_unsupported_files(test_path, order=ORDER_ASCENDING):
+def find_unsupported_files(test_path, order=ORDER_ASCENDING, ignore_files=None):
     extra_params_dict = {
         #'directory_path': directory_path,  # not used
         #'directory_path_len': directory_path_len,
         'unsupported_files': [],
         'supported_extensions': [],
     }
+    if ignore_files:
+        # TODO lowercase extensions
+        extra_params_dict['supported_extensions'] += ignore_files
 
     for handler in supported_handlers:
         extra_params_dict['supported_extensions'] += handler.extensions
