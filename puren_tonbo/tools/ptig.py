@@ -784,6 +784,7 @@ Also see `edit`
 
         self.file_hits = ptgrep.grep(search_term, paths_to_search, grep_options, use_color, password_func, note_encoding)
     do_f = do_find  # shortcut to save typing
+    do_fd = do_find  # fd alias for convenience
 
     def do_config(self, line=None):
         """show puren tonbo config"""
