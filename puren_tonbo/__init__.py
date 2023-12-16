@@ -1959,6 +1959,7 @@ def get_config(config_filename=None):
         #'new_lines': 'unix',
         #'': '',
         'ptig': {
+            'init': ['set ic', ],
             'use_pager': False,
             'prompt': u'ptig: \U0001f50e ',
         }
