@@ -790,6 +790,7 @@ Also see `edit`
             config_filename_exists = False
         print('config_filename %s (%s)' % (config_filename, 'exists' if config_filename_exists else 'does not exist'))
         print('%s' % json.dumps(self.pt_config, indent=4, sort_keys=True))  # TODO color support
+    do_ptconfig = do_config
 
     def do_version(self, line=None):
         """show version/info"""
