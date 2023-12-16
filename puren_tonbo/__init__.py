@@ -1467,11 +1467,15 @@ def walker(directory_name, process_file_function=None, process_dir_function=None
     Also see recurse_notes()
     """
     extra_params_dict or {}
+    ignore_folders = extra_params_dict.get('ignore_folders', [])
     # TODO scandir instead... would be faster - but for py2.7 requires external lib
     for root, subdirs, files in os.walk(directory_name):
         # skip .git directories hack/side effect - also see recurse_notes()
-        if '.git' in subdirs:
-            subdirs.remove('.git')
+        for ignore_dir in ignore_folders:
+            try:
+                subdirs.remove(ignore_dir)
+            except ValueError:
+                pass
         # TODO even more hacky, exclude list/set parameter:
         #dirs[:] = [d for d in dirs if d not in exclude]
         # for d in exclude: subdirs.remove(d)
@@ -1505,13 +1509,16 @@ def recent_files_filter(full_path, extra_params_dict=None):
 
 ORDER_ASCENDING = 'ascending'
 ORDER_DESCENDING = 'descending'
-def find_recent_files(test_path, number_of_files=20, order=ORDER_ASCENDING):
+def find_recent_files(test_path, number_of_files=20, order=ORDER_ASCENDING, ignore_folders=None):
     extra_params_dict = {
         #'directory_path': directory_path,  # not used
         #'directory_path_len': directory_path_len,
+        'ignore_folders': [],
         'max_recent_files': number_of_files,
         'recent_files': [],
     }
+    if ignore_folders:
+        extra_params_dict['ignore_folders'] += ignore_folders
 
     walker(test_path, process_file_function=recent_files_filter, extra_params_dict=extra_params_dict)
     recent_files = extra_params_dict['recent_files']
@@ -1527,13 +1534,17 @@ def unsupported_files_filter(full_path, extra_params_dict=None):
             return
     extra_params_dict['unsupported_files'].append(full_path)
 
-def find_unsupported_files(test_path, order=ORDER_ASCENDING, ignore_files=None):
+def find_unsupported_files(test_path, order=ORDER_ASCENDING, ignore_files=None, ignore_folders=None):
     extra_params_dict = {
         #'directory_path': directory_path,  # not used
         #'directory_path_len': directory_path_len,
+        'ignore_folders': [],
         'unsupported_files': [],
         'supported_extensions': [],
     }
+    if ignore_folders:
+        extra_params_dict['ignore_folders'] += ignore_folders
+    ignore_folders = ignore_folders or ['.git']
     if ignore_files:
         # TODO lowercase extensions
         extra_params_dict['supported_extensions'] += ignore_files
@@ -1546,7 +1557,7 @@ def find_unsupported_files(test_path, order=ORDER_ASCENDING, ignore_files=None):
     for filename in extra_params_dict['unsupported_files']:
         yield filename
 
-def recurse_notes(path_to_search, filename_filter):
+def recurse_notes(path_to_search, filename_filter, ignore_folders=None):
     """Walk (local file system) directory of notes, directory depth first (just like Tombo find does), returns generator
 
     Also see walker()
@@ -1555,6 +1566,7 @@ def recurse_notes(path_to_search, filename_filter):
     ## Pure Python versions for earlier versions available from:
     ##  http://osdir.com/ml/lang.jython.user/2006-04/msg00032.html
     ## but lacks "topdown" support, walk class later
+    ignore_folders = ignore_folders or ['.git']
     #import pdb ; pdb.set_trace()
     #topdown = False
     topdown = True
@@ -1563,8 +1575,12 @@ def recurse_notes(path_to_search, filename_filter):
 
         # skip .git directories hack/side effect - also see recurse_notes()
         # hacking directory requires topdown=True... else need to filter files to ignore directory
-        if '.git' in dirnames:
-            dirnames.remove('.git')
+        for ignore_dir in ignore_folders:
+            try:
+                dirnames.remove(ignore_dir)
+            except ValueError:
+                pass
+
         # TODO even more hacky, exclude list/set parameter:
         #dirs[:] = [d for d in dirnames if d not in exclude]
         # for d in exclude: dirnames.remove(d)
@@ -1686,10 +1702,10 @@ class FileSystemNotes(BaseNotes):
             filename = filename.decode('utf8')  # FIXME hard coded, pick up from config or locale/system encoding
         return filename
 
-    def recent_notes(self, sub_dir=None, number_of_files=20, order=ORDER_ASCENDING):
+    def recent_notes(self, sub_dir=None, number_of_files=20, order=ORDER_ASCENDING, ignore_folders=None):
         """Recursive Tombo note lister for recently updated/modified files.
         Iterator of files in @sub_dir"""
-        return find_recent_files(self.note_root, number_of_files=number_of_files, order=order)
+        return find_recent_files(self.note_root, number_of_files=number_of_files, order=order, ignore_folders=ignore_folders)
 
     def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):
         """Recursive Tombo note lister.
@@ -1958,6 +1974,7 @@ def get_config(config_filename=None):
         #'new_lines': 'dos',
         #'new_lines': 'unix',
         #'': '',
+        'ignore_folders': ['.git'],  # '.hg', '__pycache__'
         'ignore_file_extensions': ['.bak', '~', '_MOD'],  # currently ptig only
         'ptig': {
             'init': ['set ic', ],
