@@ -757,8 +757,12 @@ Also see `edit`
 
         self.file_hits = ptgrep.grep(search_term, paths_to_search, options, use_color, password_func, note_encoding)
 
+    do_ptgrep = do_grep  # shortcut to save typing
     do_g = do_grep  # shortcut to save typing
+    do_ack = do_grep  # ack alias for convenience
+    do_ag = do_grep  # silver searcher alias for convenience
     do_rg = do_grep  # ripgrep alias for convenience
+    do_ugrep = do_grep  # ugrep alias for convenience
 
     # TODO refactor to call do_grep() to remove code duplication
     def do_find(self, line=None, paths_to_search=None):
