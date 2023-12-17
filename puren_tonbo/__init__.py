@@ -1974,7 +1974,7 @@ def get_config(config_filename=None):
         #'new_lines': 'dos',
         #'new_lines': 'unix',
         #'': '',
-        'ignore_folders': ['.git'],  # '.hg', '__pycache__'
+        'ignore_folders': ['.git'],  # '.hg', '__pycache__'  TODO doc, other options ['.git', '.hg', '__pycache__', '.mozilla', '.cache'] (also check notes on ignore locations like Mac Dstore)
         'ignore_file_extensions': ['.bak', '~', '_MOD'],  # currently ptig only
         'ptig': {
             'init': ['set ic', ],
