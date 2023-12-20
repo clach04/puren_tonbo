@@ -115,6 +115,15 @@ grep_parser.add_option("-e", "--search_encrypted", help='Search encrypted files 
 grep_parser.add_option("-k", "--search_encrypted_only", help='Search encrypted files (default false)', action="store_const", const='only', dest='search_encrypted')
 grep_help = grep_parser.format_help()
 
+class FakeMethodEdit(object):
+    def __init__(self, name, parent):
+        self.name = name
+        self.parent = parent
+
+    def __call__(self, *args, **kwargs):
+        line = args[0]
+        editor = self.parent.pt_config['ptig']['editors'][self.name]
+        self.parent.do_edit(line, editor=editor)
 
 class CommandPrompt(Cmd):
     def __init__(self, paths_to_search=None, pt_config=None, grep_options=None):  # TODO refactorm too many options and search path is also potentially a dupe
@@ -499,7 +508,20 @@ Search previous results for search term.
         self.do_edit(line=None, filename_list=filename_list)
     do_en = do_em = do_editmultiple = do_edit_multiple
 
-    def do_edit(self, line=None, filename_list=None):
+    """
+    # does not work
+    def do_customedit(self, line=None):
+        import pdb; pdb.set_trace()
+        f_code = sys._getframe().f_code
+        this_function_name = sys._getframe().f_code.co_name  # this is always do_customedit() :-(
+        print(this_function_name)
+        print(sys._getframe().f_code)
+        # idea is to then pass in editor
+        editor = None
+        self.do_edit(line, editor=editor)
+    """
+
+    def do_edit(self, line=None, filename_list=None, editor=None):
         """Edit using external $PT_VISUAL, $VISUAL or $EDITOR, ptig.editor in config file with fall backs if unset.
 Also see `edit_multiple` (alias `en`)
 
@@ -552,7 +574,7 @@ Usage:
             filename = None
         #import pdb; pdb.set_trace()
         # TODO debug "e `" editor got opened, not a valid file should this be caught? see validate_result_id() which currently does NOT validate filenames (callers do that later)
-        editor = os.environ.get('PT_VISUAL') or os.environ.get('VISUAL') or os.environ.get('EDITOR') or self.pt_config['ptig'].get('editor')
+        editor = editor or os.environ.get('PT_VISUAL') or os.environ.get('VISUAL') or os.environ.get('EDITOR') or self.pt_config['ptig'].get('editor')
         if not filename_list:
             if puren_tonbo.is_encrypted(filename):
                 # Prompt for password for editors that won't prompt
@@ -873,6 +895,23 @@ def main(argv=None):
 
     interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=grep_options)
     interpreter.onecmd('version')
+    """Look for (optional) editors dictionary, to support multiple external editors
+        "ptig": {
+            ...
+            # TODO review, may want to change the way external editors are specified, right now assumes single call with single parameter
+            "editors": {
+                "encscite": "C:\\programs\\encscite\\prog\\encscite.bat",
+                "scite": "scite",
+                "gvim": "gvim"
+            },
+            ...
+    Dynamically add them, can not use reflection; sys._getframe().f_code.co_name, to determine method name, have to pass it in.
+    """
+    for editor in ptig_options.get('editors', []):
+        print(editor)
+        #setattr(interpreter, 'do_' + editor, interpreter.do_edit)  # or pass in and have it self modigy
+        #setattr(interpreter, 'do_' + editor, interpreter.do_customedit)  # or pass in and have it self modigy
+        setattr(interpreter, 'do_' + editor, FakeMethodEdit(editor, interpreter))
     for command in ptig_options.get('init', []):
         interpreter.onecmd(command)
     interpreter.cmdloop()
