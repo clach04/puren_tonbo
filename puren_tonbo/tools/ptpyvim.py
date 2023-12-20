@@ -174,7 +174,7 @@ def edit(locations, password=None):
             GZipFileIO(),  # Should come before FileIO.
             FileIO(),
         ]  # TODO use existing and inject PureTonboFileIO? where?/how?
-    pyvim.help.HELP_TEXT += '\nTo quit issue\n\n    :qa\n\nSee https://github.com/prompt-toolkit/pyvim/issues/148'
+    pyvim.help.HELP_TEXT += '\nTo quit all, without saving, issue\n\n    :qa\n\nSee https://github.com/prompt-toolkit/pyvim/issues/148\n\nConsider using vim with plugin, see integrations/vim/pt.vim'
     pyvim.editor.HELP_TEXT = pyvim.help.HELP_TEXT
 
     # see run_pyvim.py
