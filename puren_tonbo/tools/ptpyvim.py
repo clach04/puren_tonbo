@@ -20,9 +20,9 @@ from pyvim.io import FileIO, DirectoryIO, HttpIO, GZipFileIO
 
 from pyvim.io.backends import ENCODINGS, _auto_decode
 from pyvim.io import EditorIO
+import pyvim.help
 
 import puren_tonbo
-
 
 
 
@@ -174,6 +174,8 @@ def edit(locations, password=None):
             GZipFileIO(),  # Should come before FileIO.
             FileIO(),
         ]  # TODO use existing and inject PureTonboFileIO? where?/how?
+    pyvim.help.HELP_TEXT += '\nTo quit issue\n\n    :qa\n\nSee https://github.com/prompt-toolkit/pyvim/issues/148'
+    pyvim.editor.HELP_TEXT = pyvim.help.HELP_TEXT
 
     # see run_pyvim.py
     default_pyvimrc = os.path.expanduser('~/.pyvimrc')
