@@ -222,6 +222,13 @@ Config for ptig is the regular config file `pt.json`, with additional (optional)
             "#init": ["set ic", "set enc"],
             "init": ["set ic"],
             "editor": "start scite",
+            "editors": {
+                "encscite": "C:\\programs\\encscite\\prog\\encscite.bat",
+                "pttkview": "pttkview",
+                "scite": "scite",
+                "gvim": "gvim",
+                "vim": "vim"
+            },
             "file_browser": "explorer",
             "prompt": "ptig: ? ",
             "use_pager": false

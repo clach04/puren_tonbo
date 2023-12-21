@@ -1977,6 +1977,10 @@ def get_config(config_filename=None):
         'ignore_folders': ['.git'],  # '.hg', '__pycache__'  TODO doc, other options ['.git', '.hg', '__pycache__', '.mozilla', '.cache'] (also check notes on ignore locations like Mac Dstore)
         'ignore_file_extensions': ['.bak', '~', '_MOD'],  # currently ptig only
         'ptig': {
+            "editors": {  # if specified in config, defaults for editors WILL be lost
+                "pttkview": "pttkview",
+                "gvim": "gvim"
+            },
             'init': ['set ic', ],
             'use_pager': False,
             'prompt': u'ptig: \U0001f50e ',
