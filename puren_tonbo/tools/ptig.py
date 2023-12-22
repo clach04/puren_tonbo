@@ -804,7 +804,9 @@ Also see `edit`
 
         line = '--find-only-filename ' + line  # -y
         if self.grep_options.search_encrypted:
-            line = '--search_encrypted ' + line  # -e
+            line = '--ignore_case ' + line  # -e
+        if self.grep_options.ignore_case:
+            line = '--ignore_case ' + line  # -i
         return self.do_grep(line=line, paths_to_search=paths_to_search)
     do_f = do_find  # shortcut to save typing
     do_fd = do_find  # fd alias for convenience
