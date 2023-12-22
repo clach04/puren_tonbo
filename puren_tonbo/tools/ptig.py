@@ -104,6 +104,7 @@ class FakeOptions:  # to match ptgrep (OptParse) options
 
 
 # Extracted (subset) from ptgrep.main()
+# FIXME refactor ptgrep to have a shared, reusable parser and use here. E.g. would add support for -t
 grep_parser = OptionParser(usage='usage: %prog [options] [search_term]',
                         prog='grep',
                         description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
@@ -788,23 +789,23 @@ Also see `edit`
 
     # TODO refactor to call do_grep() to remove code duplication
     def do_find(self, line=None, paths_to_search=None):
-        """find to pathname/filename, same as grep but only matches directory and file names"""
+        """find to pathname/filename, same as grep but only matches directory and file names
+
+              -i, --ignore_case     Case insensitive search
+              -r, --regex_search    Treat search term as a regex (default is to treat as
+                                    literal word/phrase)
+              -k, --search_encrypted_only
+                        Search encrypted files (default false)
+              -t, --time
+        """
         # TODO -i, and -r (regex) flag support rather than using config variables?
         search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
         paths_to_search = paths_to_search or self.cache or self.paths_to_search
-        options = self.grep_options
 
-        note_encoding = self.pt_config['codec']
-
-        line_numbers = options.line_numbers
-
-        password_func = options.password or puren_tonbo.caching_console_password_prompt
-        use_color = options.use_color
-        grep_options = FakeOptions(options)
-        grep_options.find_only_filename = True  # same as grep but filenames only
-        grep_options.search_encrypted = True  # TODO review, this seems like a reasonable default and password not needed for name matching
-
-        self.file_hits = ptgrep.grep(search_term, paths_to_search, grep_options, use_color, password_func, note_encoding)
+        line = '--find-only-filename ' + line  # -y
+        if self.grep_options.search_encrypted:
+            line = '--search_encrypted ' + line  # -e
+        return self.do_grep(line=line, paths_to_search=paths_to_search)
     do_f = do_find  # shortcut to save typing
     do_fd = do_find  # fd alias for convenience
 
