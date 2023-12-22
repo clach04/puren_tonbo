@@ -129,6 +129,28 @@ Find all words "king", case-insensitive:
 
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -i -r \bking\b
 
+find different words with regex
+
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data    -r "cruel|better"
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -i -r "cruel|better"
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data    -r "cru.l|b.tter"
+
+find filenames with regex
+
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -y -r ^aesop
+
+find filenames that have an ISO date in either dirname or filename
+
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -y -r "202[0-9]-[0-9][0-9]-[0-9][0-9]"
+
+find filenames encrypted with regex
+
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -y -e -r ^aesop
+
+find filenames ONLY encrypted with regex
+
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -y -k -r ^aesop
+
 ### ptig
 
 Command line interactive search tool, that also supports viewing and editing.
