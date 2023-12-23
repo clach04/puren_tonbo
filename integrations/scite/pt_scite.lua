@@ -32,8 +32,13 @@ local function ends_with(str, ending)
 end
 
 
-
-local PTCIPHER_EXE = os.getenv('PTCIPHER_EXE') or 'ptcipher'
+local PTCIPHER_EXE = os.getenv('PTCIPHER_EXE') or props['clach04.puren_tonbo.ptcipher'] --  or 'ptcipher'
+if PTCIPHER_EXE then
+    if PTCIPHER_EXE == '' then
+        PTCIPHER_EXE = 'ptcipher'
+    end
+end
+--print('DEBUG PTCIPHER_EXE: >' .. PTCIPHER_EXE .. '<')
 
 local function determine_encrypted_file_extensions()
   local hard_coded_file_extensions = true
