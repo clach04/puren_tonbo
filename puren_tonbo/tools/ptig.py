@@ -566,13 +566,13 @@ Usage:
         filename_list = filename_list or []
         if not filename_list:
             line = self.validate_result_id(line)
-            if line is None and filename_list is None:
+            if line is None and not filename_list:  # NOTE filename_list check redundant here in this block
                 return
             filename = line
             if filename == '!':
                 filename_list = filename_list or self.file_hits
         else:
-            filename = None
+            filename = None  # ignore filename if a filename_list is passed in
         #import pdb; pdb.set_trace()
         # TODO debug "e `" editor got opened, not a valid file should this be caught? see validate_result_id() which currently does NOT validate filenames (callers do that later)
         editor = editor or os.environ.get('PT_VISUAL') or os.environ.get('VISUAL') or os.environ.get('EDITOR') or self.pt_config['ptig'].get('editor')
