@@ -38,7 +38,7 @@ except ImportError:
     try:
         from . import chi_io  # https://github.com/clach04/chi_io/
     except ImportError:
-        chi_io = None
+        chi_io = fake_module('chi_io')
 
 try:
     raise ImportError()  # on my armbian distro the SWIG layer appears to have issues and caches plaintext, test_aesop_win_encryptpad_gpg_bad_password fails due to NOT getting bad password exception
@@ -429,11 +429,12 @@ class TomboBlowfish(EncryptedFile):
 
     description = 'Tombo Blowfish ECB (not recommended)'
     extensions = ['.chi']
+    kdf = chi_io.CHI_cipher
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTonboException()
         try:
-            return chi_io.read_encrypted_file(file_object, self.key)  # TODO if key is bytes/plaintext this will be slow for multiple files. Ideal is to derive actually password from plaintext once and feed in here for performance
+            return chi_io.read_encrypted_file(file_object, self.key)
         except chi_io.BadPassword as info:  # FIXME place holder
             # TODO chain exception...
             #print(dir(info))
