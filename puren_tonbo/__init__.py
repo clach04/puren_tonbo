@@ -169,6 +169,7 @@ class BaseFile:
 
     description = 'Base Encrypted File'
     extensions = []  # non-empty list of file extensions, first is the default (e.g. for writing)
+    kdf = None  # OPTIONAL key derivation function, that takes a single parameter of bytes for the password/key
 
     def __init__(self, key=None, password=None, password_encoding='utf8'):
         """
@@ -182,8 +183,10 @@ class BaseFile:
             self.key = key
         elif password:
             key = password.encode(password_encoding)
-            # KDF could be applied here if write_to() does not handle this
-            self.key = key
+            if self.kdf:
+                self.key = self.kdf(key)
+            else:
+                self.key = key
 
     ## TODO rename read_from() -> read() - NOTE this would not be file-like
     # TODO add wrapper class for file-like object api
