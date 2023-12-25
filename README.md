@@ -38,7 +38,7 @@ Plain text notes search/edit tool that supports encrypted files, formats:
       * AES-256-CTR PBKDF2 (iterations 1000)
   * [ccrypt](https://ccrypt.sourceforge.net/) - Rijndael-256 (no authentication)
   * [GnuPG (OpenPGP, gpg)](https://www.gnupg.org/) - [symmetric](https://www.gnupg.org/gph/en/manual/r656.html) see https://tutonics.com/articles/gpg-encryption-guide-part-4-symmetric-encryption/#:~:text=Another%20type%20of%20cryptographic%20solution,also%20called%20a%20shared%20secret.
-  * Tombo (chi) - blowfish-ECB
+  * [Tombo (chi)](https://github.com/clach04/chi_io?tab=readme-ov-file) - blowfish-ECB
   * VimCrypt encrypted files READ ONLY - VimCrypt (1-3) zip, blowfish, and blowfish2
 
 プレーン トンボ
