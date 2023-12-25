@@ -35,7 +35,7 @@ Some countries have also have restrictions on import, export, and usage see http
 Plain text notes search/edit tool that supports encrypted files, formats:
 
   * AES-256 ZIP AE-1/AE-2 created with 7z (does NOT support encrypted 7z files), WinZIP, WinRAR - AES256 (under Python 3 can also read (but not write) the original ZipCrypto zip format)
-      * AES-256 PBKDF2 (iterations 1000)
+      * AES-256-CTR PBKDF2 (iterations 1000)
   * ccrypt - Rijndael
   * GnuPG (OpenPGP, gpg)
   * Tombo (chi) - blowfish
