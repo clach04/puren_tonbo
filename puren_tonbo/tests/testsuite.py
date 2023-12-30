@@ -547,6 +547,7 @@ ter no rule than cruel rule.\n'''
         data = note_root.note_contents(test_note_filename, password)
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
+# TODO test openssl_aes256cbc_pbkdf2_10k
 
 # Tests write/encryption to disk
 

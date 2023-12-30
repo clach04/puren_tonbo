@@ -67,6 +67,11 @@ except ImportError:
     keyring = fake_module('keyring')
 
 try:
+    from openssl_enc_compat.cipher import OpenSslEncDecCompat  # https://github.com/clach04/openssl_enc_compat/
+except ImportError:
+    OpenSslEncDecCompat = fake_module('openssl_enc_compat')
+
+try:
     import pyzipper  # https://github.com/danifus/pyzipper  NOTE py3 only
 except ImportError:
     pyzipper = fake_module('pyzipper')
@@ -419,6 +424,23 @@ class GnuPGascii(GnuPG):
         file_object.write(enc_data.data)
 
 
+class OpenSslEnc10k(EncryptedFile):
+    description = 'OpenSSL 1.1.1 pbkdf2 iterations 10000 aes-256-cbc'
+    extensions = [
+        '.openssl_aes256cbc_pbkdf2_10k',  # generated via openssl enc -e -aes-256-cbc -in plain_in -out crypted_out.openssl_aes256cbc_pbkdf2_10k -salt -pbkdf2 -iter 10000
+    ]
+    # TODO KeepOut .kpt files - https://antofthy.gitlab.io/software/keepout.sh.txt
+
+    def read_from(self, file_object):
+        # TODO catch exceptions and raise PurenTonboException()
+        data = file_object.read()
+        password = self.key
+        if not isinstance(password, bytes):
+            password = password.decode("utf-8")
+        cipher = OpenSslEncDecCompat(password)
+        plaintext = cipher.decrypt(data)  # guesses if base64 encoded or note
+        return plaintext
+
 class TomboBlowfish(EncryptedFile):
     """Read/write Tombo (modified) Blowfish encrypted files
     Compatible with files in:
@@ -594,6 +616,10 @@ if ccrypt:
 
 if mzipaes:
     for enc_class in (PurePyZipAES, ZipNoCompressionPurePyZipAES):
+        for file_extension in enc_class.extensions:
+            file_type_handlers[file_extension] = enc_class
+if OpenSslEncDecCompat:
+    for enc_class in (OpenSslEnc10k, ):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 if pyzipper:  # potentially overwrite PurePyZipAES and ZipNoCompressionPurePyZipAES as default zip support

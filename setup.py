@@ -38,7 +38,7 @@ exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'puren_tonbo'
 
 
 # TODO/FIXME dupe of requirements.txt - also chi_io missing here (as not on pypi)
-install_requires = ['colorama', 'pycryptodome', 'python-gnupg']
+install_requires = ['colorama', 'pycryptodome', 'python-gnupg', 'openssl_enc_compat']
 if is_py3:
     install_requires += ['pyzipper']  # pyzipperis python 3.x+
 # TODO consider extras_require, for things like; pyvim, python-gnupg, chi_io
