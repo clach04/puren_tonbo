@@ -20,10 +20,15 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * Approx 1.5Kb.
       * Command: type aesop.txt | ccrypt -e > aesop_win_ccrypt.cpt
 
+  * aesop_linux.openssl_aes256cbc_pbkdf2_10k - OpenSSL aes-256-cbc pbkdf2 encrypted from `aesop.txt`
+    Created with Linux arm OpenSSL 1.1.1f  31 Mar 2020, `openssl enc -e -aes-256-cbc -in aesop.txt -out aesop_lin.openssl_aes256cbc_pbkdf2_10k -salt -pbkdf2 -iter 10000 -pass pass:password`
+      * password is `password`
+      * Approx 1.5Kb.
+
   * aesop_win.openssl_aes256cbc_pbkdf2_10k - OpenSSL aes-256-cbc pbkdf2 encrypted from `aesop.txt`
     Created with Windows win64 with windows-git openssl.exe - `"C:\Program Files\Git\mingw64\bin\openssl.exe" enc -e -aes-256-cbc -in aesop.txt -out aesop_win.openssl_aes256cbc_pbkdf2_10k -salt -pbkdf2 -iter 10000 -pass pass:password`
       * password is `password`
-      * Approx 1.1Kb.
+      * Approx 1.5Kb.
 
   * aesop_win_encryptpad.asc - gpg (GnuPG) encrypted from `aesop.txt`
     Created with Windows win32 encryptpad 0.5.0.2 beta https://github.com/evpo/EncryptPad/

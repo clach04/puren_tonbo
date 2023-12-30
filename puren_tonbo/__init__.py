@@ -441,6 +441,14 @@ class OpenSslEnc10k(EncryptedFile):
         plaintext = cipher.decrypt(data)  # guesses if base64 encoded or note
         return plaintext
 
+    def write_to(self, file_object, byte_data):
+        password = self.key
+        if not isinstance(password, bytes):
+            password = password.decode("utf-8")
+        cipher = OpenSslEncDecCompat(password)
+        crypted_bytes = cipher.encrypt(byte_data)
+        file_object.write(crypted_bytes)
+
 class TomboBlowfish(EncryptedFile):
     """Read/write Tombo (modified) Blowfish encrypted files
     Compatible with files in:

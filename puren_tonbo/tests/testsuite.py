@@ -189,11 +189,18 @@ class TestBaseEncryptedZipBzip2AES(TestBaseEncryptedZipAES):
 
 
 class TestBaseEncryptedFileCompat(TestBaseEncryptedFileBase):
-    def test_get_what_you_put_in_reverse(self):
+    def test_get_what_you_put_in_reverse(self):  # TODO test do not get the same crypted bytes for 2 runs with same parameters, see test_same_input_different_crypted_text()
         decrypt_pt_handler_class = self.decrypt_pt_handler_class
 
         #self.check_get_what_you_put_in(self.test_data_bytes, self.test_password_bytes, self.pt_handler_class, decrypt_pt_handler_class)
         self.check_get_what_you_put_in(self.test_data_bytes, self.test_password_bytes, decrypt_pt_handler_class, self.pt_handler_class)
+
+class TestBaseEncryptedOpenSsl10k(TestBaseEncryptedFile, TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtil):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.OpenSslEnc10k
+    encrypt_pt_handler_class = decrypt_pt_handler_class = puren_tonbo.OpenSslEnc10k  # TODO review this
+    pt_handler_class_conditional = 'OpenSslEncDecCompat'
 
 class TestBaseEncryptedFileCompatPurePyZipAESandZipAES(TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtilBase):
     test_data_bytes = b"this is just a small piece of text."
@@ -210,7 +217,7 @@ class TestBaseEncryptedFileCompatZipNoCompressionPurePyZipAESandZipNoCompression
     pt_handler_class = encrypt_pt_handler_class
 
 
-class TestBaseEncryptedTomboBlowfish(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
+class TestBaseEncryptedTomboBlowfish(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):  # TODO TestBaseEncryptedFileCompat
     test_data_bytes = b"this is just a small piece of text."
     test_password_bytes = b'mypassword'
     pt_handler_class = puren_tonbo.TomboBlowfish
@@ -548,6 +555,7 @@ ter no rule than cruel rule.\n'''
         self.assertEqual(self.plain_text_data_linux_newlines, data)
 
 # TODO test openssl_aes256cbc_pbkdf2_10k
+# TODO test aesop_linux.openssl_aes256cbc_pbkdf2_10k
 
 # Tests write/encryption to disk
 
@@ -868,6 +876,12 @@ class TestFileSystemNotesWriteClassSaveEncryptedCcrypt(TestFileSystemNotesWriteC
 
 class TestFileSystemNotesWriteFunctionSaveEncryptedCcrypt(TestFileSystemNotesWriteFunctionSaveRawPlainText):
     handler_class = puren_tonbo.Ccrypt
+
+class TestFileSystemNotesWriteClassSaveEncryptedOpenSsl10k(TestFileSystemNotesWriteClassSaveRawPlainText):
+    handler_class = puren_tonbo.OpenSslEnc10k # OpenSSL aes256cbc pbkdf2 10k
+
+class TestFileSystemNotesWriteFunctionSaveEncryptedOpenSsl10k(TestFileSystemNotesWriteFunctionSaveRawPlainText):
+    handler_class = puren_tonbo.OpenSslEnc10k # OpenSSL aes256cbc pbkdf2 10k
 
 """ TODO implement TestFileSystemNotesWriteClassSaveRawPlainText and TestFileSystemNotesWriteFunctionSaveRawPlainText for:
 grep '(EncryptedFile):' puren_tonbo/__init__.py
