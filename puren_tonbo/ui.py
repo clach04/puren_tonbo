@@ -5,6 +5,12 @@ import sys
 
 
 try:
+    # Multiple EasyDialogs implementations out there, we don't care what we get so long as it works
+    import EasyDialogs
+except ImportError:
+    EasyDialogs = None
+
+try:
     import getpass
 except ImportError:
     class getpass(object):
@@ -33,6 +39,14 @@ except ImportError:
         tkinter = None
 
 
+def easydialogs_getpass(prompt):
+    password = EasyDialogs.AskPassword('password?', default='')
+    # if password is None, cancel was issued
+    # if password == '', no password issue, OK was issued. See , `default` parameter above
+    if password and not isinstance(password, bytes):
+        password = password.encode('us-ascii')
+    return password
+
 def tk_getpass(prompt):
     tkinter.Tk().withdraw()
     password = askstring('puren tonbo', 'Password', show='*')
@@ -41,9 +55,15 @@ def tk_getpass(prompt):
     return password
 
 
+supported_password_prompt = ('any', 'text', 'gui',)  # although GUI may not be possible
+if EasyDialogs:
+    supported_password_prompt += ('EasyDialogs',)  # case?
+if tkinter:
+    supported_password_prompt += ('tk',)
+
 # TODO replace with plugin classes
 def supported_password_prompt_mechanisms():
-    return ('any', 'text', 'gui', 'tk')
+    return supported_password_prompt  # ('any', 'text', 'gui', 'tk')
     # TODO return ('any', 'text', 'gui', 'tk', 'psidialog' , 'external')  # external would use os var PT_ASKPASS
 
 # TODO see dirname param in gen_caching_get_password()
@@ -60,6 +80,9 @@ def getpassfunc(prompt=None, preference_list=None):
             return getpass.getpass(prompt)
         else:
             return getpass.getpass()
+
+    if EasyDialogs and ('EasyDialogs' in preference_list or 'gui' in preference_list or 'any' in preference_list):
+        return easydialogs_getpass(prompt)
 
     if tkinter and ('tk' in preference_list or 'gui' in preference_list or 'any' in preference_list):
         return tk_getpass(prompt)
