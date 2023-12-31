@@ -323,6 +323,8 @@ Tested with ccrypt 1.11 and 1.10 (32-bit and 64-bit Intel x86/x64 and arm).
 Requires a ccrypt binary, download from https://ccrypt.sourceforge.net/
 (or debian apt). ccrypt binary/executable needs to be in the path or
 the environment variable CCRYPT_EXE needs to have the (full) path.
+NOTE Under Microsoft Windows, is the ccrypt.exe is in a path with
+spaces, do NOT use double quotes in the SET. Example: `set CCRYPT_EXE=C:\3rd party bins\ccrypt.exe`
 
     python -m puren_tonbo.tools.ptcipher --password password puren_tonbo/tests/data/aesop_win_ccrypt.cpt
     ptcipher --cipher=cpt -e -p test README.md -o README.cpt
