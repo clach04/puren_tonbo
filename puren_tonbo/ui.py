@@ -47,7 +47,7 @@ except ImportError:
         import win32con
         import win32ui
 
-        # from pythonwin.pywin.dialogs.login
+        # from pythonwin.pywin.dialogs.login -- https://github.com/mhammond/pywin32/blob/main/Pythonwin/pywin/dialogs/login.py
         def MakePasswordDlgTemplate(title):
             style = (
                 win32con.DS_MODALFRAME
