@@ -42,7 +42,56 @@ try:
     # pywin32
     from pythonwin.pywin.dialogs.login import GetPassword as win32_getpassword
 except ImportError:
-    win32_getpassword = None
+    try:
+        from pywin.mfc import dialog  # pywin32
+        import win32con
+        import win32ui
+
+        # from pythonwin.pywin.dialogs.login
+        def MakePasswordDlgTemplate(title):
+            style = (
+                win32con.DS_MODALFRAME
+                | win32con.WS_POPUP
+                | win32con.WS_VISIBLE
+                | win32con.WS_CAPTION
+                | win32con.WS_SYSMENU
+                | win32con.DS_SETFONT
+            )
+            cs = win32con.WS_CHILD | win32con.WS_VISIBLE
+            # Window frame and title
+            dlg = [
+                [title, (0, 0, 177, 45), style, None, (8, "MS Sans Serif")],
+            ]
+
+            # Password label and text box
+            dlg.append([130, "Password:", -1, (7, 7, 69, 9), cs | win32con.SS_LEFT])
+            s = cs | win32con.WS_TABSTOP | win32con.WS_BORDER
+            dlg.append(
+                ["EDIT", None, win32ui.IDC_EDIT1, (50, 7, 60, 12), s | win32con.ES_PASSWORD]
+            )
+
+            # OK/Cancel Buttons
+            s = cs | win32con.WS_TABSTOP | win32con.BS_PUSHBUTTON
+            dlg.append(
+                [128, "OK", win32con.IDOK, (124, 5, 50, 14), s | win32con.BS_DEFPUSHBUTTON]
+            )
+            dlg.append([128, "Cancel", win32con.IDCANCEL, (124, 22, 50, 14), s])
+            return dlg
+
+        class PasswordDlg(dialog.Dialog):
+            def __init__(self, title):
+                dialog.Dialog.__init__(self, MakePasswordDlgTemplate(title))
+                self.AddDDX(win32ui.IDC_EDIT1, "password")
+
+
+        def win32_getpassword(title="Password", password=""):
+            d = PasswordDlg(title)
+            d["password"] = password
+            if d.DoModal() != win32con.IDOK:
+                return None
+            return d["password"]
+    except ImportError:
+        win32_getpassword = None
 
 
 def easydialogs_getpass(prompt):

@@ -12,6 +12,7 @@ except ImportError:
 
 
 is_py3 = sys.version_info >= (3,)
+is_win = sys.platform.startswith('win')
 
 if len(sys.argv) <= 1:
     print("""
@@ -41,6 +42,8 @@ exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'puren_tonbo'
 install_requires = ['colorama', 'pycryptodome', 'python-gnupg', 'openssl_enc_compat']
 if is_py3:
     install_requires += ['pyzipper']  # pyzipperis python 3.x+
+if is_win:
+    install_requires += ['pywin32']
 # TODO consider extras_require, for things like; pyvim, python-gnupg, chi_io
 # TODO chi_io on pypi
 # https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
