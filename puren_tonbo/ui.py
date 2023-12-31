@@ -38,6 +38,12 @@ except ImportError:
     except ImportError:
         tkinter = None
 
+try:
+    # pywin32
+    from pythonwin.pywin.dialogs.login import GetPassword as win32_getpassword
+except ImportError:
+    win32_getpassword = None
+
 
 def easydialogs_getpass(prompt):
     password = EasyDialogs.AskPassword('password?', default='')
@@ -56,6 +62,8 @@ def tk_getpass(prompt):
 
 
 supported_password_prompt = ('any', 'text', 'gui',)  # although GUI may not be possible
+if win32_getpassword:
+    supported_password_prompt += ('win32',)
 if EasyDialogs:
     supported_password_prompt += ('EasyDialogs',)  # case?
 if tkinter:
@@ -80,6 +88,9 @@ def getpassfunc(prompt=None, preference_list=None):
             return getpass.getpass(prompt)
         else:
             return getpass.getpass()
+
+    if win32_getpassword and ('win32' in preference_list or 'gui' in preference_list or 'any' in preference_list):
+        return win32_getpassword(prompt)
 
     if EasyDialogs and ('EasyDialogs' in preference_list or 'gui' in preference_list or 'any' in preference_list):
         return easydialogs_getpass(prompt)
