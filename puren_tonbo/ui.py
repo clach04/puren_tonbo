@@ -147,3 +147,4 @@ def getpassfunc(prompt=None, preference_list=None):
     if tkinter and ('tk' in preference_list or 'gui' in preference_list or 'any' in preference_list):
         return tk_getpass(prompt)
 
+    raise NotImplementedError('Unsure which password function to use')
