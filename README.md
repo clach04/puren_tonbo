@@ -38,7 +38,7 @@ Plain text notes search/edit tool that supports encrypted files, formats:
       * AES-256-CTR PBKDF2 (iterations 1000)
   * [ccrypt](https://ccrypt.sourceforge.net/) - Rijndael-256 (no authentication)
   * [GnuPG (OpenPGP, gpg)](https://www.gnupg.org/) - [symmetric](https://www.gnupg.org/gph/en/manual/r656.html) see https://tutonics.com/articles/gpg-encryption-guide-part-4-symmetric-encryption/#:~:text=Another%20type%20of%20cryptographic%20solution,also%20called%20a%20shared%20secret.
-  * [OpenSSL 1.1.1 aes-256-cbc](https://github.com/openssl/openssl) - [symmetric](https://www.openssl.org/docs/manmaster/man1/openssl.html) AES-256-CBC encryption with pbkdf2.
+  * [OpenSSL 1.1.0 aes-256-cbc](https://github.com/openssl/openssl) - [symmetric](https://www.openssl.org/docs/manmaster/man1/openssl.html) AES-256-CBC encryption with pbkdf2.
   * [Tombo (chi)](https://github.com/clach04/chi_io?tab=readme-ov-file) - blowfish-ECB
   * [vim VimCrypt](https://vimdoc.sourceforge.net/htmldoc/editing.html#encryption) encrypted files READ ONLY - VimCrypt (1-3) zip, blowfish, and blowfish2
 
@@ -181,7 +181,7 @@ Also see https://github.com/clach04/puren_tonbo/wiki/tool-ptig
            aes256.zip - ZipAES - AES-256 ZIP AE-1 DEFLATED (regular compression)
                aeszip - ZipAES - AES-256 ZIP AE-1 DEFLATED (regular compression)
               old.zip - ZipAES - AES-256 ZIP AE-1 DEFLATED (regular compression)
-    openssl_aes256cbc_pbkdf2_10k - OpenSslEnc10k - OpenSSL 1.1.1 pbkdf2 iterations 10000 aes-256-cbc
+    openssl_aes256cbc_pbkdf2_10k - OpenSslEnc10k - OpenSSL 1.1.0 pbkdf2 iterations 10000 aes-256-cbc
      aes256stored.zip - ZipNoCompressionAES - AES-256 ZIP AE-1 STORED (uncompressed)
         oldstored.zip - ZipNoCompressionAES - AES-256 ZIP AE-1 STORED (uncompressed)
        aes256lzma.zip - ZipLzmaAES - AES-256 ZIP AE-1 LZMA
@@ -346,13 +346,13 @@ Requires a gpg binary, download from https://gnupg.org/download/
 
 Also see `encryptcli` from https://github.com/evpo/EncryptPad/
 
-#### OpenSSL 1.1.1 AES
+#### OpenSSL 1.1.0 AES
 
-OpenSSL 1.1.1 compatible (with a very small subset of options).
+OpenSSL 1.1.0+ compatible (with a very small subset of options).
 
     ptcat --note-root=. puren_tonbo/tests/data/aesop_win.openssl_aes256cbc_pbkdf2_10k
 
-Intended to allow decryption of files generated with OpenSSL 1.1.1 and vice-versa. Supported OpenSSL flags/formats:
+Intended to allow decryption of files generated with OpenSSL 1.1.0 and vice-versa. Supported OpenSSL flags/formats:
 
     openssl enc -e aes-256-cbc -salt -pbkdf2 -iter 10000 -in in_file -base64 -out out_file
     openssl dec -d aes-256-cbc -salt -pbkdf2 -iter 10000 -in in_file -base64 -out out_file

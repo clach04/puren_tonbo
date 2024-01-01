@@ -425,7 +425,7 @@ class GnuPGascii(GnuPG):
 
 
 class OpenSslEnc10k(EncryptedFile):
-    description = 'OpenSSL 1.1.1 pbkdf2 iterations 10000 aes-256-cbc'
+    description = 'OpenSSL 1.1.0 pbkdf2 iterations 10000 aes-256-cbc'
     extensions = [
         '.openssl_aes256cbc_pbkdf2_10k',  # generated via openssl enc -e -aes-256-cbc -in plain_in -out crypted_out.openssl_aes256cbc_pbkdf2_10k -salt -pbkdf2 -iter 10000
     ]
