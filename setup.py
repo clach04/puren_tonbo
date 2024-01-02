@@ -1,4 +1,5 @@
 import os
+import platform
 import sys
 try:
     from setuptools import setup, find_packages
@@ -11,6 +12,7 @@ except ImportError:
     pyvim = None
 
 
+is_cpython = platform.python_implementation() == 'CPython'
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
 
@@ -42,7 +44,7 @@ exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'puren_tonbo'
 install_requires = ['colorama', 'pycryptodome', 'python-gnupg', 'openssl_enc_compat']
 if is_py3:
     install_requires += ['pyzipper']  # pyzipperis python 3.x+
-if is_win:
+if is_win and is_cpython:
     install_requires += ['pywin32']
 # TODO consider extras_require, for things like; pyvim, python-gnupg, chi_io
 # TODO chi_io on pypi
