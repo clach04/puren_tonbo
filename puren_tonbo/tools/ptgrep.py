@@ -72,6 +72,9 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
     search_encrypted = options.search_encrypted
     search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
     only_filename_results = options.find_only_filename or options.files_with_matches
+    find_only_filename = options.find_only_filename
+    if find_only_filename:
+        search_encrypted = True  # TODO ?
 
     if options.time:
         start_time = time.time()
@@ -88,7 +91,7 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
             #print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty and/or log instead
             notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
 
-            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, find_only_filename=options.find_only_filename, files_with_matches=options.files_with_matches, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
+            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, find_only_filename=find_only_filename, files_with_matches=options.files_with_matches, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
                 filename, hit_detail = hit
                 #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
                 if filename:
