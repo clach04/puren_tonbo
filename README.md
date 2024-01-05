@@ -587,6 +587,7 @@ Puren Tonbo is implemented in Python, with support for Python 3.x and 2.7.
 ### Run test suite
 
     python -m puren_tonbo.tests.testsuite
+    python -m puren_tonbo.tests.testsuite -v 2>&1 |grep -i skipped
 
 ### High Level Overview
 
