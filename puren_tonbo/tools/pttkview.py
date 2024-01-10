@@ -140,11 +140,12 @@ def main(argv=None):
         myappid = u'mycompany.myproduct.subproduct.version' # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
-    icon_full_path = os.path.join(os.path.dirname(puren_tonbo.__file__), 'resources', 'icon512x512.png')
+    #icon_full_path = os.path.join(os.path.dirname(puren_tonbo.__file__), 'resources', 'icon512x512.png')
+    icon_full_path = os.path.join(os.path.dirname(puren_tonbo.__file__), 'resources', 'puren_tonbo_red_icon_32x32.ico')
 
     main_window = tkinter.Tk()
     main_window.title('pttkview - ' + os.path.basename(in_filename))
-    #main_window.iconbitmap(default=icon_full_path)  # PNG not supported, needs to be Windows ico (icon) format?
+    main_window.iconbitmap(default=icon_full_path)  # PNG not supported, needs to be Windows ico (icon) format
     try:
         main_window.iconphoto(False, tkinter.PhotoImage(file=icon_full_path))  # currently a place holder image  - py3
     except AttributeError:
