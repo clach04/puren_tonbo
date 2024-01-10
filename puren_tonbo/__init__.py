@@ -2060,6 +2060,8 @@ def print_version_info():
         print('\tpython-gnupg version: %s' % gnupg.__version__)
     if gpg:
         print('\tgpg version: %r' % (gpg.version,))
+    if vimdecrypt:
+        print('\tvimdecrypt version: %s' % 'puren_tonbo_internal')
     if pyzipper:
         print('\tpyzipper version: %s' % pyzipper.__version__)
     print('')
