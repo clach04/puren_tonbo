@@ -68,6 +68,7 @@ except ImportError:
 
 try:
     from openssl_enc_compat.cipher import OpenSslEncDecCompat  # https://github.com/clach04/openssl_enc_compat/
+    import openssl_enc_compat
 except ImportError:
     OpenSslEncDecCompat = fake_module('openssl_enc_compat')
 
@@ -2053,6 +2054,8 @@ def print_version_info():
     if chi_io:
         print('\tchi_io.implementation: %s' % chi_io.implementation)
     print('\tccrypt version: %s exe: %s' % (ccrypt_version, CCRYPT_EXE))
+    if OpenSslEncDecCompat:
+        print('\topenssl_enc_compat version: %s' % openssl_enc_compat.__version__)
     if gnupg:
         print('\tpython-gnupg version: %s' % gnupg.__version__)
     if gpg:
