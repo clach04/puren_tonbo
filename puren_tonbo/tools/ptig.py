@@ -319,6 +319,7 @@ Examples
 
         # TODO catch SearchCancelled, KeyboardInterrupt
         self.file_hits = hits
+    do_mru = do_recent  # Most Recently Used
 
     def do_set(self, line=None):
         """Set variables/options. No params, show variable settings
