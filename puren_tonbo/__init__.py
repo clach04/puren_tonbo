@@ -2064,6 +2064,9 @@ def print_version_info():
         print('\tvimdecrypt version: %s' % 'puren_tonbo_internal')
     if pyzipper:
         print('\tpyzipper version: %s' % pyzipper.__version__)
+    if mzipaes:
+        #print('\tmzipaes version: %s' % 'puren_tonbo_internal' + repr(mzipaes.crypto_kit))
+        print('\tmzipaes version: %s' % 'puren_tonbo_internal implementation ' + mzipaes.crypto_kit.__class__.__name__)
     print('')
 
 
