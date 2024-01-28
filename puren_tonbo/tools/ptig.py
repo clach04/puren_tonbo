@@ -186,6 +186,10 @@ class CommandPrompt(Cmd):
 
     def do_fts_search(self, line=None):
         # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
+        if not line:
+            print('Need a search term')  # TODO show help (currently missing)?
+            return
+
         if self.grep_options.use_color:
             highlight_text_start, highlight_text_stop = ptgrep.color_linenum, ptgrep.color_reset
             highlight_text_start, highlight_text_stop = ptgrep.color_searchhit, ptgrep.color_reset
