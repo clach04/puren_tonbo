@@ -1,0 +1,2 @@
+(A) learn about http://todotxt.org/
+x create a todo.txt file

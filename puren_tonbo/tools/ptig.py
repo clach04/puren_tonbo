@@ -360,6 +360,7 @@ Examples
 
         # TODO catch SearchCancelled, KeyboardInterrupt
         self.file_hits = hits
+    do_mru = do_recent  # Most Recently Used
 
     def do_set(self, line=None):
         """Set variables/options. No params, show variable settings
@@ -404,6 +405,7 @@ Examples
             for attribute_name in options:
                 if not attribute_name.startswith('_'):
                     attribute_value = options[attribute_name]
+                    attribute_value = repr(attribute_value)  # DEBUG, alternative hack stdout like in ptgrep()
                     #print('\t%s=%s' % (attribute_name, attribute_value))  # TODO consider sorted dict?
                     print('\t%s%s%s=%s%s%s' % (name_color, attribute_name, color_reset, value_color, attribute_value, color_reset))  # TODO consider sorted dict?
             return

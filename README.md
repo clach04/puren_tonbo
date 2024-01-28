@@ -116,6 +116,10 @@ Purēntonbo
 
 A grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/ripgrep), [silver-searcher](https://geoff.greer.fm/ag/), [pss](https://github.com/eliben/pss) like tool that works on encrypted (and plain text) files.
 
+Has similar parameters for ease of switching.
+
+Python 2.7 note for Windows. Non-ascii characters can cause Python exception/crashes UnicodeEncodeError when attempting to print Unicode characters, where as Python 3 does not. ptgrep implements a translation feature/hack which can be disabled (or tweaked) via the Operating System environment variable `PTGREP_STDOUT_MODE. Valid options are `disabled`, `utf8`, and `ascii:backslashreplace`. For Python 2.7 under Microsoft Windows **only** (when neither `PYTHONIOENCODING` nor `PYTHONUTF8` have been set) `ascii:backslashreplace` is the default and works in a similar fashion to `PYTHONIOENCODING`.
+
     ptgrep better
     ptgrep -i better
     python -m puren_tonbo.tools.ptgrep -i better
@@ -156,6 +160,7 @@ find filenames ONLY encrypted with regex
 ### ptig
 
 Command line interactive search tool, that also supports viewing and editing.
+Relies on ptgrep, see `PTGREP_STDOUT_MODE` note.
 
 Also see https://github.com/clach04/puren_tonbo/wiki/tool-ptig
 

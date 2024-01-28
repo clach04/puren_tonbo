@@ -1,0 +1,6 @@
+emoji
+-*- coding: utf-8 -*-
+
+unicode emoji: 😀 - Grinning Face
+unicode emoji: 🐉 - Dragon
+unicode emoji: 🎄 - Christmas Tree

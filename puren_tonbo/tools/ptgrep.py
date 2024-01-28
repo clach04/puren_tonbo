@@ -26,6 +26,7 @@ Essentially; ack, ripgrep, pss, ag/The Silver Searcher for plain text and encryp
 
 """
 
+import codecs
 import os
 from optparse import OptionParser
 import sys
@@ -62,6 +63,49 @@ else:
         color_searchhit = '\x1b[31m'  # Fore.RED
         color_reset = '\x1b[00m'
 
+# TODO
+"""
+if not (os.environ.get('PYTHONIOENCODING') and py2 and win:
+    warn
+    'recommend PYTHONIOENCODING=ascii:backslashreplace  so as to avoid loss of characters'
+    if sys.__stdout__.isatty() or sys.__stderr__.isatty():
+        sleep / pause
+
+"""
+
+PTGREP_STDOUT_MODE = os.environ.get('PTGREP_STDOUT_MODE', '')
+if not PTGREP_STDOUT_MODE and is_win and not is_py3 and (not os.environ.get('PYTHONIOENCODING') or not os.environ.get('PYTHONUTF8')):
+    # for python2 under Windows force hack, so that do not get UnicodeEncodeError: errors, set to 'disabled' to keep default behavior
+    PTGREP_STDOUT_MODE = 'ascii:backslashreplace'
+print(PTGREP_STDOUT_MODE)
+
+sys_stdout = sys.stdout
+
+def stdout_hack_required():
+    if not PTGREP_STDOUT_MODE:
+        return False
+    if PTGREP_STDOUT_MODE:
+        if PTGREP_STDOUT_MODE == 'disabled':
+            return False
+    return True
+
+def stdout_hack():
+    if not stdout_hack_required():
+        return
+
+    # NOTE1 py3 has reconfigure for stdout, py2 does NOT.
+    # NOTE2 py3 also has detach() for stdout, py2 does NOT.
+    if PTGREP_STDOUT_MODE == 'utf8':
+        sys.stdout = codecs.getwriter("utf-8")(sys.stdout)
+    else:
+        sys.stdout = codecs.getwriter('ascii')(sys.stdout, errors='backslashreplace')  # don't loose detail
+        #sys.stdout = codecs.getwriter('ascii')(sys.stdout, errors='xmlcharrefreplace')
+
+def stdout_restore():
+    if not stdout_hack_required():
+        return
+    sys.stdout = sys_stdout
+
 
 # TODO remove/replace args and consolidate into options
 def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding):
@@ -79,6 +123,7 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
     if options.time:
         start_time = time.time()
     try:
+        stdout_hack()
         if use_color:
             highlight_text_start, highlight_text_stop = color_searchhit, color_reset
         else:
@@ -139,6 +184,8 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
                         print('%s%s' % (filename, result_hit_text))
     except (SearchCancelled, KeyboardInterrupt) as info:
         print('search cancelled', info)
+    finally:
+        stdout_restore()
     if options.time:
         end_time = time.time()
         search_time = end_time - start_time

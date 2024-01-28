@@ -1,0 +1,4 @@
+cjk
+-*- coding: utf-8 -*-
+
+unicode cjk: 酒 (U+9152)
