@@ -134,6 +134,7 @@ class CommandPrompt(Cmd):
         self.bookmarks = {}
         self.cache = None
         self.paths_to_search = []
+        self.paths_to_search_instances = []
         #import pdb ; pdb.set_trace()
         paths_to_search = paths_to_search or ['.']
         for note_path in paths_to_search:
@@ -167,6 +168,46 @@ class CommandPrompt(Cmd):
     do_bye = do_exit
     do_EOF = do_exit
 
+    def do_fts_index(self, line=None):
+        if line:
+            print('Parameters not supported')  # TODO handle and also cwd support
+            return
+        note_encoding = self.pt_config['codec']
+        password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
+        password_func = None  # no password    #FIXME include encrypted option
+
+        self.paths_to_search_instances = []
+        for note_root in self.paths_to_search:
+            notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+            # FIXME handle password from environment, e.g. env PT_PASSWORD=password (keyring)
+            # FIXME handle cancel from password prompt
+            notes.fts_index(get_password_callback=password_func)
+            self.paths_to_search_instances.append(notes)
+
+    def do_fts_search(self, line=None):
+        # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
+        if not line:
+            print('Need a search term')  # TODO show help (currently missing)?
+            return
+
+        if self.grep_options.use_color:
+            highlight_text_start, highlight_text_stop = ptgrep.color_linenum, ptgrep.color_reset
+            highlight_text_start, highlight_text_stop = ptgrep.color_searchhit, ptgrep.color_reset
+        else:
+            highlight_text_start, highlight_text_stop = None, None  # revisit this
+
+        print('')
+        # TODO time and report, counts and elapsed time
+        self.file_hits = []
+        for notes in self.paths_to_search_instances:
+            for counter, hit in enumerate(notes.fts_search(line, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop), start=1):
+                #print('hit %r' % (hit,) )
+                #print('%s:%s' % hit)
+                filename, filename_highlighted, note_text = hit
+                note_text = note_text.replace('\n', ' ')
+                print('fts[%d] %s:%s:%s' % (counter, filename, filename_highlighted, note_text))
+                # FIXME need raw filename
+                self.file_hits.append(filename)  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
 
     def do_ls(self, line=None):
         if line:
