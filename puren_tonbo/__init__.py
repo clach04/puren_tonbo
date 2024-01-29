@@ -1734,7 +1734,10 @@ class FullTextSearchSqlite:
 
     def create_index_start(self):
         cur = self.cursor
-        cur.execute("CREATE VIRTUAL TABLE note USING fts5(filename, contents, tokenize='porter')")  # TODO size and date unindexed
+        # defaults to unicode61, TODO test with options, also ascii
+        # TODO check out trigram
+        cur.execute("CREATE VIRTUAL TABLE note USING fts5(filename, contents, tokenize='porter')")  # TODO size and date unindexed (https://www.sqlite.org/fts5.html#the_unindexed_column_option)
+        # Checkout https://www.sqlite.org/fts5.html#prefix_indexes
 
     def create_index_end(self):
         self.db.commit()
@@ -1799,7 +1802,7 @@ class FullTextSearchSqlite:
                         ORDER  BY rank""",
                         (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
 
-        return cur.fetchall()
+        return cur.fetchall()  # [(filename, title, body), ...]
 
 ##############################
 

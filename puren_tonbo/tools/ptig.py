@@ -196,16 +196,26 @@ class CommandPrompt(Cmd):
         else:
             highlight_text_start, highlight_text_stop = None, None  # revisit this
 
-        print('')
         # TODO time and report, counts and elapsed time
+        ripgrep_outout_style = False  # file, newline, line_number:hit
+        ripgrep_outout_style = True  # grep-style; filename:line_number:hit
         self.file_hits = []
         for notes in self.paths_to_search_instances:
             for counter, hit in enumerate(notes.fts_search(line, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop), start=1):
                 #print('hit %r' % (hit,) )
                 #print('%s:%s' % hit)
                 filename, filename_highlighted, note_text = hit
+                if self.grep_options.use_color:
+                    filename = ptgrep.color_filename + filename + ptgrep.color_reset
+
                 note_text = note_text.replace('\n', ' ')
-                print('fts[%d] %s:%s:%s' % (counter, filename, filename_highlighted, note_text))
+                # NOTE filename_highlighted unused
+                if ripgrep_outout_style:
+                    print('[%d] %s' % (counter, filename))
+                    print('??:%s' % (note_text,))
+                else:
+                    # grep-style
+                    print('[%d] %s:%s' % (counter, filename, note_text))  # unknown line number
                 # FIXME need raw filename
                 self.file_hits.append(filename)  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
 
