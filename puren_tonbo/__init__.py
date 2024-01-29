@@ -1734,7 +1734,7 @@ class FullTextSearchSqlite:
 
     def create_index_start(self):
         cur = self.cursor
-        cur.execute('CREATE VIRTUAL TABLE note USING fts5(filename, contents)')  # TODO size and date unindexed
+        cur.execute("CREATE VIRTUAL TABLE note USING fts5(filename, contents, tokenize='porter')")  # TODO size and date unindexed
 
     def create_index_end(self):
         self.db.commit()
@@ -1750,6 +1750,7 @@ class FullTextSearchSqlite:
 
     def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
         """Search self.index_location for `search_term`
+        TODO control over context_distance
         """
         # FIXME here and grep find_only_filename=False == files_with_matches? duplicate?
         if find_only_filename:
