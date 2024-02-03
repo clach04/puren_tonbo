@@ -26,6 +26,13 @@ Suggested setup.py parameters:
     * sdist  # NOTE requires tar/gzip commands
 
     python -m pip install -e .
+
+PyPi:
+
+    python -m pip install setuptools twine
+    twine upload dist/*
+    ./setup.py  sdist ; twine upload dist/* --verbose
+
 """)
 
 readme_filename = 'README.md'
@@ -46,8 +53,6 @@ if is_py3:
     install_requires += ['pyzipper']  # pyzipperis python 3.x+
 if is_win and is_cpython:
     install_requires += ['pywin32']
-# TODO consider extras_require, for things like; pyvim, python-gnupg, chi_io
-# TODO chi_io on pypi
 # https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
 # https://stackoverflow.com/questions/10572603/specifying-optional-dependencies-in-pypi-python-setup-py
 
@@ -61,7 +66,7 @@ setup(
     #packages=['puren_tonbo'],
     packages=find_packages(where=os.path.dirname(__file__), include=['*']),
     package_data={
-        'puren_tonbo': [os.path.join(os.path.dirname(__file__), 'puren_tonbo', 'tests', 'data', '*'),
+        'puren_tonbo': [os.path.join(os.path.dirname(__file__), 'puren_tonbo', 'tests', 'data', '*'),  # TODO demo_notes?
                         os.path.join(os.path.dirname(__file__), 'puren_tonbo', 'resources', '*'),
                         ],
     },
@@ -95,4 +100,9 @@ setup(
         ],
     platforms='any',  # or distutils.util.get_platform()
     install_requires=install_requires,
+    extras_require={
+        'chi_io': ['chi_io @ https://github.com/clach04/chi_io.git#egg=package-1.0', ],  # TODO chi_io on pypi
+        # TODO pyvim
+        # TODO python-gnupg (consider replacements before implementing https://github.com/clach04/puren_tonbo/issues/118)
+    }
 )
