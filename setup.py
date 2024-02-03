@@ -110,5 +110,6 @@ setup(
         'chi_io': ['chi_io', ],
         # TODO pyvim
         # TODO python-gnupg (consider replacements before implementing https://github.com/clach04/puren_tonbo/issues/118)
+        'all': ['chi_io', ],  # convience, all of the above
     }
 )

@@ -9,25 +9,43 @@ https://github.com/clach04/puren_tonbo/
 ensure that it is legal in your country to use the specific encryption ciphers.
 Some countries have also have restrictions on import, export, and usage see http://www.cryptolaw.org/cls-sum.htm
 
-- [Background](#background)
-- [Features](#features)
-- [Getting Started](#getting-started)
-  - [Without a source code checkout](#without-a-source-code-checkout)
-  - [From a source code checkout](#from-a-source-code-checkout)
-- [Examples](#examples)
-  - [ptcat](#ptcat)
-  - [ptgrep](#ptgrep)
-  - [ptig](#ptig)
-  - [pttkview](#pttkview)
-  - [ptpyvim](#ptpyvim)
-  - [ptcipher](#ptcipher)
-- [ptcat/ptcipher with text editors like vim](#ptcatptcipher-with-text-editors-like-vim)
-  - [readonly pipe into editor](#readonly-pipe-into-editor)
-  - [vim plugin](#vim-plugin)
-- [Development and testing](#development-and-testing)
-  - [Run test suite](#run-test-suite)
-  - [High Level Overview](#high-level-overview)
-- [Thanks](#thanks)
+  * [Background](#background)
+  * [Features](#features)
+  * [Getting Started](#getting-started)
+    + [Regular install](#regular-install)
+    + [Without a source code checkout](#without-a-source-code-checkout)
+    + [From a source code checkout](#from-a-source-code-checkout)
+  * [Examples](#examples)
+    + [ptcat](#ptcat)
+    + [ptgrep](#ptgrep)
+    + [ptig](#ptig)
+      - [Sample ptig session](#sample-ptig-session)
+      - [ptig config](#ptig-config)
+    + [pttkview](#pttkview)
+    + [ptpyvim](#ptpyvim)
+    + [ptcipher](#ptcipher)
+      - [Tombo Blowfish CHI](#tombo-blowfish-chi)
+      - [ccrypt CPT](#ccrypt-cpt)
+      - [OpenPGP - gpg / pgp](#openpgp---gpg---pgp)
+      - [OpenSSL 1.1.0 AES](#openssl-110-aes)
+      - [AES-256 zip](#aes-256-zip)
+      - [VimCrypt](#vimcrypt)
+  * [ptcat/ptcipher with text editors like vim](#ptcat-ptcipher-with-text-editors-like-vim)
+    + [readonly pipe into editor](#readonly-pipe-into-editor)
+    + [SciTE lua plugin](#scite-lua-plugin)
+      - [SciTE lua install without extension manager](#scite-lua-install-without-extension-manager)
+      - [SciTE lua install with an extension manager](#scite-lua-install-with-an-extension-manager)
+    + [SciTE Python plugin](#scite-python-plugin)
+    + [vim plugin](#vim-plugin)
+      - [vim demo](#vim-demo)
+      - [vim plugin install](#vim-plugin-install)
+      - [vim plugin install linux/unix](#vim-plugin-install-linux-unix)
+      - [vim plugin install Microsoft Windows](#vim-plugin-install-microsoft-windows)
+      - [vim config notes](#vim-config-notes)
+  * [Development and testing](#development-and-testing)
+    + [Run test suite](#run-test-suite)
+    + [High Level Overview](#high-level-overview)
+  * [Thanks](#thanks)
 
 
 ## Background
@@ -73,7 +91,13 @@ Purēntonbo
     sudo apt-get install ccrypt
 
 
+### Regular install
+
+    pip install "puren_tonbo[all]"
+
 ### Without a source code checkout
+
+Picking up the latest version
 
     pip uninstall puren_tonbo ; python -m pip install --upgrade git+https://github.com/clach04/chi_io.git  git+https://github.com/clach04/puren_tonbo.git
 
