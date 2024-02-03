@@ -185,16 +185,36 @@ class CommandPrompt(Cmd):
             self.paths_to_search_instances.append(notes)
 
     def do_fts_search(self, line=None):
+        """Usage:
+        fts_search TERM_OR_QUERY
+        fts_search fts_search king OR frog OR hares
+        """
         # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
-        if not line:
-            print('Need a search term')  # TODO show help (currently missing)?
-            return
-
         if self.grep_options.use_color:
             highlight_text_start, highlight_text_stop = ptgrep.color_linenum, ptgrep.color_reset
             highlight_text_start, highlight_text_stop = ptgrep.color_searchhit, ptgrep.color_reset
         else:
             highlight_text_start, highlight_text_stop = None, None  # revisit this
+
+        if not line:
+            error_message = '\nNeed a search term!\n'
+            if highlight_text_start:
+                error_message = highlight_text_start + error_message + highlight_text_stop
+            print(error_message)
+            print('%s' % self.do_fts_search.__doc__)
+            return
+
+
+        if ' and ' in line or ' or ' in line:
+            if highlight_text_start:
+                and_or_warning_message = highlight_text_start + 'WARNING' + highlight_text_stop + ' or/and detected, SQLite3 FTS5 expects upper case'
+            else:
+                and_or_warning_message = 'WARNING or/and detected, SQLite3 FTS5 expects upper case'
+        else:
+            and_or_warning_message = None
+        # warn at start and end
+        if and_or_warning_message:
+            print(and_or_warning_message)
 
         # TODO time and report, counts and elapsed time
         ripgrep_outout_style = False  # file, newline, line_number:hit
@@ -218,6 +238,8 @@ class CommandPrompt(Cmd):
                     print('[%d] %s:%s' % (counter, filename, note_text))  # unknown line number
                 # FIXME need raw filename
                 self.file_hits.append(filename)  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
+        if and_or_warning_message:
+            print(and_or_warning_message)
 
     def do_ls(self, line=None):
         if line:
