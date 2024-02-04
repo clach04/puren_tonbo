@@ -187,7 +187,9 @@ class CommandPrompt(Cmd):
     def do_fts_search(self, line=None):
         """Usage:
         fts_search TERM_OR_QUERY
-        fts_search fts_search king OR frog OR hares
+        fts_search king OR frog OR hares
+        fts_search frog AND king
+        fts_search frog NOT king
         """
         # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
         if self.grep_options.use_color:
