@@ -227,6 +227,10 @@ class CommandPrompt(Cmd):
                 #print('hit %r' % (hit,) )
                 #print('%s:%s' % hit)
                 filename, filename_highlighted, note_text = hit
+                # display_full_path - assume True
+                if len(self.paths_to_search) == 1:
+                    filename = os.path.join(self.paths_to_search[0], filename)  # or store full pathname in database at index time...
+                self.file_hits.append(filename)  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
                 if self.grep_options.use_color:
                     filename = ptgrep.color_filename + filename + ptgrep.color_reset
 
@@ -238,8 +242,6 @@ class CommandPrompt(Cmd):
                 else:
                     # grep-style
                     print('[%d] %s:%s' % (counter, filename, note_text))  # unknown line number
-                # FIXME need raw filename
-                self.file_hits.append(filename)  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
         if and_or_warning_message:
             print(and_or_warning_message)
 
