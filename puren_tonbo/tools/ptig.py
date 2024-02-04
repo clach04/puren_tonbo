@@ -205,9 +205,9 @@ class CommandPrompt(Cmd):
             return
 
 
-        if ' and ' in line or ' or ' in line:
+        if ' and ' in line or ' or ' or ' not ' in line:
             if highlight_text_start:
-                and_or_warning_message = highlight_text_start + 'WARNING' + highlight_text_stop + ' or/and detected, SQLite3 FTS5 expects upper case'
+                and_or_warning_message = highlight_text_start + 'WARNING' + highlight_text_stop + ' or/and/not detected, SQLite3 FTS5 expects upper case'
             else:
                 and_or_warning_message = 'WARNING or/and detected, SQLite3 FTS5 expects upper case'
         else:
