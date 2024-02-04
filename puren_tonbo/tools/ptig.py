@@ -190,6 +190,8 @@ class CommandPrompt(Cmd):
         fts_search king OR frog OR hares
         fts_search frog AND king
         fts_search frog NOT king
+        fts_search filename:frog
+        fts_search filename:frog AND constitution
         """
         # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
         if self.grep_options.use_color:
