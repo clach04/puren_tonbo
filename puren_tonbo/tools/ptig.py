@@ -244,15 +244,13 @@ class CommandPrompt(Cmd):
             print(and_or_warning_message)
 
     def do_ls(self, line=None):
-        if line:
-            print('Parameters not supported')  # TODO handle and also cwd support
-            return
+        # TODO autocomplete
+        # TODO handle and also cwd support
         note_encoding = self.pt_config['codec']
         note_root = self.paths_to_search[0]  # TODO just pick the first one, ignore everthing else
-        # for now, ignore line
-        #sub_dir = line
-        sub_dir = None
+        sub_dir = line
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+        # TODO handle; puren_tonbo.PurenTonboIO: outside of note tree root
         dir_list, file_list = notes.directory_contents(sub_dir=sub_dir)
         for x in dir_list:
             print('%s/' % x)
