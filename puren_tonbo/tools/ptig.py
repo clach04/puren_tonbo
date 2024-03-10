@@ -760,6 +760,7 @@ Aliases; vim, vi
 For numbers, 0 (zero) will view last hit.
         """
         line = self.validate_result_id(line)
+        # FIXME if not line, just open (first) note dir (root) - handle no params
         note_root = os.path.dirname(line)
         print('line: %r' % line)
         print('note_root: %s' % note_root)
