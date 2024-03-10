@@ -187,7 +187,11 @@ class CommandPrompt(Cmd):
     def do_fts_search(self, line=None):
         """Usage:
         fts_search TERM_OR_QUERY
-        fts_search fts_search king OR frog OR hares
+        fts_search king OR frog OR hares
+        fts_search frog AND king
+        fts_search frog NOT king
+        fts_search filename:frog
+        fts_search filename:frog AND constitution
         """
         # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
         if self.grep_options.use_color:
@@ -205,11 +209,11 @@ class CommandPrompt(Cmd):
             return
 
 
-        if ' and ' in line or ' or ' in line:
+        if ' and ' in line or ' or 'in line or ' not ' in line:
             if highlight_text_start:
-                and_or_warning_message = highlight_text_start + 'WARNING' + highlight_text_stop + ' or/and detected, SQLite3 FTS5 expects upper case'
+                and_or_warning_message = highlight_text_start + 'WARNING' + highlight_text_stop + ' or/and/not detected, SQLite3 FTS5 expects upper case'
             else:
-                and_or_warning_message = 'WARNING or/and detected, SQLite3 FTS5 expects upper case'
+                and_or_warning_message = 'WARNING or/and/not detected, SQLite3 FTS5 expects upper case'
         else:
             and_or_warning_message = None
         # warn at start and end
@@ -225,6 +229,12 @@ class CommandPrompt(Cmd):
                 #print('hit %r' % (hit,) )
                 #print('%s:%s' % hit)
                 filename, filename_highlighted, note_text = hit
+                """
+                # display_full_path - assume True
+                if len(self.paths_to_search) == 1:
+                    filename = os.path.join(self.paths_to_search[0], filename)  # or store full pathname in database at index time...
+                """
+                self.file_hits.append(filename)  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
                 if self.grep_options.use_color:
                     filename = ptgrep.color_filename + filename + ptgrep.color_reset
 
@@ -236,21 +246,17 @@ class CommandPrompt(Cmd):
                 else:
                     # grep-style
                     print('[%d] %s:%s' % (counter, filename, note_text))  # unknown line number
-                # FIXME need raw filename
-                self.file_hits.append(filename)  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
         if and_or_warning_message:
             print(and_or_warning_message)
 
     def do_ls(self, line=None):
-        if line:
-            print('Parameters not supported')  # TODO handle and also cwd support
-            return
+        # TODO autocomplete
+        # TODO handle and also cwd support
         note_encoding = self.pt_config['codec']
         note_root = self.paths_to_search[0]  # TODO just pick the first one, ignore everthing else
-        # for now, ignore line
-        #sub_dir = line
-        sub_dir = None
+        sub_dir = line
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+        # TODO handle; puren_tonbo.PurenTonboIO: outside of note tree root
         dir_list, file_list = notes.directory_contents(sub_dir=sub_dir)
         for x in dir_list:
             print('%s/' % x)

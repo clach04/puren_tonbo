@@ -145,10 +145,16 @@ def main(argv=None):
 
     main_window = tkinter.Tk()
     main_window.title('pttkview - ' + os.path.basename(in_filename))
-    main_window.iconbitmap(default=icon_full_path)  # PNG not supported, needs to be Windows ico (icon) format
+    try:
+        main_window.iconbitmap(default=icon_full_path)  # PNG not supported, needs to be Windows ico (icon) format
+    except tkinter.TclError as error_info:
+        print('WARNING iconbitmap() failure')
+        print('WARNING iconbitmap() failure %r' % (error_info,))
     try:
         main_window.iconphoto(False, tkinter.PhotoImage(file=icon_full_path))  # currently a place holder image  - py3
-    except AttributeError:
+    except (AttributeError, tkinter.TclError) as error_info:
+        print('WARNING iconphoto() failure')
+        print('WARNING iconphoto() failure %r' % (error_info,))
         # py2
         pass  # take default for now
         #icon_full_path = os.path.join(os.path.dirname(puren_tonbo.__file__), 'resources', 'icon512x512.gif')

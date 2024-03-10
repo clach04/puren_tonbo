@@ -1935,10 +1935,12 @@ class FileSystemNotes(BaseNotes):
         fts_instance.create_index_start()
         for tmp_filename in recurse_notes_func(search_path, is_note_filename_filter):
                 filename = self.abspath2relative(tmp_filename)
-                print('index %r' % filename)
+                print('index %r' % filename)  # DEBUG
                 #contents = None
                 contents = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)
-                fts_instance.add_to_index(filename, contents=contents)
+                #stored_filename = filename  # relative
+                stored_filename = tmp_filename  # absolute
+                fts_instance.add_to_index(stored_filename, contents=contents)
         fts_instance.create_index_end()
 
 
