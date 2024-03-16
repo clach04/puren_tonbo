@@ -176,7 +176,7 @@ class BaseFile:
 
     description = 'Base Encrypted File'
     extensions = []  # non-empty list of file extensions, first is the default (e.g. for writing)
-    kdf = None  # OPTIONAL key derivation function, that takes a single parameter of bytes for the password/key
+    kdf = None  # OPTIONAL key derivation function, that takes a single parameter of bytes for the password/key. See TomboBlowfish  # TODO review this
 
     def __init__(self, key=None, password=None, password_encoding='utf8'):
         """
@@ -461,7 +461,9 @@ class TomboBlowfish(EncryptedFile):
 
     description = 'Tombo Blowfish ECB (not recommended)'
     extensions = ['.chi']
-    kdf = chi_io.CHI_cipher
+
+    def kdf(self, in_bytes):
+        return chi_io.CHI_cipher(in_bytes)
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTonboException()
