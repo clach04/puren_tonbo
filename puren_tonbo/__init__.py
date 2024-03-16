@@ -2,6 +2,7 @@
 import bisect
 import datetime
 import errno
+from io import BytesIO as FakeFile
 import json
 import locale
 import logging
@@ -1013,6 +1014,13 @@ class BaseNotes(object):
 
 
 ##############################
+
+def is_bytes(b):
+    return isinstance(b, bytes)
+
+
+def is_text(s):
+    return not is_bytes(s)
 
 # Local file system functions
 def to_bytes(data_in_string, note_encoding='utf-8'):
@@ -2144,7 +2152,131 @@ class FileSystemNotes(BaseNotes):
         return 9999999999  # more likely to be noticed as an anomaly
         return -1
 
+class FileLike:
+    """Partial API (i.e. incomplete) file-like API that wraps a file like object
+    using PurenTonbo BaseFile / EncryptedFile / RawFile encrypted files for reading and writing.
+    For example TomboBlowfish
+    Partial seek() support for read operations ONLY.
+    Works with byte and text mode, NOTE encoding is either encoding name OR list of encoding names.
+    """
+    def __init__(self, fileptr, pt_object, mode=None, encoding=None):
+        """Where pt_object is an initialized object of BaseFile (or subclass)
+        """
+        self._fileptr = fileptr
+        self._pt_object = pt_object
+        self._bufferedfileptr = FakeFile()
+        mode = mode or 'r'
+        if 'w' in mode:
+            self._mode = 'w'
+        elif '+' in mode:
+            self._mode = '+'  # read and write
+        elif 'r' in mode:
+            self._mode = 'r'
+        else:
+            # TODO "a" append mode (+), implications for seek()?
+            raise NotImplemented('mode=%r' % mode)
+        if 'b' in mode:
+            self._binary = True
+        else:
+            self._binary = False
+        #encoding = encoding or ... TODO handle None case? Could expect caller to deal with this
+        self._encoding = encoding
+        if self._mode in ('r', '+'):
+            self._read_from_file()  # FIXME make this lazy, rather than at init time
 
+    def __getattr__(self, attr):
+        if self.__dict__.has_key(attr):
+            return self.__dict__[attr]
+        else:
+            return getattr(self._bufferedfileptr, attr)
+
+    def _sanity_check(self):
+        ## TODO disallow more read/writes/closes....
+        pass
+
+    def _read_from_file(self):
+        # TODO this may be the start of allowing read and write support in the same session
+        plain_text = self._pt_object.read_from(self._fileptr)
+        self._bufferedfileptr = FakeFile(plain_text)
+
+    def read(self, size=None):
+        self._sanity_check()
+        if self._mode == 'w':
+            raise IOError(
+                'file was write, and then read issued. read and write are mutually exclusive operations'
+            )
+        # TODO self._binary check
+        if size is None:
+            result = self._bufferedfileptr.read()
+        else:
+            result = self._bufferedfileptr.read(size)
+        if not self._binary:
+            if is_bytes(result):  # this is a dumb check. it will always be bytes....
+                result = to_string(result, note_encoding=self._encoding)
+        return result
+
+    def seek(self, offset):  # TODO `whence` support?
+        self._sanity_check()
+        if self._mode != 'r':
+            raise IOError(
+                'seek issued for non-read operation'
+            )
+        return self._bufferedfileptr.seek(offset)
+
+    def write(self, str_or_bytes):
+        # TODO ensure str_or_bytes is bytes (and not unicode/string)
+        self._sanity_check()
+        if self._mode == 'r':
+            raise IOError(
+                'file was read, and then write issued. read and write are mutually exclusive operations'
+            )
+        if not self._binary:
+            if is_text(str_or_bytes):
+                str_or_bytes = to_bytes(str_or_bytes, note_encoding=self._encoding)
+        return self._bufferedfileptr.write(str_or_bytes)
+
+    def close(self, *args, **kwargs):
+        self._sanity_check()
+        ## do we need to call this in __del__?
+        if self._mode != 'r':
+            # i.e writable file
+            plain_text = self._bufferedfileptr.getvalue()
+            if self._mode == '+':
+                self._fileptr.seek(0)
+                self._fileptr.truncate()
+            self._pt_object.write_to(self._fileptr, plain_text)
+        self._bufferedfileptr.close()
+        # self._fileptr.close()  # TODO close here or require caller? Probably makese sense here
+        ## TODO disallow more read/writes/closes....
+
+
+def pt_open(file, mode='r', encoding=None):
+    """Partially implemented API to clone builtin https://docs.python.org/3/library/functions.html#open
+    If encoding is specified use that, else use (default) config encoding **list**
+
+    Similar to the regular Python open() function but will read/write encrypted files.
+    File type is determined by file extension.
+    Unrecognized file extension treated as raw (text).
+
+    FIXME Right now password is, in order:
+      1. picked up from OS env PT_PASSWORD
+      2. obtained from (system) keyring
+      3. prompted on command line
+
+    TODO with context manager protocol
+        TypeError: 'FileLike' object does not support the context manager protocol
+    """
+    filename = file
+    if mode not in ['r', 'w']:
+        raise NotImplemented('mode %r' % mode)
+    handler_class = filename2handler(filename, default_handler=RawFile)
+    if not encoding:
+        config = get_config()
+        encoding = config['codec']
+    password = os.environ.get('PT_PASSWORD') or keyring_get_password() or caching_console_password_prompt()
+    pt_object = handler_class(password=password)
+    fileptr = open(filename, mode + 'b')
+    return FileLike(fileptr, pt_object, mode, encoding=encoding)
 #############
 
 # Config files

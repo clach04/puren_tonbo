@@ -626,6 +626,33 @@ Low level routines (EncryptedFile) use file-like objects, for in-memory encrypti
 
 There is also the note abstraction (FileSystemNotes) which is filename based.
 
+Simple file-like API available with:
+
+  * `FileLike` class which wraps a file object using a Puren Tonbo file (encryption) object
+  * `pt_open()` which is similar to the regular Python open() function but will read/write encrypted files. File type is determined by file extension. Unrecognized file extension treated as raw (text).
+
+Quick demo:
+
+    import os
+
+    import puren_tonbo
+
+    # read
+    pt_root_dir = os.path.dirname(puren_tonbo.__file__)
+    test_filename = os.path.join(pt_root_dir, 'tests', 'data', 'aesop.chi')
+    print(test_filename)
+    open = puren_tonbo.pt_open  # monkey patch time!
+    f = open(test_filename)
+    print('%r' % f.read())
+    f.close()
+
+    # write
+    test_filename = 'test.zip'
+    f = open(test_filename, 'w')
+    f.write('hello')
+    f.close()
+
+
 ## Thanks
 
 Thanks and kudos to:
