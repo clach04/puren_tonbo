@@ -641,10 +641,15 @@ Quick demo:
     pt_root_dir = os.path.dirname(puren_tonbo.__file__)
     test_filename = os.path.join(pt_root_dir, 'tests', 'data', 'aesop.chi')
     print(test_filename)
+
     open = puren_tonbo.pt_open  # monkey patch time!
+    with open(test_filename) as f:
+        print('%r' % f.read())
+
     f = open(test_filename)
     print('%r' % f.read())
     f.close()
+
 
     # write
     test_filename = 'test.zip'
