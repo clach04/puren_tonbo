@@ -2184,6 +2184,12 @@ class FileLike:
         if self._mode in ('r', '+'):
             self._read_from_file()  # FIXME make this lazy, rather than at init time
 
+    # context manager protocol - "with" support
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
     def __getattr__(self, attr):
         if self.__dict__.has_key(attr):
             return self.__dict__[attr]
@@ -2249,7 +2255,6 @@ class FileLike:
         # self._fileptr.close()  # TODO close here or require caller? Probably makese sense here
         ## TODO disallow more read/writes/closes....
 
-
 def pt_open(file, mode='r', encoding=None):
     """Partially implemented API to clone builtin https://docs.python.org/3/library/functions.html#open
     If encoding is specified use that, else use (default) config encoding **list**
@@ -2262,9 +2267,6 @@ def pt_open(file, mode='r', encoding=None):
       1. picked up from OS env PT_PASSWORD
       2. obtained from (system) keyring
       3. prompted on command line
-
-    TODO with context manager protocol
-        TypeError: 'FileLike' object does not support the context manager protocol
     """
     filename = file
     if mode not in ['r', 'w']:
@@ -2276,7 +2278,9 @@ def pt_open(file, mode='r', encoding=None):
     password = os.environ.get('PT_PASSWORD') or keyring_get_password() or caching_console_password_prompt()
     pt_object = handler_class(password=password)
     fileptr = open(filename, mode + 'b')
-    return FileLike(fileptr, pt_object, mode, encoding=encoding)
+    filelike = FileLike(fileptr, pt_object, mode, encoding=encoding)
+    return filelike
+
 #############
 
 # Config files
