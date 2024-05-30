@@ -139,7 +139,7 @@ local function SaveEncryptedFile(filename)
         editor:SetSavePoint()  -- indicate to editor that save happened and file is unchanged - whether it really did or not ;-)
     else
         -- error handling
-        print('Error Encrypt write/save' .. filename)  -- to output pane
+        print('Error Encrypt write/save ' .. filename)  -- to output pane
         print('popen_success: ' .. tostring(popen_success))
         -- either nil or false - so far only seen nil for both; failure to launch (missing PTCIPHER_EXE) and also exe launched and returned errors (like bad password)
         -- empty output seen for missing exe and also missing file - TODO consider adding extra output to ptcipher for missing file case
