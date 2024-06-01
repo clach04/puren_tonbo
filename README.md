@@ -392,6 +392,7 @@ Intended to allow decryption of files generated with OpenSSL 1.1.0 and vice-vers
 
 NOTE PBKDF2 iteration count of 10,000 is the default in OpenSSL 1.1.1 and is considered too few in 2023.
 Older versions of OpenSSL did not support; PBKDF2 (and ergo iterations) and salt and used a much weaker KDF.
+See https://www.openssl.org/docs/manmaster/man1/openssl-enc.html for more information.
 
 Supports binary/raw and base64 encoded/ASCII armored files.
 ONLY supports aes-256-cbc with salt and pbkdf2 KDF with 10,000 interations.
