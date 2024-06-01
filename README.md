@@ -381,11 +381,12 @@ OpenSSL 1.1.0+ compatible (with a very small subset of options).
 
     ptcat --note-root=. puren_tonbo/tests/data/aesop_win.openssl_aes256cbc_pbkdf2_10k
 
-Intended to allow decryption of files generated with OpenSSL 1.1.0 and vice-versa. Supported OpenSSL flags/formats:
+Intended to allow decryption of files generated with OpenSSL 1.1.0 and vice-versa. Supported OpenSSL flags/formats, see https://linux.die.net/man/1/openssl:
 
     openssl enc -e aes-256-cbc -salt -pbkdf2 -iter 10000 -in in_file -base64 -out out_file
     openssl dec -d aes-256-cbc -salt -pbkdf2 -iter 10000 -in in_file -base64 -out out_file
 
+    echo hello| openssl enc -e aes-256-cbc -salt -pbkdf2 -iter 10000 -in - -base64 -out - -pass env:SET_OS_VAR_PASSWORD
     echo hello| openssl enc -e aes-256-cbc -salt -pbkdf2 -iter 10000 -in - -base64 -out - -pass pass:password
     echo hello| openssl enc -e -aes-256-cbc -in - -out - -salt -pbkdf2 -iter 10000  -pass pass:password
 
