@@ -583,7 +583,8 @@ Search previous results for search term.
         """
         if line is None:
             return
-        line = line.replace(',', ' ')
+        #import pdb; pdb.set_trace()
+        line = line.replace(',', ' ')  # FIXME TODO this will NOT handle paths with spaces :-(
         filename_list = []
         for entry in line.split():
             filename_list.append(self.validate_result_id(entry))
@@ -657,6 +658,9 @@ Usage:
         #import pdb; pdb.set_trace()
         # TODO debug "e `" editor got opened, not a valid file should this be caught? see validate_result_id() which currently does NOT validate filenames (callers do that later)
         editor = editor or os.environ.get('PT_VISUAL') or os.environ.get('VISUAL') or os.environ.get('EDITOR') or self.pt_config['ptig'].get('editor')
+        # NOTE no attempt to use note_root, uses path as-is.
+        # NOTE no need to double quote for spaces, if spaces are present will have problems - TODO add double quote removal
+        # FIXME validate_result_id() needed - alternatives either implement from scratch or use FileSystemNotes.abspath2relative() / FileSystemNotes.native_full_path()
         if not filename_list:
             if puren_tonbo.is_encrypted(filename):
                 # Prompt for password for editors that won't prompt
@@ -724,6 +728,7 @@ Aliases; vim, vi
             * a line number (index into previous results) and that it's valid
             * or assume a filename (which is NOT validated)
 
+        TODO consider list of filenames support? See do_edit_multiple()
         Returns path/filename.
 
         For numbers, 0 (zero) will view last hit.
@@ -743,20 +748,37 @@ Aliases; vim, vi
         except ValueError:
             # line contains filename, but filename may not exist
             note_encoding = self.pt_config['codec']
-            if is_win:
+            # FIXME do not allow access to files outside of the jail directory/directories
+            """
+            if is_win:  # FIXME TODO remove this!
                 return line  # skip for now
             # attempt to validate
-            if line.startswith('/'):
+            if line.startswith('/'):  # TODO handle '\' IF and only IF windows (which will handle network drives '\\' and '\\?\'), also 'x:' (drive letter, which handles 'x:\')
                 return line  # absolute path, for now supported as pass-thru (and skip directory jail)
-            # Assume relative path, enforce
+            #elif windows.. additional checks from above
+            """
+
+            # deal with delimited filenames (only, i.e. don't bother to attempt to handle single/stray [double]quotes)
+            if line.startswith('"') and line.endswith('"'):  # TODO single quotes too for Linux/Unix?
+                line = line[1:-1]  # top and tail
+            # Assume relative path, enforce - loop through notes directory list
+            is_valid_path_in_note_root = False  # pessimistic
             for note_root in self.paths_to_search:
                 notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
-                fullpath = notes.native_full_path(line)  # relative2abspath()
-                if os.path.exists(fullpath):
+                try:
+                    fullpath = notes.native_full_path(line)  # relative2abspath()  # todo handle failures for one dir not bot other
+                    is_valid_path_in_note_root = True
+                except puren_tonbo.PurenTonboException:
+                    continue  # maybe it's a full/abs path to a note in a different note root directory
+                if os.path.exists(fullpath):  # prioritize files that exist for relative paths
                     return fullpath
-            # so file does not exist, assume new file in first directory
+            if is_valid_path_in_note_root == False:
+                print('Filename %r is outside note root(s) %r' % (line, self.paths_to_search))
+                return None
+            # so file does not exist, assume new file in **first** directory
             note_root = self.paths_to_search[0]
             notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+            #import pdb; pdb.set_trace()
             fullpath = notes.native_full_path(line)
             return fullpath
         return line
