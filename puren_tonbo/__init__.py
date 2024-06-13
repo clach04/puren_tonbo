@@ -1835,13 +1835,12 @@ class FileSystemNotes(BaseNotes):
         If ignore_path is not at the start of the input_path, raise error
         TODO how is the root dir handled? return / or '' empty string?"""
         abs_ignore_path = self.abs_ignore_path
-        #abs_input_path = os.path.abspath(input_path)
-        abs_input_path = input_path
+        abs_input_path = os.path.abspath(input_path)  # normalize the path - normpath()
         if abs_input_path.startswith(abs_ignore_path):
             return abs_input_path[len(abs_ignore_path):]
         elif abs_input_path + '/' == abs_ignore_path:
             return ''
-        raise PurenTonboException('path not in note tree')
+        raise PurenTonboException('path not in note tree')  # TODO compare with native_full_path() exception
 
     def native_full_path(self, filename):
         """validate and convert relative path to absolute native path
@@ -1850,7 +1849,7 @@ class FileSystemNotes(BaseNotes):
         fullpath_filename = os.path.join(self.note_root, filename)
         fullpath_filename = os.path.abspath(fullpath_filename)
         if not fullpath_filename.startswith(self.note_root):
-            raise PurenTonboIO('outside of note tree root')
+            raise PurenTonboIO('outside of note tree root')  # TODO compare with native_full_path() abspath2relative
         return fullpath_filename
 
     def to_bytes(self, data_in_string):
