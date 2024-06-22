@@ -917,7 +917,7 @@ Also see `edit`
 
     def do_config(self, line=None):
         """show puren tonbo config"""
-        config_filename = puren_tonbo.get_config_path()
+        config_filename = self.pt_config.get('config_file', puren_tonbo.get_config_path())
         if os.path.exists(config_filename):
             config_filename_exists = True
         else:
@@ -965,6 +965,7 @@ def main(argv=None):
 
     #import pdb ; pdb.set_trace()
     config = puren_tonbo.get_config(options.config_file)
+    config['config_file'] = options.config_file  # set config filename
     if options.note_root:
         relative_paths_to_search = [options.note_root]
     else:
