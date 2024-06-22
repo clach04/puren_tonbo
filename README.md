@@ -667,3 +667,12 @@ Thanks and kudos to:
   * Tomohisa Hirami - the original creator of Tombo
   * [maxpat78](https://github.com/maxpat78) for the Python 2 (and 3) fall back code for AES zip support, [relicensed with permission](https://github.com/maxpat78/CryptoPad/issues/2) from https://github.com/maxpat78/CryptoPad
   * Noah Spurrier who's Public Domain OpenSSL vim plugin is the inspiration for the PT vim support (using functions) https://www.vim.org/scripts/script.php?script_id=2012
+
+## TODO
+
+TODO padlock and case insensitive ic in prompt - Windows termianl 2, etc.?
+scite refuses to create new chi files if file was originally missing on open
+    new window/instnace (not tab), copy/paste and then close orig ad save as workaround seems to work
+    if file gets creted and scite reloads, still fails to save - trigger for successful load didn't reset trigger variable
+ptig - with list of dirs, set shows note_root=None (ptconfig works fine)
+stripe colors ptgrep/ptig
