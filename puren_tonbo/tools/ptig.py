@@ -252,15 +252,24 @@ class CommandPrompt(Cmd):
     def do_ls(self, line=None):
         # TODO autocomplete
         # TODO handle and also cwd support
+        # TODO show file size and timestamps
+        line = self.validate_result_id(line)
+        if line is None:
+            return
+
+        sub_dir = os.path.dirname(line)  # similar open to opendir - but for directory listings, i.e. can NOT ls/dir a single file (future TODO?)
+        print('DEBUG sub_dir %s' % sub_dir)
         note_encoding = self.pt_config['codec']
         note_root = self.paths_to_search[0]  # TODO just pick the first one, ignore everthing else
-        sub_dir = line
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
-        # TODO handle; puren_tonbo.PurenTonboIO: outside of note tree root
+        # TODO handle; puren_tonbo.PurenTonboIO: outside of note tree root? no need, handled by validate_result_id()
+        # FIXME/TODO results list with numbers?
         dir_list, file_list = notes.directory_contents(sub_dir=sub_dir)
         for x in dir_list:
+            x = os.path.join(sub_dir, x)  # TODO notes API call instead?
             print('%s/' % x)
         for x in file_list:
+            x = os.path.join(sub_dir, x)  # TODO notes API call instead?
             print('%s' % x)
     do_dir = do_ls
 
@@ -728,6 +737,7 @@ Aliases; vim, vi
             * a line number (index into previous results) and that it's valid
             * or assume a filename (which is NOT validated)
 
+        TODO add calling option to raise error (or be silent, current behavior)
         TODO consider list of filenames support? See do_edit_multiple()
         Returns path/filename.
 
@@ -773,7 +783,7 @@ Aliases; vim, vi
                 if os.path.exists(fullpath):  # prioritize files that exist for relative paths
                     return fullpath
             if is_valid_path_in_note_root == False:
-                print('Filename %r is outside note root(s) %r' % (line, self.paths_to_search))
+                print('Filename %r is outside note root(s) %r' % (line, self.paths_to_search))  # TODO add calling option to raise error (or be silent, current behavior)
                 return None
             # so file does not exist, assume new file in **first** directory
             note_root = self.paths_to_search[0]
@@ -788,12 +798,12 @@ Aliases; vim, vi
 For numbers, 0 (zero) will view last hit.
         """
         line = self.validate_result_id(line)
+        if line is None:
+            return
         # FIXME if not line, just open (first) note dir (root) - handle no params
         note_root = os.path.dirname(line)
         print('line: %r' % line)
         print('note_root: %s' % note_root)
-        if line is None:
-            return
 
         ret = subprocess.Popen([self.pt_config['ptig']['file_browser'], note_root]).wait()
         #print('ret: %r' % ret)  # always 1?
