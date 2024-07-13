@@ -670,7 +670,13 @@ Thanks and kudos to:
 
 ## TODO
 
-TODO padlock and case insensitive ic in prompt - Windows termianl 2, etc.?
+Windows Terminal (with Unicode support, including emjoi) WindowsTerminal https://github.com/microsoft/terminal/releases/tag/v1.20.11381.0 works great (or from AppStore https://apps.microsoft.com/detail/9n0dx20hk701)
+    wt.exe - `%LOCALAPPDATA%\Microsoft\WindowsApps\wt.exe` or from zip (not AppStore) `WindowsTerminal.exe` (multi color emjoi) and `OpenConsole.exe` (single color emjoi)
+        how to get taskbar icon showing up?
+TODO padlock and case insensitive ic in prompt - Windows terminal 2, ConEMu (https://conemu.github.io/ https://github.com/Maximus5/ConEmu) etc.?
+    unlocked padlock for password present?
+    key for searching for encrypted files?
+    padlock for NOT searching for crypted files (or reverse?)
 scite refuses to create new chi files if file was originally missing on open
     new window/instnace (not tab), copy/paste and then close orig ad save as workaround seems to work
     if file gets creted and scite reloads, still fails to save - trigger for successful load didn't reset trigger variable
