@@ -1185,7 +1185,14 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     # End - restrictions/checks that should be removed
 
     if handler is None:
-        raise NotImplementedError('handler is required')  # Idea filename required, then use that to detemine handler
+        if filename is None:
+            raise NotImplementedError('handler is required')  # Idea filename required, then use that to detemine handler
+        else:
+            raise NotImplementedError('handler is required, no way to pass in password (yet)')
+            handler_class = None
+            handler_class = handler_class or filename2handler(filename)
+            #handler = handler_class(key=note_password)
+            handler = handler_class()
     filename_generator_func = None
     if filename is None:
         if original_filename and filename_generator in (None, FILENAME_TIMESTAMP, FILENAME_UUID4):
