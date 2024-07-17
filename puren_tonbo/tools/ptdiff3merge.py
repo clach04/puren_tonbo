@@ -79,6 +79,7 @@ def main(argv=None):
     # TODO text file should NOT prompt for a password
     if password and not callable(password) and not isinstance(password, bytes):
         password = password.encode('us-ascii')
+    # FIXME prompt not working, testing with explicit password works fine
 
     config = puren_tonbo.get_config(options.config_file)
 
@@ -103,8 +104,14 @@ def main(argv=None):
     moptions.diff_type= options.diff_type
 
     merged_result, conflicts = puren_tonbo.diff3merge.diff3_file_merge(mine_file_contents, theirs_file_contents, base_file_contents, moptions)
-    print(puren_tonbo.to_string(merged_result, note_encoding=note_encoding), end='')
-    print(conflicts)  # TODO make optional
+    if options.out_filename == '-':
+        print(puren_tonbo.to_string(merged_result, note_encoding=note_encoding), end='')
+    else:
+        out_filename = options.out_filename
+        handler_class = puren_tonbo.filename2handler(out_filename)
+        handler = handler_class(key=password)
+        puren_tonbo.note_contents_save_native_filename(merged_result, filename=out_filename, original_filename=None, folder=None, handler=handler, dos_newlines=dos_newlines, backup=False, use_tempfile=False, note_encoding=None, filename_generator=None)
+    print(conflicts)  # TODO make optional, and with more details/stats explanation
 
     return 0
 
