@@ -3,8 +3,8 @@
 # vim:ts=4:sw=4:softtabstop=4:smarttab:expandtab
 """Command line tool to decrypt and 3-way merge Puren Tonbo files (Tombo CHI Blowfish files, VimCrypt, AES-256.zip, etc.) to stdout
 
-    python -m puren_tonbo.tools.ptcat -h
-    python -m puren_tonbo.tools.ptcat -p test test.chi
+    python -m puren_tonbo.tools.ptdiff3merge -h
+    python -m puren_tonbo.tools.ptdiff3merge -p test ..
 
 TODO consider arbitary (absolute, possibly even relative "../../") paths as command line, avoiding directory sandbox sanity check (FileSystemNotes.abspath2relative())?
 i.e. just like ptcipher, e.g.:
