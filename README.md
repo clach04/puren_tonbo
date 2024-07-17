@@ -83,6 +83,7 @@ Purēntonbo
   * `ptgrep` - a grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/ripgrep), [silver-searcher](https://geoff.greer.fm/ag/), [pss](https://github.com/eliben/pss) like tool that works on encrypted (and plain text) files
   * `ptig` an interactive grep like tool that can also view/edit
   * `ptpyvim` a vim-like editor that works on encrypted (and plain text) files
+  * `ptdiff3merge` 3-way diff/merge too that can works with encrypted (and plain text) files
 
 
 ## Getting Started
@@ -306,6 +307,15 @@ If pyvim is available, ptpyvim wraps encryption/decryption support.
 
     ptpyvim
     python -m puren_tonbo.tools.ptpyvim
+
+### ptdiff3merge
+
+a 3-way diff and merge tool.
+Defaults to outputing plaintext to stdout, can be an encrypted file output.
+Each file can be encrypted with differnent methods BUT any encrypted files must all use the same password.
+
+    ptdiff3merge
+    python -m puren_tonbo.tools.ptdiff3merge
 
 
 ### ptcipher
