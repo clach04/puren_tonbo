@@ -931,11 +931,11 @@ Also see `edit`
 
     def do_config(self, line=None):
         """show puren tonbo config"""
-        config_filename = self.pt_config.get('config_file', puren_tonbo.get_config_path())
-        if os.path.exists(config_filename):
+        config_filename_exists = False
+        #config_filename = self.pt_config.get('config_file', puren_tonbo.get_config_path())  # if config_file exists BUT is None, still get None
+        config_filename = self.pt_config.get('config_file') or puren_tonbo.get_config_path()
+        if config_filename and os.path.exists(config_filename):
             config_filename_exists = True
-        else:
-            config_filename_exists = False
         print('config_filename %s (%s)' % (config_filename, 'exists' if config_filename_exists else 'does not exist'))
         print('%s' % json.dumps(self.pt_config, indent=4, sort_keys=True))  # TODO color support
     do_ptconfig = do_config
