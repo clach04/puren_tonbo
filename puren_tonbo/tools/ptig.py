@@ -590,7 +590,7 @@ Search previous results for search term.
         NOTE can potentially include filenames (assuming no spaces, there is no lexing going on [yet])
         More control than `edit !`
         """
-        if line is None:
+        if not line:
             return
         #import pdb; pdb.set_trace()
         line = line.replace(',', ' ')  # FIXME TODO this will NOT handle paths with spaces :-(
@@ -656,6 +656,7 @@ Usage:
         """
         filename_list = filename_list or []
         if not filename_list:
+            #print('DEBUG line %r' % line)
             line = self.validate_result_id(line)
             if line is None and not filename_list:  # NOTE filename_list check redundant here in this block
                 return
@@ -733,9 +734,10 @@ Aliases; vim, vi
         do_vi = do_pyvim
 
     def validate_result_id(self, line=None):
-        """validate that either have:
-            * a line number (index into previous results) and that it's valid
-            * or assume a filename (which is NOT validated)
+        """validate a line, one of:
+            1. a line number (index into previous results) and that it's valid
+            2. or assume a filename (which is NOT validated)
+            3. pass through value for multi/"all", one of; !, *, all
 
         TODO add calling option to raise error (or be silent, current behavior)
         TODO consider list of filenames support? See do_edit_multiple()
@@ -746,6 +748,8 @@ Aliases; vim, vi
         if line == '':
             print('no parameter given')
             return None
+        elif line in ('!', '*', 'all'):
+            return line
         try:
             file_number = int(line)
             if not self.file_hits:
