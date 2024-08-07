@@ -1367,7 +1367,7 @@ def filename_generator_timestamp(note_text):
 
 
 def safe_filename(filename, replacement_char='_', allow_space=False, max_filename_length=100):
-    """safe filename for almost any platform, NOTE filename NOT pathname
+    """safe filename for almost any platform, NOTE filename NOT pathname. defaults to snake_case
     does NOT handle paths, see blocked_filenames comments section below for details/example.
     aka slugify()
     # TODO max filename truncation?
@@ -1476,7 +1476,7 @@ def filename_generator_firstline_clean_kebab_case(note_text):
     return safe_filename(generated_name, replacement_char='-')
 
 def filename_generator_firstline_clean(note_text):
-    """FILENAME_FIRSTLINE_CLEAN
+    """snake_case, example: FILENAME_FIRSTLINE_CLEAN
     """
     generated_name = note_text[:note_text.find('\n')].strip()
     return safe_filename(generated_name)
