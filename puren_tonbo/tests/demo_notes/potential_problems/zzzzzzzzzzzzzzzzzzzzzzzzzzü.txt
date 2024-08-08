@@ -1,0 +1,5 @@
+zzzzzzzzzzzzzzzzzzzzzzzzzzü
+
+latin1 cp1251 test of ü.
+
+Saved test
