@@ -596,8 +596,17 @@ Search previous results for search term.
         line = line.replace(',', ' ')  # FIXME TODO this will NOT handle paths with spaces :-(
         filename_list = []
         for entry in line.split():
-            filename_list.append(self.validate_result_id(entry))
-        self.do_edit(line=None, filename_list=filename_list)
+            validated_entry = self.validate_result_id(entry)
+            if validated_entry:
+                filename_list.append(validated_entry)
+            else:
+                print('Ignoring invalid %r' % entry)
+        if filename_list:
+            self.do_edit(line=None, filename_list=filename_list)
+        else:
+            print('no results')
+            return None
+
     do_en = do_em = do_editmultiple = do_edit_multiple
 
     """
@@ -753,7 +762,7 @@ Aliases; vim, vi
         try:
             file_number = int(line)
             if not self.file_hits:
-                print('no results')
+                print('no results')  # TODO add silent parameter to validate_result_id()
                 return None
             if file_number > len(self.file_hits):
                 print('result file %d invalid' % file_number)
