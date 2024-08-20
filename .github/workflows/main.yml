@@ -21,6 +21,8 @@ jobs:
             python-version: '3.6'
           - os: ubuntu-latest
             python-version: '3.5'
+          - os: ubuntu-20.04
+            python-version: '3.5'
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
