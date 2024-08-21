@@ -135,9 +135,10 @@ function! s:PurenTonboWritePost()
 endfunction
 
 
-autocmd BufReadPre,FileReadPre     *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboReadPre()
-autocmd BufReadPost,FileReadPost   *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboReadPost()
-autocmd BufWritePre,FileWritePre   *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboWritePre()
-autocmd BufWritePost,FileWritePost *.chi,*.asc,*.gpg,*aeszip call s:PurenTonboWritePost()
+" potentially filter aes zip to *aeszip
+autocmd BufReadPre,FileReadPre     *.chi,*.asc,*.gpg,*zip call s:PurenTonboReadPre()
+autocmd BufReadPost,FileReadPost   *.chi,*.asc,*.gpg,*zip call s:PurenTonboReadPost()
+autocmd BufWritePre,FileWritePre   *.chi,*.asc,*.gpg,*zip call s:PurenTonboWritePre()
+autocmd BufWritePost,FileWritePost *.chi,*.asc,*.gpg,*zip call s:PurenTonboWritePost()
 
 augroup END
