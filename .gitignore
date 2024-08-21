@@ -136,3 +136,6 @@ setpath.bat
 setpath.sh
 setenv.sh
 
+# for local, nested checkout testing
+ignore_chi_io/
+
