@@ -33,6 +33,8 @@ except ImportError:
 try:
     import percol  # https://github.com/mooz/percol
     import percol.actions
+    import percol.command
+    import percol.finder
 except ImportError:
     percol = None
 
@@ -590,6 +592,12 @@ Search previous results for search term.
 
     def do_fzf(self, line=None):
         # TODO docs, Windows testing, help (multi-select)
+        # Windows works with windows-curses installed and percol syslog "fix"
+        # TODO Selecting multiple candidates options. Ctrl-Space does not work out of box (under Windows) percol.command.toggle_mark_and_next()
+        # checkout keymap- what other key bindings are there
+        # ctrl-t works great for toggle if manually declared
+        # TODO regex option for this
+        # TODO cancel - ctrl-c doesn't abort it picks selected
         if not percol:
             print('percol missing, required for fuzzy fine')
             return
@@ -600,9 +608,14 @@ Search previous results for search term.
             return
 
         with percol.Percol(
+                finder=percol.finder.FinderMultiQueryString,  # what's the difference between finder and action_finder? I think this is a no-op
                 actions=[percol.actions.no_output],
                 descriptors={'stdin': None, 'stdout': None, 'stderr': None},
                 candidates=iter(file_and_path_names)) as p:
+            p.import_keymap({
+                'C-t': lambda percol: percol.command.toggle_mark_and_next(),  # works great, Ctrl-t now togles multi-select
+                'C-SPACE': lambda percol: percol.command.toggle_mark_and_next(),  # nope
+                })
             p.loop()
         results = p.model_candidate.get_selected_results_with_index()
         #return [r[0] for r in results]
