@@ -30,6 +30,12 @@ try:
 except ImportError:
     ptpyvim = None
 
+try:
+    import percol  # https://github.com/mooz/percol
+    import percol.actions
+except ImportError:
+    percol = None
+
 import puren_tonbo
 from puren_tonbo import SearchCancelled
 from puren_tonbo.tools import ptcat, ptgrep  # FIXME TODO actually use these
@@ -581,6 +587,27 @@ Search previous results for search term.
             print('[%d] %s' % (counter, filename))
     do_res = do_results
     do_r = do_results
+
+    def do_fzf(self, line=None):
+        # TODO docs, Windows testing, help (multi-select)
+        if not percol:
+            print('percol missing, required for fuzzy fine')
+            return
+
+        file_and_path_names = self.file_hits
+        if not file_and_path_names:
+            print('no results')
+            return
+
+        with percol.Percol(
+                actions=[percol.actions.no_output],
+                descriptors={'stdin': None, 'stdout': None, 'stderr': None},
+                candidates=iter(file_and_path_names)) as p:
+            p.loop()
+        results = p.model_candidate.get_selected_results_with_index()
+        #return [r[0] for r in results]
+        self.file_hits = [r[0] for r in results]
+        self.do_results()
 
     def do_edit_multiple(self, line=None):
         """edit multiple files from numbers. Also see `edit`. Alias `en`
