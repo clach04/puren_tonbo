@@ -16,6 +16,7 @@ except ImportError:
 is_cpython = platform.python_implementation() == 'CPython'
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
+is_pypy = '__pypy__' in sys.builtin_module_names  # platform.python_implementation() == 'PyPy'
 
 if len(sys.argv) <= 1:
     print("""
