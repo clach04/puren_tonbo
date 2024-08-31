@@ -31,7 +31,7 @@ except ImportError:
     ptpyvim = None
 
 try:
-    import percol  # https://github.com/mooz/percol
+    import percol  # percolator https://github.com/clach04/percolator/
     import percol.actions
     import percol.command
     import percol.finder
