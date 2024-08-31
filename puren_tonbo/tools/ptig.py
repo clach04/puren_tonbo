@@ -612,9 +612,9 @@ Search previous results for search term.
                 actions=[percol.actions.no_output],
                 descriptors={'stdin': None, 'stdout': None, 'stderr': None},
                 candidates=iter(file_and_path_names)) as p:
-            p.import_keymap({
-                'C-t': lambda percol: percol.command.toggle_mark_and_next(),  # works great, Ctrl-t now togles multi-select
-                'C-SPACE': lambda percol: percol.command.toggle_mark_and_next(),  # nope
+            p.import_keymap({  # TODO toggle visible code
+                'C-t': lambda percol: percol.command.toggle_mark_and_next(),  # works great, Ctrl-t now togles multi-select - same as Midnight Commander
+                'C-SPACE': lambda percol: percol.command.toggle_mark_and_next(),  # nope, built in C-SPC also does not work under Windows. TODO debug Percol
                 })
             p.loop()
         results = p.model_candidate.get_selected_results_with_index()
