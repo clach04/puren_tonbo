@@ -613,16 +613,23 @@ Search previous results for search term.
                 descriptors={'stdin': None, 'stdout': None, 'stderr': None},
                 candidates=iter(file_and_path_names)) as p:
             p.import_keymap({
-                # TODO cancel
                 'C-a': lambda percol: percol.command.toggle_mark_all(),  # invert selection on screen
+                'C-c': lambda percol: percol.cancel(),  # NOTE need to check exit/result code - same as built-in support
+                #'Escape': lambda percol: percol.cancel(),  # NOTE need to check exit/result code - Esc/Escape does NOT work bug https://github.com/mooz/percol/issues/56
+
                 'C-t': lambda percol: percol.command.toggle_mark_and_next(),  # works great, Ctrl-t now togles multi-select - same as Midnight Commander
-                'C-SPACE': lambda percol: percol.command.toggle_mark_and_next(),  # nope, built in (expected) C-SPC also does not work under Windows. TODO debug Percol
+                #'C-SPACE': lambda percol: percol.command.toggle_mark_and_next(),  # nope, built in (expected) C-SPC also does not work under Windows. TODO debug Percol bug https://github.com/mooz/percol/issues/120
                 })
-            p.loop()
+            # NOTE do not attempt any stdio in this block
+            exit_code = p.loop()  # cancel causes failure on later calls - see bug https://github.com/mooz/percol/issues/122
+            #exit_code = p.cancel_with_exit_code()  # straight up fails first time
+            #exit_code = p.finish_with_exit_code(1)  # straight up fails first time
         results = p.model_candidate.get_selected_results_with_index()
-        #return [r[0] for r in results]
-        self.file_hits = [r[0] for r in results]
-        self.do_results()
+        if exit_code == 0:
+            self.file_hits = [r[0] for r in results]
+            self.do_results()
+        else:
+            print('fzf interactive filter cancelled')
 
     def do_edit_multiple(self, line=None):
         """edit multiple files from numbers. Also see `edit`. Alias `en`
