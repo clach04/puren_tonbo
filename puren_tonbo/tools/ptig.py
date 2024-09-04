@@ -160,6 +160,10 @@ class CommandPrompt(Cmd):
         "NOOP - do not repeat last command like cmd.Cmd"
         pass
 
+    def do_crash_debug(self, line=None):
+        """Force a crash for debugging"""
+        0 / 0
+
     def do_exit(self, line=None):
         """Quit/Exit"""
         print("Quitting...")
@@ -719,7 +723,10 @@ Usage:
             #print('%s %s' % (editor, filename))  # DEBUG
             os.system('%s %s' % (editor, filename))  # already escaped list
         else:
-            os.system('%s "%s"' % (editor, filename))
+            command_to_run = '%s "%s"' % (editor, filename)
+            #print('DEBUG system: %r' % command_to_run)  # TODO debug log
+            #print('DEBUG system: %s' % command_to_run)
+            os.system(command_to_run)  # TODO see TODO earlier in file
         print('file: %s' % filename)
         print('To display previous results issue: results')
     do_e = do_edit
