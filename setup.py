@@ -16,6 +16,7 @@ except ImportError:
 is_cpython = platform.python_implementation() == 'CPython'
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
+is_pypy = '__pypy__' in sys.builtin_module_names  # platform.python_implementation() == 'PyPy'
 
 if len(sys.argv) <= 1:
     print("""
@@ -61,7 +62,7 @@ exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), project_name_
 
 
 # TODO/FIXME dupe of requirements.txt - also chi_io missing here (as not on pypi)
-install_requires = ['colorama', 'pycryptodome', 'python-gnupg', 'openssl_enc_compat']
+install_requires = ['colorama', 'pycryptodome', 'python-gnupg', 'openssl_enc_compat', 'percolator']  # TODO reorder/indent
 if is_py3:
     install_requires += ['pyzipper']  # pyzipperis python 3.x+
 if is_win and is_cpython:
