@@ -199,17 +199,17 @@ class CommandPrompt(Cmd):
             self.paths_to_search_instances.append(notes)
 
     def do_fts_search(self, line=None):
-        """TODO error check if fts index is created, error with useful message.
-        Usage:
-        fts_search TERM_OR_QUERY
-        fts_search king OR frog OR hares
-        fts_search frog AND king
-        fts_search frog NOT king
-        fts_search filename:frog
-        fts_search filename:frog AND constitution
+        """Perform a Full Text Search (fts), using sqlite3 FTS syntax
+Usage:
+    fts_search TERM_OR_QUERY
+    fts_search king OR frog OR hares
+    fts_search frog AND king
+    fts_search frog NOT king
+    fts_search filename:frog
+    fts_search filename:frog AND constitution
 
-        NOTE requires fts_index to have been issued.
-        """
+NOTE requires fts_index to have been issued.
+"""
         # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
         if self.grep_options.use_color:
             highlight_text_start, highlight_text_stop = ptgrep.color_linenum, ptgrep.color_reset
@@ -219,6 +219,14 @@ class CommandPrompt(Cmd):
 
         if not line:
             error_message = '\nNeed a search term!\n'
+            if highlight_text_start:
+                error_message = highlight_text_start + error_message + highlight_text_stop
+            print(error_message)
+            print('%s' % self.do_fts_search.__doc__)
+            return
+
+        if not self.paths_to_search_instances:
+            error_message = '\nNo FTS index, issue: fts_index\n'
             if highlight_text_start:
                 error_message = highlight_text_start + error_message + highlight_text_stop
             print(error_message)
