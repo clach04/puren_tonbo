@@ -916,6 +916,23 @@ class TestFileSystemNotesWriteFunctionSaveEncryptedRot47(TestFileSystemNotesWrit
     handler_class = puren_tonbo.Rot47  # rot-47
 
 
+# zlib / gz
+class TestBaseEncryptedCompressedZlib(TestBaseEncryptedFile, TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtil):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.CompressedZlib
+    encrypt_pt_handler_class = decrypt_pt_handler_class = puren_tonbo.CompressedZlib  # TODO review this
+
+    def test_same_input_different_crypted_text(self):
+        self.skip('rot-47 always has same output')
+
+class TestFileSystemNotesWriteClassSaveEncryptedCompressedZlib(TestFileSystemNotesWriteClassSaveRawPlainText):
+    handler_class = puren_tonbo.CompressedZlib  # gz
+
+class TestFileSystemNotesWriteFunctionSaveEncryptedCompressedZlib(TestFileSystemNotesWriteFunctionSaveRawPlainText):
+    handler_class = puren_tonbo.CompressedZlib  # gz
+
+
 
 """ TODO implement TestFileSystemNotesWriteClassSaveRawPlainText and TestFileSystemNotesWriteFunctionSaveRawPlainText for:
 grep '(EncryptedFile):' puren_tonbo/__init__.py

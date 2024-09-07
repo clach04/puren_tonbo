@@ -14,6 +14,7 @@ import subprocess
 import sys
 import tempfile
 import uuid
+import zlib
 
 try:
     maketrans = bytearray.maketrans
@@ -243,6 +244,34 @@ class RawFile(BaseFile):
 
     def write_to(self, file_object, byte_data):
         file_object.write(byte_data)
+
+class CompressedFile(BaseFile):
+    description = 'Compressed file Base Class - not encrypted'
+    needs_key = False  # not encrpypted
+
+    def __init__(self, key=None, password=None, password_encoding='utf8'):
+        pass  # NOOP, password/key is NOT required and IGNORED!
+
+class CompressedZlib(CompressedFile):
+    description = 'zlib - could be gz or Z'
+    extensions = ['.gz', '.Z']
+
+    def read_from(self, file_object):
+        # NOTE no password/key usage!
+        data = file_object.read()
+        try:
+            if is_py3:
+                return zlib.decompress(data, wbits=47)
+            else:
+                # Python 2 has now idea about wbits
+                return zlib.decompress(data)
+        except Exception as info:
+            #raise  # debug
+            # chain exception...
+            raise PurenTonboException(info)
+
+    def write_to(self, file_object, byte_data):
+        file_object.write(zlib.compress(byte_data))
 
 
 class SubstitutionCipher(EncryptedFile):
@@ -664,7 +693,7 @@ for enc_class_name in dir():  #(RawFile, Rot13):
     enc_class = globals()[enc_class_name]
     if not inspect.isclass(enc_class):
         continue
-    if not issubclass(enc_class, RawFile) and not issubclass(enc_class, SubstitutionCipher):
+    if not issubclass(enc_class, RawFile) and not issubclass(enc_class, SubstitutionCipher) and not issubclass(enc_class, CompressedFile):
         continue
     for file_extension in enc_class.extensions:
         file_type_handlers[file_extension] = enc_class

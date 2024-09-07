@@ -26,6 +26,7 @@ Some countries have also have restrictions on import, export, and usage see http
     + [ptcipher](#ptcipher)
       - [rot-13](#rot-13)
       - [rot-47](#rot-47)
+      - [gzip](#gzip)
       - [Tombo Blowfish CHI](#tombo-blowfish-chi)
       - [ccrypt CPT](#ccrypt-cpt)
       - [OpenPGP - gpg / pgp](#openpgp---gpg---pgp)
@@ -365,6 +366,14 @@ Do not use, this is implemented as a demo and for testing code paths when encryp
 https://en.wikipedia.org/wiki/ROT13#Variants
 
     py -3 -m puren_tonbo.tools.ptcipher puren_tonbo/tests/data/aesop.rot47 -p password_ignored
+
+#### gzip
+
+No encryption, gzip compress files - no passphrase/password/key support.
+
+    py -3 -m puren_tonbo.tools.ptcipher -p password_ignored puren_tonbo/tests/data/aesop.txt.gz
+
+NOTE Python 2 support for gz files is missing do to API differences in zlib.
 
 #### Tombo Blowfish CHI
 
