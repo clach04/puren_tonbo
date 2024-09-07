@@ -24,6 +24,7 @@ Some countries have also have restrictions on import, export, and usage see http
     + [pttkview](#pttkview)
     + [ptpyvim](#ptpyvim)
     + [ptcipher](#ptcipher)
+      - [rot-13](#rot-13)
       - [Tombo Blowfish CHI](#tombo-blowfish-chi)
       - [ccrypt CPT](#ccrypt-cpt)
       - [OpenPGP - gpg / pgp](#openpgp---gpg---pgp)
@@ -338,6 +339,19 @@ Quick demo:
     ptcipher --password password --decrypt puren_tonbo/tests/data/aesop.chi
     ptcipher --password password --decrypt puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
     python -m puren_tonbo.tools.ptcipher --password password --decrypt puren_tonbo/tests/data/aesop.chi
+
+
+#### rot-13
+
+Symmetric Substitution cipher with no passphrase/password/key support.
+Do not use, this is implemented as a demo and for testing code paths when encryption libraries are not available.
+
+https://en.wikipedia.org/wiki/ROT13
+
+    ptcipher -e -p test README.md -o README.rot13
+
+    ptcipher -v -p test README.rot13
+    py -3 -m puren_tonbo.tools.ptcipher puren_tonbo/tests/data/aesop.rot13 -p password_ignored
 
 
 #### Tombo Blowfish CHI

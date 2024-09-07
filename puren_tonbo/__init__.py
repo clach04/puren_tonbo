@@ -14,6 +14,12 @@ import sys
 import tempfile
 import uuid
 
+try:
+    maketrans = bytearray.maketrans
+except AttributeError:
+    # Python 2
+    from string import maketrans
+
 from ._version import __version__, __version_info__
 from . import ui
 
@@ -185,6 +191,7 @@ class BaseFile:
     description = 'Base Encrypted File'
     extensions = []  # non-empty list of file extensions, first is the default (e.g. for writing)
     kdf = None  # OPTIONAL key derivation function, that takes a single parameter of bytes for the password/key. See TomboBlowfish  # TODO review this
+    needs_key = True  # if not true, then this class does not require a key (password) to operate
 
     def __init__(self, key=None, password=None, password_encoding='utf8'):
         """
@@ -225,6 +232,7 @@ class RawFile(BaseFile):
 
     description = 'Raw file, no encryption support'
     extensions = ['.txt', '.md']
+    needs_key = False  # raw files are not encrypted and do not require a key/password
 
     def __init__(self, key=None, password=None, password_encoding='utf8'):
         pass  # NOOP, password/key is NOT required
@@ -235,6 +243,33 @@ class RawFile(BaseFile):
     def write_to(self, file_object, byte_data):
         file_object.write(byte_data)
 
+
+class SubstitutionCipher(EncryptedFile):
+    description = '*Unsecure* Substitution Cipher Base Class - do NOT use for sensitive data, provided for testing purposes!'
+    needs_key = False  # Substitution Cipher files do not require a key/password - which is why they are unsecure!
+
+    def __init__(self, key=None, password=None, password_encoding='utf8'):
+        pass  # NOOP, password/key is NOT required and IGNORED!
+
+
+class Rot13(SubstitutionCipher):
+    description = 'rot-13 UNSECURE!'
+    extensions = ['.rot13']
+
+    __substitution_table = maketrans(b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', b'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm')
+
+    def read_from(self, file_object):
+        # NOTE no password/key usage!
+        data = file_object.read()
+        try:
+            return data.translate(self.__substitution_table)
+        except Exception as info:
+            #raise  # debug
+            # chain exception...
+            raise PurenTonboException(info)
+
+    def write_to(self, file_object, byte_data):
+        file_object.write(byte_data.translate(self.__substitution_table))
 
 
 class VimDecryptArgs():
@@ -619,6 +654,17 @@ file_type_handlers = {}
 """
 for file_extension in RawFile.extensions:
     file_type_handlers[file_extension] = RawFile
+
+for file_extension in Rot13.extensions:
+    file_type_handlers[file_extension] = Rot13
+
+"""
+# TODO introspect and add to list based on class isinstance check
+for enc_class in (RawFile, Rot13):
+    for file_extension in enc_class.extensions:
+        file_type_handlers[file_extension] = enc_class
+"""
+
 
 if chi_io:
     for file_extension in TomboBlowfish.extensions:
@@ -1118,9 +1164,9 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
         reset_password = False
         while True:
             #import pdb ; pdb.set_trace()
-            if handler_class is RawFile:
-                log.debug('it is plain text')
-                note_password = ''  # fake it. Alternatively override init for RawFile to remove check
+            if not handler_class.needs_key:
+                log.debug('key not required (maybe it is plain text)')
+                note_password = ''  # fake it. Alternatively override init for RawFile, etc. to remove check
             else:
                 #import pdb ; pdb.set_trace()
                 if callable(get_pass):

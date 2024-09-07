@@ -789,8 +789,7 @@ file one.
         file_extension = self.handler_class.extensions[0]  # pick the first one
         # do NOT pass in test_password_bytes
         #pdb.set_trace()
-        #if self.handler_class is puren_tonbo.RawFile:
-        if isinstance(self.handler_class(key=b'junk'), puren_tonbo.RawFile):
+        if not self.handler_class.needs_key:
             self.do_one_test(buffer_plain_str, dos_newlines=False, expected_filenames=['one' + file_extension])
         else:
             self.assertRaises(puren_tonbo.PurenTonboBadCall, self.do_one_test, buffer_plain_str, dos_newlines=False, expected_filenames=['one' + file_extension])
@@ -882,6 +881,24 @@ class TestFileSystemNotesWriteClassSaveEncryptedOpenSsl10k(TestFileSystemNotesWr
 
 class TestFileSystemNotesWriteFunctionSaveEncryptedOpenSsl10k(TestFileSystemNotesWriteFunctionSaveRawPlainText):
     handler_class = puren_tonbo.OpenSslEnc10k # OpenSSL aes256cbc pbkdf2 10k
+
+# rot-13
+class TestBaseEncryptedRot13(TestBaseEncryptedFile, TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtil):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.Rot13
+    encrypt_pt_handler_class = decrypt_pt_handler_class = puren_tonbo.Rot13  # TODO review this
+
+    def test_same_input_different_crypted_text(self):
+        self.skip('rot-13 always has same output')
+
+class TestFileSystemNotesWriteClassSaveEncryptedRot13(TestFileSystemNotesWriteClassSaveRawPlainText):
+    handler_class = puren_tonbo.Rot13  # rot-13
+
+class TestFileSystemNotesWriteFunctionSaveEncryptedRot13(TestFileSystemNotesWriteFunctionSaveRawPlainText):
+    handler_class = puren_tonbo.Rot13  # rot-13
+
+
 
 """ TODO implement TestFileSystemNotesWriteClassSaveRawPlainText and TestFileSystemNotesWriteFunctionSaveRawPlainText for:
 grep '(EncryptedFile):' puren_tonbo/__init__.py
