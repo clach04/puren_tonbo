@@ -899,6 +899,23 @@ class TestFileSystemNotesWriteFunctionSaveEncryptedRot13(TestFileSystemNotesWrit
     handler_class = puren_tonbo.Rot13  # rot-13
 
 
+# rot-47
+class TestBaseEncryptedRot47(TestBaseEncryptedFile, TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtil):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.Rot47
+    encrypt_pt_handler_class = decrypt_pt_handler_class = puren_tonbo.Rot47  # TODO review this
+
+    def test_same_input_different_crypted_text(self):
+        self.skip('rot-47 always has same output')
+
+class TestFileSystemNotesWriteClassSaveEncryptedRot47(TestFileSystemNotesWriteClassSaveRawPlainText):
+    handler_class = puren_tonbo.Rot47  # rot-47
+
+class TestFileSystemNotesWriteFunctionSaveEncryptedRot47(TestFileSystemNotesWriteFunctionSaveRawPlainText):
+    handler_class = puren_tonbo.Rot47  # rot-47
+
+
 
 """ TODO implement TestFileSystemNotesWriteClassSaveRawPlainText and TestFileSystemNotesWriteFunctionSaveRawPlainText for:
 grep '(EncryptedFile):' puren_tonbo/__init__.py

@@ -2,6 +2,7 @@
 import bisect
 import datetime
 import errno
+import inspect
 from io import BytesIO as FakeFile
 import json
 import locale
@@ -256,20 +257,30 @@ class Rot13(SubstitutionCipher):
     description = 'rot-13 UNSECURE!'
     extensions = ['.rot13']
 
-    __substitution_table = maketrans(b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', b'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm')
+    substitution_table = maketrans(b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', b'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm')
 
     def read_from(self, file_object):
         # NOTE no password/key usage!
         data = file_object.read()
         try:
-            return data.translate(self.__substitution_table)
+            return data.translate(self.substitution_table)
         except Exception as info:
             #raise  # debug
             # chain exception...
             raise PurenTonboException(info)
 
     def write_to(self, file_object, byte_data):
-        file_object.write(byte_data.translate(self.__substitution_table))
+        file_object.write(byte_data.translate(self.substitution_table))
+
+
+class Rot47(Rot13):
+    description = 'rot-47 UNSECURE!'
+    extensions = ['.rot47']
+
+    substitution_table = maketrans(
+        b'!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~',
+        b'PQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO'
+    )
 
 
 class VimDecryptArgs():
@@ -647,24 +658,16 @@ class ZipBzip2AES(ZipAES):
 
 # note uses file extension - could also sniff file header and use file magic
 file_type_handlers = {}
-"""
-    '.txt': RawFile,  # these are not needed, filename2handler() defaults
-    '.md': RawFile,
-}
-"""
-for file_extension in RawFile.extensions:
-    file_type_handlers[file_extension] = RawFile
 
-for file_extension in Rot13.extensions:
-    file_type_handlers[file_extension] = Rot13
-
-"""
-# TODO introspect and add to list based on class isinstance check
-for enc_class in (RawFile, Rot13):
+# Dumb introspect code for RawFile and SubstitutionCipher (rot13 and rot47)
+for enc_class_name in dir():  #(RawFile, Rot13):
+    enc_class = globals()[enc_class_name]
+    if not inspect.isclass(enc_class):
+        continue
+    if not issubclass(enc_class, RawFile) and not issubclass(enc_class, SubstitutionCipher):
+        continue
     for file_extension in enc_class.extensions:
         file_type_handlers[file_extension] = enc_class
-"""
-
 
 if chi_io:
     for file_extension in TomboBlowfish.extensions:

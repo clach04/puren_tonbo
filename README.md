@@ -25,6 +25,7 @@ Some countries have also have restrictions on import, export, and usage see http
     + [ptpyvim](#ptpyvim)
     + [ptcipher](#ptcipher)
       - [rot-13](#rot-13)
+      - [rot-47](#rot-47)
       - [Tombo Blowfish CHI](#tombo-blowfish-chi)
       - [ccrypt CPT](#ccrypt-cpt)
       - [OpenPGP - gpg / pgp](#openpgp---gpg---pgp)
@@ -353,6 +354,17 @@ https://en.wikipedia.org/wiki/ROT13
     ptcipher -v -p test README.rot13
     py -3 -m puren_tonbo.tools.ptcipher puren_tonbo/tests/data/aesop.rot13 -p password_ignored
 
+    echo Why did the chicken cross the road?|ptcipher -p ignored_password  --encrypt --cipher=rot13
+    echo Jul qvq gur puvpxra pebff gur ebnq?|ptcipher -p ignored_password  --encrypt --cipher=rot13
+
+#### rot-47
+
+Symmetric Substitution cipher with no passphrase/password/key support.
+Do not use, this is implemented as a demo and for testing code paths when encryption libraries are not available.
+
+https://en.wikipedia.org/wiki/ROT13#Variants
+
+    py -3 -m puren_tonbo.tools.ptcipher puren_tonbo/tests/data/aesop.rot47 -p password_ignored
 
 #### Tombo Blowfish CHI
 
