@@ -173,6 +173,13 @@ class SearchCancelled(SearchException):
         return repr(self.value)
 
 
+"""The core of the encryption/decryption API revolves around file objects, that is file-like API objects
+This differs substantially from PEP 272 - API for Block Encryption Algorithms v1.0 - https://peps.python.org/pep-0272/
+which is based on block input.
+
+puren_tonbo expects to be dealing with (on-disk) files, hence the focus on file-like objects.
+"""
+
 class BaseFile:
 
     description = 'Base Encrypted File'
