@@ -181,6 +181,8 @@ class CommandPrompt(Cmd):
     do_EOF = do_exit
 
     def do_fts_index(self, line=None):
+        """Created index for full text search FTS
+        """
         if line:
             print('Parameters not supported')  # TODO handle and also cwd support
             return
@@ -197,13 +199,16 @@ class CommandPrompt(Cmd):
             self.paths_to_search_instances.append(notes)
 
     def do_fts_search(self, line=None):
-        """Usage:
+        """TODO error check if fts index is created, error with useful message.
+        Usage:
         fts_search TERM_OR_QUERY
         fts_search king OR frog OR hares
         fts_search frog AND king
         fts_search frog NOT king
         fts_search filename:frog
         fts_search filename:frog AND constitution
+
+        NOTE requires fts_index to have been issued.
         """
         # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
         if self.grep_options.use_color:
@@ -260,6 +265,7 @@ class CommandPrompt(Cmd):
                     print('[%d] %s:%s' % (counter, filename, note_text))  # unknown line number
         if and_or_warning_message:
             print(and_or_warning_message)
+    do_fts = do_fts_search
 
     def do_ls(self, line=None):
         # TODO autocomplete
