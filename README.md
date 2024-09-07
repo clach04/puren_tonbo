@@ -353,10 +353,13 @@ https://en.wikipedia.org/wiki/ROT13
     ptcipher -e -p test README.md -o README.rot13
 
     ptcipher -v -p test README.rot13
+    ptcipher -p password_ignored puren_tonbo/tests/data/aesop.rot13
     py -3 -m puren_tonbo.tools.ptcipher puren_tonbo/tests/data/aesop.rot13 -p password_ignored
 
     echo Why did the chicken cross the road?|ptcipher -p ignored_password  --encrypt --cipher=rot13
     echo Jul qvq gur puvpxra pebff gur ebnq?|ptcipher -p ignored_password  --encrypt --cipher=rot13
+
+If using vim, can also use `g?` to rot-13 text. For example; selected text, whole file, etc.
 
 #### rot-47
 
@@ -365,12 +368,15 @@ Do not use, this is implemented as a demo and for testing code paths when encryp
 
 https://en.wikipedia.org/wiki/ROT13#Variants
 
+    ptcipher -p password_ignored puren_tonbo/tests/data/aesop.rot47
+
     py -3 -m puren_tonbo.tools.ptcipher puren_tonbo/tests/data/aesop.rot47 -p password_ignored
 
 #### gzip
 
 No encryption, gzip compress files - no passphrase/password/key support.
 
+    ptcipher -p password_ignored puren_tonbo/tests/data/aesop.txt.gz
     py -3 -m puren_tonbo.tools.ptcipher -p password_ignored puren_tonbo/tests/data/aesop.txt.gz
 
 NOTE Python 2 support for gz files is missing do to API differences in zlib.

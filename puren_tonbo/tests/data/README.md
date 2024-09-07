@@ -9,6 +9,27 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * Contains long lines (one is 1435 bytes)
       * Approx 1.5Kb.
 
+  * aesop.rot13 - rot-13 version
+    so suitable for realistic test data. Does NOT require any encryption libaries present, supported by vim with `g?`
+      * has window newlines
+      * us-ascii encoding
+      * Contains long lines (one is 1435 bytes)
+      * Approx 1.5Kb.
+
+  * aesop.rot47 - rot-47 version
+    so suitable for realistic test data. Does NOT require any encryption libaries present
+      * has window newlines
+      * us-ascii encoding
+      * Contains long lines (one is 1435 bytes)
+      * Approx 1.5Kb.
+
+  * aesop.txt.gz - Compress gZip text file
+    so suitable for realistic test data. Does NOT require any encryption libaries present. Can be read with `gzip` (and modern versions of `zcat`)
+      * has window newlines
+      * us-ascii encoding
+      * Contains long lines (one is 1435 bytes)
+      * Approx 1.5Kb.
+
   * aesop.chi -  Tombo Blowfish encrypted from `aesop.txt`
     Created with Windows win32 Tombo http://tombo.sourceforge.jp/En/
       * password is `password`
