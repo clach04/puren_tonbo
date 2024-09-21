@@ -1073,6 +1073,9 @@ def main(argv=None):
     else:
         note_encoding = config['codec']
 
+    use_color = False
+    if ptgrep.guess_color_available:
+        use_color = True
     if is_win:
         if ptgrep.colorama:
             # TODO only do below for Windows? looks like it may be a NOOP so may not need a windows check
@@ -1082,10 +1085,7 @@ def main(argv=None):
                 # older version, for example '0.4.4'
                 ptgrep.colorama.init()
             use_color = True
-        else:
-            use_color = False
-    else:
-        use_color = True
+
     options.use_color = use_color
     options.password = password
     grep_options = FakeOptions(options)

@@ -44,6 +44,7 @@ from puren_tonbo import SearchCancelled
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
 
+guess_color_available = colorama or (not is_win) or (is_win and ('TERM' in os.environ or 'TERM_PROGRAM' in os.environ))
 
 if colorama:
     # TODO options for these? These are close facimiles to ripgrep default
@@ -53,8 +54,7 @@ if colorama:
     color_searchhit = colorama.Fore.RED
     color_reset = colorama.Style.RESET_ALL
 else:
-    # might be linux (not Windows)
-    if not is_win:
+    if guess_color_available:
         # ansi color escape sequences
         color_error = '\x1b[31m'  # Fore.RED
         color_filename = '\x1b[01;34m'  # Fore.BLUE
@@ -76,7 +76,7 @@ if not (os.environ.get('PYTHONIOENCODING') and py2 and win:
 PTGREP_STDOUT_MODE = os.environ.get('PTGREP_STDOUT_MODE', '')
 if not PTGREP_STDOUT_MODE and is_win and not is_py3 and (not os.environ.get('PYTHONIOENCODING') or not os.environ.get('PYTHONUTF8')):
     # for python2 under Windows force hack, so that do not get UnicodeEncodeError: errors, set to 'disabled' to keep default behavior
-    PTGREP_STDOUT_MODE = 'ascii:backslashreplace'
+    PTGREP_STDOUT_MODE = 'ascii:backslashreplace'  # FIXME review for Windows with Terminal rather than CMD.exe / Command Window
 print(PTGREP_STDOUT_MODE)
 
 sys_stdout = sys.stdout
@@ -297,8 +297,7 @@ def main(argv=None):
             colorama.init()
         use_color = True
     else:
-        # might be linux (not Windows)
-        if not is_win:
+        if guess_color_available:
             use_color = True
 
 
