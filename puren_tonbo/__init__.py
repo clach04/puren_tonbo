@@ -2419,7 +2419,7 @@ def get_config(config_filename=None):
         config = {}
     defaults = {
         '_version_created_with': '%s' % __version__,
-        'note_root': '.',  # root directory of notes
+        'note_root': '.',  # root directory of notes, other idea; ['.']
         'codec': ('utf8', 'cp1252'),  # note encoding(s) in order to try for reading, first is the encoding for writing
         'default_text_ext': 'txt',
         'default_encryption_ext': 'chi',
@@ -2431,12 +2431,21 @@ def get_config(config_filename=None):
         'ignore_file_extensions': ['.bak', '~', '_MOD'],  # currently ptig only
         'ptig': {
             "editors": {  # if specified in config, defaults for editors WILL be lost
-                "pttkview": "pttkview",
-                "gvim": "gvim"
+                "pttkview": "pttkview",  # part of PT
+                "bat": "bat",
+                "#vi": "tend to be builtin ptpyvim",
+                "view": "view",
+                "vim": "vim",
+                "gvim": "gvim",
+                "scite": "start scite",
+                "nano": "nano",
             },
-            'init': ['set ic', ],
+            'init': ['set ic', ],  # , "set enc", etc.
             'use_pager': False,
             'prompt': u'ptig: \U0001f50e ',
+            '#linuxGUI_file_browser': 'pcmanfm',
+            '#linuxCLI_file_browser': 'mc',
+            '##win_file_browser': 'explorer',
         }
     }
 
