@@ -950,7 +950,7 @@ Also see `edit`
             search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
         else:
             parsed_line = shlex.split(line)
-            (grep_parser_options, grep_parser_args) = grep_parser.parse_args(parsed_line)
+            (grep_parser_options, grep_parser_args) = grep_parser.parse_args(parsed_line)  # FIXME ptig can exit with bad (ptig) ptgrep params
             if not grep_parser_args:
                 print('Need a search term')  # TODO show help?
                 return
