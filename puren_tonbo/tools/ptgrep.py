@@ -109,14 +109,14 @@ def stdout_restore():
 
 # TODO remove/replace args and consolidate into options
 def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding):
-    count_files_matched = getattr(options, 'count_files_matched', False)
+    count_files_matched = getattr(options, 'count_files_matched', False)  # if true, count result filenames (starting at 1). Prefix filenames with a number
     ignore_case = options.ignore_case
-    line_numbers = options.line_numbers == True
+    line_numbers = options.line_numbers == True  # include line numbers of match in file
     ripgrep = not options.grep
     search_encrypted = options.search_encrypted
     search_is_regex = options.regex_search == True  # TODO consider renaming to match option name
-    only_filename_results = options.find_only_filename or options.files_with_matches
-    find_only_filename = options.find_only_filename
+    only_filename_results = options.find_only_filename or options.files_with_matches  # do not include file content matches, just filenames in results
+    find_only_filename = options.find_only_filename  # do NOT search file content, only search for filenames
     if find_only_filename:
         search_encrypted = True  # TODO ?
 
