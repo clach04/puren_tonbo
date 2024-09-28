@@ -122,6 +122,66 @@ Picking up the latest version
     python -m puren_tonbo.tools.ptconfig
 
 
+## Microsoft Windows
+
+  * NOTE "start" can help with spawning exes that wait, and do not exit. BUT ensure command being started is in path (do not use full path), causes issues with multiple edit ("en") in ptig.
+  * Unicode support, CMD.exe has limited Unicode support, instead use a GUI terminal with Unicode support (see below)
+
+### Microsoft Windows GUI Alternative Terminals
+
+Using an alternative to CMD.exe allows full Unicode support, including Emoji
+Recommend mintty (or in a pinch Windows Terminal).
+
+Do NOT recommend Fluent Terminal (FluentTerminal).
+
+Untested alternatives; Windows Terminal 2, ConEMu (https://conemu.github.io/ https://github.com/Maximus5/ConEmu)
+
+#### mintty
+
+https://github.com/mintty/mintty
+
+mintty is included with Git for Windows, msys2, cygwin.
+
+Examples:
+
+    mintty --title ptig --hold error --size 120,35 -e python -m puren_tonbo.tools.ptig
+    mintty --title ptig --hold error --size 120,35 -e C:\full\path\to\ptig.exe
+    mintty --title ptig --hold error --size 120,35 -e ptig.exe
+    "C:\Program Files\Git\usr\bin\mintty.exe" --title ptig --hold error --size 120,35 -e python -m puren_tonbo.tools.ptig
+
+Support is excellent, can easily change color theme/scheme without changing ALL terminals. Great control over title name.
+Out of the box Emoji (Unicode) font is mono, rather than full color. There maybe a config options for (additional) fonts for this, see https://github.com/mintty/mintty/wiki/Tips#secondary-fonts for possible solution and https://github.com/mintty/mintty/wiki/Tips#emojis.
+
+Known to work well with mintty; 3.6.4, 3.7.0, and 3.7.4 as installed by https://github.com/git-for-windows/git (and Python 3.1x).
+
+#### Alacritty
+
+https://github.com/alacritty/alacritty
+
+NOTE no scroll bar, and looks like there is no intention to support?
+Great for keyboard only control.
+
+Examples:
+
+    "C:\Program Files\Alacritty\alacritty.exe" --title ptig --hold -e C:\full\path\to\ptig.exe
+
+
+#### Windows Terminal
+
+https://github.com/microsoft/terminal/ https://aka.ms/terminal
+
+Whilst Windows Terminal looks great (out of box emoji is in full color font), it is limited compared to mintty. For example no control over title and color scheme is global.
+
+Windows Terminal (with Unicode support, including emoji) WindowsTerminal https://github.com/microsoft/terminal/releases/tag/v1.20.11381.0 works great (or from AppStore https://apps.microsoft.com/detail/9n0dx20hk701)
+
+    wt.exe - `%LOCALAPPDATA%\Microsoft\WindowsApps\wt.exe` or from zip (not AppStore) `WindowsTerminal.exe` (multi color emoji) and `OpenConsole.exe` (single color emoji)
+        how to get taskbar icon showing up?
+
+Examples:
+
+    %LOCALAPPDATA%\Microsoft\WindowsApps\wt.exe C:\full\path\to\ptig.exe
+
+
 ## Examples
 
     ptconfig
@@ -721,9 +781,6 @@ Thanks and kudos to:
 
 ## TODO
 
-Windows Terminal (with Unicode support, including emjoi) WindowsTerminal https://github.com/microsoft/terminal/releases/tag/v1.20.11381.0 works great (or from AppStore https://apps.microsoft.com/detail/9n0dx20hk701)
-    wt.exe - `%LOCALAPPDATA%\Microsoft\WindowsApps\wt.exe` or from zip (not AppStore) `WindowsTerminal.exe` (multi color emjoi) and `OpenConsole.exe` (single color emjoi)
-        how to get taskbar icon showing up?
 TODO padlock and case insensitive ic in prompt - Windows terminal 2, ConEMu (https://conemu.github.io/ https://github.com/Maximus5/ConEmu) etc.?
     unlocked padlock for password present?
     key for searching for encrypted files?
