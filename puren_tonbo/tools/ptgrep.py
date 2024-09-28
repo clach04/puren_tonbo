@@ -110,8 +110,8 @@ def stdout_restore():
 
 
 # TODO remove/replace args and consolidate into options
-def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding, zebra_color_filenames=False):
-    # TODO revisit zebra_color_filenames as parameter or options entry; getattr(options, 'zebra_color_filenames', False)
+def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding):
+    zebra_color_filenames = getattr(options, 'zebra_color_filenames', False)
     count_files_matched = getattr(options, 'count_files_matched', False)  # if true, count result filenames (starting at 1). Prefix filenames with a number
     ignore_case = options.ignore_case
     line_numbers = options.line_numbers == True  # include line numbers of match in file
@@ -235,7 +235,7 @@ def main(argv=None):
     parser.add_option("--config-file", "--config_file", help="Override config file")
     parser.add_option("--grep", help='Use grep-like output format instead of ripgrep-like', action="store_true")
     parser.add_option("--display-full-path", "--display_full_path", help='Display full/absolute path/URI in results for note filename', action="store_true")
-    parser.add_option("--zebra", help='Display alternate filenames with different (zebra) stripe color (note, counts filenames)', action="store_true")
+    parser.add_option("--zebra", "--zebra_color_filenames", "--zebra-color-filenames", help='Display alternate filenames with different (zebra) stripe color (note, counts filenames)', action="store_true", dest='zebra_color_filenames')
     """ TODO
     -p, --password=PASSWORD: Password to use for all encrypted notes (if omitted will be prompted for password,
         specifying password at command line can be a security risk as password _may_ be visible in process/task list and/or shell history)
@@ -325,7 +325,7 @@ def main(argv=None):
 
     password_func = password
 
-    grep(search_term, paths_to_search, options, use_color, password_func, note_encoding, zebra_color_filenames=options.zebra)
+    grep(search_term, paths_to_search, options, use_color, password_func, note_encoding)
 
     return 0
 

@@ -89,6 +89,7 @@ pager = getpager_no_temp_files()
 class FakeOptions:  # to match ptgrep (OptParse) options
     display_full_path = True
     count_files_matched = True  # prefix filenames with a number, for easy reference/selection
+    zebra_color_filenames = True  # every other filename in search results use a different background color. Control: set no zebra_color_filenames / set zebra_color_filenames
     ignore_case = False
     regex_search = False
     line_numbers = True
