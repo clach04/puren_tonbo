@@ -1859,7 +1859,7 @@ class FullTextSearchSqlite:
 
           * search_term  # search term to look for, string
           * find_only_filename=False - Not Implemented!  # do NOT search file content, only search for filenames
-          * files_with_matches=False - Not Implemented!  # do not include file content matches, just filenames in results
+          * files_with_matches=False - Not Implemented!  # only display filename, do not include file content matches, just filenames in results
           * highlight_text_start=None  # (ANSI escape) characters to prefix search start
           * highlight_text_stop=None  # (ANSI escape) characters to prefix search end/stop
         """
@@ -2067,8 +2067,8 @@ class FileSystemNotes(BaseNotes):
           * get_password_callback=None  # function that will be called when/if a password is required
           * progess_callback=None  # function that will be called for progress updates/information
 
-          * find_only_filename=False - Not Implemented!  # do NOT search file content, only search for filenames
-          * files_with_matches=False - Not Implemented!  # do not include file content matches, just filenames in results
+          * find_only_filename=False  # do NOT search file content, only search for filenames
+          * files_with_matches=False  # only display filename, do not include file content matches, just filenames in results
           * highlight_text_start=None  # (ANSI escape) characters to prefix search start
           * highlight_text_stop=None  # (ANSI escape) characters to prefix search end/stop
 
