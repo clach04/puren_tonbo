@@ -136,7 +136,7 @@ Do NOT recommend Fluent Terminal (FluentTerminal).
 
 Untested alternatives; Windows Terminal 2, ConEMu (https://conemu.github.io/ https://github.com/Maximus5/ConEmu)
 
-#### mintty
+#### mintty (recommended)
 
 https://github.com/mintty/mintty
 
@@ -153,6 +153,17 @@ Support is excellent, can easily change color theme/scheme without changing ALL 
 Out of the box Emoji (Unicode) font is mono, rather than full color. There maybe a config options for (additional) fonts for this, see https://github.com/mintty/mintty/wiki/Tips#secondary-fonts for possible solution and https://github.com/mintty/mintty/wiki/Tips#emojis.
 
 Known to work well with mintty; 3.6.4, 3.7.0, and 3.7.4 as installed by https://github.com/git-for-windows/git (and Python 3.1x).
+
+Sample config file:
+
+    type "%USERPROFILE%\.minttyrc"
+    cat ~/.minttyrc
+
+    ThemeFile=rosipov
+    Font=Consolas
+    FontHeight=10
+
+"rosipov" is a built in theme (there are others, and custom ones can also be added too).
 
 #### Alacritty
 
