@@ -972,9 +972,9 @@ any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 
 def supported_filetypes_info(encrypted_only=False):
     for file_extension in file_type_handlers:
-        if encrypted_only and file_extension in RawFile.extensions:
-            continue
         handler_class = file_type_handlers[file_extension]
+        if encrypted_only and not isinstance(handler_class, EncryptedFile):
+            continue
         yield (file_extension, handler_class.__name__, handler_class.description)
 
 def encrypted_filename_filter(in_filename):
@@ -1003,7 +1003,7 @@ def plaintext_filename_filter(in_filename):
     return False
 
 encrypted_extensions = list(supported_filetypes_info(encrypted_only=True))  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
-def encrypted_filename_filter(filename):
+def encrypted_filename_filter(filename):  # TODO if ever support zip without encryption check inside and see if a password is needed
     filename_lower = filename.lower()
     for file_extension in encrypted_extensions:
         if filename_lower.endswith(file_extension):
