@@ -7,7 +7,6 @@
 """
 
 import datetime
-import getpass
 import os
 from optparse import OptionParser
 import sys
