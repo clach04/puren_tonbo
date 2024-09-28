@@ -50,6 +50,7 @@ if colorama:
     # TODO options for these? These are close facimiles to ripgrep default
     color_error = colorama.Fore.RED  # Background instead?
     color_filename = colorama.Fore.BLUE
+    color_filename_zebra = color_filename + colorama.Back.WHITE  # TODO allow control and override of thiss
     color_linenum = colorama.Fore.GREEN
     color_searchhit = colorama.Fore.RED
     color_reset = colorama.Style.RESET_ALL
@@ -58,6 +59,7 @@ else:
         # ansi color escape sequences
         color_error = '\x1b[31m'  # Fore.RED
         color_filename = '\x1b[01;34m'  # Fore.BLUE
+        color_filename_zebra = color_filename + '\x1b[47m'  # TODO allow control and override of thiss
         color_linenum = '\x1b[01;32m'  # Fore.GREEN
         #color_searchhit = '\x1b[01;05;37;41m'  # Background Red, foreground flasshing white
         color_searchhit = '\x1b[31m'  # Fore.RED
@@ -109,6 +111,8 @@ def stdout_restore():
 
 # TODO remove/replace args and consolidate into options
 def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding):
+    zebra_color_filenames = False
+    #zebra_color_filenames = True  # FIXME implement API control and options
     count_files_matched = getattr(options, 'count_files_matched', False)  # if true, count result filenames (starting at 1). Prefix filenames with a number
     ignore_case = options.ignore_case
     line_numbers = options.line_numbers == True  # include line numbers of match in file
@@ -157,7 +161,14 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
                     # do not want filename
                     filename = ''
                 if use_color:
-                    filename = color_filename + filename + color_reset
+                    if not zebra_color_filenames:
+                        filename = color_filename + filename + color_reset
+                    else:
+                        # zebra_color_filenames  NOTE requires counter
+                        if counter % 2:
+                            filename = color_filename_zebra + filename + color_reset
+                        else:
+                            filename = color_filename + filename + color_reset
                 if only_filename_results:
                     print('%s' % (filename, ))
                     continue
