@@ -111,6 +111,7 @@ def stdout_restore():
 
 # TODO remove/replace args and consolidate into options
 def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding, zebra_color_filenames=False):
+    # TODO revisit zebra_color_filenames as parameter or options entry; getattr(options, 'zebra_color_filenames', False)
     count_files_matched = getattr(options, 'count_files_matched', False)  # if true, count result filenames (starting at 1). Prefix filenames with a number
     ignore_case = options.ignore_case
     line_numbers = options.line_numbers == True  # include line numbers of match in file
