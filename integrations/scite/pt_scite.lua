@@ -9,8 +9,11 @@
 
 -- Only supports Tombo format *.chi files
 -- Usage, ensure:
---  1) operating system environment variable PT_PASSWORD is set before loading scite
---  2) that ptcipher is in path or set os env PTCIPHER_EXE to path
+--  1) operating system environment variable PT_PASSWORD is set before loading scite (or that ptcipher has GUI password prompt support)
+--  2) that ptcipher specified is set or in the path, i.e. one of:
+--      a) ptcipher exe is in path
+--      b) set OS env PTCIPHER_EXE to fully qualitied path to exe
+--      c) scite variable/property set to path, for example; props['clach04.puren_tonbo.ptcipher'] = 'C:\\code\\puren_tonbo\\py3.12.5venv\\Scripts\\ptcipher.exe'
 
 -- TODO
 --  * write support - file that was loaded
@@ -35,7 +38,7 @@ end
 local PTCIPHER_EXE = os.getenv('PTCIPHER_EXE') or props['clach04.puren_tonbo.ptcipher'] --  or 'ptcipher'
 if PTCIPHER_EXE then
     if PTCIPHER_EXE == '' then
-        PTCIPHER_EXE = 'ptcipher'
+        PTCIPHER_EXE = 'ptcipher'  -- assume in path
     end
 end
 --print('DEBUG PTCIPHER_EXE: >' .. PTCIPHER_EXE .. '<')
