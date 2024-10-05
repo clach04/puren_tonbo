@@ -152,7 +152,8 @@ Examples:
 Support is excellent, can easily change color theme/scheme without changing ALL terminals. Great control over title name.
 Out of the box Emoji (Unicode) font is mono, rather than full color. There maybe a config options for (additional) fonts for this, see https://github.com/mintty/mintty/wiki/Tips#secondary-fonts for possible solution and https://github.com/mintty/mintty/wiki/Tips#emojis.
 
-Known to work well with mintty; 3.6.4, 3.7.0, and 3.7.4 as installed by https://github.com/git-for-windows/git (and Python 3.1x).
+Known to work well with mintty; 3.6.4, 3.7.0, 3.7.4, and 3.7.6 as installed by https://github.com/git-for-windows/git (and Python 3.1x).
+NOTE odd title (numbers, forward slash, numbers) with mintty 3.7.4 and 3.7.6 (included with Git 2.46.0 and 2.46.2) and Python 3.12.5 - NOT seen with other versions.
 
 Sample config file:
 
