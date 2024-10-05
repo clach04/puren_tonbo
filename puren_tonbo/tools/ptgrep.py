@@ -44,6 +44,7 @@ from puren_tonbo import SearchCancelled
 is_py3 = sys.version_info >= (3,)
 is_win = sys.platform.startswith('win')
 
+# TODO NO_COLOR https://no-color.org/ (also initial config creation)
 guess_color_available = colorama or (not is_win) or (is_win and ('TERM' in os.environ or 'TERM_PROGRAM' in os.environ))
 
 if colorama:
