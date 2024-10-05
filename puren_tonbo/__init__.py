@@ -760,7 +760,7 @@ encrypted_file_extensions = []
 supported_handlers = {}  # supported handlers, mapped to first (default) filename extension
 for file_extension in file_type_handlers.keys():
     supported_handlers[file_type_handlers[file_extension]] = file_type_handlers[file_extension].extensions[0]
-    if isinstance(file_type_handlers[file_extension], EncryptedFile):
+    if issubclass(file_type_handlers[file_extension], EncryptedFile):
         encrypted_file_extensions.append(file_extension)
 if mzipaes:
     for enc_class in (PurePyZipAES, ZipNoCompressionPurePyZipAES):
@@ -973,7 +973,7 @@ any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 def supported_filetypes_info(encrypted_only=False):
     for file_extension in file_type_handlers:
         handler_class = file_type_handlers[file_extension]
-        if encrypted_only and not isinstance(handler_class, EncryptedFile):
+        if encrypted_only and not issubclass(handler_class, EncryptedFile):
             continue
         yield (file_extension, handler_class.__name__, handler_class.description)
 
