@@ -89,7 +89,7 @@ pager = getpager_no_temp_files()
 class FakeOptions:  # to match ptgrep (OptParse) options
     display_full_path = True
     count_files_matched = True  # prefix filenames with a number, for easy reference/selection
-    zebra_color_filenames = True  # every other filename in search results use a different background color. Control: set no zebra_color_filenames / set zebra_color_filenames
+    zebra_color_filenames = True  # (note, use_color=True) every other filename in search results use a different background color. Control: set no zebra_color_filenames / set zebra_color_filenames
     ignore_case = False
     regex_search = False
     line_numbers = True
@@ -99,7 +99,7 @@ class FakeOptions:  # to match ptgrep (OptParse) options
     search_encrypted = False  # TODO add away to change this (set...
     search_is_regex = False
     time = True
-    use_color = True
+    use_color = True  # TODO NO_COLOR https://no-color.org/ (also initial config creation)
     use_pager = False  # ptig specific
 
     def __init__(self, options=None):
@@ -604,6 +604,7 @@ Search previous results for search term.
             # TEST assume find
             #self.do_find(line=line, paths_to_search=self.file_hits)
             #self.do_grep(line=line, paths_to_search=self.file_hits)
+        # TODO zebra_color_filenames support needed here
         for counter, filename in enumerate(self.file_hits, start=1):
             print('[%d] %s' % (counter, filename))
     do_res = do_results
