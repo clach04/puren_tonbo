@@ -231,9 +231,13 @@ Find all instances of "king", case-insensitive (note; matches `taking`):
 
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -i king
 
-Find all words "king", case-insensitive:
+Find all words "king", case-insensitive using a regex:
 
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -i -r \bking\b
+
+Find all instances of "king" but not "aking", "iking", or "lking", case-insensitive using a regex:
+
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -i -r [^ail]king
 
 find different words with regex
 
