@@ -222,41 +222,41 @@ Examples:
 
 Find all instances of "king", case-insensitive (note; matches `taking`):
 
-    ptgrep -i king
+    %prog -i king
 
 Find all words "king", case-insensitive using a regex:
 
-    ptgrep -i -r \bking\b
+    %prog -i -r \bking\b
 
 Find all instances of "king" but not "aking", "iking", or "lking", case-insensitive using a regex:
 
-    ptgrep -i -r [^ail]king
+    %prog -i -r [^ail]king
 
 find different words with regex
 
-    ptgrep    -r "cruel|better"
-    ptgrep -i -r "cruel|better"
-    ptgrep    -r "cru.l|b.tter"
+    %prog    -r "cruel|better"
+    %prog -i -r "cruel|better"
+    %prog    -r "cru.l|b.tter"
 
 find "-feast" which looks like a command line argument:
 
-    ptgrep -- -feast
+    %prog -- -feast
 
 find filenames with regex
 
-    ptgrep -y -r ^aesop
+    %prog -y -r ^aesop
 
 find filenames that have an ISO date in either dirname or filename
 
-    ptgrep -y -r "202[0-9]-[0-9][0-9]-[0-9][0-9]"
+    %prog -y -r "202[0-9]-[0-9][0-9]-[0-9][0-9]"
 
 find filenames encrypted with regex
 
-    ptgrep -y -e -r ^aesop
+    %prog -y -e -r ^aesop
 
 find filenames ONLY encrypted with regex
 
-    ptgrep -y -k -r ^aesop
+    %prog -y -k -r ^aesop
 
 '''
 
