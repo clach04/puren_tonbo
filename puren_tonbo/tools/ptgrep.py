@@ -28,7 +28,8 @@ Essentially; ack, ripgrep, pss, ag/The Silver Searcher for plain text and encryp
 
 import codecs
 import os
-from optparse import OptionParser
+import optparse
+#from optparse import OptionParser
 import sys
 import time
 
@@ -210,6 +211,55 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
         return result
 
 
+class MyParser(optparse.OptionParser):
+    def format_epilog(self, formatter):
+        """Preserve newlines present in epilog parameter to OptionParser"""
+        return self.expand_prog_name(self.epilog)
+
+ptgrep_examples = '''
+Examples:
+
+Find all instances of "king", case-insensitive (note; matches `taking`):
+
+    ptgrep -i king
+
+Find all words "king", case-insensitive using a regex:
+
+    ptgrep -i -r \bking\b
+
+Find all instances of "king" but not "aking", "iking", or "lking", case-insensitive using a regex:
+
+    ptgrep -i -r [^ail]king
+
+find different words with regex
+
+    ptgrep    -r "cruel|better"
+    ptgrep -i -r "cruel|better"
+    ptgrep    -r "cru.l|b.tter"
+
+find "-feast" which looks like a command line argument:
+
+    ptgrep -- -feast
+
+find filenames with regex
+
+    ptgrep -y -r ^aesop
+
+find filenames that have an ISO date in either dirname or filename
+
+    ptgrep -y -r "202[0-9]-[0-9][0-9]-[0-9][0-9]"
+
+find filenames encrypted with regex
+
+    ptgrep -y -e -r ^aesop
+
+find filenames ONLY encrypted with regex
+
+    ptgrep -y -k -r ^aesop
+
+'''
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -219,8 +269,10 @@ def main(argv=None):
 
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
     # TODO mix of snake_case and hypen-case flags/options; list-formats/list_formats and note-root/note_root
-    parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
-                            description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
+    parser = MyParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
+                            description='A grep/ripprep like tool. Use "--" to specify search terms that start with a dash/hypen/minus "-"',
+                            epilog =ptgrep_examples
+    )
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")

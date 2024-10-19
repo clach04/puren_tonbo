@@ -245,6 +245,10 @@ find different words with regex
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -i -r "cruel|better"
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data    -r "cru.l|b.tter"
 
+find "-feast" which looks like a command line argument:
+
+    python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -- -feast
+
 find filenames with regex
 
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -y -r ^aesop
