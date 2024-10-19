@@ -12,7 +12,6 @@ TODO delete support (with confirmation)
 import copy
 import json
 import os
-from optparse import OptionParser
 import pydoc
 import shlex
 import sys
@@ -114,9 +113,11 @@ class FakeOptions:  # to match ptgrep (OptParse) options
 
 # Extracted (subset) from ptgrep.main()
 # FIXME refactor ptgrep to have a shared, reusable parser and use here. E.g. would add support for -t
-grep_parser = OptionParser(usage='usage: %prog [options] [search_term]',
+grep_parser = ptgrep.MyParser(usage='usage: %prog [options] [search_term]',
                         prog='grep',
-                        description='A grep/ripprep like tool. Use "--" to specify search terms that start with a hype "-"')
+                        description=ptgrep.ptgrep_description,
+                        epilog =ptgrep.ptgrep_examples
+                    )
 grep_parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
 grep_parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")
 grep_parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="Only print filenames that contain matches", action="store_true")
@@ -1038,7 +1039,7 @@ def main(argv=None):
         argv = sys.argv
 
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
-    parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
+    parser = ptgrep.MyParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
     parser.add_option("--config-file", "--config_file", help="Override config file")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")

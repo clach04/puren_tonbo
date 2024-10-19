@@ -272,7 +272,7 @@ def main(argv=None):
     # TODO mix of snake_case and hypen-case flags/options; list-formats/list_formats and note-root/note_root
     parser = MyParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
                             description=ptgrep_description,
-                            epilog =ptgrep_examples
+                            epilog=ptgrep_examples
     )
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
