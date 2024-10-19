@@ -214,8 +214,9 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
 class MyParser(optparse.OptionParser):
     def format_epilog(self, formatter):
         """Preserve newlines present in epilog parameter to OptionParser"""
-        return self.expand_prog_name(self.epilog)
+        return self.expand_prog_name(self.epilog or '')
 
+ptgrep_description = 'A grep/ripprep like tool. Use "--" to specify search terms that start with a dash/hypen/minus "-"'
 ptgrep_examples = '''
 Examples:
 
@@ -270,7 +271,7 @@ def main(argv=None):
     usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
     # TODO mix of snake_case and hypen-case flags/options; list-formats/list_formats and note-root/note_root
     parser = MyParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
-                            description='A grep/ripprep like tool. Use "--" to specify search terms that start with a dash/hypen/minus "-"',
+                            description=ptgrep_description,
                             epilog =ptgrep_examples
     )
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
