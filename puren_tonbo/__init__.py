@@ -970,10 +970,12 @@ def keyring_get_password():
 any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 
 
-def supported_filetypes_info(encrypted_only=False):
+def supported_filetypes_info(encrypted_only=False, unencrypted_only=False):
     for file_extension in file_type_handlers:
         handler_class = file_type_handlers[file_extension]
         if encrypted_only and not issubclass(handler_class, EncryptedFile):
+            continue
+        if unencrypted_only and issubclass(handler_class, EncryptedFile):
             continue
         yield (file_extension, handler_class.__name__, handler_class.description)
 
@@ -993,16 +995,19 @@ def supported_filename_filter(in_filename):
             return True
     return False
 
+encrypted_extensions = list(supported_filetypes_info(encrypted_only=True))  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
+unencrypted_extensions = list(supported_filetypes_info(unencrypted_only=True))  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
+
 def plaintext_filename_filter(in_filename):
     name = in_filename.lower()
     #print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
-    for file_extension in ('.txt', '.md', ):  # FIXME hard coded for known plain text extensions that Rawfile is configured with. See supported_filetypes_info() for less fragile approach
+    #for file_extension in ('.txt', '.md', ):  # FIXME hard coded for known plain text extensions that Rawfile is configured with. See supported_filetypes_info() for less fragile approach
+    for file_extension in unencrypted_extensions:
         if name.endswith(file_extension):
             # TODO could look at mapping and check that too, e.g. only Raw files
             return True
     return False
 
-encrypted_extensions = list(supported_filetypes_info(encrypted_only=True))  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
 def encrypted_filename_filter(filename):  # TODO if ever support zip without encryption check inside and see if a password is needed
     filename_lower = filename.lower()
     for file_extension in encrypted_extensions:
