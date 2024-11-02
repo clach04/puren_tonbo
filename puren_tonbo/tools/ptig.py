@@ -661,7 +661,6 @@ Search previous results for search term.
             new filename
             new filename.txt
         """
-        # TODO/FIXME Encrypted file creation
         # TODO check for same filename, different file type
         # TODO check for similar filenames and offer confirmation/file-selection
         # TODO off fzf directory name location selection
@@ -676,7 +675,6 @@ Search previous results for search term.
             return
 
         note_encoding = self.pt_config['codec']
-        password = None   # FIXME / TODO
         password_or_password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
 
         base_filename = os.path.basename(filename)  # FIXME this is **probably** limited to native file system
@@ -695,11 +693,12 @@ Search previous results for search term.
 
         handler_class = puren_tonbo.filename2handler(base_filename, default_handler=puren_tonbo.RawFile)
 
-        """
         #if password is None and puren_tonbo.is_encrypted(base_filename):
         if handler_class.needs_key:  # puren_tonbo.is_encrypted(base_filename)
-            print('DEBUG will need password')  # TODO log.debug
-        """
+            # code not needed if calling note_contents_save() instead
+            #print('DEBUG will need password')  # TODO log.debug
+            if callable(password_or_password_func):
+                password_or_password_func = password_or_password_func(filename=validated_filename, reset=False)  # TODO want get password with validation (double entry for confirmation)
 
         handler = handler_class(key=password_or_password_func)
         file_extension = ''
@@ -730,7 +729,7 @@ Search previous results for search term.
         #data = notes.note_contents(in_filename, password_func)
         # def note_contents_save(self, note_text, sub_dir=None, filename=None, original_full_filename=None, get_pass=None, dos_newlines=True, backup=True):
 
-        final_filename = puren_tonbo.note_contents_save_filename(plain_str, filename=validated_filename, handler=handler)  # filename_generator=None?  # FIXME native only
+        final_filename = puren_tonbo.note_contents_save_filename(plain_str, filename=validated_filename, handler=handler)  # TODO note_encoding missing, filename_generator=None?  # FIXME native only
         self.file_hits = [final_filename]
         self.do_results()  # display
         # TODO add single filename into result list so it can be used in recent/edit 1 command
