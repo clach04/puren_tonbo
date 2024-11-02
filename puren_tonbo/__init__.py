@@ -1305,7 +1305,7 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
                 # now check if generated filename already exists, if so need to make unique
                 unique_counter = 1
                 while os.path.exists(filename):
-                    #log.warn('generated filename %r already exists', filename)
+                    log.warn('generated filename %r already exists, generating alternative', filename)  # TODO consider making info?
                     unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
                     filename = os.path.join(folder, filename_without_path_and_extension + unique_part + file_extension)
                     unique_counter += 1
