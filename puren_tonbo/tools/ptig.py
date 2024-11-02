@@ -10,6 +10,7 @@ TODO delete support (with confirmation)
 """
 
 import copy
+import datetime
 import json
 import os
 import pydoc
@@ -48,7 +49,9 @@ is_win = sys.platform.startswith('win')
 # Python pager, do NOT use temporary files - could be used to monkey patch pydoc.pager
 def getpager_no_temp_files():
     """Decide what method to use for paging through text.
-    Extracted and modified from pydoc.getpager()"""
+    Extracted and modified from pydoc.getpager()
+    Under Windows have to issue: space then enter which is less than ideal. Consider  https://pypi.org/project/pypager/ https://pypi.org/project/PrintWithPager/ https://github.com/zaneb/autopage
+    """
     if not hasattr(sys.stdin, "isatty"):
         return pydoc.plainpager
     if not hasattr(sys.stdout, "isatty"):
@@ -651,6 +654,87 @@ Search previous results for search term.
             self.do_results()
         else:
             print('fzf interactive filter cancelled')
+
+    def do_new(self, line=None):
+        """create a new note/file
+
+            new filename
+            new filename.txt
+        """
+        # TODO/FIXME Encrypted file creation
+        # TODO check for same filename, different file type
+        # TODO check for similar filenames and offer confirmation/file-selection
+        # TODO off fzf directory name location selection
+        if not line:
+            print('Missing parameter')  # TODO include/dump __doc__
+            return
+        filename = line.strip()  # assume a single path/filename
+
+        # first existence check
+        if os.path.exists(filename):  # FIXME this is limited to native file system
+            print('%s already exists' % filename)
+            return
+
+        note_encoding = self.pt_config['codec']
+        password = None   # FIXME / TODO
+        password_or_password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
+
+        base_filename = os.path.basename(filename)  # FIXME this is **probably** limited to native file system
+
+        # TODO refactor and add explict support to validate_result_id() to validate path for new files (i.e. path should exist)
+        #import pdb; pdb.set_trace()
+        validated_filename = self.validate_result_id(filename)
+        #print(validated_filename)  # TODO log.debug
+        if not validated_filename:
+            return
+
+        # second existence check
+        if os.path.exists(validated_filename):  # FIXME this is limited to native file system
+            print('%s already exists' % validated_filename)
+            return
+
+        handler_class = puren_tonbo.filename2handler(base_filename, default_handler=puren_tonbo.RawFile)
+
+        """
+        #if password is None and puren_tonbo.is_encrypted(base_filename):
+        if handler_class.needs_key:  # puren_tonbo.is_encrypted(base_filename)
+            print('DEBUG will need password')  # TODO log.debug
+        """
+
+        handler = handler_class(key=password_or_password_func)
+        file_extension = ''
+        for extension in handler_class.extensions:
+            if base_filename.endswith(extension):
+                base_filename = base_filename[:-len(extension)]
+                file_extension = extension
+                break
+        #print('file_extension %s' % file_extension)  # TODO log.debug
+        if not file_extension:
+            file_extension = handler_class.extensions[0]
+            validated_filename = validated_filename + file_extension
+        # print('file_extension %s' % file_extension)  # TODO log.debug
+        # print('handler_class %r' % handler_class)  # TODO log.debug
+        # print('handler %r' % handler)  # TODO log.debug
+
+        # third existence check, with potentially added on file extension
+        #import pdb; pdb.set_trace()
+        if os.path.exists(validated_filename):  # FIXME this is limited to native file system
+            print('%s already exists' % validated_filename)
+            return
+
+        plain_str = '%s\n\n%s\n' % (base_filename, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        #print('DEBUG %s contents: %s' % (validated_filename, plain_str))  # TODO log.debug
+        # note_contents_save_native_filename()
+        # note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
+        #notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+        #data = notes.note_contents(in_filename, password_func)
+        # def note_contents_save(self, note_text, sub_dir=None, filename=None, original_full_filename=None, get_pass=None, dos_newlines=True, backup=True):
+
+        final_filename = puren_tonbo.note_contents_save_filename(plain_str, filename=validated_filename, handler=handler)  # filename_generator=None?  # FIXME native only
+        self.file_hits = [final_filename]
+        self.do_results()  # display
+        # TODO add single filename into result list so it can be used in recent/edit 1 command
+
 
     def do_edit_multiple(self, line=None):
         """edit multiple files from numbers. Also see `edit`. Alias `en`
