@@ -45,9 +45,13 @@ end
 
 local function determine_encrypted_file_extensions()
   local hard_coded_file_extensions = true
+  --local hard_coded_file_extensions = false
   if hard_coded_file_extensions == true then
     -- avoids process spawning unless an actual encrypted file is loaded
-    return {'chi', 'aes.zip', 'aes256.zip', 'aeszip', 'old.zip', 'aes256stored.zip', 'oldstored.zip', 'aes256lzma.zip', 'aes256bzip2.zip', 'vimcrypt', 'vimcrypt1', 'vimcrypt2', 'vimcrypt3' }
+    return {
+        'gz', 'Z',  -- no password needed, no encryption
+        'chi', 'aes.zip', 'aes256.zip', 'aeszip', 'old.zip', 'aes256stored.zip', 'oldstored.zip', 'aes256lzma.zip', 'aes256bzip2.zip', 'vimcrypt', 'vimcrypt1', 'vimcrypt2', 'vimcrypt3'
+    }
   end
   local file_extensions = {}
   local prog = PTCIPHER_EXE .. ' --list-formats --no-prompt'
