@@ -1133,7 +1133,7 @@ def main(argv=None):
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
     parser.add_option("--config-file", "--config_file", help="Override config file")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
-    parser.add_option("-e", "--exec", help="Command to issue after initialization (init config section - TODO decide one-off-and-exit, or enter command loop?)")
+    parser.add_option("-e", "--exec", help="Command to issue after initialization (init config section), then exit")
     parser.add_option("-p", "--password", help="password, if omitted and OS env PT_PASSWORD is set use that, next checks keyring, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
 
@@ -1211,6 +1211,7 @@ def main(argv=None):
         interpreter.onecmd(command)
     if options.exec:
         interpreter.onecmd(options.exec)
+        return
     interpreter.cmdloop()
 
     return 0
