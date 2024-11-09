@@ -1114,6 +1114,8 @@ def is_text(s):
 
 # Local file system functions
 def to_bytes(data_in_string, note_encoding='utf-8'):
+    """Where note_encoding can also be a list, e.g. ['utf8', 'cp1252']
+    """
     if isinstance(data_in_string, (bytes, bytearray)):
         return data_in_string  # assume bytes already
     if isinstance(note_encoding, basestring):
@@ -1142,6 +1144,7 @@ def to_string(data_in_bytes, note_encoding='utf-8'):
         except UnicodeDecodeError:
             pass  # try next
         # TODO try/except
+    raise NotImplementedError('ran out of valid encodings to try, %r' % (data_in_bytes[:20],))
 
 def unicode_path(filename):
     if isinstance(filename, bytes):
@@ -1956,35 +1959,10 @@ class FileSystemNotes(BaseNotes):
         return fullpath_filename
 
     def to_bytes(self, data_in_string):
-        # FIXME refactor TODO call to_bytes() instead
-        if isinstance(data_in_string, (bytes, bytearray)):
-            return data_in_string  # assume bytes already
-        if isinstance(self.note_encoding, basestring):
-            return data_in_string.encode(self.note_encoding)
-        for encoding in self.note_encoding:
-            try:
-                result = data_in_string.encode(encoding)
-                return result
-            except UnicodeEncodeError:
-                pass  # try next
-        raise NotImplementedError('ran out of valid encodings to try')
+        return to_bytes(data_in_string, note_encoding=self.note_encoding)
 
     def to_string(self, data_in_bytes):
-        # FIXME refactor TODO call to_string() instead
-        #log.debug('self.note_encoding %r', self.note_encoding)
-        #log.debug('data_in_bytes %r', data_in_bytes)
-        if not isinstance(data_in_bytes, (bytes, bytearray)):  # FIXME revisit this, "is string" check
-            return data_in_bytes  # assume a string already
-        if isinstance(self.note_encoding, basestring):
-            return data_in_bytes.decode(self.note_encoding)
-        for encoding in self.note_encoding:
-            try:
-                result = data_in_bytes.decode(encoding)
-                return result
-            except UnicodeDecodeError:
-                pass  # try next
-            # TODO try/except
-        raise NotImplementedError('ran out of valid encodings to try')
+        return to_string(data_in_bytes, note_encoding=self.note_encoding)
 
     def unicode_path(self, filename):
         if isinstance(filename, bytes):
