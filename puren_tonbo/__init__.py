@@ -1313,7 +1313,7 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
                 # now check if generated filename already exists, if so need to make unique
                 unique_counter = 1
                 while os.path.exists(filename):
-                    log.warn('generated filename %r already exists, generating alternative', filename)  # TODO consider making info?
+                    log.warning('generated filename %r already exists, generating alternative', filename)  # TODO consider making info?
                     unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
                     filename = os.path.join(folder, filename_without_path_and_extension + unique_part + file_extension)
                     unique_counter += 1
@@ -1375,7 +1375,7 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
         # now check if generated filename already exists, if so need to make unique
         unique_counter = 1
         while os.path.exists(native_filename):
-            #log.warn('generated filename %r already exists', native_filename)
+            #log.warning('generated filename %r already exists', native_filename)
             unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
             native_filename = os.path.join(native_folder, filename_without_path_and_extension + unique_part + file_extension)
             unique_counter += 1
@@ -2106,7 +2106,7 @@ class FileSystemNotes(BaseNotes):
                     note_text = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
                 except UnsupportedFile:
                     # TODO - what!? options; ignore, raise, treat as RawFile type
-                    log.warn('UnsupportedFile Ignored %r', filename)
+                    log.warning('UnsupportedFile Ignored %r', filename)
                     if ignore_unsupported_filetypes:
                         pass
                         note_text = ''
@@ -2196,7 +2196,7 @@ class FileSystemNotes(BaseNotes):
             # now check if generated filename already exists, if so need to make unique
             unique_counter = 1
             while os.path.exists(native_filename):
-                #log.warn('generated filename %r already exists', native_filename)
+                #log.warning('generated filename %r already exists', native_filename)
                 unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
                 native_filename = os.path.join(native_folder, filename_without_path_and_extension + unique_part + file_extension)
                 unique_counter += 1
