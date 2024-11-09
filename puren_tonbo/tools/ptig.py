@@ -284,13 +284,15 @@ NOTE requires fts_index to have been issued.
         # TODO autocomplete
         # TODO cwd/chdir support
         # TODO show file size and timestamps
+        #import pdb; pdb.set_trace()
         if line != '.':
             line = self.validate_result_id(line)
         if line is None:
             # assume current directory (for now, that means root directory)
             line = '.'
 
-        sub_dir = os.path.dirname(line)  # similar open to opendir - but for directory listings, i.e. can NOT ls/dir a single file (future TODO?)
+        #sub_dir = os.path.dirname(line)  # similar open to opendir - but for directory listings, i.e. can NOT ls/dir a single file (future TODO?)
+        sub_dir = line
         note_encoding = self.pt_config['codec']
         note_root = self.paths_to_search[0]  # FIXME handle multiple note dirs, read and new do. TODO just pick the first one, ignore everthing else
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
