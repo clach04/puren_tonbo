@@ -1124,7 +1124,7 @@ def to_bytes(data_in_string, note_encoding='utf-8'):
             return result
         except UnicodeEncodeError:
             pass  # try next
-    raise NotImplementedError('ran out of valid encodings to try')
+    raise NotImplementedError('ran out of valid encodings to try, %r' % (data_in_string[:20],))
 
 def to_string(data_in_bytes, note_encoding='utf-8'):
     """Where note_encoding can also be a list, e.g. ['utf8', 'cp1252']
@@ -2136,6 +2136,13 @@ class FileSystemNotes(BaseNotes):
                     else:
                         log.error('UnsupportedFile %r', filename)  # todo exception trace?
                         raise
+                except:
+                    # we have no idea what happened :-(
+                    if is_py3:
+                        log.error('UnsupportedFile %r', filename, exc_info=1, stack_info=1)  # include traceback, and and Python 3 only full stack/trace
+                    else:
+                        log.error('UnsupportedFile %r', filename, exc_info=1)  # include traceback
+                    raise
                 search_res = grep_string(note_text, regex_object, highlight_text_start, highlight_text_stop, files_with_matches=files_with_matches)
                 if search_res:
                     yield (filename, search_res)
