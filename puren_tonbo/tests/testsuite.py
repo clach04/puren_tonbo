@@ -882,6 +882,20 @@ class TestFileSystemNotesWriteClassSaveEncryptedOpenSsl10k(TestFileSystemNotesWr
 class TestFileSystemNotesWriteFunctionSaveEncryptedOpenSsl10k(TestFileSystemNotesWriteFunctionSaveRawPlainText):
     handler_class = puren_tonbo.OpenSslEnc10k # OpenSSL aes256cbc pbkdf2 10k
 
+
+# jenc / Markor
+class TestBaseEncryptedJenc(TestBaseEncryptedFile, TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtil):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.Jenc
+    encrypt_pt_handler_class = decrypt_pt_handler_class = puren_tonbo.Jenc  # TODO review this
+
+class TestFileSystemNotesWriteClassSaveEncryptedJenc(TestFileSystemNotesWriteClassSaveRawPlainText):
+    handler_class = puren_tonbo.Jenc  # jenc / Markor
+
+class TestFileSystemNotesWriteFunctionSaveEncryptedJenc(TestFileSystemNotesWriteFunctionSaveRawPlainText):
+    handler_class = puren_tonbo.Jenc  # jenc / Markor
+
 # rot-13
 class TestBaseEncryptedRot13(TestBaseEncryptedFile, TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtil):
     test_data_bytes = b"this is just a small piece of text."

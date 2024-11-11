@@ -71,6 +71,11 @@ except ImportError:
         gpg = gnupg = None
 
 try:
+    import jenc  # https://github.com/clach04/jenc-py/
+except ImportError:
+    jenc = fake_module('jenc')
+
+try:
     import keyring  # python -m pip install keyring
     import keyring.backend
 except ImportError:
@@ -534,6 +539,30 @@ class OpenSslEnc10k(EncryptedFile):
         crypted_bytes = cipher.encrypt(byte_data)
         file_object.write(crypted_bytes)
 
+class Jenc(EncryptedFile):
+    description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 10000 AES-256-GCM'
+    extensions = [
+        '.jenc',  # md and txt?
+    ]
+
+    def read_from(self, file_object):
+        # TODO catch exceptions and raise PurenTonboException()
+        encrypted_bytes = file_object.read()
+        password = self.key
+        if not isinstance(password, bytes):
+            password = password.decode("utf-8")
+
+        plaintext = jenc.decrypt(password, encrypted_bytes)
+        return plaintext
+
+    def write_to(self, file_object, byte_data):
+        password = self.key
+        if not isinstance(password, bytes):
+            password = password.decode("utf-8")
+
+        crypted_bytes = jenc.encrypt(password, byte_data)
+        file_object.write(crypted_bytes)
+
 class TomboBlowfish(EncryptedFile):
     """Read/write Tombo (modified) Blowfish encrypted files
     Compatible with files in:
@@ -697,6 +726,10 @@ for enc_class_name in dir():  #(RawFile, Rot13):
         continue
     for file_extension in enc_class.extensions:
         file_type_handlers[file_extension] = enc_class
+
+if jenc:  # FIXME, handle this via introspection, see code above for RawFile
+    for file_extension in Jenc.extensions:
+        file_type_handlers[file_extension] = Jenc
 
 if chi_io:
     for file_extension in TomboBlowfish.extensions:
