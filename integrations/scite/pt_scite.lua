@@ -147,6 +147,7 @@ local function SaveEncryptedFile(filename)
     else
         -- error handling
         print('Error Encrypt write/save ' .. filename)  -- to output pane
+        print('PTCIPHER_EXE ' .. PTCIPHER_EXE)  -- to output pane
         print('popen_success: ' .. tostring(popen_success))
         -- either nil or false - so far only seen nil for both; failure to launch (missing PTCIPHER_EXE) and also exe launched and returned errors (like bad password)
         -- empty output seen for missing exe and also missing file - TODO consider adding extra output to ptcipher for missing file case
@@ -156,7 +157,7 @@ local function SaveEncryptedFile(filename)
         editor:AppendText('\nfailed to load using '.. prog)
         editor:AppendText('\nSuggestions, check:\n')
         editor:AppendText('  1) file exists\n')
-        editor:AppendText('  2) environment variable PTCIPHER_EXE - ptcipher script/executable\n')
+        editor:AppendText('  2) environment variable PTCIPHER_EXE / property clach04.puren_tonbo.ptcipher - ptcipher script/executable\n')
         editor:AppendText('  3) environment variable PT_PASSWORD - password\n')
     end  -- error handling
 
@@ -218,6 +219,7 @@ local function LoadEncryptedFile(filename)
         -- https://github.com/clach04/puren_tonbo/issues/73 - scite lua integration will allow user to accidentally overrwrite encrypted files with error messages
 
         print('Error Decrypt loading ' .. filename)  -- to output pane
+        print('PTCIPHER_EXE ' .. PTCIPHER_EXE)  -- to output pane
         print('popen_success: ' .. tostring(popen_success))
         -- either nil or false - so far only seen nil for both; failure to launch (missing PTCIPHER_EXE) and also exe launched and returned errors (like bad password)
         -- empty output seen for missing exe and also missing file - TODO consider adding extra output to ptcipher for missing file case
@@ -227,7 +229,7 @@ local function LoadEncryptedFile(filename)
         editor:AppendText('\nfailed to load using '.. prog)
         editor:AppendText('\nSuggestions, check:\n')
         editor:AppendText('  1) file exists\n')
-        editor:AppendText('  2) environment variable PTCIPHER_EXE - ptcipher script/executable\n')
+        editor:AppendText('  2) environment variable PTCIPHER_EXE / property clach04.puren_tonbo.ptcipher - ptcipher script/executable\n')
         editor:AppendText('  3) environment variable PT_PASSWORD - password\n')
     end  -- error handling
   end  -- encrypted file
