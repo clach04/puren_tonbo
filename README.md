@@ -85,6 +85,7 @@ Purēntonbo
       * `ptcat` - in addition to command line and environment variables, also has an (optional) config file and the concept of a root directory of notes
   * `ptgrep` - a grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/ripgrep), [silver-searcher](https://geoff.greer.fm/ag/), [pss](https://github.com/eliben/pss) like tool that works on encrypted (and plain text) files
   * `ptig` an interactive grep like tool that can also view/edit
+  * `ptrecrypt` a TODO
   * `ptpyvim` a vim-like editor that works on encrypted (and plain text) files
   * `ptdiff3merge` 3-way diff/merge too that can works with encrypted (and plain text) files
 
@@ -268,6 +269,10 @@ find filenames encrypted with regex
 find filenames ONLY encrypted with regex
 
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -y -k -r ^aesop
+
+### ptrecrypt
+
+TODO
 
 ### ptig
 
