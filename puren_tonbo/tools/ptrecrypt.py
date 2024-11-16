@@ -177,7 +177,10 @@ def main(argv=None):
             process_file(filename, password, new_password, handler_class_newfile, options.force_recrypt_same_format_password)
 
     if directory_list:
-        raise NotImplementedError('dir support, %r not handled' % directory_list)
+        # or use puren_tonbo.walker(), potentially more efficient with filename lookup?
+        for path_to_search in directory_list:
+            for filename in puren_tonbo.recurse_notes(path_to_search, puren_tonbo.supported_filename_filter):
+                process_file(filename, password, new_password, handler_class_newfile, options.force_recrypt_same_format_password)
 
     return 0
 
