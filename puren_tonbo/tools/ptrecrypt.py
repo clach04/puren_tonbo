@@ -27,7 +27,11 @@ def main(argv=None):
         argv = sys.argv
 
     usage = "usage: %prog [options] file_or_dir_pattern1 [file_or_dir_pattern2...]"
-    parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
+    parser = OptionParser(
+        usage=usage,
+        version="%%prog %s" % puren_tonbo.__version__,
+        description="Command line tool to (re-)encrypt files. Any files passed on the command line WILL BE encrypted (in the requested format, if none requested original format) unless it is the same format and password. Any directories may have some form of filtering based on type."
+    )
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; " + ','.join(puren_tonbo.ui.supported_password_prompt_mechanisms()), default="any")
     parser.add_option("--no-prompt", "--no_prompt", help="do not prompt for password", action="store_true")
@@ -38,8 +42,11 @@ def main(argv=None):
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-s", "--silent", help="if specified do not warn about stdin using", action="store_false", default=True)
+    # TODO option on force re-encrypt when both container format and the password are the same
     # TODO option on resolving files that already exist; default error/stop, skip, overwrite (in safe mode - needed for same file type, new password)
     # TODO option on saving to delete original file
+    # TODO option on skipping already encrypted files
+    # TODO option on skipping not-encrypted files
     (options, args) = parser.parse_args(argv[1:])
     print('%r' % ((options, args),))
     verbose = options.verbose
