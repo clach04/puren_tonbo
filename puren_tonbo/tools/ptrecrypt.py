@@ -135,7 +135,7 @@ def main(argv=None):
             continue
         for filename in glob.glob(filename_pattern):
             print('TODO Process %s' % filename)
-            filename_abs = os.path.abspath(filename_pattern)
+            filename_abs = os.path.abspath(filename)
             print('\t %s' % filename_abs)
             # determine filename sans extension. See new note code in ptig? function to add to handler class? COnsider implemention here then refactor later to place in to pt lib
             #note_contents_load_filename(filename_abs, get_pass=None, dos_newlines=False, return_bytes=True, handler_class=None, note_encoding='utf-8')
