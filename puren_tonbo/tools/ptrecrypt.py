@@ -8,6 +8,7 @@
 
     python -m puren_tonbo.tools.ptrecrypt puren_tonbo/tests/data
     python -m puren_tonbo.tools.ptrecrypt --simulate --cipher aes256.zip --new_extension .zip  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
+    python -m puren_tonbo.tools.ptrecrypt --simulate  -p password  --force_recrypt_same_format_password  --existing_files replace --skip_unencrypted  puren_tonbo/tests/data/
 """
 
 import datetime
@@ -53,8 +54,10 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 
 
-def process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=False, destination_directory=None, new_extension=None):
+def process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=False, destination_directory=None, new_extension=None, existing_files_resolution=None, simulate=None):
     new_extension = new_extension or "default"
+    existing_files_resolution = existing_files_resolution or 'stop'
+
     log.info('Processing %s', filename)
     filename_abs = os.path.abspath(filename)
     #print('\t %s' % filename_abs)
@@ -76,7 +79,7 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
     log.debug('%s plaintext_bytes: %s', filename, plaintext_bytes)
     out_handler_class = handler_class_newfile or in_handler_class
     if in_handler_class == out_handler_class and password == new_password and not force_recrypt_same_format_password:
-        log.warning('Skipping same format/password for %s', filename)
+        log.warning('Skipping same format/password for (see force_recrypt_same_format_password) %s', filename)
         return
     log.info('%s -> %s', in_handler_class, out_handler_class)
     out_handler = out_handler_class(new_password)
@@ -101,11 +104,46 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
         # TODO mkdir
     log.info('%s -> %s', filename, new_filename)
 
-    if not destination_directory:
-        raise NotImplementedError('destination_directory required')
+    if new_filename == filename or os.path.exists(new_filename):
+        # overwrite decisions
+        if existing_files_resolution in ('stop', 'error', 'default'):
+            log.error('Existing files for, stopping (see existing_files option) %s', new_filename)
+            raise NotImplementedError('new file matches existing, stopping (see option existing_files_resolution)')  # TODO different exception
+        elif existing_files_resolution in ('skip',):
+            log.warning('Skipping already existing file (see existing_files option) %s', new_filename)
+            return
+        elif existing_files_resolution in ('overwrite' ,'replace', 'delete'):
+            pass
+        else:
+            raise NotImplementedError('new file matches existin, unknown existing_files_resolution %r', existing_files_resolution)  # TODO different exception
+    # TODO check if file already there
 
-    # TODO derive new filename (which may either be new, or replace old/existing for password-change-only operation)
-    #new_filename_abs = process(filename_abs)
+    file_already_exists = os.path.exists(new_filename)  # TODO **potentially** multiple calls by this point
+    if not file_already_exists:
+        # no need for safe write and file_replace()
+        log.error('FAKE WRITTING %s', new_filename)
+        if not simulate:
+            raise NotImplementedError('Actual writting1')
+            """
+            out_file = open(filename_abs, 'wb')
+            out_file.write_to(out_file, plaintext_bytes)
+            out_file.close()
+            """
+            pass  # FIXME implement
+    else:
+        raise NotImplementedError('writting to existing file')
+        if not simulate:
+            raise NotImplementedError('Actual writting2')
+            pass  # FIXME implement
+
+    if existing_files_resolution == 'delete':
+        log.info('about to delete old file %', filename)
+        if simulate:
+            return
+        raise NotImplementedError('Actual delete')
+        pass  # FIXME / TODO delete filename
+        # os.remove(filename_abs)  # use abs name, for hopefully better error reporting
+
 
 
 def main(argv=None):
@@ -133,10 +171,9 @@ def main(argv=None):
     parser.add_option("--new-extension", "--new_extension", help="file extension to append for new files; 'default' (default for cipher), 'cipher' (what was passed in on command line), 'retain' (if not changing formats, use the original file extension) - and potentially anything else with a period is the new extension to use, for example '.zip'")
     parser.add_option("--skip-encrypted", "--skip_encrypted", help="For directories, skip already encrypted files", action="store_true")  # TODO consider applying to files specified on command line
     parser.add_option("--skip-unencrypted", "--skip_unencrypted", help="For directories, skip files that are not already encrypted", action="store_true")  # TODO consider applying to files specified on command line
+    parser.add_option("--existing-files", "--existing_files", help="How to handle existing files; resolving files that already exist; default error/stop, skip, overwrite/replace/delete (in safe mode - needed for same file type, new password), delete (after successful write)")
     parser.add_option("--simulate", help="Do not write/delete/change files", action="store_true")
-    # TODO --existing-files option on resolving files that already exist; default error/stop, skip, overwrite (in safe mode - needed for same file type, new password), delete (after successful write)
-    # TODO option on saving to delete original file -- use above for delete
-    # TODO simulate option, do not write/delete anything but log what would be done?
+    # TODO option on saving to delete original file -- see existing-files / --existing_files
     (options, args) = parser.parse_args(argv[1:])
     log.debug('args: %r' % ((options, args),))
     verbose = options.verbose
@@ -200,7 +237,7 @@ def main(argv=None):
             directory_list.append(filename_pattern)
             continue
         for filename in glob.glob(filename_pattern):
-            process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory, new_extension=options.new_extension)
+            process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory, new_extension=options.new_extension, existing_files_resolution=options.existing_files, simulate=simulate)
 
     if directory_list:
         # or use puren_tonbo.walker(), potentially more efficient with filename lookup?
@@ -213,7 +250,7 @@ def main(argv=None):
                 if options.skip_unencrypted and not is_encrypted:
                     log.warning('Skipping not encrypted %s', (filename,))
                     continue
-                process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory, new_extension=options.new_extension)
+                process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory, new_extension=options.new_extension, existing_files_resolution=options.existing_files, simulate=simulate)
 
     return 0
 
