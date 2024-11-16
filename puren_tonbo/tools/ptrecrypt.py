@@ -52,7 +52,7 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 
 
-def process_file(filename, password, new_password, handler_class_newfile):
+def process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=False):
     log.info('Processing %s', filename)
     filename_abs = os.path.abspath(filename)
     #print('\t %s' % filename_abs)
@@ -73,9 +73,10 @@ def process_file(filename, password, new_password, handler_class_newfile):
     #print('\t\t %r' % plaintext_bytes)
     log.debug('%s plaintext_bytes: %s', filename, plaintext_bytes)
     out_handler_class = handler_class_newfile or in_handler_class
-    if in_handler_class == out_handler_class and password == new_password:
+    if in_handler_class == out_handler_class and password == new_password and not force_recrypt_same_format_password:
         log.warning('Skipping same format/password for %s', filename)
         return
+    log.info('%s -> %s', in_handler_class, out_handler_class)
     out_handler = out_handler_class(new_password)
     print('\t\t %r' % ((base_filename, original_extension, original_extension in out_handler.extensions, out_handler.default_extension()),))
     # TODO derive new filename (which may either be new, or replace old/existing for password-change-only operation)
@@ -102,6 +103,7 @@ def main(argv=None):
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-s", "--silent", help="if specified do not warn about stdin using", action="store_false", default=True)
+    parser.add_option("--force-recrypt-same-format-password", "--force_recrypt_same_format_password", help="For re encryption, even if same file format/container and password is to be used", action="store_true")
     parser.add_option("--simulate", help="Do not write/delete/change files", action="store_true")
     # TODO option on force re-encrypt when both container format and the password are the same
     # TODO option on resolving files that already exist; default error/stop, skip, overwrite (in safe mode - needed for same file type, new password)
@@ -171,7 +173,7 @@ def main(argv=None):
             directory_list.append(filename_pattern)
             continue
         for filename in glob.glob(filename_pattern):
-            process_file(filename, password, new_password, handler_class_newfile)
+            process_file(filename, password, new_password, handler_class_newfile, options.force_recrypt_same_format_password)
 
     if directory_list:
         raise NotImplementedError('dir support, %r not handled' % directory_list)
