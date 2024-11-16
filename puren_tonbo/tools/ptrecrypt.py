@@ -115,17 +115,16 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
         elif existing_files_resolution in ('overwrite' ,'replace', 'delete'):
             pass
         else:
-            raise NotImplementedError('new file matches existin, unknown existing_files_resolution %r', existing_files_resolution)  # TODO different exception
-    # TODO check if file already there
+            raise NotImplementedError('new file matches existing, unknown existing_files_resolution %r', existing_files_resolution)  # TODO different exception
 
-    file_already_exists = os.path.exists(new_filename)  # TODO **potentially** multiple calls by this point
+    file_already_exists = os.path.exists(new_filename)  # TODO **potentially** multiple calls by this point, option to refactor
     if not file_already_exists:
         # no need for safe write and file_replace()
         log.error('FAKE WRITTING %s', new_filename)
         if not simulate:
             raise NotImplementedError('Actual writting1')
             """
-            out_file = open(filename_abs, 'wb')
+            out_file = open(new_filename, 'wb')
             out_file.write_to(out_file, plaintext_bytes)
             out_file.close()
             """
