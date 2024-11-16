@@ -30,10 +30,10 @@ is_py3 = sys.version_info >= (3,)
 log = logging.getLogger("pttkview")
 log.setLevel(logging.DEBUG)
 disable_logging = False
-#disable_logging = True  # TODO pickup from command line, env, config?
+disable_logging = True  # TODO pickup from command line, env, config?
 if disable_logging:
-    #log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
-    log.setLevel(logging.INFO)  # logs; INFO, WARNING, ERROR, CRITICAL
+    log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
+    #log.setLevel(logging.INFO)  # logs; INFO, WARNING, ERROR, CRITICAL
 
 ch = logging.StreamHandler()  # use stdio
 
@@ -72,6 +72,7 @@ def main(argv=None):
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-s", "--silent", help="if specified do not warn about stdin using", action="store_false", default=True)
+    parser.add_option("--simulate", help="Do not write/delete/change files", action="store_true")
     # TODO option on force re-encrypt when both container format and the password are the same
     # TODO option on resolving files that already exist; default error/stop, skip, overwrite (in safe mode - needed for same file type, new password)
     # TODO option on saving to delete original file
@@ -79,7 +80,7 @@ def main(argv=None):
     # TODO option on skipping not-encrypted files
     # TODO simulate option, do not write/delete anything but log what would be done?
     (options, args) = parser.parse_args(argv[1:])
-    print('%r' % ((options, args),))
+    log.debug('args: %r' % ((options, args),))
     verbose = options.verbose
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
@@ -87,6 +88,12 @@ def main(argv=None):
     if options.list_formats:
         puren_tonbo.print_version_info()
         return 0
+    simulate = options.simulate
+    if simulate:
+        print(dir(log))
+        print(log.level)
+        if log.level < logging.INFO:
+            log.setLevel(logging.INFO)  # ensure logging info enabled for filenames and operations
 
     def usage():
         parser.print_usage()
@@ -125,7 +132,7 @@ def main(argv=None):
 
     filename_pattern_list = args
     directory_list = []
-    print('%r' % ((argv, args, directory_list),))
+    log.debug('args: %r' % ((argv, args, directory_list),))
     #import pdb; pdb.set_trace()
     for filename_pattern in filename_pattern_list:
         # NOTE local file system only
@@ -134,9 +141,10 @@ def main(argv=None):
             directory_list.append(filename_pattern)
             continue
         for filename in glob.glob(filename_pattern):
-            print('TODO Process %s' % filename)
+            log.info('Processing %s', filename)
             filename_abs = os.path.abspath(filename)
-            print('\t %s' % filename_abs)
+            #print('\t %s' % filename_abs)
+
             # determine filename sans extension. See new note code in ptig? function to add to handler class? COnsider implemention here then refactor later to place in to pt lib
             #note_contents_load_filename(filename_abs, get_pass=None, dos_newlines=False, return_bytes=True, handler_class=None, note_encoding='utf-8')
             # TODO caching password...
