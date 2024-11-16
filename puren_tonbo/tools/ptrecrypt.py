@@ -8,7 +8,10 @@
 
     python -m puren_tonbo.tools.ptrecrypt puren_tonbo/tests/data
     python -m puren_tonbo.tools.ptrecrypt --simulate --cipher aes256.zip --new_extension .zip   -p password  --destination_directory /tmp/all_zip puren_tonbo/tests/data/
-    python -m puren_tonbo.tools.ptrecrypt --simulate --cipher .jenc      --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
+
+    python -m puren_tonbo.tools.ptrecrypt --simulate --cipher .jenc                             -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
+    python -m puren_tonbo.tools.ptrecrypt            --cipher .jenc                             -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
+
     python -m puren_tonbo.tools.ptrecrypt --simulate --cipher .jenc      --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
     python -m puren_tonbo.tools.ptrecrypt --simulate  -p password  --force_recrypt_same_format_password  --existing_files replace --skip_unencrypted  puren_tonbo/tests/data/
 """
@@ -34,7 +37,7 @@ is_py3 = sys.version_info >= (3,)
 log = logging.getLogger("pttkview")
 log.setLevel(logging.DEBUG)
 disable_logging = False
-disable_logging = True  # TODO pickup from command line, env, config?
+#disable_logging = True  # TODO pickup from command line, env, config?
 if disable_logging:
     log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
     #log.setLevel(logging.INFO)  # logs; INFO, WARNING, ERROR, CRITICAL
@@ -54,6 +57,23 @@ else:
 formatter = logging.Formatter(logging_fmt_str)
 ch.setFormatter(formatter)
 log.addHandler(ch)
+
+
+def safe_mkdir(newdir):
+    result_dir = os.path.abspath(newdir)
+    try:
+        os.makedirs(result_dir)
+    except OSError as info:
+        if info.errno == 17 and os.path.isdir(result_dir):
+            pass
+        else:
+            raise
+
+def write_encrypted_file(out_handler, filename, plaintext_bytes):
+    safe_mkdir(os.path.dirname(filename))
+    out_file = open(filename, 'wb')
+    out_handler.write_to(out_file, plaintext_bytes)
+    out_file.close()
 
 
 def process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=False, destination_directory=None, new_extension=None, existing_files_resolution=None, simulate=None):
@@ -78,7 +98,7 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
     base_filename, original_extension = in_handler.split_extension(filename)
     #"""
     #print('\t\t %r' % plaintext_bytes)
-    log.debug('%s plaintext_bytes: %s', filename, plaintext_bytes)
+    #log.debug('%s plaintext_bytes: %s', filename, plaintext_bytes)  # TODO verbose
     out_handler_class = handler_class_newfile or in_handler_class
     if in_handler_class == out_handler_class and password == new_password and not force_recrypt_same_format_password:
         log.warning('Skipping same format/password for (see force_recrypt_same_format_password) %s', filename)
@@ -105,6 +125,7 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
         new_filename = os.path.join(destination_directory, new_filename)
         # TODO mkdir
     log.info('%s -> %s', filename, new_filename)
+    new_filename_abs = os.path.abspath(new_filename)
 
     if new_filename == filename or os.path.exists(new_filename):
         # overwrite decisions
@@ -115,6 +136,7 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
             log.warning('Skipping already existing file (see existing_files option) %s', new_filename)
             return
         elif existing_files_resolution in ('overwrite' ,'replace', 'delete'):
+            log.error('About to write/delete existing file %s', new_filename)
             pass
         else:
             raise NotImplementedError('new file matches existing, unknown existing_files_resolution %r', existing_files_resolution)  # TODO different exception
@@ -122,16 +144,11 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
     file_already_exists = os.path.exists(new_filename)  # TODO **potentially** multiple calls by this point, option to refactor
     if not file_already_exists:
         # no need for safe write and file_replace()
-        log.error('FAKE WRITTING %s', new_filename)
+        log.debug('About to new: %s', new_filename_abs)
         if not simulate:
-            raise NotImplementedError('Actual writting1')
-            """
-            out_file = open(new_filename, 'wb')
-            out_file.write_to(out_file, plaintext_bytes)
-            out_file.close()
-            """
-            pass  # FIXME implement
+            write_encrypted_file(out_handler, new_filename_abs, plaintext_bytes)  # TODO abs filename?
     else:
+        log.debug('About to write overwrite existing: %s', new_filename)
         raise NotImplementedError('writting to existing file')
         if not simulate:
             raise NotImplementedError('Actual writting2')
