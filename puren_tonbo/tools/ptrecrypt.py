@@ -52,6 +52,36 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 
 
+def process_file(filename, password, new_password, handler_class_newfile):
+    log.info('Processing %s', filename)
+    filename_abs = os.path.abspath(filename)
+    #print('\t %s' % filename_abs)
+
+    # determine filename sans extension. See new note code in ptig? function to add to handler class? COnsider implemention here then refactor later to place in to pt lib
+    #note_contents_load_filename(filename_abs, get_pass=None, dos_newlines=False, return_bytes=True, handler_class=None, note_encoding='utf-8')
+    # TODO caching password...
+    #plaintext_bytes = puren_tonbo.note_contents_load_filename(filename_abs, get_pass=password, dos_newlines=False, return_bytes=True)  # get raw bytes, do not treat like a notes (text) file
+    # alternatively (future?) call pt_open() instead
+    #"""# final alt:
+    in_handler_class = puren_tonbo.filename2handler(filename_abs)
+    in_handler = in_handler_class(key=password)
+    in_file = open(filename_abs, 'rb')
+    plaintext_bytes = in_handler.read_from(in_file)
+    in_file.close()
+    base_filename, original_extension = in_handler.split_extension(filename_abs)
+    #"""
+    #print('\t\t %r' % plaintext_bytes)
+    log.debug('%s plaintext_bytes: %s', filename, plaintext_bytes)
+    out_handler_class = handler_class_newfile or in_handler_class
+    if in_handler_class == out_handler_class and password == new_password:
+        log.warning('Skipping same format/password for %s', filename)
+        return
+    out_handler = out_handler_class(new_password)
+    print('\t\t %r' % ((base_filename, original_extension, original_extension in out_handler.extensions, out_handler.default_extension()),))
+    # TODO derive new filename (which may either be new, or replace old/existing for password-change-only operation)
+    #new_filename_abs = process(filename_abs)
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -141,33 +171,7 @@ def main(argv=None):
             directory_list.append(filename_pattern)
             continue
         for filename in glob.glob(filename_pattern):
-            log.info('Processing %s', filename)
-            filename_abs = os.path.abspath(filename)
-            #print('\t %s' % filename_abs)
-
-            # determine filename sans extension. See new note code in ptig? function to add to handler class? COnsider implemention here then refactor later to place in to pt lib
-            #note_contents_load_filename(filename_abs, get_pass=None, dos_newlines=False, return_bytes=True, handler_class=None, note_encoding='utf-8')
-            # TODO caching password...
-            #plaintext_bytes = puren_tonbo.note_contents_load_filename(filename_abs, get_pass=password, dos_newlines=False, return_bytes=True)  # get raw bytes, do not treat like a notes (text) file
-            # alternatively (future?) call pt_open() instead
-            #"""# final alt:
-            in_handler_class = puren_tonbo.filename2handler(filename_abs)
-            in_handler = in_handler_class(key=password)
-            in_file = open(filename_abs, 'rb')
-            plaintext_bytes = in_handler.read_from(in_file)
-            in_file.close()
-            base_filename, original_extension = in_handler.split_extension(filename_abs)
-            #"""
-            #print('\t\t %r' % plaintext_bytes)
-            log.debug('%s plaintext_bytes: %s', filename, plaintext_bytes)
-            out_handler_class = handler_class_newfile or in_handler_class
-            if in_handler_class == out_handler_class and password == new_password:
-                log.warning('Skipping same format/password for %s', filename)
-                continue
-            out_handler = out_handler_class(new_password)
-            print('\t\t %r' % ((base_filename, original_extension, original_extension in out_handler.extensions, out_handler.default_extension()),))
-            # TODO derive new filename (which may either be new, or replace old/existing for password-change-only operation)
-            #new_filename_abs = process(filename_abs)
+            process_file(filename, password, new_password, handler_class_newfile)
 
     if directory_list:
         raise NotImplementedError('dir support, %r not handled' % directory_list)
