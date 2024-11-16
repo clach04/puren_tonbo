@@ -52,7 +52,7 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 
 
-def process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=False):
+def process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=False, destination_directory=None):
     log.info('Processing %s', filename)
     filename_abs = os.path.abspath(filename)
     #print('\t %s' % filename_abs)
@@ -63,12 +63,12 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
     #plaintext_bytes = puren_tonbo.note_contents_load_filename(filename_abs, get_pass=password, dos_newlines=False, return_bytes=True)  # get raw bytes, do not treat like a notes (text) file
     # alternatively (future?) call pt_open() instead
     #"""# final alt:
-    in_handler_class = puren_tonbo.filename2handler(filename_abs)
+    in_handler_class = puren_tonbo.filename2handler(filename)
     in_handler = in_handler_class(key=password)
     in_file = open(filename_abs, 'rb')
     plaintext_bytes = in_handler.read_from(in_file)
     in_file.close()
-    base_filename, original_extension = in_handler.split_extension(filename_abs)
+    base_filename, original_extension = in_handler.split_extension(filename)
     #"""
     #print('\t\t %r' % plaintext_bytes)
     log.debug('%s plaintext_bytes: %s', filename, plaintext_bytes)
@@ -79,6 +79,15 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
     log.info('%s -> %s', in_handler_class, out_handler_class)
     out_handler = out_handler_class(new_password)
     print('\t\t %r' % ((base_filename, original_extension, original_extension in out_handler.extensions, out_handler.default_extension()),))
+    if not destination_directory:
+        raise NotImplementedError('destination_directory required')
+
+    new_extension = out_handler.default_extension()
+    new_filename = base_filename + new_extension  # FIXME option needed
+    if destination_directory:
+        new_filename = os.path.join(destination_directory, new_filename)
+        # TODO mkdir
+    log.info('%s -> %s', filename, new_filename)
     # TODO derive new filename (which may either be new, or replace old/existing for password-change-only operation)
     #new_filename_abs = process(filename_abs)
 
@@ -104,10 +113,10 @@ def main(argv=None):
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-s", "--silent", help="if specified do not warn about stdin using", action="store_false", default=True)
     parser.add_option("--force-recrypt-same-format-password", "--force_recrypt_same_format_password", help="For re encryption, even if same file format/container and password is to be used", action="store_true")
+    parser.add_option("--destination-directory", "--destination_directory", help="If specified where to write to, if ommited uses same directory")
     parser.add_option("--simulate", help="Do not write/delete/change files", action="store_true")
     # TODO --new-extension option for new extension; default (default for cipher), cipher (what was passed in on command line), retain (if not changing formats, use the original file extension) - and potentially anything else with a period is the new extension to use
     # TODO --existing-files option on resolving files that already exist; default error/stop, skip, overwrite (in safe mode - needed for same file type, new password)
-    # TODO --destination-directory - new files go into a new directory
     # TODO option on saving to delete original file
     # TODO option on skipping already encrypted files
     # TODO option on skipping not-encrypted files
@@ -127,6 +136,7 @@ def main(argv=None):
         print(log.level)
         if log.level < logging.INFO:
             log.setLevel(logging.INFO)  # ensure logging info enabled for filenames and operations
+    destination_directory = options.destination_directory
 
     def usage():
         parser.print_usage()
@@ -174,13 +184,13 @@ def main(argv=None):
             directory_list.append(filename_pattern)
             continue
         for filename in glob.glob(filename_pattern):
-            process_file(filename, password, new_password, handler_class_newfile, options.force_recrypt_same_format_password)
+            process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory)
 
     if directory_list:
         # or use puren_tonbo.walker(), potentially more efficient with filename lookup?
         for path_to_search in directory_list:
             for filename in puren_tonbo.recurse_notes(path_to_search, puren_tonbo.supported_filename_filter):
-                process_file(filename, password, new_password, handler_class_newfile, options.force_recrypt_same_format_password)
+                process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory)
 
     return 0
 
