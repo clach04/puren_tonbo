@@ -131,11 +131,11 @@ def main(argv=None):
     parser.add_option("--force-recrypt-same-format-password", "--force_recrypt_same_format_password", help="For re encryption, even if same file format/container and password is to be used", action="store_true")
     parser.add_option("--destination-directory", "--destination_directory", help="If specified where to write to, if ommited uses same directory")
     parser.add_option("--new-extension", "--new_extension", help="file extension to append for new files; 'default' (default for cipher), 'cipher' (what was passed in on command line), 'retain' (if not changing formats, use the original file extension) - and potentially anything else with a period is the new extension to use, for example '.zip'")
+    parser.add_option("--skip-encrypted", "--skip_encrypted", help="For directories, skip already encrypted files", action="store_true")  # TODO consider applying to files specified on command line
+    parser.add_option("--skip-unencrypted", "--skip_unencrypted", help="For directories, skip files that are not already encrypted", action="store_true")  # TODO consider applying to files specified on command line
     parser.add_option("--simulate", help="Do not write/delete/change files", action="store_true")
     # TODO --existing-files option on resolving files that already exist; default error/stop, skip, overwrite (in safe mode - needed for same file type, new password), delete (after successful write)
     # TODO option on saving to delete original file -- use above for delete
-    # TODO option on skipping already encrypted files
-    # TODO option on skipping not-encrypted files
     # TODO simulate option, do not write/delete anything but log what would be done?
     (options, args) = parser.parse_args(argv[1:])
     log.debug('args: %r' % ((options, args),))
@@ -206,6 +206,13 @@ def main(argv=None):
         # or use puren_tonbo.walker(), potentially more efficient with filename lookup?
         for path_to_search in directory_list:
             for filename in puren_tonbo.recurse_notes(path_to_search, puren_tonbo.supported_filename_filter):
+                is_encrypted = puren_tonbo.encrypted_filename_filter(filename)
+                if options.skip_encrypted and is_encrypted:
+                    log.warning('Skipping already encrypted %s', (filename,))
+                    continue
+                if options.skip_unencrypted and not is_encrypted:
+                    log.warning('Skipping not encrypted %s', (filename,))
+                    continue
                 process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory, new_extension=options.new_extension)
 
     return 0
