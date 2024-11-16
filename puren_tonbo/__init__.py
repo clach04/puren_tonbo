@@ -1756,6 +1756,7 @@ def find_unsupported_files(test_path, order=ORDER_ASCENDING, ignore_files=None, 
 def recurse_notes(path_to_search, filename_filter, ignore_folders=None):
     """Walk (local file system) directory of notes, directory depth first (just like Tombo find does), returns generator
       * filename_filter - examples, see; supported_filename_filter, plaintext_filename_filter, plaintext_filename_filter
+      * ignore_folders - a list/tuple of directory/folder names to ignore/skip.
 
     Also see walker()
     """
