@@ -30,7 +30,7 @@ is_py3 = sys.version_info >= (3,)
 log = logging.getLogger("pttkview")
 log.setLevel(logging.DEBUG)
 disable_logging = False
-disable_logging = True  # TODO pickup from command line, env, config?
+#disable_logging = True  # TODO pickup from command line, env, config?
 if disable_logging:
     #log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
     log.setLevel(logging.INFO)  # logs; INFO, WARNING, ERROR, CRITICAL
@@ -150,8 +150,12 @@ def main(argv=None):
             in_file.close()
             base_filename, original_extension = in_handler.split_extension(filename_abs)
             #"""
-            print('\t\t %r' % plaintext_bytes)
+            #print('\t\t %r' % plaintext_bytes)
+            log.debug('%s plaintext_bytes: %s', filename, plaintext_bytes)
             out_handler_class = handler_class_newfile or in_handler_class
+            if in_handler_class == out_handler_class and password == new_password:
+                log.warning('Skipping same format/password for %s', filename)
+                continue
             out_handler = out_handler_class(new_password)
             print('\t\t %r' % ((base_filename, original_extension, original_extension in out_handler.extensions, out_handler.default_extension()),))
             # TODO derive new filename (which may either be new, or replace old/existing for password-change-only operation)
