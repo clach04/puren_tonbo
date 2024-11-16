@@ -11,6 +11,7 @@
 
 import datetime
 import glob
+import logging
 import os
 from optparse import OptionParser
 import sys
@@ -21,6 +22,35 @@ import puren_tonbo.ui
 
 
 is_py3 = sys.version_info >= (3,)
+
+
+## TODO move out of global?
+## TODO color logging, see ptgrep logic, needs further refinement and command line control. Also https://betterstack.com/community/questions/how-to-color-python-logging-output/ - https://alexandra-zaharia.github.io/posts/make-your-own-custom-color-formatter-with-python-logging/ (skip colorlog due to wanting same API for py 2.x and 3.x)
+# create logger
+log = logging.getLogger("pttkview")
+log.setLevel(logging.DEBUG)
+disable_logging = False
+disable_logging = True  # TODO pickup from command line, env, config?
+if disable_logging:
+    #log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
+    log.setLevel(logging.INFO)  # logs; INFO, WARNING, ERROR, CRITICAL
+
+ch = logging.StreamHandler()  # use stdio
+
+if sys.version_info >= (2, 5):
+    # 2.5 added function name tracing
+    logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d %(funcName)s() - %(levelname)s - %(message)s"
+else:
+    if JYTHON_RUNTIME_DETECTED:
+        # process is None under Jython 2.2
+        logging_fmt_str = "%(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
+    else:
+        logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
+
+formatter = logging.Formatter(logging_fmt_str)
+ch.setFormatter(formatter)
+log.addHandler(ch)
+
 
 def main(argv=None):
     if argv is None:
@@ -47,11 +77,13 @@ def main(argv=None):
     # TODO option on saving to delete original file
     # TODO option on skipping already encrypted files
     # TODO option on skipping not-encrypted files
+    # TODO simulate option, do not write/delete anything but log what would be done?
     (options, args) = parser.parse_args(argv[1:])
     print('%r' % ((options, args),))
     verbose = options.verbose
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
+    log.info('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
     if options.list_formats:
         puren_tonbo.print_version_info()
         return 0
