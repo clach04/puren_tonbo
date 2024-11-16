@@ -7,7 +7,9 @@
     ptrecrypt -h
 
     python -m puren_tonbo.tools.ptrecrypt puren_tonbo/tests/data
-    python -m puren_tonbo.tools.ptrecrypt --simulate --cipher aes256.zip --new_extension .zip  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
+    python -m puren_tonbo.tools.ptrecrypt --simulate --cipher aes256.zip --new_extension .zip   -p password  --destination_directory /tmp/all_zip puren_tonbo/tests/data/
+    python -m puren_tonbo.tools.ptrecrypt --simulate --cipher .jenc      --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
+    python -m puren_tonbo.tools.ptrecrypt --simulate --cipher .jenc      --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
     python -m puren_tonbo.tools.ptrecrypt --simulate  -p password  --force_recrypt_same_format_password  --existing_files replace --skip_unencrypted  puren_tonbo/tests/data/
 """
 
