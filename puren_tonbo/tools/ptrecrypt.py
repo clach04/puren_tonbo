@@ -105,7 +105,6 @@ def main(argv=None):
     parser.add_option("-s", "--silent", help="if specified do not warn about stdin using", action="store_false", default=True)
     parser.add_option("--force-recrypt-same-format-password", "--force_recrypt_same_format_password", help="For re encryption, even if same file format/container and password is to be used", action="store_true")
     parser.add_option("--simulate", help="Do not write/delete/change files", action="store_true")
-    # TODO option on force re-encrypt when both container format and the password are the same
     # TODO option on resolving files that already exist; default error/stop, skip, overwrite (in safe mode - needed for same file type, new password)
     # TODO option on saving to delete original file
     # TODO option on skipping already encrypted files
