@@ -48,7 +48,7 @@ re-encrpt and rename
 
     ptrecrypt -p password --cipher .zip --new_extension .zip --existing-files=delete --force_recrypt_same_format_password puren_tonbo/tests/demo_notes/secrets/accounts
 
-Restore text filses:
+Restore text files:
 
     ptrecrypt -p password --cipher .txt --new_extension .txt --existing-files=delete --force_recrypt_same_format_password puren_tonbo/tests/demo_notes/secrets/accounts
 
