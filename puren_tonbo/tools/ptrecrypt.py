@@ -21,7 +21,6 @@
     cd 10000-markdown-files
     python -m puren_tonbo.tools.ptrecrypt --cipher .v001_jenc  --new_extension .jenc -p password  --destination_directory 10k_v001_jenc "10000 markdown files"
     python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc  --new_extension .jenc -p password  --destination_directory 10k_v002wip_jenc "10000 markdown files"
-    python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc  --new_extension .jenc -p password  --destination_directory 10k_v002wip_jenc "10000 markdown files"
     python -m puren_tonbo.tools.ptrecrypt --cipher .aes256.zip --new_extension .aes256.zip  -p password  --destination_directory 10k_aes256_zip "10000 markdown files"
     python -m puren_tonbo.tools.ptrecrypt --cipher .chi        --new_extension .chi  -p password  --destination_directory 10k_tombo_chi "10000 markdown files"
 
@@ -182,9 +181,9 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
         log.info('about to delete old file %', filename)
         if simulate:
             return
-        raise NotImplementedError('Actual delete')
-        pass  # FIXME / TODO delete filename
-        # os.remove(filename_abs)  # use abs name, for hopefully better error reporting
+        #raise NotImplementedError('Actual delete')
+        # TODO option to decrypt as a final saity check before deleting?
+        os.remove(filename_abs)  # use abs name, for hopefully better error reporting
 
 
 
