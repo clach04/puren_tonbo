@@ -9,6 +9,9 @@ https://github.com/clach04/puren_tonbo/
 ensure that it is legal in your country to use the specific encryption ciphers.
 Some countries have also have restrictions on import, export, and usage see http://www.cryptolaw.org/cls-sum.htm
 
+Ensure you have backups, these tools could destroy/delete/corrupt your notes!
+NO WARRANTY - see the LICENSE
+
   * [Background](#background)
   * [Features](#features)
   * [Getting Started](#getting-started)
