@@ -766,6 +766,19 @@ for enc_class_name in dir():  #(RawFile, Rot13):
         file_type_handlers[file_extension] = enc_class
 
 if jenc:  # FIXME, handle this via introspection, see code above for RawFile
+
+    # https://github.com/clach04/jenc-py/issues/7
+    if 'V002' not in jenc.jenc_version_details:
+        jenc.jenc_version_details['V002'] = {
+            'keyFactory': jenc.JENC_PBKDF2WithHmacSHA512,
+            'keyIterationCount': 210000,  # taken 2024-11-12 from https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
+            'keyLength': 256,
+            'keyAlgorithm': 'AES',
+            'keySaltLength': 64,  # in bytes
+            'cipher': jenc.JENC_AES_GCM_NoPadding,
+            'nonceLenth': 32,  # nonceLenth (sic.) == Nonce Length, i.e. IV length  # in bytes
+        }
+
     for enc_class in (JencV002, JencV001, JencU001, Jenc):  # order significant for filename extension lookup
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
