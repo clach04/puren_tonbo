@@ -17,6 +17,16 @@
     python -m puren_tonbo.tools.ptrecrypt --existing_files skip    --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
     python -m puren_tonbo.tools.ptrecrypt --existing_files replace --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
 
+    git clone https://github.com/Zettelkasten-Method/10000-markdown-files
+    cd 10000-markdown-files
+    python -m puren_tonbo.tools.ptrecrypt --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory 10k_v001_jenc "10000 markdown files"
+    python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc --new_extension .jenc  -p password  --destination_directory 10k_v002wip_jenc "10000 markdown files"
+
+    python -m puren_tonbo.tools.ptrecrypt --cipher .u001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
+    python -m puren_tonbo.tools.ptrecrypt --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
+    python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
+
+
     python -m puren_tonbo.tools.ptrecrypt --simulate  -p password  --force_recrypt_same_format_password  --existing_files replace --skip_unencrypted  puren_tonbo/tests/data/
 """
 
@@ -227,6 +237,22 @@ def main(argv=None):
         parser.print_usage()
 
     if options.cipher:
+        if options.cipher == '.v002_jenc':
+            # hack time
+            import jenc
+
+            # https://github.com/clach04/jenc-py/issues/7
+            if 'V002' not in jenc.jenc_version_details:
+                jenc.jenc_version_details['V002'] = {
+                    'keyFactory': jenc.JENC_PBKDF2WithHmacSHA512,
+                    'keyIterationCount': 210000,  # taken 2024-11-12 from https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
+                    'keyLength': 256,
+                    'keyAlgorithm': 'AES',
+                    'keySaltLength': 64,  # in bytes
+                    'cipher': jenc.JENC_AES_GCM_NoPadding,
+                    'nonceLenth': 32,  # nonceLenth (sic.) == Nonce Length, i.e. IV length  # in bytes
+                }
+
         handler_class_newfile = puren_tonbo.filename2handler('_.' + options.cipher)  # TODO options.cipher to filename extension is less than ideal
     else:
         handler_class_newfile = None

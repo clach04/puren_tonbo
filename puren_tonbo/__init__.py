@@ -589,7 +589,16 @@ class JencV001(Jenc):
         '.v001_jenc',  # md and txt?
         # Do NOT include generic .jenc
     ]
-    _jenc_version = None  # use default (latest)
+    _jenc_version = 'V001'
+
+class JencV002(Jenc):
+    description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 210000 AES-256-GCM'
+    extensions = [
+        '.v002.jenc',  # md and txt?
+        '.v002_jenc',  # md and txt?
+        # Do NOT include generic .jenc
+    ]
+    _jenc_version = 'V002'
 
 
 class TomboBlowfish(EncryptedFile):
@@ -757,7 +766,7 @@ for enc_class_name in dir():  #(RawFile, Rot13):
         file_type_handlers[file_extension] = enc_class
 
 if jenc:  # FIXME, handle this via introspection, see code above for RawFile
-    for enc_class in (JencV001, JencU001, Jenc):  # order significant for filename extension lookup
+    for enc_class in (JencV002, JencV001, JencU001, Jenc):  # order significant for filename extension lookup
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 
