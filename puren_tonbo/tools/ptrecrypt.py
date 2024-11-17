@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: us-ascii -*-
 # vim:ts=4:sw=4:softtabstop=4:smarttab:expandtab
-"""Command line tool to re-encrypt Puren Tonbo files from any format into any format, optionally with a new password
+r"""Command line tool to re-encrypt Puren Tonbo files from any format into any format, optionally with a new password
 
     python -m puren_tonbo.tools.ptrecrypt -h
     ptrecrypt -h
@@ -22,14 +22,36 @@
     python -m puren_tonbo.tools.ptrecrypt --cipher .v001_jenc  --new_extension .jenc -p password  --destination_directory 10k_v001_jenc "10000 markdown files"
     python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc  --new_extension .jenc -p password  --destination_directory 10k_v002wip_jenc "10000 markdown files"
     python -m puren_tonbo.tools.ptrecrypt --cipher .aes256.zip --new_extension .aes256.zip  -p password  --destination_directory 10k_aes256_zip "10000 markdown files"
+    python -m puren_tonbo.tools.ptrecrypt --cipher .zip                                     -p password  --destination_directory 10k_zip "10000 markdown files"
+    python -m puren_tonbo.tools.ptrecrypt --cipher .zip        --new_extension .zip         -p password  --destination_directory 10k_zip "10000 markdown files"
     python -m puren_tonbo.tools.ptrecrypt --cipher .chi        --new_extension .chi  -p password  --destination_directory 10k_tombo_chi "10000 markdown files"
 
     python -m puren_tonbo.tools.ptrecrypt --cipher .u001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
     python -m puren_tonbo.tools.ptrecrypt --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
     python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
 
+    ptrecrypt --cipher .zip --new_extension .zip --skip_unencrypted --existing-files=delete .
+    ptrecrypt --cipher .zip --new_extension .zip --skip_unencrypted --existing-files=delete --force_recrypt_same_format_password .
 
     python -m puren_tonbo.tools.ptrecrypt --simulate  -p password  --force_recrypt_same_format_password  --existing_files replace --skip_unencrypted  puren_tonbo/tests/data/
+
+Tests:
+
+    ptrecrypt -p password --cipher .zip                      --existing-files=delete puren_tonbo/tests/demo_notes/secrets/accounts
+    ls -altr puren_tonbo/tests/demo_notes/secrets/accounts
+    dir /od puren_tonbo\tests\demo_notes\secrets\accounts
+
+re-encrpt and rename
+
+    ptrecrypt -p password --cipher .zip --new_extension .zip --existing-files=delete puren_tonbo/tests/demo_notes/secrets/accounts
+    REM should be NOOP
+
+    ptrecrypt -p password --cipher .zip --new_extension .zip --existing-files=delete --force_recrypt_same_format_password puren_tonbo/tests/demo_notes/secrets/accounts
+
+Restore text filses:
+
+    ptrecrypt -p password --cipher .txt --new_extension .txt --existing-files=delete --force_recrypt_same_format_password puren_tonbo/tests/demo_notes/secrets/accounts
+
 """
 
 import datetime
@@ -118,8 +140,13 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
     in_handler_class = puren_tonbo.filename2handler(filename)
     in_handler = in_handler_class(key=password)
     in_file = open(filename_abs, 'rb')
-    plaintext_bytes = in_handler.read_from(in_file)
-    in_file.close()
+    try:
+        plaintext_bytes = in_handler.read_from(in_file)
+    except puren_tonbo.UnsupportedFile as info:
+        log.error('Skipping UnsupportedFile (TODO option to allow continue, and default to stopping?) %s, %r', filename, info)
+        return
+    finally:
+        in_file.close()
     base_filename, original_extension = in_handler.split_extension(filename)
     #"""
     #print('\t\t %r' % plaintext_bytes)

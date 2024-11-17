@@ -962,6 +962,8 @@ grep '(ZipEncryptedFileBase):' puren_tonbo/__init__.py
     # TODO test write file with characters outside of encoding
     # TODO test write file, then write 2nd time this time with characters outside of encoding - to generate error - existing file should be preserved
     # TODO no filename, generator set to none. ensure reasonable error generated
+    # TODO zip specific, test attempting to decrypt a regular zip file without _filename / encrypted.md present
+    # TODO zip specific, gtrep a regular zip file without _filename / encrypted.md present - manually testing, ptgrep/ptig silently ignores BUT core library logs warning (to stderr)
 
 def debugTestRunner(post_mortem=None):
     """unittest runner doing post mortem debugging on failing tests"""

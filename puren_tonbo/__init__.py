@@ -651,6 +651,7 @@ class PurePyZipAES(ZipEncryptedFileBase):
 
     description = 'AES-256 ZIP AE-1 DEFLATED (regular compression)'
     extensions = ZipEncryptedFileBase.extensions + [
+        # TODO '.zip', see ZipAES() implementation
         #'.zip',  # any Zip file - NOTE if included, some tools may then attempt to treat regular zip files as potentially readable encrypted files and then fail; puren_tonbo.PurenTonboException: "There is no item named 'encrypted.md' in the archive"
     ]
 
@@ -702,7 +703,7 @@ class ZipAES(ZipEncryptedFileBase):
     description = 'AES-256 ZIP AE-1 DEFLATED (regular compression), and read-only ZipCrypto'
     extensions = ZipEncryptedFileBase.extensions + [
         '.old.zip',  # Zip file with old old ZipCrypto - reading/decrypting (writing not supported/implemented)
-        #'.zip',  # any Zip file - NOTE if included, some tools may then attempt to treat regular zip files as potentially readable encrypted files and then fail; puren_tonbo.PurenTonboException: "There is no item named 'encrypted.md' in the archive"
+        '.zip',  # any Zip file - NOTE if included, some tools may then attempt to treat regular zip files as potentially readable encrypted files and then fail; puren_tonbo.PurenTonboException: "There is no item named 'encrypted.md' in the archive"
     ]
 
     def read_from(self, file_object):
@@ -714,6 +715,10 @@ class ZipAES(ZipEncryptedFileBase):
         except RuntimeError as info:
             # so far only seen for; RuntimeError("Bad password for file 'encrypted.md'")
             raise BadPassword(info)
+        except KeyError as info:
+            # Probably; KeyError: "There is no item named 'encrypted.md' in the archive"
+            raise UnsupportedFile(info)
+            # TODO chain exception...
         except Exception as info:
             # TODO chain exception...
             #raise
