@@ -64,6 +64,12 @@ Quick demos:
 
     ptcipher --cipher jenc --encrypt -p password README.md -o README.md.jenc
 
+    # NOTE underscore in cipher
+    ptcipher --cipher .u001_jenc --encrypt -p password README.md -o README.md.jenc
+    ptcipher --cipher .u001_jenc --encrypt -p password README.md -o README.md.u001.jenc
+    ptcipher --encrypt -p password README.md -o README.md.u001.jenc  # DOES NOT YET WORK - https://github.com/clach04/puren_tonbo/issues/171
+    ptcipher --encrypt -p password README.md -o README.md.jenc
+
 """
 
 def main(argv=None):
@@ -163,6 +169,7 @@ def main(argv=None):
         password = password.encode('us-ascii')
 
     if options.cipher:
+        #import pdb ; pdb.set_trace()
         handler_class = puren_tonbo.filename2handler('_.' + options.cipher)  # TODO options.cipher to filename extension is less than ideal
     else:
         handler_class = None
