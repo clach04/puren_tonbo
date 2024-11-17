@@ -574,7 +574,7 @@ class Jenc(EncryptedFile):
         file_object.write(crypted_bytes)
 
 class JencU001(Jenc):
-    description = 'Markor / jpencconverter U001 PBKDF2WithHmacSHA1 iterations 10000 AES-256-GCM'
+    description = 'Markor / jpencconverter U001 PBKDF2WithHmacSHA1 iterations 10000 AES-256-GCM, legacy for older Android versions'
     extensions = [
         '.u001.jenc',  # md and txt?
         '.u001_jenc',  # md and txt?
@@ -592,7 +592,7 @@ class JencV001(Jenc):
     _jenc_version = 'V001'
 
 class JencV002(Jenc):
-    description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 210000 AES-256-GCM'
+    description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 210000 AES-256-GCM - EXPERIMENTAL https://github.com/clach04/jenc-py/issues/7'
     extensions = [
         '.v002.jenc',  # md and txt?
         '.v002_jenc',  # md and txt?
@@ -633,6 +633,7 @@ class TomboBlowfish(EncryptedFile):
     def write_to(self, file_object, byte_data):
         chi_io.write_encrypted_file(file_object, self.key, byte_data)
 
+# TODO AE-2 (no CRC), otherwise the same as AE-1 - see https://github.com/clach04/puren_tonbo/wiki/zip-format
 class ZipEncryptedFileBase(EncryptedFile):
     _filename = 'encrypted.md'  # filename inside of (encrypted) zip file
     _compression = ZIP_DEFLATED  # which compression to apply `_filename` in the zip; DEFLATED == regular zip compression
@@ -649,7 +650,9 @@ class PurePyZipAES(ZipEncryptedFileBase):
     """
 
     description = 'AES-256 ZIP AE-1 DEFLATED (regular compression)'
-    extensions = ZipEncryptedFileBase.extensions
+    extensions = ZipEncryptedFileBase.extensions + [
+        #'.zip',  # any Zip file - NOTE if included, some tools may then attempt to treat regular zip files as potentially readable encrypted files and then fail; puren_tonbo.PurenTonboException: "There is no item named 'encrypted.md' in the archive"
+    ]
 
     def read_from(self, file_object):
         # TODO catch specific exceptions and raise better mapped exception
@@ -699,6 +702,7 @@ class ZipAES(ZipEncryptedFileBase):
     description = 'AES-256 ZIP AE-1 DEFLATED (regular compression), and read-only ZipCrypto'
     extensions = ZipEncryptedFileBase.extensions + [
         '.old.zip',  # Zip file with old old ZipCrypto - reading/decrypting (writing not supported/implemented)
+        #'.zip',  # any Zip file - NOTE if included, some tools may then attempt to treat regular zip files as potentially readable encrypted files and then fail; puren_tonbo.PurenTonboException: "There is no item named 'encrypted.md' in the archive"
     ]
 
     def read_from(self, file_object):
@@ -712,6 +716,8 @@ class ZipAES(ZipEncryptedFileBase):
             raise BadPassword(info)
         except Exception as info:
             # TODO chain exception...
+            #raise
+            # TODO decide how to handle regular zip files that do NOT contain encrypted notes; KeyError: "There is no item named 'encrypted.md' in the archive"
             #print(info)
             #print(type(info))
             #print(dir(info))
