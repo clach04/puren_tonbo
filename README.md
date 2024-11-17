@@ -471,6 +471,11 @@ No encryption, gzip compress files - no passphrase/password/key support.
 
 NOTE Python 2 support for gz files is missing do to API differences in zlib.
 
+#### jenc / Markor / jpencconverter
+
+    py -3 -m puren_tonbo.tools.ptcipher -p password puren_tonbo/tests/data/test_winnewlines.v001.jenc
+    py -3 -m puren_tonbo.tools.ptcipher -p password puren_tonbo/tests/data/test_winnewlines.u001.jenc  # Old, legacy format
+
 #### Tombo Blowfish CHI
 
 Symmetric encryption/decryption from passphase.

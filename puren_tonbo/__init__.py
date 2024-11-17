@@ -551,10 +551,9 @@ class OpenSslEnc10k(EncryptedFile):
 class Jenc(EncryptedFile):
     description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 10000 AES-256-GCM'
     extensions = [
-        # TODO u001
-        '.v100.jenc',  # md and txt?
         '.jenc',  # md and txt?
     ]
+    _jenc_version = None  # use default (latest)
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTonboException()
@@ -571,8 +570,27 @@ class Jenc(EncryptedFile):
         if not isinstance(password, bytes):
             password = password.decode("utf-8")
 
-        crypted_bytes = jenc.encrypt(password, byte_data)
+        crypted_bytes = jenc.encrypt(password, byte_data, jenc_version=self._jenc_version)
         file_object.write(crypted_bytes)
+
+class JencU001(Jenc):
+    description = 'Markor / jpencconverter U001 PBKDF2WithHmacSHA1 iterations 10000 AES-256-GCM'
+    extensions = [
+        '.u001.jenc',  # md and txt?
+        '.u001_jenc',  # md and txt?
+        # Do NOT include generic .jenc
+    ]
+    _jenc_version = 'U001'  # FIXME constant from jenc instead of literal
+
+class JencV001(Jenc):
+    description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 10000 AES-256-GCM'
+    extensions = [
+        '.v001.jenc',  # md and txt?
+        '.v001_jenc',  # md and txt?
+        # Do NOT include generic .jenc
+    ]
+    _jenc_version = None  # use default (latest)
+
 
 class TomboBlowfish(EncryptedFile):
     """Read/write Tombo (modified) Blowfish encrypted files
@@ -739,8 +757,9 @@ for enc_class_name in dir():  #(RawFile, Rot13):
         file_type_handlers[file_extension] = enc_class
 
 if jenc:  # FIXME, handle this via introspection, see code above for RawFile
-    for file_extension in Jenc.extensions:
-        file_type_handlers[file_extension] = Jenc
+    for enc_class in (JencV001, JencU001, Jenc):  # order significant for filename extension lookup
+        for file_extension in enc_class.extensions:
+            file_type_handlers[file_extension] = enc_class
 
 if chi_io:
     for file_extension in TomboBlowfish.extensions:
@@ -778,6 +797,7 @@ if vimdecrypt:
 
 def filename2handler(filename, default_handler=None):
     filename = filename.lower()
+    # check for extensions with multiple periods/dots/fullstops
     if filename.endswith('.aes256.zip'):
         file_extn = '.aes.zip'
     elif filename.endswith('.aes.zip'):
@@ -792,7 +812,7 @@ def filename2handler(filename, default_handler=None):
         file_extn = '.oldstored.zip'
     else:
         # TODO loop through extensions in class
-        _dummy, file_extn = os.path.splitext(filename)
+        _dummy, file_extn = os.path.splitext(filename)  # this is very agressive, splits on most-right-hand side (maybe want cipher name lookup ASWELL as filename extension)
     log.debug('clach04 DEBUG file_extn: %r', file_extn)
     log.debug('clach04 DEBUG file_type_handlers: %r', file_type_handlers)
     handler_class = file_type_handlers.get(file_extn) or default_handler
