@@ -655,7 +655,7 @@ class PurePyZipAES(ZipEncryptedFileBase):
         # TODO catch specific exceptions and raise better mapped exception
         try:
             zf = mzipaes.MiniZipAE1Reader(file_object, self.key)
-            return zf.get()  # first file in zip, ignore self._filename
+            return zf.get()  # first file in zip, ignores self._filename  # TODO revisit this
         except mzipaes.BadPassword as info:
             raise BadPassword(info)
         except mzipaes.UnsupportedFile as info:
@@ -689,16 +689,16 @@ class ZipNoCompressionPurePyZipAES(PurePyZipAES):
 
 
 class ZipAES(ZipEncryptedFileBase):
-    """Read/write ZIP AES(256) encrypted files (not old ZipCrypto)
+    """Read/write ZIP AES(256) encrypted files (read-only old ZipCrypto)
     Compatible with files in WinZIP and 7z.
     Example 7z demo (Windows or Linux, assuming 7z is in the path):
         echo encrypted > encrypted.md
         7z a -ptest test_file.aes.zip encrypted.md
     """
 
-    description = 'AES-256 ZIP AE-1 DEFLATED (regular compression)'
-    extensions = extensions = ZipEncryptedFileBase.extensions + [
-        '.old.zip',  # Zip file with old old ZipCrypto - writing not supported/implemented
+    description = 'AES-256 ZIP AE-1 DEFLATED (regular compression), and read-only ZipCrypto'
+    extensions = ZipEncryptedFileBase.extensions + [
+        '.old.zip',  # Zip file with old old ZipCrypto - reading/decrypting (writing not supported/implemented)
     ]
     _filename = 'encrypted.md'  # filename inside of (AES encrypted) zip file
     _compression = ZIP_DEFLATED
