@@ -15,7 +15,7 @@ import tempfile
 
 import puren_tonbo
 import puren_tonbo.ui
-
+from puren_tonbo.tools import ptgrep
 
 is_py3 = sys.version_info >= (3,)
 
@@ -47,12 +47,35 @@ def file_replace(src, dst):
             os.remove(tmp_backup)
 
 
+ptcipher_examples = """
+Examples:
+
+Show all supported formats
+
+    ptcipher --list-formats
+
+Quick demos:
+
+    ptcipher --cipher rot13 --encrypt -p password_ignored README.md
+    ptcipher -p password_ignored puren_tonbo/tests/data/aesop.rot13
+
+    ptcipher --password password --decrypt puren_tonbo/tests/data/aesop.chi
+    ptcipher --password password --decrypt puren_tonbo/tests/data/aesop_linux_7z.aes256.zip
+
+    ptcipher --cipher jenc --encrypt -p password README.md -o README.md.jenc
+
+"""
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
 
     usage = "usage: %prog [options] in_filename"
-    parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
+    parser = ptgrep.MyParser(
+        usage=usage,
+        version="%%prog %s" % puren_tonbo.__version__,
+        epilog=ptcipher_examples
+    )
     parser.add_option("-o", "--output", dest="out_filename", default='-',
                         help="write output to FILE", metavar="FILE")
     parser.add_option("-d", "--decrypt", action="store_true", dest="decrypt", default=True,
