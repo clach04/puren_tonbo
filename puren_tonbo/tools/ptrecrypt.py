@@ -14,7 +14,8 @@
 
     python -m puren_tonbo.tools.ptrecrypt --simulate --cipher .v001_jenc            --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
     python -m puren_tonbo.tools.ptrecrypt            --cipher .v001_jenc            --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
-    python -m puren_tonbo.tools.ptrecrypt --existing_files skip --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
+    python -m puren_tonbo.tools.ptrecrypt --existing_files skip    --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
+    python -m puren_tonbo.tools.ptrecrypt --existing_files replace --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/
 
     python -m puren_tonbo.tools.ptrecrypt --simulate  -p password  --force_recrypt_same_format_password  --existing_files replace --skip_unencrypted  puren_tonbo/tests/data/
 """
@@ -158,13 +159,11 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
         # no need for safe write and file_replace()
         log.debug('About to new: %s', new_filename_abs)
         if not simulate:
-            write_encrypted_file(out_handler, new_filename_abs, plaintext_bytes)  # TODO abs filename?
+            write_encrypted_file(out_handler, new_filename_abs, plaintext_bytes)
     else:
         log.debug('About to write overwrite existing: %s', new_filename)
-        raise NotImplementedError('writting to existing file')
         if not simulate:
-            raise NotImplementedError('Actual writting2')
-            pass  # FIXME implement
+            write_encrypted_file(out_handler, new_filename_abs, plaintext_bytes)
 
     if existing_files_resolution == 'delete':
         log.info('about to delete old file %', filename)
