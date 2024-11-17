@@ -104,6 +104,7 @@ setup(
             'ptcipher = puren_tonbo.tools.ptcipher:main',
             'ptconfig = puren_tonbo.tools.ptconfig:main',
             'ptgrep = puren_tonbo.tools.ptgrep:main',
+            'ptrecrypt = puren_tonbo.tools.ptrecrypt:main',
             'ptig = puren_tonbo.tools.ptig:main',
             'pttkview = puren_tonbo.tools.pttkview:main',  # Assume tk available
         ] + (['ptpyvim = puren_tonbo.tools.ptpyvim:main'] if pyvim else []),

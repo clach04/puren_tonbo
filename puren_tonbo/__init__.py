@@ -196,9 +196,18 @@ puren_tonbo expects to be dealing with (on-disk) files, hence the focus on file-
 class BaseFile:
 
     description = 'Base Encrypted File'
-    extensions = []  # non-empty list of file extensions, first is the default (e.g. for writing)
+    extensions = []  # non-empty list of file extensions, first is the default (e.g. for writing) and last should be the most generic
     kdf = None  # OPTIONAL key derivation function, that takes a single parameter of bytes for the password/key. See TomboBlowfish  # TODO review this
     needs_key = True  # if not true, then this class does not require a key (password) to operate
+
+    def default_extension(self):
+        return self.extensions[0]  # pick the first one
+
+    def split_extension(self, filename):
+        for extn in self.extensions:
+            if filename.endswith(extn):
+                return filename[:-len(extn)], extn
+        pass
 
     def __init__(self, key=None, password=None, password_encoding='utf8'):
         """
@@ -580,7 +589,16 @@ class JencV001(Jenc):
         '.v001_jenc',  # md and txt?
         # Do NOT include generic .jenc
     ]
-    _jenc_version = None  # use default (latest)
+    _jenc_version = 'V001'
+
+class JencV002(Jenc):
+    description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 210000 AES-256-GCM'
+    extensions = [
+        '.v002.jenc',  # md and txt?
+        '.v002_jenc',  # md and txt?
+        # Do NOT include generic .jenc
+    ]
+    _jenc_version = 'V002'
 
 
 class TomboBlowfish(EncryptedFile):
@@ -748,7 +766,7 @@ for enc_class_name in dir():  #(RawFile, Rot13):
         file_type_handlers[file_extension] = enc_class
 
 if jenc:  # FIXME, handle this via introspection, see code above for RawFile
-    for enc_class in (JencV001, JencU001, Jenc):  # order significant for filename extension lookup
+    for enc_class in (JencV002, JencV001, JencU001, Jenc):  # order significant for filename extension lookup
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 
@@ -802,6 +820,7 @@ def filename2handler(filename, default_handler=None):
     elif filename.endswith('.oldstored.zip'):
         file_extn = '.oldstored.zip'
     else:
+        # TODO loop through extensions in class
         _dummy, file_extn = os.path.splitext(filename)  # this is very agressive, splits on most-right-hand side (maybe want cipher name lookup ASWELL as filename extension)
     log.debug('clach04 DEBUG file_extn: %r', file_extn)
     log.debug('clach04 DEBUG file_type_handlers: %r', file_type_handlers)
@@ -1360,7 +1379,7 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
             validate_filename_generator(filename_generator)
             filename_generator_func = filename_generators[filename_generator]
             log.debug('filename_generator_func %r', filename_generator_func)
-            file_extension = handler.extensions[0]  # pick the first one
+            file_extension = handler.extensions[0]  # pick the first one - TODO refactor into a function/method - call handler.default_extension()
             filename_without_path_and_extension = filename_generator_func(note_text)
 
             filename = os.path.join(folder, filename_without_path_and_extension + file_extension)
@@ -1765,6 +1784,8 @@ def find_unsupported_files(test_path, order=ORDER_ASCENDING, ignore_files=None, 
 
 def recurse_notes(path_to_search, filename_filter, ignore_folders=None):
     """Walk (local file system) directory of notes, directory depth first (just like Tombo find does), returns generator
+      * filename_filter - examples, see; supported_filename_filter, plaintext_filename_filter, plaintext_filename_filter
+      * ignore_folders - a list/tuple of directory/folder names to ignore/skip.
 
     Also see walker()
     """
@@ -2241,7 +2262,7 @@ class FileSystemNotes(BaseNotes):
         if filename is None:
             if handler_class is None:
                 raise NotImplementedError('Missing handler_class for missing filename, could default to Raw - make decision')
-            file_extension = handler_class.extensions[0]  # pick the first one
+            file_extension = handler_class.extensions[0]  # pick the first one - TODO refactor into a function/method - call handler_class.default_extension() - Is this callable? Is there a test suite for this code path?
             if folder:
                 native_folder = self.native_full_path(folder)
             else:
@@ -2425,6 +2446,7 @@ def pt_open(file, mode='r', encoding=None):
     """
     filename = file
     if mode not in ['r', 'w']:
+        # TODO binary mode
         raise NotImplemented('mode %r' % mode)
     handler_class = filename2handler(filename, default_handler=RawFile)
     if not encoding:
