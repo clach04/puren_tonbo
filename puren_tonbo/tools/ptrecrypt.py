@@ -80,8 +80,17 @@ def write_encrypted_file(out_handler, filename, plaintext_bytes):
 
 
 def process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=False, destination_directory=None, new_extension=None, existing_files_resolution=None, simulate=None):
+    """destination_directory can only work if filename is NOT an absolute path... which may be passed in via command line (for either filename or directory name).
+    """
     new_extension = new_extension or "default"
     existing_files_resolution = existing_files_resolution or 'stop'
+    if destination_directory and (
+        filename[0] in ('/', '\\')
+        or filename[1] == ':'
+    ):
+        raise NotImplementedError('Stripping path prefix from source file when destination_directory specified: %s' % (filename,))
+    #import pdb; pdb.set_trace()
+
 
     log.info('Processing %s', filename)
     filename_abs = os.path.abspath(filename)
@@ -246,6 +255,8 @@ def main(argv=None):
     if password and not isinstance(password, bytes):
         password = password.encode('us-ascii')
     new_password = options.new_password or password  # TODO document/make clear - if password changes during processing, first password passed in is what will be used for new password
+    if new_password and not isinstance(new_password, bytes):
+        new_password = new_password.encode('us-ascii')
 
     filename_pattern_list = args
     directory_list = []
