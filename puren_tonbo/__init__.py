@@ -1342,6 +1342,7 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
 
 #          note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
 #             note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
+# TODO https://github.com/clach04/puren_tonbo/issues/173 allow warning to be disabled on duplicate derived filename
 def note_contents_save_native_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
     """Uses native/local file system IO api
     @handler is the encryption file handler to use, that is already initialized with a password
@@ -1398,7 +1399,7 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
                 # now check if generated filename already exists, if so need to make unique
                 unique_counter = 1
                 while os.path.exists(filename):
-                    log.warning('generated filename %r already exists, generating alternative', filename)  # TODO consider making info?
+                    log.warning('generated filename %r already exists, generating alternative', filename)  # TODO consider making optional and also info instead of warning? Test suite triggers this which is simply not useful information as the test does it's own validation https://github.com/clach04/puren_tonbo/issues/173
                     unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
                     filename = os.path.join(folder, filename_without_path_and_extension + unique_part + file_extension)
                     unique_counter += 1

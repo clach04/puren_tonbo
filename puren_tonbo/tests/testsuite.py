@@ -656,6 +656,7 @@ class TestFileSystemNotesWriteFunctionSaveRawPlainText(TestUtil):
     def setUpClass(self):
         self.data_folder = tempfile.mkdtemp(prefix='TestFileSystemNotesWrite_tmp')
         #print('self.data_folder %s' % self.data_folder)
+        #input('pause, press enter')
 
     @classmethod
     def tearDownClass(self):
@@ -755,7 +756,7 @@ file WAS one.
 
         self.do_one_test(buffer_plain_str, original_filename='one' + file_extension, dos_newlines=False, test_password_bytes=self.test_password_bytes, backup=False, expected_filenames=['two' + file_extension])
 
-    def test_filename_gen_one_with_password_already_exist(self):
+    def test_filename_gen_one_with_password_already_exist(self):  # test that if filename already exists, new derived filename is generated so as to avoid loosing original content
         self.check_skip()
         buffer_plain_str = '''one
 
@@ -768,6 +769,7 @@ file one.
         note_root = puren_tonbo.FileSystemNotes(folder, self.note_encoding)
         note_root.note_contents_save('junk', filename='one' + file_extension, filename_generator=None, get_pass=self.test_password_bytes)
 
+        # NOTE this will trigger the note_contents_save_filename() / note_contents_save_native_filename() warning about generated filename already existing
         self.do_one_test(buffer_plain_str, dos_newlines=False, test_password_bytes=self.test_password_bytes, expected_filenames=['one(1)' + file_extension, 'one' + file_extension])
 
     def test_filename_gen_one_with_password(self):
