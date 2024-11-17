@@ -381,6 +381,9 @@ def main(argv=None):
     """
 
     password_func = password
+    if options.time and callable(password_func):
+        print('timing requested and password missing, grabbing password now so as to not time user interactions (for single/same password scenerio)')
+        _ = password_func()
 
     grep(search_term, paths_to_search, options, use_color, password_func, note_encoding)
 
