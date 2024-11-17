@@ -635,7 +635,7 @@ class TomboBlowfish(EncryptedFile):
 
 class ZipEncryptedFileBase(EncryptedFile):
     _filename = 'encrypted.md'  # filename inside of (encrypted) zip file
-    _compression = ZIP_DEFLATED
+    _compression = ZIP_DEFLATED  # which compression to apply `_filename` in the zip; DEFLATED == regular zip compression
     extensions = [
         '.aes.zip',  # AE-1 only Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
         '.aes256.zip',  # Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
@@ -682,7 +682,7 @@ class PurePyZipAES(ZipEncryptedFileBase):
 
 class ZipNoCompressionPurePyZipAES(PurePyZipAES):
     description = 'AES-256 ZIP AE-1 STORED (uncompressed)'
-    _compression = ZIP_STORED
+    _compression = ZIP_STORED  # no zip compression
     extensions = [
         '.aes256stored.zip',  # uncompressed Zip file with AES-256 - Standard WinZip/7z (not the old ZipCrypto!)
     ]
@@ -700,8 +700,6 @@ class ZipAES(ZipEncryptedFileBase):
     extensions = ZipEncryptedFileBase.extensions + [
         '.old.zip',  # Zip file with old old ZipCrypto - reading/decrypting (writing not supported/implemented)
     ]
-    _filename = 'encrypted.md'  # filename inside of (AES encrypted) zip file
-    _compression = ZIP_DEFLATED
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTonboException()
