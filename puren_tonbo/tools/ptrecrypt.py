@@ -19,8 +19,11 @@
 
     git clone https://github.com/Zettelkasten-Method/10000-markdown-files
     cd 10000-markdown-files
-    python -m puren_tonbo.tools.ptrecrypt --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory 10k_v001_jenc "10000 markdown files"
-    python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc --new_extension .jenc  -p password  --destination_directory 10k_v002wip_jenc "10000 markdown files"
+    python -m puren_tonbo.tools.ptrecrypt --cipher .v001_jenc  --new_extension .jenc -p password  --destination_directory 10k_v001_jenc "10000 markdown files"
+    python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc  --new_extension .jenc -p password  --destination_directory 10k_v002wip_jenc "10000 markdown files"
+    python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc  --new_extension .jenc -p password  --destination_directory 10k_v002wip_jenc "10000 markdown files"
+    python -m puren_tonbo.tools.ptrecrypt --cipher .aes256.zip --new_extension .zip  -p password  --destination_directory 10k_aes256_zip "10000 markdown files"
+    python -m puren_tonbo.tools.ptrecrypt --cipher .chi        --new_extension .zip  -p password  --destination_directory 10k_tombo_chi "10000 markdown files"
 
     python -m puren_tonbo.tools.ptrecrypt --cipher .u001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
     python -m puren_tonbo.tools.ptrecrypt --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
@@ -128,7 +131,7 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
         return
     log.info('%s -> %s', in_handler_class, out_handler_class)
     out_handler = out_handler_class(new_password)
-    print('\t\t %r' % ((base_filename, original_extension, original_extension in out_handler.extensions, out_handler.default_extension()),))
+    #print('\t\t %r' % ((base_filename, original_extension, original_extension in out_handler.extensions, out_handler.default_extension()),))
 
     if new_extension == "default":
         new_file_extension = out_handler.default_extension()
@@ -213,6 +216,7 @@ def main(argv=None):
     parser.add_option("--existing-files", "--existing_files", help="How to handle existing files; resolving files that already exist; default error/stop, skip, overwrite/replace/delete (in safe mode - needed for same file type, new password), delete (after successful write)")
     parser.add_option("--simulate", help="Do not write/delete/change files", action="store_true")
     # TODO option on saving to delete original file -- see existing-files / --existing_files
+    # TODO time option, like ptgrep, etc.
     (options, args) = parser.parse_args(argv[1:])
     log.debug('args: %r' % ((options, args),))
     verbose = options.verbose
@@ -224,8 +228,8 @@ def main(argv=None):
         return 0
     simulate = options.simulate
     if simulate:
-        print(dir(log))
-        print(log.level)
+        #print(dir(log))
+        #print(log.level)
         if log.level < logging.INFO:
             log.setLevel(logging.INFO)  # ensure logging info enabled for filenames and operations
     destination_directory = options.destination_directory
