@@ -15,18 +15,26 @@ Some countries have also have restrictions on import, export, and usage see http
     + [Regular install](#regular-install)
     + [Without a source code checkout](#without-a-source-code-checkout)
     + [From a source code checkout](#from-a-source-code-checkout)
+  * [Microsoft Windows](#microsoft-windows)
+    + [Microsoft Windows GUI Alternative Terminals](#microsoft-windows-gui-alternative-terminals)
+      - [mintty (recommended)](#mintty--recommended-)
+      - [Alacritty](#alacritty)
+      - [Windows Terminal](#windows-terminal)
   * [Examples](#examples)
     + [ptcat](#ptcat)
     + [ptgrep](#ptgrep)
+    + [ptrecrypt](#ptrecrypt)
     + [ptig](#ptig)
       - [Sample ptig session](#sample-ptig-session)
       - [ptig config](#ptig-config)
     + [pttkview](#pttkview)
     + [ptpyvim](#ptpyvim)
+    + [ptdiff3merge](#ptdiff3merge)
     + [ptcipher](#ptcipher)
       - [rot-13](#rot-13)
       - [rot-47](#rot-47)
       - [gzip](#gzip)
+      - [jenc / Markor / jpencconverter](#jenc---markor---jpencconverter)
       - [Tombo Blowfish CHI](#tombo-blowfish-chi)
       - [ccrypt CPT](#ccrypt-cpt)
       - [OpenPGP - gpg / pgp](#openpgp---gpg---pgp)
@@ -49,7 +57,9 @@ Some countries have also have restrictions on import, export, and usage see http
     + [Run test suite](#run-test-suite)
     + [High Level Overview](#high-level-overview)
   * [Thanks](#thanks)
+  * [TODO](#todo)
 
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 ## Background
 
@@ -272,7 +282,65 @@ find filenames ONLY encrypted with regex
 
 ### ptrecrypt
 
-TODO
+Help:
+
+    Usage: ptrecrypt [options] file_or_dir_pattern1 [file_or_dir_pattern2...]
+
+    Command line tool to (re-)encrypt files. Any files passed on the command line
+    WILL BE encrypted (in the requested format, if none requested original format)
+    unless it is the same format and password. Any directories may have some form
+    of filtering based on type.
+
+    Options:
+      --version             show program's version number and exit
+      -h, --help            show this help message and exit
+      --list-formats        Which encryption/file formats are available
+      --password-prompt=PASSWORD_PROMPT, --password_prompt=PASSWORD_PROMPT
+                            Comma seperated list of prompt mechanism to use,
+                            options; any,text,gui,win32,tk
+      --no-prompt, --no_prompt
+                            do not prompt for password
+      --cipher=CIPHER       Which encryption mechanism to use (file extension used
+                            as hint), use existing cipher if ommited
+      --new-password=NEW_PASSWORD, --new_password=NEW_PASSWORD
+                            new password to use, if omitted use the existing
+                            password
+      -E ENVVAR, --envvar=ENVVAR
+                            Name of environment variable to get password from
+                            (defaults to PT_PASSWORD) - unsafe
+      -p PASSWORD, --password=PASSWORD
+                            password, if omitted but OS env PT_PASSWORD is set use
+                            that, if missing prompt
+      -P PASSWORD_FILE, --password_file=PASSWORD_FILE
+                            file name where password is to be read from, trailing
+                            blanks are ignored
+      -v, --verbose
+      -s, --silent          if specified do not warn about stdin using
+      --force-recrypt-same-format-password, --force_recrypt_same_format_password
+                            For re encryption, even if same file format/container
+                            and password is to be used
+      --destination-directory=DESTINATION_DIRECTORY, --destination_directory=DESTINATION_DIRECTORY
+                            If specified where to write to, if ommited uses same
+                            directory
+      --new-extension=NEW_EXTENSION, --new_extension=NEW_EXTENSION
+                            file extension to append for new files; 'default'
+                            (default for cipher), 'cipher' (what was passed in on
+                            command line), 'retain' (if not changing formats, use
+                            the original file extension) - and potentially
+                            anything else with a period is the new extension to
+                            use, for example '.zip'
+      --skip-encrypted, --skip_encrypted
+                            For directories, skip already encrypted files
+      --skip-unencrypted, --skip_unencrypted
+                            For directories, skip files that are not already
+                            encrypted
+      --existing-files=EXISTING_FILES, --existing_files=EXISTING_FILES
+                            How to handle existing files; resolving files that
+                            already exist; default error/stop, skip,
+                            overwrite/replace/delete (in safe mode - needed for
+                            same file type, new password), delete (after
+                            successful write)
+      --simulate            Do not write/delete/change files
 
 ### ptig
 
@@ -472,6 +540,8 @@ No encryption, gzip compress files - no passphrase/password/key support.
 NOTE Python 2 support for gz files is missing do to API differences in zlib.
 
 #### jenc / Markor / jpencconverter
+
+Support the same format that [Markor](https://github.com/gsantner/markor) supports [jenc format](https://github.com/opensource21/jpencconverter).
 
     py -3 -m puren_tonbo.tools.ptcipher -p password puren_tonbo/tests/data/test_winnewlines.v001.jenc
     py -3 -m puren_tonbo.tools.ptcipher -p password puren_tonbo/tests/data/test_winnewlines.u001.jenc  # Old, legacy format
