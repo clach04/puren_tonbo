@@ -51,7 +51,7 @@ is_py3 = sys.version_info >= (3,)
 log = logging.getLogger("pttkview")
 log.setLevel(logging.DEBUG)
 disable_logging = False
-#disable_logging = True  # TODO pickup from command line, env, config?
+disable_logging = True  # TODO pickup from command line, env, config?
 if disable_logging:
     log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
     #log.setLevel(logging.INFO)  # logs; INFO, WARNING, ERROR, CRITICAL
@@ -235,6 +235,7 @@ def main(argv=None):
 
     if not args:
         parser.print_usage()
+        return 1
 
     if options.cipher:
         if options.cipher == '.v002_jenc':
