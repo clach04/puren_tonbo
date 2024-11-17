@@ -41,7 +41,7 @@ Tests:
     ls -altr puren_tonbo/tests/demo_notes/secrets/accounts
     dir /od puren_tonbo\tests\demo_notes\secrets\accounts
 
-re-encrpt and rename
+re-encrypt and rename
 
     ptrecrypt -p password --cipher .zip --new_extension .zip --existing-files=delete puren_tonbo/tests/demo_notes/secrets/accounts
     REM should be NOOP
