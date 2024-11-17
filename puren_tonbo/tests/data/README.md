@@ -220,6 +220,8 @@ Ideally generated with external tools that Puren Tonbo can validate against.
         * Kumagusu 1.21 - Android
           * will load, no BOM issues
           * will save cleanly
+  * test_winnewlines.u001.jenc - U001 jenc, us-ascii encoding
+  * test_winnewlines.v001.jenc - V001 jenc, us-ascii encoding
   * utf8_latin.txt - plain text file, utf-8 multi byte encoding
       * Approx 3.4Kb.
       * utf-8 encoding
