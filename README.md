@@ -129,6 +129,7 @@ Picking up the latest version
     # python -m pip install -r requirements.txt
     # TODO requirements_optional.txt
     python -m pip install -e .
+    python -m pip install -e .[all]
 
 
     # sanity check, and dump sample config to stdout
