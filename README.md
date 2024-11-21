@@ -545,10 +545,33 @@ NOTE Python 2 support for gz files is missing do to API differences in zlib.
 
 #### jenc / Markor / jpencconverter
 
-Support the same format that [Markor](https://github.com/gsantner/markor) supports [jenc format](https://github.com/opensource21/jpencconverter).
+Symmetric encryption/decryption from passphase.
+
+Format that [Markor](https://github.com/gsantner/markor) supports [jenc format](https://github.com/opensource21/jpencconverter).
 
     py -3 -m puren_tonbo.tools.ptcipher -p password puren_tonbo/tests/data/test_winnewlines.v001.jenc
     py -3 -m puren_tonbo.tools.ptcipher -p password puren_tonbo/tests/data/test_winnewlines.u001.jenc  # Old, legacy format
+
+Jenc settings, application.properties contents:
+
+    filesearch.depth=10
+    # paths can be unix, i.e. '/'
+    # or under Windows, can be either Unix style or Windows. For Windows paths need to escape, for example; 'C:\\some\\\dir'
+    filesearch.encdir=C:\\code\\java\\jpencconverter\\bins\\jpenc-converter_0.2.1\\enc
+    #filesearch.decdir=C:\\code\\java\\jpencconverter\\bins\\jpenc-converter_0.2.1\\plain
+    filesearch.decdir=/code/java/jpencconverter/bins/jpenc-converter_0.2.1/plain
+    extension.encrypt=.jenc
+    extensions.plainText=md, markdown
+    #password=geheim
+    password=password
+    # For android-devices before Android 8 use U001
+    #encryption.version=U001
+    encryption.version=V001
+
+Command line, note operates on directories NOT file (names) like most command line crypto tools:
+
+    java.exe -jar jpencconverter-0.2.1.jar encrypt
+    java.exe -jar jpencconverter-0.2.1.jar decrypt
 
 #### Tombo Blowfish CHI
 
