@@ -610,7 +610,7 @@ class TomboBlowfish(EncryptedFile):
     """
 
     description = 'Tombo Blowfish ECB (not recommended)'
-    extensions = ['.chi']
+    extensions = ['.chi', '.chs']
 
     def kdf(self, in_bytes):
         return chi_io.CHI_cipher(in_bytes)

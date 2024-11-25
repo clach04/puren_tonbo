@@ -583,7 +583,7 @@ Compatible with http://tombo.osdn.jp/En/ (and others, for example, Kumagusu on A
 
     ptcipher -v -p test README.chi
 
-The chi file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ and clones
+The chi/chs file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ and clones (for example, Kumagusu).
 
 
 #### ccrypt CPT
