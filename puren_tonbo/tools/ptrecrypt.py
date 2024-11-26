@@ -243,7 +243,6 @@ def main(argv=None):
     parser.add_option("--existing-files", "--existing_files", help="How to handle existing files; resolving files that already exist; default error/stop, skip, overwrite/replace/delete (in safe mode - needed for same file type, new password), delete (after successful write)")
     parser.add_option("--simulate", help="Do not write/delete/change files", action="store_true")
     # TODO option on saving to delete original file -- see existing-files / --existing_files
-    # TODO time option, like ptgrep, etc.
     (options, args) = parser.parse_args(argv[1:])
     log.debug('args: %r' % ((options, args),))
     verbose = options.verbose
