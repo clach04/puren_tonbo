@@ -12,6 +12,7 @@ import os
 from optparse import OptionParser
 import sys
 import tempfile
+import time
 
 import puren_tonbo
 import puren_tonbo.ui
@@ -95,6 +96,7 @@ def main(argv=None):
     parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint)")
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
+    parser.add_option("-t", "--time", action="store_true")
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-s", "--silent", help="if specified do not warn about stdin using", action="store_false", default=True)
     (options, args) = parser.parse_args(argv[1:])
@@ -175,6 +177,9 @@ def main(argv=None):
     else:
         handler_class = None
 
+    if options.time:
+        start_time = time.time()
+
     failed = True
     try:
         if decrypt:
@@ -208,6 +213,11 @@ def main(argv=None):
                     if os.path.exists(out_filename):
                         file_replace(out_filename, out_filename + '.bak')  # backup existing
                 file_replace(tmp_out_filename, out_filename)
+
+    if options.time:
+        end_time = time.time()
+        search_time = end_time - start_time
+        print('Query time: %.2f seconds' % search_time)
 
     if failed:
         return 1
