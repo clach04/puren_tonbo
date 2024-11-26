@@ -216,8 +216,8 @@ def main(argv=None):
 
     if options.time:
         end_time = time.time()
-        search_time = end_time - start_time
-        print('Query time: %.2f seconds' % search_time)
+        total_time = end_time - start_time
+        print('Total time: %.2f seconds' % total_time)
 
     if failed:
         return 1

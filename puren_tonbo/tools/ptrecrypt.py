@@ -331,7 +331,7 @@ def main(argv=None):
     if options.time:
         end_time = time.time()
         total_time = end_time - start_time
-        print('Query time: %.2f seconds' % total_time)
+        print('Total time: %.2f seconds' % total_time)
 
     return 0
 
