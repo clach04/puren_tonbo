@@ -130,7 +130,7 @@ setup(
     platforms='any',  # or distutils.util.get_platform()
     install_requires=install_requires,
     extras_require={
-        'age': ['age', ],  # 0.5.1
+        'age': ['age', ],  # 0.5.1 - NOTE only for is_py3
         'chi_io': ['chi_io', ],
         'jenc': ['jenc>=0.0.3', ],  # NOTE test suite and v002 support actually needs minimum of jenc-0.0.5
         #'ssage': ['ssage', ],  # ssage-1.4.0
