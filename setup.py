@@ -132,7 +132,7 @@ setup(
     extras_require={
         'age': ['age', ],  # 0.5.1
         'chi_io': ['chi_io', ],
-        'jenc': ['jenc>=0.0.3', ],
+        'jenc': ['jenc>=0.0.3', ],  # NOTE test suite and v002 support actually needs minimum of jenc-0.0.5
         #'ssage': ['ssage', ],  # ssage-1.4.0
         # TODO pyvim
         # TODO python-gnupg (consider replacements before implementing https://github.com/clach04/puren_tonbo/issues/118)
