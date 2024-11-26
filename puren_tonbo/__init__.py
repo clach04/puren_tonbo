@@ -665,13 +665,15 @@ class Age(EncryptedFile):
         return plaintext
 
     def write_to(self, file_object, byte_data):
+        # TODO catch exceptions and raise PurenTonboException()
+        # TODO AsciiArmoredInput()
         password = self.key
         if not isinstance(password, bytes):
             password = password.decode("utf-8")
 
-        raise NotImplementedError
-        crypted_bytes = b'TODO'
-        file_object.write(crypted_bytes)
+        identities = [age.keys.password.PasswordKey(password)]
+        with age.file.Encryptor(identities, file_object) as encryptor:
+            encryptor.write(byte_data)
 
 # TODO AE-2 (no CRC), otherwise the same as AE-1 - see https://github.com/clach04/puren_tonbo/wiki/zip-format
 class ZipEncryptedFileBase(EncryptedFile):
