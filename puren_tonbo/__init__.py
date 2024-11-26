@@ -658,9 +658,18 @@ class Age(EncryptedFile):
         if not isinstance(password, bytes):
             password = password.decode("utf-8")
 
-        identities = [age.keys.password.PasswordKey(password)]
-        with age.file.Decryptor(identities, file_object) as decryptor:
-            plaintext = decryptor.read()
+        try:
+            identities = [age.keys.password.PasswordKey(password)]
+            with age.file.Decryptor(identities, file_object) as decryptor:
+                plaintext = decryptor.read()
+        except age.exceptions.NoIdentity as info:
+            # probbaly NoIdentity("No matching key")
+            raise BadPassword(info)  # FIXME BadPassword(BadPassword("for 'file-like-object'",),)
+        except Exception as info:
+            #raise  # DEBUG
+            # TODO chain exception...
+            #raise PurenTonboException(info.message)
+            raise PurenTonboException(info)
 
         return plaintext
 
@@ -671,9 +680,15 @@ class Age(EncryptedFile):
         if not isinstance(password, bytes):
             password = password.decode("utf-8")
 
-        identities = [age.keys.password.PasswordKey(password)]
-        with age.file.Encryptor(identities, file_object) as encryptor:
-            encryptor.write(byte_data)
+        try:
+            identities = [age.keys.password.PasswordKey(password)]
+            with age.file.Encryptor(identities, file_object) as encryptor:
+                encryptor.write(byte_data)
+        except Exception as info:
+            #raise  # DEBUG
+            # TODO chain exception...
+            #raise PurenTonboException(info.message)
+            raise PurenTonboException(info)
 
 # TODO AE-2 (no CRC), otherwise the same as AE-1 - see https://github.com/clach04/puren_tonbo/wiki/zip-format
 class ZipEncryptedFileBase(EncryptedFile):
