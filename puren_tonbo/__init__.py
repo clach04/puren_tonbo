@@ -126,30 +126,33 @@ except NameError:
         str  # py3 - in this module, only used to determine if parameter is a filename
     )
 
-# create log
-log = logging.getLogger("mylogger")
-log.setLevel(logging.DEBUG)
-disable_logging = False
-disable_logging = True
-if disable_logging:
-    log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
+def log_setup(log_name):
+    # create log
+    log = logging.getLogger(log_name)
+    log.setLevel(logging.DEBUG)
+    disable_logging = False
+    disable_logging = True
+    if disable_logging:
+        log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
 
-ch = logging.StreamHandler()  # use stdio
+    ch = logging.StreamHandler()  # use stdio
 
-if sys.version_info >= (2, 5):
-    # 2.5 added function name tracing
-    logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d %(funcName)s() - %(levelname)s - %(message)s"
-else:
-    if JYTHON_RUNTIME_DETECTED:
-        # process is None under Jython 2.2
-        logging_fmt_str = "%(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
+    if sys.version_info >= (2, 5):
+        # 2.5 added function name tracing
+        logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d %(funcName)s() - %(levelname)s - %(message)s"
     else:
-        logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
+        if JYTHON_RUNTIME_DETECTED:
+            # process is None under Jython 2.2
+            logging_fmt_str = "%(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
+        else:
+            logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
 
-formatter = logging.Formatter(logging_fmt_str)
-ch.setFormatter(formatter)
-log.addHandler(ch)
+    formatter = logging.Formatter(logging_fmt_str)
+    ch.setFormatter(formatter)
+    log.addHandler(ch)
+    return log
 
+log = log_setup("mylogger")
 log.debug('encodings %r', (sys.getdefaultencoding(), sys.getfilesystemencoding(), locale.getdefaultlocale()))
 
 class PurenTonboException(Exception):

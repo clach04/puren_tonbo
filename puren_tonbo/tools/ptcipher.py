@@ -19,6 +19,7 @@ from puren_tonbo.tools import ptgrep
 
 is_py3 = sys.version_info >= (3,)
 
+log = puren_tonbo.log_setup(__file__)
 
 def file_replace(src, dst):
     if is_py3:
@@ -194,7 +195,8 @@ def main(argv=None):
             handler.write_to(out_file, plain_text)
             failed = False
     except puren_tonbo.PurenTonboException as info:
-        print("Encrypt/Decrypt problem. %r" % (info,))
+        log.error('%r', info, exc_info=1)  # include traceback
+        print("ptcipher Encrypt/Decrypt problem. %r" % (info,))
     finally:
         if in_filename != '-':  # i.e. sys.stdin
             in_file.close()
