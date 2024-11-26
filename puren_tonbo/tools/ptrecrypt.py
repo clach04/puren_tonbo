@@ -72,7 +72,7 @@ is_py3 = sys.version_info >= (3,)
 ## TODO move out of global?
 ## TODO color logging, see ptgrep logic, needs further refinement and command line control. Also https://betterstack.com/community/questions/how-to-color-python-logging-output/ - https://alexandra-zaharia.github.io/posts/make-your-own-custom-color-formatter-with-python-logging/ (skip colorlog due to wanting same API for py 2.x and 3.x)
 # create logger
-log = logging.getLogger("pttkview")
+log = logging.getLogger("ptrecrypt")
 log.setLevel(logging.DEBUG)
 disable_logging = False
 disable_logging = True  # TODO pickup from command line, env, config?
