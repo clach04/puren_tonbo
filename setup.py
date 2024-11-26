@@ -130,11 +130,13 @@ setup(
     platforms='any',  # or distutils.util.get_platform()
     install_requires=install_requires,
     extras_require={
+        'age': ['age', ],  # 0.5.1
         'chi_io': ['chi_io', ],
         'jenc': ['jenc>=0.0.3', ],
+        #'ssage': ['ssage', ],  # ssage-1.4.0
         # TODO pyvim
         # TODO python-gnupg (consider replacements before implementing https://github.com/clach04/puren_tonbo/issues/118)
-        'all': ['chi_io', 'jenc>=0.0.3', ],  # convience, all of the above. NOTE duplicate of above
+        'all': ['age', 'chi_io', 'jenc>=0.0.3',],  # convenience, all of the above. NOTE duplicate of above
     },
     zip_safe=True,
 )

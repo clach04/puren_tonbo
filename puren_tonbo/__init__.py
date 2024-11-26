@@ -98,6 +98,14 @@ try:
 except ImportError:
     vimdecrypt = fake_module('vimdecrypt')
 
+try:
+    #import ssage  # https://github.com/esoadamo/ssage/  # does not (yet?) support passphrases
+    import age  # https://github.com/jojonas/pyage
+    import age.file
+    import age.keys.password
+except ImportError:
+    #ssage = fake_module('ssage')
+    age = fake_module('age')
 
 try:
     import puren_tonbo.mzipaes as mzipaes
@@ -636,6 +644,35 @@ class TomboBlowfish(EncryptedFile):
     def write_to(self, file_object, byte_data):
         chi_io.write_encrypted_file(file_object, self.key, byte_data)
 
+class Age(EncryptedFile):
+    description = 'AGE - Actually Good Encryption (passphrase ONLY)'
+    extensions = [
+        '.age',
+    ]
+
+    def read_from(self, file_object):
+        # TODO catch exceptions and raise PurenTonboException()
+        # TODO AsciiArmoredInput()
+        #encrypted_bytes = file_object.read()
+        password = self.key
+        if not isinstance(password, bytes):
+            password = password.decode("utf-8")
+
+        identities = [age.keys.password.PasswordKey(password)]
+        with age.file.Decryptor(identities, file_object) as decryptor:
+            plaintext = decryptor.read()
+
+        return plaintext
+
+    def write_to(self, file_object, byte_data):
+        password = self.key
+        if not isinstance(password, bytes):
+            password = password.decode("utf-8")
+
+        raise NotImplementedError
+        crypted_bytes = b'TODO'
+        file_object.write(crypted_bytes)
+
 # TODO AE-2 (no CRC), otherwise the same as AE-1 - see https://github.com/clach04/puren_tonbo/wiki/zip-format
 class ZipEncryptedFileBase(EncryptedFile):
     _filename = 'encrypted.md'  # filename inside of (encrypted) zip file
@@ -776,6 +813,11 @@ for enc_class_name in dir():  #(RawFile, Rot13):
         continue
     for file_extension in enc_class.extensions:
         file_type_handlers[file_extension] = enc_class
+
+if age:
+    for enc_class in (Age, ):
+        for file_extension in enc_class.extensions:
+            file_type_handlers[file_extension] = enc_class
 
 if jenc:  # FIXME, handle this via introspection, see code above for RawFile
 
