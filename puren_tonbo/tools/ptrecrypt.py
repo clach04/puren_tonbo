@@ -232,6 +232,7 @@ def main(argv=None):
     parser.add_option("-E", "--envvar", help="Name of environment variable to get password from (defaults to PT_PASSWORD) - unsafe", default="PT_PASSWORD")  # similar to https://ccrypt.sourceforge.net/
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
+    parser.add_option("-t", "--time", action="store_true")
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-s", "--silent", help="if specified do not warn about stdin using", action="store_false", default=True)
     parser.add_option("--force-recrypt-same-format-password", "--force_recrypt_same_format_password", help="For re encryption, even if same file format/container and password is to be used", action="store_true")
@@ -298,6 +299,9 @@ def main(argv=None):
     if new_password and not isinstance(new_password, bytes):
         new_password = new_password.encode('us-ascii')
 
+    if options.time:
+        start_time = time.time()
+
     filename_pattern_list = args
     directory_list = []
     log.debug('args: %r' % ((argv, args, directory_list),))
@@ -323,6 +327,11 @@ def main(argv=None):
                     log.warning('Skipping not encrypted %s', (filename,))
                     continue
                 process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory, new_extension=options.new_extension, existing_files_resolution=options.existing_files, simulate=simulate)
+
+    if options.time:
+        end_time = time.time()
+        total_time = end_time - start_time
+        print('Query time: %.2f seconds' % total_time)
 
     return 0
 
