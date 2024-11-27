@@ -146,6 +146,9 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
     except puren_tonbo.UnsupportedFile as info:
         log.error('Skipping UnsupportedFile (TODO option to allow continue, and default to stopping?) %s, %r', filename, info)
         return
+    except Exception as info:
+        log.error('Unhandled error %s, %r', filename, info)
+        raise
     finally:
         in_file.close()
     base_filename, original_extension = in_handler.split_extension(filename)
