@@ -77,7 +77,7 @@ extras_require = {
     # TODO python-gnupg (consider replacements before implementing https://github.com/clach04/puren_tonbo/issues/118)
 }
 if is_cpython and is_py3:
-    extras_require['age'] ['age', ],  # 0.5.1 is known to work
+    extras_require['age'] = ['age', ],  # 0.5.1 is known to work
     #'ssage': ['ssage', ],  # ssage-1.4.0
 
 extras_require_all = []
