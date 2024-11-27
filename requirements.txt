@@ -6,7 +6,6 @@ pyzipper; python_version > "2.7"
 python-gnupg
 openssl_enc_compat  # https://github.com/clach04/openssl_enc_compat/
 jenc>=0.0.3
-age; python_version > "2.7"  # 0.5.1
 # pywin32  # Windows only - for GUI password prompt
 
 percolator

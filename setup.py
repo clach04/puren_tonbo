@@ -70,6 +70,21 @@ if is_win and is_cpython:
 # https://setuptools.pypa.io/en/latest/userguide/dependency_management.html#optional-dependencies
 # https://stackoverflow.com/questions/10572603/specifying-optional-dependencies-in-pypi-python-setup-py
 
+extras_require = {
+    'chi_io': ['chi_io', ],
+    'jenc': ['jenc>=0.0.3', ],  # NOTE test suite and v002 support actually needs minimum of jenc-0.0.5
+    # TODO pyvim
+    # TODO python-gnupg (consider replacements before implementing https://github.com/clach04/puren_tonbo/issues/118)
+}
+if is_cpython and is_py3:
+    extras_require['age'] ['age', ],  # 0.5.1 is known to work
+    #'ssage': ['ssage', ],  # ssage-1.4.0
+
+extras_require_all = []
+for extra_name in extras_require:
+    extras_require_all.append(extras_require[extra_name])
+extras_require['all'] = extras_require_all  # convenience, all of the above. NOTE duplicate of above
+
 # disable package finding, explictly list package
 find_packages = False
 if find_packages:
@@ -129,14 +144,6 @@ setup(
         ],
     platforms='any',  # or distutils.util.get_platform()
     install_requires=install_requires,
-    extras_require={
-        'age': ['age', ],  # 0.5.1 - NOTE only for is_py3
-        'chi_io': ['chi_io', ],
-        'jenc': ['jenc>=0.0.3', ],  # NOTE test suite and v002 support actually needs minimum of jenc-0.0.5
-        #'ssage': ['ssage', ],  # ssage-1.4.0
-        # TODO pyvim
-        # TODO python-gnupg (consider replacements before implementing https://github.com/clach04/puren_tonbo/issues/118)
-        'all': ['age', 'chi_io', 'jenc>=0.0.3',],  # convenience, all of the above. NOTE duplicate of above
-    },
+    extras_require=extras_require,
     zip_safe=True,
 )
