@@ -237,11 +237,11 @@ def main(argv=None):
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-t", "--time", action="store_true")
-    parser.add_option("-v", "--verbose", action="store_true")
+    parser.add_option("-v", "--verbose", action="store_true")  # TODO quiet mode, defaul verbose on
     parser.add_option("-s", "--silent", help="if specified do not warn about stdin using", action="store_false", default=True)
     parser.add_option("--force-recrypt-same-format-password", "--force_recrypt_same_format_password", help="For re encryption, even if same file format/container and password is to be used", action="store_true")
     parser.add_option("--destination-directory", "--destination_directory", help="If specified where to write to, if ommited uses same directory")
-    parser.add_option("--new-extension", "--new_extension", help="file extension to append for new files; 'default' (default for cipher), 'cipher' (what was passed in on command line), 'retain' (if not changing formats, use the original file extension) - and potentially anything else with a period is the new extension to use, for example '.zip'")
+    parser.add_option("--new-extension", "--new_extension", help="NOTE also see --cipher. file extension to append for new files; 'default' (default for cipher), 'cipher' (what was passed in on command line), 'retain' (if not changing formats, use the original file extension) - and potentially anything else with a period is the new extension to use, for example '.zip'")
     parser.add_option("--skip-encrypted", "--skip_encrypted", help="For directories, skip already encrypted files", action="store_true")  # TODO consider applying to files specified on command line
     parser.add_option("--skip-unencrypted", "--skip_unencrypted", help="For directories, skip files that are not already encrypted", action="store_true")  # TODO consider applying to files specified on command line
     parser.add_option("--existing-files", "--existing_files", help="How to handle existing files; resolving files that already exist; default error/stop, skip, overwrite/replace/delete (in safe mode - needed for same file type, new password), delete (after successful write)")
@@ -327,7 +327,8 @@ def main(argv=None):
                     log.warning('Skipping already encrypted %s', (filename,))
                     continue
                 if options.skip_unencrypted and not is_encrypted:
-                    log.warning('Skipping not encrypted %s', (filename,))
+                    if verbose:
+                        log.warning('Skipping not encrypted %s', (filename,))
                     continue
                 process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory, new_extension=options.new_extension, existing_files_resolution=options.existing_files, simulate=simulate)
 
