@@ -62,7 +62,7 @@ exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), project_name_
 
 
 # TODO/FIXME dupe of requirements.txt - also chi_io missing here (as not on pypi)
-install_requires = ['colorama', 'pycryptodome', 'python-gnupg', 'openssl_enc_compat', 'percolator']  # TODO reorder/indent
+install_requires = ['colorama', 'pycryptodome', 'openssl_enc_compat', 'percolator']  # TODO reorder/indent
 if is_py3:
     install_requires += ['pyzipper']  # pyzipperis python 3.x+
 if is_win and is_cpython:
@@ -72,8 +72,9 @@ if is_win and is_cpython:
 
 extras_require = {
     'chi_io': ['chi_io', ],
-    'jenc': ['jenc>=0.0.3', ],  # NOTE test suite and v002 support actually needs minimum of jenc-0.0.5
-    # TODO pyvim
+    'jenc': ['jenc>=0.0.5', ],
+    'pyvim': ['pyvim', ],  # TODO version?
+    'python-gnupg': ['python-gnupg', ],  # TODO version?
     # TODO python-gnupg (consider replacements before implementing https://github.com/clach04/puren_tonbo/issues/118)
 }
 if is_cpython and is_py3:
