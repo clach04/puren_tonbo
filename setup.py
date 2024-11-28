@@ -97,7 +97,7 @@ setup(
     name=project_name,
     version=__version__,
     url='https://github.com/clach04/' + project_name,
-    description='Plain text notes Tombo (chi) alternative, also supports AES-256 ZIP AE-1/AE-2 and VimCrypt encrypted files. Work-In-Progress (WIP)!',  # FIXME
+    description='Plain text notes Tombo (chi) alternative, also supports; age, ccrypt, GnuPG (OpenPGP, gpg), jenc (Markor), OpenSSL AES-256-CBC, AES-256 ZIP AE-1/AE-2 and VimCrypt1-3 encrypted files. Integrates with VIM. WIP'
     long_description=long_description,
     long_description_content_type='text/markdown',
 
