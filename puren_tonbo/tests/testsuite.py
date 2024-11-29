@@ -885,7 +885,7 @@ class TestFileSystemNotesWriteFunctionSaveEncryptedOpenSsl10k(TestFileSystemNote
     handler_class = puren_tonbo.OpenSslEnc10k # OpenSSL aes256cbc pbkdf2 10k
 
 
-# age
+# age - TODO AgeExe test support
 class TestBaseEncryptedAge(TestBaseEncryptedFile, TestBaseEncryptedFileCompat, TestBaseEncryptedFileUtil):
     test_data_bytes = b"this is just a small piece of text."
     test_password_bytes = b'mypassword'
