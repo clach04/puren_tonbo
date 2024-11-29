@@ -208,6 +208,7 @@ class BaseFile:
 
     description = 'Base Encrypted File'
     extensions = []  # non-empty list of file extensions, first is the default (e.g. for writing) and last should be the most generic
+    implementation = 'py'  # exe
     kdf = None  # OPTIONAL key derivation function, that takes a single parameter of bytes for the password/key. See TomboBlowfish  # TODO review this
     needs_key = True  # if not true, then this class does not require a key (password) to operate
 
@@ -372,9 +373,9 @@ class VimDecrypt(EncryptedFile):
 
 CCRYPT_EXE = os.environ.get('CCRYPT_EXE', 'ccrypt')
 ccrypt = None
-ccrypt_version = 'MISSING'
+ccrypt_version = 'MISSING'  # TODO make this part of Ccrypt class
 
-class Ccrypt(EncryptedFile):
+class CcryptExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
     """ccrypt - ccrypt - https://ccrypt.sourceforge.net/
     NOTE uses external command line tool, rather than use files
     with ccrypt exe stdin/stdout is used instead to adhere to
@@ -385,6 +386,8 @@ class Ccrypt(EncryptedFile):
     extensions = [
         '.cpt',  # binary
     ]
+    implementation = 'exe'
+
 
     def read_from(self, file_object):
         password = self.key  # TODO enforce byte check?
@@ -428,6 +431,7 @@ class Ccrypt(EncryptedFile):
             raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
         file_object.write(stdout_value)  # only write to fileobject on successful encryption
 
+Ccrypt = CcryptExe
 
 cmd = [CCRYPT_EXE, '--version']
 if is_win:
@@ -644,6 +648,7 @@ class TomboBlowfish(EncryptedFile):
     def write_to(self, file_object, byte_data):
         chi_io.write_encrypted_file(file_object, self.key, byte_data)
 
+
 class Age(EncryptedFile):
     description = 'AGE - Actually Good Encryption (passphrase ONLY)'
     extensions = [
@@ -689,6 +694,92 @@ class Age(EncryptedFile):
             # TODO chain exception...
             #raise PurenTonboException(info.message)
             raise PurenTonboException(info)
+
+class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
+    """
+    """
+
+    description = Age.description + ' (EXE)'
+    extensions = Age.extensions
+    implementation = 'exe'
+    _exe_name = 'age'  # https://github.com/wj/age.git
+    _envvar_name = 'AGE_PASSPHRASE'  # TODO allow config...
+    _exe_present = False
+    _exe_version_str = None
+    _exe_version = None
+
+    #@classmethod()
+    def exe_version_check(self):
+        # combination exe present and version check
+        cmd = [self._exe_name, '--version']
+        if is_win:
+            expand_shell = True  # avoid pop-up black CMD window - TODO review safety
+        else:
+            expand_shell = False
+
+        try:
+            p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # timeout not suported by older python versions, pre 3.3?
+            stdout_value, stderr_value = p_exe.communicate()
+
+            """
+            print('stdout: %r' % stdout_value)
+            print('stderr: %r' % stderr_value)
+            print('returncode: %r' % p_exe.returncode)
+            """
+            if p_exe.returncode == 0:
+                self._exe_present = True
+                self._exe_version_str = stdout_value.strip()
+                #self._exe_version = self._exe_version_str.split(b' ', 2)[1].decode('utf-8')  # will fail on "(develop)" and other non integer-period/dot strings
+        except FileNotFoundError:
+            # some (but not all, Windows does not require this) platforms raise exception on missing binary
+            pass
+
+    def read_from(self, file_object):
+        password = self.key  # TODO enforce byte check?
+        if isinstance(password, bytes):
+            # environment variables (in Microsoft Windows) have to be strings in py3
+            password = password.decode("utf-8")
+
+        os.environ[self._envvar_name] = password
+        cmd = [self._exe_name, '--decrypt']
+
+        # expand-shell true for windows to avoid pop-up window, no user input used so shell escape/esculation not expected
+        # TODO look at alernative, Windows only startupinfo param STARTUPINFO class, wShowWindow = SW_HIDE
+        byte_data = file_object.read()
+        # FIXME TODO - ensure passphrae prompt does not occur....
+        p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # timeout not suported by older python versions, pre 3.3
+        #stdout_value, stderr_value = p_exe.communicate()
+        stdout_value, stderr_value = p_exe.communicate(input=byte_data)
+        if p_exe.returncode != 0:
+            """
+            if stderr_value== b'TODO EXE SPECIFIC CHECK GOES HERE\n':
+                raise BadPassword('with %r' % file_object)
+            """
+            if stderr_value.startswith(b'age: error: incorrect passphrase'):
+                raise BadPassword('with %r' % file_object)
+            raise PurenTonboException('failed to spawn, %r' % stderr_value)
+        return stdout_value
+
+    def write_to(self, file_object, byte_data):
+        password = self.key  # TODO enforce byte check?
+        if isinstance(password, bytes):
+            # environment variables (in Microsoft Windows) have to be strings in py3
+            password = password.decode("utf-8")
+
+        os.environ[self._envvar_name] = password
+        cmd = [self._exe_name, '--encrypt', '--passphrase']
+        # FIXME TODO - ensure passphrae prompt does not occur....
+        p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # timeout not suported by older python versions, pre 3.3
+        stdout_value, stderr_value = p_exe.communicate(input=byte_data)
+        if p_exe.returncode != 0:
+            raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
+        file_object.write(stdout_value)  # only write to fileobject on successful encryption
+AgeExe.exe_version_check(AgeExe)  # TODO review this and classmethod
 
 # TODO AE-2 (no CRC), otherwise the same as AE-1 - see https://github.com/clach04/puren_tonbo/wiki/zip-format
 class ZipEncryptedFileBase(EncryptedFile):
@@ -831,8 +922,13 @@ for enc_class_name in dir():  #(RawFile, Rot13):
     for file_extension in enc_class.extensions:
         file_type_handlers[file_extension] = enc_class
 
+
 if age:
     for enc_class in (Age, ):
+        for file_extension in enc_class.extensions:
+            file_type_handlers[file_extension] = enc_class
+elif AgeExe._exe_present:
+    for enc_class in (AgeExe, ):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 
