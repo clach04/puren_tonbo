@@ -99,6 +99,7 @@ except ImportError:
     vimdecrypt = fake_module('vimdecrypt')
 
 try:
+    if os.environ.get('FORCE_AGEEXE'):  raise ImportError()  # force usage of age command line binary exe
     #import ssage  # https://github.com/esoadamo/ssage/  # does not (yet?) support passphrases
     import age  # https://github.com/jojonas/pyage
     import age.file
