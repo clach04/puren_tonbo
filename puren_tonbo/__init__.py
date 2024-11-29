@@ -703,7 +703,7 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
     description = Age.description + ' (EXE)'
     extensions = Age.extensions
     implementation = 'exe'
-    _exe_name = 'age'  # https://github.com/wj/age.git
+    _exe_name = os.environ.get('AGE_EXE', 'age')  # https://github.com/wj/age.git - that supports environment variable for passphrase
     _envvar_name = 'AGE_PASSPHRASE'  # TODO allow config...
     _exe_present = False
     _exe_version_str = None
