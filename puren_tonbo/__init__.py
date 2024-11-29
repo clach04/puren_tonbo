@@ -780,7 +780,9 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
         if p_exe.returncode != 0:
             raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
         file_object.write(stdout_value)  # only write to fileobject on successful encryption
-AgeExe.exe_version_check(AgeExe)  # TODO review this and classmethod
+if is_py3:
+    AgeExe.exe_version_check(AgeExe)  # TODO review this and classmethod
+# ELSE todo py2.7 - TypeError: unbound method exe_version_check() must be called with AgeExe instance as first argument (got classobj instance instead)
 
 # TODO AE-2 (no CRC), otherwise the same as AE-1 - see https://github.com/clach04/puren_tonbo/wiki/zip-format
 class ZipEncryptedFileBase(EncryptedFile):
