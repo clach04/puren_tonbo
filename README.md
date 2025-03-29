@@ -655,6 +655,7 @@ For example, 7z can read and write AES zip files:
     7z a -tzip -mem=AES256 -ptest README.aes256.zip README.md
     7z x -ptest README.aes256.zip
 
+for more 7z command line options see https://github.com/axelstudios/7z
 
 #### VimCrypt
 
