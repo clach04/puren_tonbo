@@ -642,7 +642,7 @@ ONLY supports aes-256-cbc with salt and pbkdf2 KDF with 10,000 interations.
 
 #### AES-256 zip
 
-Symmetric encryption/decryption from passphase.
+Symmetric encryption/decryption from passphase. See https://github.com/clach04/puren_tonbo/wiki/format-zip
 
     ptcipher -e -p test README.md -o README.aes256.zip
 
