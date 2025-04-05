@@ -1,2 +1,4 @@
+# conditional on platform, etc. https://packaging.python.org/en/latest/specifications/dependency-specifiers/
+
 age; python_version > "2.7"  # 0.5.1 - CPython only, not pypy/jython
-pywin32  # not sure how to make this conditional on platform
+pywin32; sys_platform == "win32"
