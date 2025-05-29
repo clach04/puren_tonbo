@@ -436,11 +436,23 @@ Examples
         sub_dir = None
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
         hits = []
+        zebra_color_filenames = self.grep_options.zebra_color_filenames
+        color_filename_zebra = ptgrep.color_filename_zebra
+        color_reset = ptgrep.color_reset
+        color_filename = ptgrep.color_filename
         for counter, filename in enumerate(notes.recent_notes(number_of_files=number_of_files, order=puren_tonbo.ORDER_DESCENDING, ignore_folders=ignore_folders), start=1):
             hits.append(filename)
             result_hit_line = '[%d] %s' % (counter, filename)
+            # TODO refactor below into a function
             if use_color:
-                result_hit_line = ptgrep.color_filename + str(result_hit_line) + ptgrep.color_reset
+                if not zebra_color_filenames:
+                    # TODO can this be refactored (with below)?
+                    result_hit_line = color_filename + str(result_hit_line) + color_reset
+                else:
+                    if counter % 2:
+                        result_hit_line = color_filename_zebra + str(result_hit_line) + color_reset
+                    else:
+                        result_hit_line = color_filename + str(result_hit_line) + color_reset
             else:
                 result_hit_line = str(result_hit_line)
             print(result_hit_line)
@@ -617,9 +629,17 @@ Search previous results for search term.
             # TEST assume find
             #self.do_find(line=line, paths_to_search=self.file_hits)
             #self.do_grep(line=line, paths_to_search=self.file_hits)
-        # TODO zebra_color_filenames support needed here
+        zebra_color_filenames = self.grep_options.zebra_color_filenames
         for counter, filename in enumerate(self.file_hits, start=1):
-            print('[%d] %s' % (counter, filename))
+            # TODO use_color check - see do_recent() logic
+            #if not options.use_color:
+            if not zebra_color_filenames:
+                print('[%d] %s' % (counter, filename))
+            else:
+                if counter % 2:
+                    print('%s[%d] %s%s' % (ptgrep.color_filename_zebra, counter, filename, ptgrep.color_reset))
+                else:
+                    print('[%d] %s' % (counter, filename))
     do_res = do_results
     do_r = do_results
 
