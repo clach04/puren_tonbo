@@ -143,14 +143,11 @@ def zebra_stripe(line, use_color=False, use_zebra_color_filenames=False, line_co
     """Optionally zebra-stripe alternative lines
     """
     if use_color:
-        if not use_zebra_color_filenames:
-            # TODO can this be refactored (with below)?
-            line = color_filename + str(line) + color_reset
+        if use_zebra_color_filenames and line_counter % 2:
+            color_prefix = color_filename_zebra
         else:
-            if counter % 2:
-                line = color_filename_zebra + str(line) + color_reset
-            else:
-                line = color_filename + str(line) + color_reset
+            color_prefix = color_filename
+        line = color_prefix + str(line) + color_reset
     else:
         line = str(line)
     return line
