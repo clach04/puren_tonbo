@@ -139,6 +139,22 @@ class FakeMethodEdit(object):
         editor = self.parent.pt_config['ptig']['editors'][self.name]
         self.parent.do_edit(line, editor=editor)
 
+def zebra_stripe(line, use_color=False, use_zebra_color_filenames=False, line_counter=1, color_filename=ptgrep.color_filename, color_filename_zebra=ptgrep.color_filename_zebra, color_reset=ptgrep.color_reset):  # FIXME rename
+    """Optionally zebra-stripe alternative lines
+    """
+    if use_color:
+        if not use_zebra_color_filenames:
+            # TODO can this be refactored (with below)?
+            line = color_filename + str(line) + color_reset
+        else:
+            if counter % 2:
+                line = color_filename_zebra + str(line) + color_reset
+            else:
+                line = color_filename + str(line) + color_reset
+    else:
+        line = str(line)
+    return line
+
 class CommandPrompt(Cmd):
     def __init__(self, paths_to_search=None, pt_config=None, grep_options=None):  # TODO refactorm too many options and search path is also potentially a dupe
         """If paths_to_search is omitted, defaults to current directory
@@ -436,26 +452,15 @@ Examples
         sub_dir = None
         notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
         hits = []
-        zebra_color_filenames = self.grep_options.zebra_color_filenames
+        use_zebra_color_filenames = self.grep_options.zebra_color_filenames
         color_filename_zebra = ptgrep.color_filename_zebra
         color_reset = ptgrep.color_reset
         color_filename = ptgrep.color_filename
         for counter, filename in enumerate(notes.recent_notes(number_of_files=number_of_files, order=puren_tonbo.ORDER_DESCENDING, ignore_folders=ignore_folders), start=1):
             hits.append(filename)
             result_hit_line = '[%d] %s' % (counter, filename)
-            # TODO refactor below into a function
-            if use_color:
-                if not zebra_color_filenames:
-                    # TODO can this be refactored (with below)?
-                    result_hit_line = color_filename + str(result_hit_line) + color_reset
-                else:
-                    if counter % 2:
-                        result_hit_line = color_filename_zebra + str(result_hit_line) + color_reset
-                    else:
-                        result_hit_line = color_filename + str(result_hit_line) + color_reset
-            else:
-                result_hit_line = str(result_hit_line)
-            print(result_hit_line)
+            result_hit_line = zebra_stripe(result_hit_line, use_color=use_color, color_filename=color_filename, use_zebra_color_filenames=use_zebra_color_filenames, line_counter=counter, color_filename_zebra=color_filename_zebra, color_reset=color_reset)  # FIXME param names
+            print('%s' % (result_hit_line,))
 
         # TODO catch SearchCancelled, KeyboardInterrupt
         self.file_hits = hits
@@ -629,17 +634,15 @@ Search previous results for search term.
             # TEST assume find
             #self.do_find(line=line, paths_to_search=self.file_hits)
             #self.do_grep(line=line, paths_to_search=self.file_hits)
-        zebra_color_filenames = self.grep_options.zebra_color_filenames
+        use_color = self.grep_options.use_color
+        use_zebra_color_filenames = self.grep_options.zebra_color_filenames
+        color_filename_zebra = ptgrep.color_filename_zebra
+        color_reset = ptgrep.color_reset
+        color_filename = ptgrep.color_filename
         for counter, filename in enumerate(self.file_hits, start=1):
-            # TODO use_color check - see do_recent() logic
-            #if not options.use_color:
-            if not zebra_color_filenames:
-                print('[%d] %s' % (counter, filename))
-            else:
-                if counter % 2:
-                    print('%s[%d] %s%s' % (ptgrep.color_filename_zebra, counter, filename, ptgrep.color_reset))
-                else:
-                    print('[%d] %s' % (counter, filename))
+            result_hit_line = '[%d] %s' % (counter, filename)
+            result_hit_line = zebra_stripe(result_hit_line, use_color=use_color, color_filename=color_filename, use_zebra_color_filenames=use_zebra_color_filenames, line_counter=counter, color_filename_zebra=color_filename_zebra, color_reset=color_reset)  # FIXME param names
+            print('%s' % (result_hit_line,))
     do_res = do_results
     do_r = do_results
 
