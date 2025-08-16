@@ -281,7 +281,7 @@ class CompressedFile(BaseFile):
 
 class CompressedZlib(CompressedFile):
     description = 'zlib - could be gz or Z'
-    extensions = ['.gz', '.Z']
+    extensions = ['.gz', '.Z']  # NOTE this is a little greedy, matches .tar.gz (which is currently not supported) which really should be ignored (until/if archive support is added) TODO how to skip tar files (etc.)
 
     def read_from(self, file_object):
         # NOTE no password/key usage!
@@ -1385,7 +1385,7 @@ def to_bytes(data_in_string, note_encoding='utf-8'):
             pass  # try next
     raise NotImplementedError('ran out of valid encodings to try, %r' % (data_in_string[:20],))
 
-def to_string(data_in_bytes, note_encoding='utf-8'):
+def to_string(data_in_bytes, note_encoding='utf-8'):  # TODO add option to support best effort, use replacement characters (ideally XML/html ref ot hex ala git - to avoid data loss)?
     """Where note_encoding can also be a list, e.g. ['utf8', 'cp1252']
     """
     #log.debug('note_encoding %r', note_encoding)
@@ -1401,7 +1401,7 @@ def to_string(data_in_bytes, note_encoding='utf-8'):
         except UnicodeDecodeError:
             pass  # try next
         # TODO try/except
-    raise NotImplementedError('ran out of valid encodings to try, %r' % (data_in_bytes[:20],))
+    raise UnsupportedFile('ran out of valid encodings to try, %r' % (data_in_bytes[:20],))  # likely user error (incorrect encodings) or simply a bad /unsupported file
 
 def unicode_path(filename):
     if isinstance(filename, bytes):
@@ -1455,6 +1455,7 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
         @note_encoding can also be a list, e.g. ['utf8', 'cp1252']
     """
     try:
+        #log.debug('filename: %r', filename)
         filename = unicode_path(filename)
 
         handler_class = handler_class or filename2handler(filename)
@@ -2364,9 +2365,9 @@ class FileSystemNotes(BaseNotes):
                 #import pdb ; pdb.set_trace()
                 try:
                     note_text = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
-                except UnsupportedFile:
+                except UnsupportedFile as error_info:
                     # TODO - what!? options; ignore, raise, treat as RawFile type
-                    log.warning('UnsupportedFile Ignored %r', filename)
+                    log.warning('UnsupportedFile Ignored %r - reason %r', filename, error_info)
                     if ignore_unsupported_filetypes:
                         pass
                         note_text = ''
