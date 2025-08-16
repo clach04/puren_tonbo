@@ -51,6 +51,11 @@ except ImportError:
         chi_io = fake_module('chi_io')
 
 try:
+    import colorlog  # https://github.com/borntyping/python-colorlog
+except ImportError:
+    colorlog = None
+
+try:
     raise ImportError()  # on my armbian distro the SWIG layer appears to have issues and caches plaintext, test_aesop_win_encryptpad_gpg_bad_password fails due to NOT getting bad password exception
     import gpg as gpgme  # `apt install python3-gpg` https://github.com/gpg/gpgme
     gpg = gpgme.core.Context()
@@ -137,14 +142,23 @@ except NameError:
 
 def log_setup(log_name):
     # create log
-    log = logging.getLogger(log_name)
+    # TODO check NO_COLOR - see existing NO_COLOR code, simple option would be to set colorlog to None
+    if colorlog:
+        log = colorlog.getLogger(log_name)
+    else:
+        log = logging.getLogger(log_name)
+    log.setLevel(logging.WARN)  # bare minimum
+    log.setLevel(logging.INFO)
     log.setLevel(logging.DEBUG)
     disable_logging = False
     disable_logging = True
     if disable_logging:
         log.setLevel(logging.NOTSET)  # only logs; WARNING, ERROR, CRITICAL
 
-    ch = logging.StreamHandler()  # use stdio
+    if colorlog:
+        ch = colorlog.StreamHandler()
+    else:
+        ch = logging.StreamHandler()  # use stdio
 
     if sys.version_info >= (2, 5):
         # 2.5 added function name tracing
@@ -156,7 +170,10 @@ def log_setup(log_name):
         else:
             logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
 
-    formatter = logging.Formatter(logging_fmt_str)
+    if colorlog:
+        formatter = colorlog.ColoredFormatter('%(log_color)s' + logging_fmt_str)
+    else:
+        formatter = logging.Formatter(logging_fmt_str)
     ch.setFormatter(formatter)
     log.addHandler(ch)
     return log
