@@ -536,12 +536,15 @@ https://en.wikipedia.org/wiki/ROT13#Variants
 
 #### gzip
 
-No encryption, gzip compress files - no passphrase/password/key support.
+No encryption, gzip compressed files - no passphrase/password/key support.
 
     ptcipher -p password_ignored puren_tonbo/tests/data/aesop.txt.gz
     py -3 -m puren_tonbo.tools.ptcipher -p password_ignored puren_tonbo/tests/data/aesop.txt.gz
 
 NOTE Python 2 support for gz files is missing do to API differences in zlib.
+
+NOTE files named .tar.gz will be picked up, they are NOT ignored.
+TODO feature to ignore tar files (raw, gz, bz2, etc.)
 
 #### jenc / Markor / jpencconverter
 
