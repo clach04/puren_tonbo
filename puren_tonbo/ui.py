@@ -149,6 +149,30 @@ def call_getpassfunc(prompt=None, preference_list=None):
 
     raise NotImplementedError('Unsure which password function to use')
 
-def getpassfunc(prompt=None, preference_list=None):
+def getpassfunc(prompt=None, preference_list=None, for_decrypt=False, brave_mode=False):
+    """
+    if for_decrypt is true, only need to prompt once
+    brave_mode = opposite of timid; timid prompt for password and confirmation, brave prompt once
+    """
     preference_list = preference_list or ['any']
-    return call_getpassfunc(prompt=prompt, preference_list=preference_list)
+    prompt_counter = 2
+    if for_decrypt:
+        prompt_counter = 1
+    else:
+        if brave_mode:
+            prompt_counter = 1
+
+    if prompt_counter == 1:
+        return call_getpassfunc(prompt=prompt, preference_list=preference_list)
+
+    passwords_match = False
+    while not passwords_match:
+        password1 = call_getpassfunc(prompt=prompt, preference_list=preference_list)
+        password2 = call_getpassfunc(prompt='Re-confirm ' + prompt, preference_list=preference_list)
+        if password1 == password2:
+            passwords_match = True
+            break
+        else:
+            # TODO GUI options for feedback.... Also GUI has the option to show 2 fields rather than prompt UI twice...
+            print('Passwords do NOT match, re-enter.')
+    return password1

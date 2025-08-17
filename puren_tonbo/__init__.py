@@ -1073,7 +1073,7 @@ class gen_caching_get_password(object):
         self.dirname = dirname
     def gen_func(self):
         ## TODO add (optional) timeout "forget"/wipe password from memory
-        def get_pass(prompt=None, filename=None, reset=False):
+        def get_pass(prompt=None, filename=None, reset=False, for_decrypt=False, brave_mode=False):
             """Caching password prompt for CONSOLE.
                 prompt - the prompt to print for password prompt
                 reset - if set to True will forget the cached password and prompt for it
@@ -1090,7 +1090,7 @@ class gen_caching_get_password(object):
                             prompt = "Password for note %s:" % filename
                         else:
                             prompt = "Password for file %s:" % filename
-                self.user_password = ui.getpassfunc(prompt)
+                self.user_password = ui.getpassfunc(prompt, for_decrypt=for_decrypt, brave_mode=brave_mode)
                 if self.user_password  is None or self.user_password  == b'':
                     self.user_password = None
                 """
@@ -1485,7 +1485,7 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
             else:
                 #import pdb ; pdb.set_trace()
                 if callable(get_pass):
-                    note_password = get_pass(filename=filename, reset=reset_password)
+                    note_password = get_pass(filename=filename, reset=reset_password, for_decrypt=True)
                     # sanity check needed in case function returned string
                     if not isinstance(note_password, bytes):
                         note_password = note_password.encode("utf-8")
