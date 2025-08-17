@@ -124,7 +124,7 @@ def supported_password_prompt_mechanisms():
     # TODO return ('any', 'text', 'gui', 'tk', 'psidialog' , 'external')  # external would use os var PT_ASKPASS
 
 # TODO see dirname param in gen_caching_get_password()
-def getpassfunc(prompt=None, preference_list=None):
+def call_getpassfunc(prompt=None, preference_list=None):
     preference_list = preference_list or ['any']
     # TODO text first?
     if getpass and ('text' in preference_list or 'any' in preference_list):
@@ -148,3 +148,7 @@ def getpassfunc(prompt=None, preference_list=None):
         return tk_getpass(prompt)
 
     raise NotImplementedError('Unsure which password function to use')
+
+def getpassfunc(prompt=None, preference_list=None):
+    preference_list = preference_list or ['any']
+    return call_getpassfunc(prompt=prompt, preference_list=preference_list)
