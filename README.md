@@ -39,6 +39,7 @@ NO WARRANTY - see the LICENSE
       - [gzip](#gzip)
       - [jenc / Markor / jpencconverter](#jenc---markor---jpencconverter)
       - [Tombo Blowfish CHI](#tombo-blowfish-chi)
+      - [Age encryption](#age-encryption)
       - [ccrypt CPT](#ccrypt-cpt)
       - [OpenPGP - gpg / pgp](#openpgp---gpg---pgp)
       - [OpenSSL 1.1.0 AES](#openssl-110-aes)
@@ -70,6 +71,8 @@ Plain text notes search/edit tool that supports encrypted files, formats:
 
   * [AES-256 ZIP AE-1/AE-2](https://www.winzip.com/en/support/aes-encryption/) created with 7z (does NOT support encrypted 7z files), WinZIP, WinRAR - AES256 (under Python 3 can also read (but not write) the original ZipCrypto zip format)
       * AES-256-CTR PBKDF2 (iterations 1000)
+  * [Age](https://github.com/clach04/age/tree/pr520_osenv_password) age passphrase encryption (not key)
+  * [jenc / markor](https://github.com/clach04/jenc-py)
   * [ccrypt](https://ccrypt.sourceforge.net/) - Rijndael-256 (no authentication)
   * [GnuPG (OpenPGP, gpg)](https://www.gnupg.org/) - [symmetric](https://www.gnupg.org/gph/en/manual/r656.html) see https://tutonics.com/articles/gpg-encryption-guide-part-4-symmetric-encryption/#:~:text=Another%20type%20of%20cryptographic%20solution,also%20called%20a%20shared%20secret.
   * [OpenSSL 1.1.0 aes-256-cbc](https://github.com/openssl/openssl) - [symmetric](https://www.openssl.org/docs/manmaster/man1/openssl.html) AES-256-CBC encryption with pbkdf2.
@@ -587,6 +590,15 @@ Compatible with http://tombo.osdn.jp/En/ (and others, for example, Kumagusu on A
     ptcipher -v -p test README.chi
 
 The chi/chs file can also be read/written by Tombo http://tombo.sourceforge.jp/En/ and clones (for example, Kumagusu).
+
+
+#### Age encryption
+
+NOTE age passphrase encryption, not key.
+
+Can either use Python library or age exe/binary - NOTE binary is signifcantly faster.
+Age exe from https://github.com/wj/age recommended which implements support for password from environment variable
+https://github.com/FiloSottile/age/pull/520
 
 
 #### ccrypt CPT
