@@ -869,7 +869,7 @@ Usage:
                 # FIXME if a bad password is used, the same bad password will be used on next edit (unless cat is issued first)
                 password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
                 if callable(password_func):
-                    password = password_func('Password for %s' % filename)
+                    password = password_func('Password for %s' % filename, for_decrypt=True)
                 else:
                     password = password_func
                 if password and  isinstance(password, bytes):
