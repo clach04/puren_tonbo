@@ -2301,14 +2301,24 @@ class FileSystemNotes(BaseNotes):
         self.fts_instance = fts_instance
         fts_instance.index_delete()
         fts_instance.create_index_start()
+        ignore_unsupported_filetypes = True
         for tmp_filename in recurse_notes_func(search_path, is_note_filename_filter):
                 filename = self.abspath2relative(tmp_filename)
-                print('index %r' % filename)  # DEBUG
-                #contents = None
-                contents = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)
-                #stored_filename = filename  # relative
-                stored_filename = tmp_filename  # absolute
-                fts_instance.add_to_index(stored_filename, contents=contents)
+                print('index %r' % filename)  # DEBUG FIXME log.info
+                try:
+                    contents = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)
+                    #stored_filename = filename  # relative
+                    stored_filename = tmp_filename  # absolute
+                    fts_instance.add_to_index(stored_filename, contents=contents)
+                except UnsupportedFile as error_info:
+                    # TODO - what!? options; ignore, raise, treat as RawFile type
+                    log.warning('UnsupportedFile Ignored %r - reason %r', filename, error_info)
+                    if ignore_unsupported_filetypes:
+                        continue
+                    else:
+                        log.error('UnsupportedFile %r', filename)  # todo exception trace?
+                        raise
+
         fts_instance.create_index_end()
 
 
