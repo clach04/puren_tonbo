@@ -598,7 +598,11 @@ NOTE age passphrase encryption, not key.
 
 Can either use Python library or age exe/binary - NOTE binary is signifcantly faster.
 Age exe from https://github.com/wj/age recommended which implements support for password from environment variable
-https://github.com/FiloSottile/age/pull/520
+For more details see:
+  * https://github.com/FiloSottile/age/pull/520
+      * https://github.com/FiloSottile/age/pull/520#issuecomment-2760007480
+      * https://github.com/FiloSottile/age/pull/520#issuecomment-2993644928
+      * https://github.com/clach04/age/tree/pr520_osenv_password - backup of the change that Puren Tonbo expects
 
 
 #### ccrypt CPT
