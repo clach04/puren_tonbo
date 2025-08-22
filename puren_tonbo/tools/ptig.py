@@ -265,14 +265,14 @@ NOTE requires fts_index to have been issued.
 
         # TODO time and report, counts and elapsed time
         ripgrep_outout_style = False  # file, newline, line_number:hit
-        ripgrep_outout_style = True  # grep-style; filename:line_number:hit
+        ripgrep_outout_style = True  # grep-style; filename:line_number:hit  # FIXME / TODO config option needed
         self.file_hits = []
         for notes in self.paths_to_search_instances:
             index_lines = notes.fts_instance.index_lines
             for counter, hit in enumerate(notes.fts_search(line, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop), start=1):
                 #print('hit %r' % (hit,) )
                 #print('%s:%s' % hit)
-                filename, filename_highlighted, note_text = hit
+                filename, filename_highlighted, note_text, size = hit
                 """
                 # display_full_path - assume True
                 if len(self.paths_to_search) == 1:
@@ -282,18 +282,18 @@ NOTE requires fts_index to have been issued.
                 if self.grep_options.use_color:
                     filename = ptgrep.color_filename + filename + ptgrep.color_reset
 
-                note_text = note_text.replace('\n', ' ')
+                note_text = note_text.replace('\n', ' ')  # TODO consider using .. or some user configurable replacement
                 # NOTE filename_highlighted unused
+                size_str = '%dKb' % (size / 1024,)  # FIXME human readable size conversion
                 if ripgrep_outout_style:
-                    print('[%d] %s' % (counter, filename))
+                    print('[%d] %s %s' % (counter, filename, size_str))
                     if index_lines:
                         print('%s' % (note_text,))  # FIXME color support
                     else:
                         print('??:%s' % (note_text,))
                 else:
                     # grep-style
-                    if index_lines:
-                        print('[%d] %s:%s' % (counter, filename, note_text))  # unknown line number - depending on index_lines
+                    print('[%d] %s:%s -- %s' % (counter, filename, note_text, size_str))  # unknown line number - depending on index_lines
         if and_or_warning_message:
             print(and_or_warning_message)
     do_fts = do_fts_search

@@ -2092,7 +2092,7 @@ class FullTextSearch:
         """
         raise NotImplementedError()
 
-class FullTextSearchSqlite:  # TODO either inherit from or document why not inherited from FullTextSearch
+class FullTextSearchSqlite:  # TODO either inherit from or document why not inherited from FullTextSearch - possibly mtime param difference?
     def __init__(self, index_location, index_lines=False):
         """index_location - SQLite database, probably a pathname could be memory
         SQLite FTS5 - https://www.sqlite.org/fts5.html - TODO FTS4/FTS3 fallback support?
@@ -2126,9 +2126,9 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
         index_lines = self.index_lines
         # defaults to unicode61, TODO test with options, also ascii
         # TODO check out trigram
-        ddl_sql = "CREATE VIRTUAL TABLE note USING fts5(filename, contents, tokenize='porter')"  # TODO size and date unindexed (https://www.sqlite.org/fts5.html#the_unindexed_column_option)
+        ddl_sql = "CREATE VIRTUAL TABLE note USING fts5(filename, contents, size, tokenize='porter')"  # TODO mtime/date/timestamp unindexed (https://www.sqlite.org/fts5.html#the_unindexed_column_option)
         if index_lines:
-            ddl_sql = "CREATE VIRTUAL TABLE note USING fts5(filename, contents, line_number, tokenize='porter')"  # TODO size and date unindexed (https://www.sqlite.org/fts5.html#the_unindexed_column_option)
+            ddl_sql = "CREATE VIRTUAL TABLE note USING fts5(filename, contents, size, line_number, tokenize='porter')"  # TODO mtime/date/timestamp unindexed (https://www.sqlite.org/fts5.html#the_unindexed_column_option)
 
         cur.execute(ddl_sql)
         # Checkout https://www.sqlite.org/fts5.html#prefix_indexes
@@ -2136,18 +2136,17 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
     def create_index_end(self):
         self.db.commit()
 
-    def add_to_index(self, filename, contents=None, line_number=None):  #, TODO contents_size=None, mtime=None):
+    def add_to_index(self, filename, contents=None, contents_size=None, line_number=None):  #, TODO mtime=None):
         """Add to index self.index_location (from scratch, no update support API.... yet.)
         """
         index_lines = self.index_lines
-        contents_size=None  # FIXME
         if contents and not contents_size:
             contents_size = len(contents)
         cur = self.cursor
         if index_lines:
-            cur.execute("""INSERT INTO note (filename, contents, line_number) VALUES (?, ?, ?)""", (filename, contents, line_number) )
+            cur.execute("""INSERT INTO note (filename, contents, size, line_number) VALUES (?, ?, ?, ?)""", (filename, contents, contents_size, line_number) )
         else:
-            cur.execute("""INSERT INTO note (filename, contents) VALUES (?, ?)""", (filename, contents) )
+            cur.execute("""INSERT INTO note (filename, contents, size) VALUES (?, ?, ?)""", (filename, contents, contents_size) )
 
     def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
         """Search self.index_location for `search_term`
@@ -2203,7 +2202,8 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
             cur.execute("""SELECT
                             filename,
                             snippet(note, 0, ?, ?, '...', ?) as title,
-                            CAST(line_number as TEXT) || ':' || snippet(note, 1, ?, ?, '...', ?) as body
+                            CAST(line_number as TEXT) || ':' || snippet(note, 1, ?, ?, '...', ?) as body,
+                            size
                         FROM note(?)
                         ORDER  BY rank""",
                         (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
@@ -2211,12 +2211,13 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
             cur.execute("""SELECT
                             filename,
                             snippet(note, 0, ?, ?, '...', ?) as title,
-                            snippet(note, 1, ?, ?, '...', ?) as body
+                            snippet(note, 1, ?, ?, '...', ?) as body,
+                            size
                         FROM note(?)
                         ORDER  BY rank""",
                         (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
 
-        return cur.fetchall()  # [(filename, title, body), ...]
+        return cur.fetchall()  # [(filename, title, body, size), ...]
 
 ##############################
 
