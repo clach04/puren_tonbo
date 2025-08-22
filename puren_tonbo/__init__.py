@@ -2087,6 +2087,7 @@ class FullTextSearch:
             contents_size = length(contents)
         raise NotImplementedError()
 
+    # TODO date (size) query parameter restrictions (with ranges)
     # FIXME context_distance / snippet length parameter support needed - ideas; here as parameter, init parameter, attribute that can be changed at runtime - leaning towards the later
     def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
         """Search self.index_location for `search_term`
