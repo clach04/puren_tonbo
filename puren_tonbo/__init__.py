@@ -2304,7 +2304,8 @@ class FileSystemNotes(BaseNotes):
         ignore_unsupported_filetypes = True
         for tmp_filename in recurse_notes_func(search_path, is_note_filename_filter):
                 filename = self.abspath2relative(tmp_filename)
-                print('index %r' % filename)  # DEBUG FIXME log.info
+                log.debug('index %r', filename)
+                log.info('index %s', filename)
                 try:
                     contents = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)
                     #stored_filename = filename  # relative
