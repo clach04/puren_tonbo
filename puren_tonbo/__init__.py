@@ -2080,7 +2080,7 @@ class FullTextSearch:
     def create_index_end(self):
         raise NotImplementedError()
 
-    def add_to_index(self, filename, contents=None, contents_size=None, mtime=None):
+    def add_to_index(self, filename, contents=None, contents_size=None, mtime=None, line_number=None):
         """Add to index self.index_location (from scratch, no update support API.... yet.)
         """
         if contents and not contents_size:
@@ -2092,12 +2092,13 @@ class FullTextSearch:
         """
         raise NotImplementedError()
 
-class FullTextSearchSqlite:
-    def __init__(self, index_location):
+class FullTextSearchSqlite:  # TODO either inherit from or document why not inherited from FullTextSearch
+    def __init__(self, index_location, index_lines=False):
         """index_location - SQLite database, probably a pathname could be memory
         SQLite FTS5 - https://www.sqlite.org/fts5.html - TODO FTS4/FTS3 fallback support?
         """
         self.index_location = index_location  # unspecified type, could be; URL (auth handled by implementation), file, directory, ....
+        self.index_lines = index_lines  # if true, index lines in each file seperately
         con = sqlite3.connect(index_location)
         #if index_location == ':memory:':
         self.db = con
@@ -2122,22 +2123,31 @@ class FullTextSearchSqlite:
 
     def create_index_start(self):
         cur = self.cursor
+        index_lines = self.index_lines
         # defaults to unicode61, TODO test with options, also ascii
         # TODO check out trigram
-        cur.execute("CREATE VIRTUAL TABLE note USING fts5(filename, contents, tokenize='porter')")  # TODO size and date unindexed (https://www.sqlite.org/fts5.html#the_unindexed_column_option)
+        ddl_sql = "CREATE VIRTUAL TABLE note USING fts5(filename, contents, tokenize='porter')"  # TODO size and date unindexed (https://www.sqlite.org/fts5.html#the_unindexed_column_option)
+        if index_lines:
+            ddl_sql = "CREATE VIRTUAL TABLE note USING fts5(filename, contents, line_number, tokenize='porter')"  # TODO size and date unindexed (https://www.sqlite.org/fts5.html#the_unindexed_column_option)
+
+        cur.execute(ddl_sql)
         # Checkout https://www.sqlite.org/fts5.html#prefix_indexes
 
     def create_index_end(self):
         self.db.commit()
 
-    def add_to_index(self, filename, contents=None):  #, contents_size=None, mtime=None):
+    def add_to_index(self, filename, contents=None, line_number=None):  #, TODO contents_size=None, mtime=None):
         """Add to index self.index_location (from scratch, no update support API.... yet.)
         """
+        index_lines = self.index_lines
         contents_size=None  # FIXME
         if contents and not contents_size:
             contents_size = len(contents)
         cur = self.cursor
-        cur.execute("""INSERT INTO note (filename, contents) VALUES (?, ?)""", (filename, contents) )
+        if index_lines:
+            cur.execute("""INSERT INTO note (filename, contents, line_number) VALUES (?, ?, ?)""", (filename, contents, line_number) )
+        else:
+            cur.execute("""INSERT INTO note (filename, contents) VALUES (?, ?)""", (filename, contents) )
 
     def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
         """Search self.index_location for `search_term`
@@ -2149,6 +2159,7 @@ class FullTextSearchSqlite:
           * highlight_text_start=None  # (ANSI escape) characters to prefix search start
           * highlight_text_stop=None  # (ANSI escape) characters to prefix search end/stop
         """
+        index_lines = self.index_lines
         # FIXME here and grep find_only_filename=False == files_with_matches? duplicate?
         if find_only_filename:
             raise NotImplementedError('find_only_filename')
@@ -2188,7 +2199,16 @@ class FullTextSearchSqlite:
 
         '''
 
-        cur.execute("""SELECT
+        if index_lines:
+            cur.execute("""SELECT
+                            filename,
+                            snippet(note, 0, ?, ?, '...', ?) as title,
+                            CAST(line_number as TEXT) || ':' || snippet(note, 1, ?, ?, '...', ?) as body
+                        FROM note(?)
+                        ORDER  BY rank""",
+                        (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
+        else:
+            cur.execute("""SELECT
                             filename,
                             snippet(note, 0, ?, ?, '...', ?) as title,
                             snippet(note, 1, ?, ?, '...', ?) as body
@@ -2301,6 +2321,7 @@ class FileSystemNotes(BaseNotes):
         self.fts_instance = fts_instance
         fts_instance.index_delete()
         fts_instance.create_index_start()
+        index_lines = fts_instance.index_lines
         ignore_unsupported_filetypes = True
         for tmp_filename in recurse_notes_func(search_path, is_note_filename_filter):
                 filename = self.abspath2relative(tmp_filename)
@@ -2308,9 +2329,16 @@ class FileSystemNotes(BaseNotes):
                 log.info('index %s', filename)
                 try:
                     contents = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)
+                    # TODO contents_size, mtime
                     #stored_filename = filename  # relative
                     stored_filename = tmp_filename  # absolute
-                    fts_instance.add_to_index(stored_filename, contents=contents)
+                    if not index_lines:
+                        fts_instance.add_to_index(stored_filename, contents=contents)
+                    else:
+                        for line_number, line in enumerate(contents.split('\n')):
+                            line = line.strip()
+                            if line:
+                                fts_instance.add_to_index(stored_filename, contents=line, line_number=line_number)
                 except UnsupportedFile as error_info:
                     # TODO - what!? options; ignore, raise, treat as RawFile type
                     log.warning('UnsupportedFile Ignored %r - reason %r', filename, error_info)

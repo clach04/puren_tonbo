@@ -268,6 +268,7 @@ NOTE requires fts_index to have been issued.
         ripgrep_outout_style = True  # grep-style; filename:line_number:hit
         self.file_hits = []
         for notes in self.paths_to_search_instances:
+            index_lines = notes.fts_instance.index_lines
             for counter, hit in enumerate(notes.fts_search(line, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop), start=1):
                 #print('hit %r' % (hit,) )
                 #print('%s:%s' % hit)
@@ -285,10 +286,14 @@ NOTE requires fts_index to have been issued.
                 # NOTE filename_highlighted unused
                 if ripgrep_outout_style:
                     print('[%d] %s' % (counter, filename))
-                    print('??:%s' % (note_text,))
+                    if index_lines:
+                        print('%s' % (note_text,))  # FIXME color support
+                    else:
+                        print('??:%s' % (note_text,))
                 else:
                     # grep-style
-                    print('[%d] %s:%s' % (counter, filename, note_text))  # unknown line number
+                    if index_lines:
+                        print('[%d] %s:%s' % (counter, filename, note_text))  # unknown line number - depending on index_lines
         if and_or_warning_message:
             print(and_or_warning_message)
     do_fts = do_fts_search
