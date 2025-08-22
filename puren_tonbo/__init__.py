@@ -2087,6 +2087,7 @@ class FullTextSearch:
             contents_size = length(contents)
         raise NotImplementedError()
 
+    # FIXME context_distance / snippet length parameter support needed - ideas; here as parameter, init parameter, attribute that can be changed at runtime - leaning towards the later
     def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
         """Search self.index_location for `search_term`
         """
@@ -2171,7 +2172,7 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
         # TODO doc demos
         context_distance = 3  # fts_search aesop king - only shows aesop
         context_distance = 6  # fts_search aesop king - shows both
-        context_distance = 10
+        context_distance = 10  # FIXME / TODO this needs to be a parameter
 
         cur = self.cursor
         '''
