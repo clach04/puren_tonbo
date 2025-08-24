@@ -596,14 +596,24 @@ The chi/chs file can also be read/written by Tombo http://tombo.sourceforge.jp/E
 
 NOTE age passphrase encryption, not key.
 
-Can either use Python library or age exe/binary - NOTE binary is signifcantly faster.
+Can either use Python library or age exe/binary - NOTE binary is signifcantly faster, there are also decryption failures wiht pyage!
 Age exe from https://github.com/wj/age recommended which implements support for password from environment variable
 For more details see:
   * https://github.com/FiloSottile/age/pull/520
       * https://github.com/FiloSottile/age/pull/520#issuecomment-2760007480
       * https://github.com/FiloSottile/age/pull/520#issuecomment-2993644928
       * https://github.com/clach04/age/tree/pr520_osenv_password - backup of the change that Puren Tonbo expects
+      * Related
+          * https://github.com/FiloSottile/age/discussions/275
+  * Go build notes
+      * https://go.dev/doc/tutorial/compile-install
+      * https://opensource.com/article/22/4/go-build-options
 
+Problems:
+
+  * Weird characters in place of terminal escape sequences on Windows Console - https://github.com/FiloSottile/age/issues/474
+  * pyage notes
+      * errors opening an age encrypted file that works fine with age/rage - https://github.com/jojonas/pyage/issues/14
 
 #### ccrypt CPT
 
