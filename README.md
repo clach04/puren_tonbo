@@ -431,6 +431,7 @@ Also see https://github.com/clach04/puren_tonbo/wiki/tool-ptig
 
 Config for ptig is the regular config file `pt.json`, with additional (optional) ptig section:
 
+```json
     {
         "_version_created_with": "0.0.dev3",
         "codec": [
@@ -456,6 +457,7 @@ Config for ptig is the regular config file `pt.json`, with additional (optional)
             "use_pager": false
         }
     }
+```
 
 NOTE options for editor along with `init` which is a **list** of commands to issue on start up.
 For example, enabling case insensitive search. There is a commented out example which enables encrypted file search.
