@@ -2296,6 +2296,9 @@ class FileSystemNotes(BaseNotes):
         return fts_instance.search(search_term=s, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop)  # or yield...
 
     def fts_index(self, sub_dir=None, get_password_callback=None):
+        """only files that do not need passwords are indexed
+        If get_password_callback is set, all files are indexed, and password prompted for. FIXME curently no way to skip a file (either becauase want to for some reason or have to as password not available)
+        """
         if sub_dir:
             raise NotImplementedError('sub_dir')
         search_path = self.note_root

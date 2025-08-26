@@ -200,13 +200,18 @@ class CommandPrompt(Cmd):
 
     def do_fts_index(self, line=None):
         """Created index for full text search FTS
+            fts_index [enc]
         """
         if line:
-            print('Parameters not supported')  # TODO handle and also cwd support
-            return
+            if line != 'enc':
+                print('Parameters not supported')  # TODO handle and also cwd support
+                return
         note_encoding = self.pt_config['codec']
-        password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
-        password_func = None  # no password    #FIXME include encrypted option
+        password_func = None  # no password, will not attempt to index files that need passwords    #FIXME include encrypted option
+        if line == 'enc':
+            # index files that need passwords, using regular password prompt/caching
+            # NOTE CRTL-c is not handled the same way for index as it is for cat/grep-searching
+            password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
 
         self.paths_to_search_instances = []
         for note_root in self.paths_to_search:
