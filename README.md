@@ -219,6 +219,8 @@ Examples:
 
     ptconfig
     python -m puren_tonbo.tools.ptconfig
+    ptconfig --list-formats
+    ptconfig --list-all-formats
 
 
 ### ptcat
