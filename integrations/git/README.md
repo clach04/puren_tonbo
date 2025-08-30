@@ -1,5 +1,19 @@
 # git integration with Puren Tonbo for encrypted and compressed files
 
+## Usage
+
+Once setup can either pre-set password (for example using `PT_PASSWORD` environment variable or keyring) or prompt for password.
+
+When prompting for a password, the password prompt will appear twice:
+
+  * once for original file
+  * second for modified file
+
+Regular diff can be used as well as diff options, like word-diff:
+
+  * `git diff` - regular diff
+  * `git diff --word-diff` - word based diff, rather than line based
+
 ## Setup
 
 Need to edit two files in a checkout:

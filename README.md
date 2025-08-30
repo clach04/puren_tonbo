@@ -751,6 +751,21 @@ Caution!
 
 https://vi.stackexchange.com/questions/6177/the-simplest-way-to-start-vim-in-private-mode
 
+### git diff integration support
+
+Allow diff'ing encrypted or compressed files that have been modified.
+
+  * `git diff` - regular diff
+  * `git diff --word-diff` - word based diff
+  * with and without password prompt (e.g. mention `PT_PASSWORD` environment variable)
+
+Password will be prompted twice:
+
+  * once for original file
+  * second for modified file
+
+See integrations/git/README.md for more details and install/setup instructions.
+
 ### SciTE lua plugin
 
 Tested with versions: v4.0.0, 4.1.5, and 5.3.5
