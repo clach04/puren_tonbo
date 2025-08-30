@@ -1,6 +1,8 @@
 # https://git-scm.com/docs/gitattributes#_generating_diff_text
 # encrypted diff
 [diff "ptdiff"]
+	#If using full path, need (lots of) escaping
+	#textconv = "C:\\\\some_dir\\\\ptcipher" --decrypt
 	textconv = ptcipher --decrypt
 	cachetextconv = false
 	# don't cache secrets on disk!
