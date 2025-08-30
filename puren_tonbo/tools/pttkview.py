@@ -60,6 +60,7 @@ def main(argv=None):
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
+    parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
     parser.add_option("--no-prompt", help="do not prompt for password", action="store_true")
     parser.add_option("--gen-filename", "--gen_filename", action="store_true", dest="gen_filename", default=True, help="generate filename (based on first line. TODO other options, line current UUID)")
     parser.add_option("--no-gen-filename", "--no_gen_filename", "--static_filename", action="store_false", dest="gen_filename", help="do NOT change filename based on first line")
@@ -69,8 +70,8 @@ def main(argv=None):
     verbose = options.verbose
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
-    if options.list_formats:
-        puren_tonbo.print_version_info()
+    if options.list_formats or options.list_all_formats:
+        puren_tonbo.print_version_info(list_all=options.list_all_formats)
         return 0
 
     def usage():

@@ -1144,8 +1144,14 @@ Also see `edit`
         print('%s' % json.dumps(self.pt_config, indent=4, sort_keys=True))  # TODO color support
     do_ptconfig = do_config
 
+    def do_types(self, line=None):
+        """show all suported types (except raw) along with version/info
+        Also see command: types"""
+        puren_tonbo.print_version_info(list_all=True)
+
     def do_version(self, line=None):
-        """show version/info"""
+        """show version/info
+        Also see command: version"""
         puren_tonbo.print_version_info()
     do_ver = do_version
     do_info = do_version

@@ -275,6 +275,7 @@ def main(argv=None):
                             epilog=ptgrep_examples
     )
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
+    parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
     parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")  # TODO see -g options for rg-like tools
@@ -305,8 +306,8 @@ def main(argv=None):
     verbose = options.verbose
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
-    if options.list_formats:
-        puren_tonbo.print_version_info()
+    if options.list_formats or options.list_all_formats:
+        puren_tonbo.print_version_info(list_all=options.list_all_formats)
         return 0
 
     if not args:

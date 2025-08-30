@@ -930,7 +930,19 @@ class ZipBzip2AES(ZipAES):
     ]
 
 # note uses file extension - could also sniff file header and use file magic
+all_file_type_handlers = {}  # all but RawFile
 file_type_handlers = {}
+
+for enc_class_name in dir():  #(RawFile, Rot13):
+    enc_class = globals()[enc_class_name]
+    if not inspect.isclass(enc_class):
+        continue
+    if issubclass(enc_class, RawFile):
+        continue
+    if not issubclass(enc_class, BaseFile):
+        continue
+    for file_extension in enc_class.extensions:
+        all_file_type_handlers[file_extension] = enc_class
 
 # Dumb introspect code for RawFile and SubstitutionCipher (rot13 and rot47)
 for enc_class_name in dir():  #(RawFile, Rot13):
@@ -1244,9 +1256,16 @@ def keyring_get_password():
 any_filename_filter = lambda x: True  # allows any filename, i.e. no filtering
 
 
-def supported_filetypes_info(encrypted_only=False, unencrypted_only=False):
-    for file_extension in file_type_handlers:
-        handler_class = file_type_handlers[file_extension]
+def supported_filetypes_info(encrypted_only=False, unencrypted_only=False, list_all=False):
+    if list_all:
+        handlers_to_check = all_file_type_handlers
+        encrypted_only = False
+        unencrypted_only = False
+    else:
+        handlers_to_check = file_type_handlers
+
+    for file_extension in handlers_to_check:
+        handler_class = handlers_to_check[file_extension]
         if encrypted_only and not issubclass(handler_class, EncryptedFile):
             continue
         if unencrypted_only and issubclass(handler_class, EncryptedFile):
@@ -2797,13 +2816,13 @@ def get_config(config_filename=None):
     # TODO codec may need to be parsed if it came from config file as was a comma seperate string
     return defaults
 
-def print_version_info():
+def print_version_info(list_all=False):
     print(sys.version.replace('\n', ' '))
     print('')
     print('Puren Tonbo puren_tonbo version %s' % __version__)
     print('Formats:')
     print('')
-    for file_extension, file_type, file_description in supported_filetypes_info():
+    for file_extension, file_type, file_description in supported_filetypes_info(list_all=list_all):
         print('%17s - %s - %s' % (file_extension[1:], file_type, file_description))
     print('')
     print('Libs:')

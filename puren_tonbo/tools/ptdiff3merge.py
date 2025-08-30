@@ -35,6 +35,7 @@ def main(argv=None):
     usage = "usage: %prog [options] base_filename modified1 modified2"
     parser = OptionParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__)
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
+    parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes override")  # FIXME not needed
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
@@ -52,8 +53,8 @@ def main(argv=None):
     verbose = options.verbose
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
-    if options.list_formats:
-        puren_tonbo.print_version_info()
+    if options.list_formats or options.list_all_formats:
+        puren_tonbo.print_version_info(list_all=options.list_all_formats)
         return 0
 
     def usage():

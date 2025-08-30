@@ -229,6 +229,7 @@ def main(argv=None):
         description="Command line tool to (re-)encrypt files. Any files passed on the command line WILL BE encrypted (in the requested format, if none requested original format) unless it is the same format and password. Any directories may have some form of filtering based on type."
     )
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
+    parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
     parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; " + ','.join(puren_tonbo.ui.supported_password_prompt_mechanisms()), default="any")
     parser.add_option("--no-prompt", "--no_prompt", help="do not prompt for password", action="store_true")
     parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint), use existing cipher if ommited")
@@ -253,8 +254,8 @@ def main(argv=None):
     if verbose:
         print('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
     log.info('Python %s on %s' % (sys.version.replace('\n', ' - '), sys.platform))
-    if options.list_formats:
-        puren_tonbo.print_version_info()
+    if options.list_formats or options.list_all_formats:
+        puren_tonbo.print_version_info(list_all=options.list_all_formats)
         return 0
     simulate = options.simulate
     if simulate:
