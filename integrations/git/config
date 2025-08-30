@@ -1,0 +1,6 @@
+# https://git-scm.com/docs/gitattributes#_generating_diff_text
+# encrypted diff
+[diff "ptdiff"]
+	textconv = ptcipher --decrypt
+	cachetextconv = false
+	# don't cache secrets on disk!
