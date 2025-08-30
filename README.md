@@ -667,6 +667,9 @@ Also known to work withL
   * [OpenKeychain (for Android)](https://github.com/open-keychain/open-keychain)
     can encrypt/decrypt files and the clipboard, as well as Share-To Intent.
 
+  * EncryptedNotepad2 (cross platform) from https://github.com/ivoras/EncryptedNotepad2/
+      * According to https://github.com/ivoras/EncryptedNotepad2/issues/4 should be compatible.
+
 #### OpenSSL 1.1.0 AES
 
 OpenSSL 1.1.0+ compatible (with a very small subset of options).
