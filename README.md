@@ -640,7 +640,7 @@ spaces, do NOT use double quotes in the SET. Example: `set CCRYPT_EXE=C:\3rd par
 
 #### OpenPGP - gpg / pgp
 
-Symmetric encryption/decryption from passphase, key support not explictly implemented.
+Symmetric encryption/decryption from passphase, key support not explictly implemented. RFC-4880 sec 5.13 (Symmetrically Encrypted Integrity Protected Data packet) OCFB-MDC.
 
 Requires a gpg binary, download from https://gnupg.org/download/
 
