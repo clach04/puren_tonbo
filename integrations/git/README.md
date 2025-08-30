@@ -16,7 +16,8 @@ Regular diff can be used as well as diff options, like word-diff:
 
 ## Setup
 
-Git support is implemented via .gitattributes, for additional information see https://git-scm.com/docs/gitattributes#_generating_diff_text
+Git support is implemented via .gitattributes, for additional information see
+https://git-scm.com/docs/gitattributes#_performing_text_diffs_of_binary_files
 
 Need to edit two files in a checkout:
 
@@ -107,3 +108,8 @@ Show types that are available:
 Show all types that are implemented (note support may be missing from the environment):
 
     ptconfig --list-all-formats
+
+## TODO
+
+  * using ptmerge / ptdiff3merge.py tool https://git-scm.com/docs/gitattributes#_performing_a_three_way_merge
+  * using (not implemented) ptdiff tool https://git-scm.com/docs/gitattributes#_generating_diff_text
