@@ -96,3 +96,12 @@ Windows:
 
     type gitattributes >> YOUR_GIT_CHECKOUT_DIR\.gitattributes
 
+ptconfig can be used to determine file types:
+
+Show types that are available:
+
+    ptconfig --list-formats
+
+Show all types that are implemented (note support may be missing from the environment):
+
+    ptconfig --list-all-formats
