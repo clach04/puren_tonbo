@@ -642,7 +642,7 @@ spaces, do NOT use double quotes in the SET. Example: `set CCRYPT_EXE=C:\3rd par
 
 Symmetric encryption/decryption from passphase, key support not explictly implemented. RFC-4880 sec 5.13 (Symmetrically Encrypted Integrity Protected Data packet) OCFB-MDC.
 
-Depending on which gpg Python module is installed **might requires** a gpg binary, download from https://gnupg.org/download/ or use one provided by Git For Windows
+Depending on which gpg Python module is installed **might require** a gpg binary, download from https://gnupg.org/download/ or use one provided by Git For Windows
 
     set GPG_EXE=C:\Program Files\Git\usr\bin\gpg.exe
     python -m puren_tonbo.tools.ptcipher --cipher=asc -e -p test README.md -o README.asc
