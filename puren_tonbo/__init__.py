@@ -62,7 +62,7 @@ try:
 except ImportError:
     gpgme = None
     try:
-        import gnupg  # https://github.com/vsajip/python-gnupg
+        import gnupg  # https://github.com/vsajip/python-gnupg NOTE requires gpg binary
         try:
             gpg = gnupg.GPG()
             #gpg = gnupg.GPG(ignore_homedir_permissions=True)
