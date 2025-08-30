@@ -651,6 +651,8 @@ Requires a gpg binary, download from https://gnupg.org/download/
 
 Also see `encryptcli` from https://github.com/evpo/EncryptPad/
 
+Also see [OpenKeychain (for Android)](https://github.com/open-keychain/open-keychain)
+
 #### OpenSSL 1.1.0 AES
 
 OpenSSL 1.1.0+ compatible (with a very small subset of options).
