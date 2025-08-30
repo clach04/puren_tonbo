@@ -655,11 +655,14 @@ Requires a gpg binary, download from https://gnupg.org/download/ or use one prov
 Also known to work withL
 
 
-  * EncryptPad from https://github.com/evpo/EncryptPad
+  * EncryptPad (cross platform, QT) from https://github.com/evpo/EncryptPad
       * `EncryptPad` - GUI tool encrypted text editor, with word-wrap, search/find, find and replace
       * `encryptcli` - command line , example usage that prompts for password:
 
             encryptcli.exe --decrypt aesop_win_encryptpad.asc
+
+  * GpgFrontend (cross platform QT) from https://github.com/saturneric/GpgFrontend/
+      * includes gpg command line tools, acts as a GUI front end and offers editing encrypted text files (NOTE EncryptPad easier/faster to use for this)
 
   * [OpenKeychain (for Android)](https://github.com/open-keychain/open-keychain)
     can encrypt/decrypt files and the clipboard, as well as Share-To Intent.
