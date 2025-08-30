@@ -642,16 +642,27 @@ spaces, do NOT use double quotes in the SET. Example: `set CCRYPT_EXE=C:\3rd par
 
 Symmetric encryption/decryption from passphase, key support not explictly implemented. RFC-4880 sec 5.13 (Symmetrically Encrypted Integrity Protected Data packet) OCFB-MDC.
 
-Requires a gpg binary, download from https://gnupg.org/download/
+Requires a gpg binary, download from https://gnupg.org/download/ or use one provided by Git For Windows
 
+    set GPG_EXE=C:\Program Files\Git\usr\bin\gpg.exe
     python -m puren_tonbo.tools.ptcipher --cipher=asc -e -p test README.md -o README.asc
     python -m puren_tonbo.tools.ptcipher --cipher=gpg -e -p test README.md -o README.gpg
+    ptcipher -p password puren_tonbo/tests/data/aesop_win_encryptpad.asc
 
-    gpg  --pinentry-mode=loopback --decrypt  --passphrase test README.gpg
+    gpg --pinentry-mode=loopback --decrypt  --passphrase test README.gpg
+    gpg --pinentry-mode=loopback --no-tty --no-verbose --decrypt  --passphrase password puren_tonbo/tests/data/aesop_win_encryptpad.asc
 
-Also see `encryptcli` from https://github.com/evpo/EncryptPad/
+Also known to work withL
 
-Also see [OpenKeychain (for Android)](https://github.com/open-keychain/open-keychain)
+
+  * EncryptPad from https://github.com/evpo/EncryptPad
+      * `EncryptPad` - GUI tool encrypted text editor, with word-wrap, search/find, find and replace
+      * `encryptcli` - command line , example usage that prompts for password:
+
+            encryptcli.exe --decrypt aesop_win_encryptpad.asc
+
+  * [OpenKeychain (for Android)](https://github.com/open-keychain/open-keychain)
+    can encrypt/decrypt files and the clipboard, as well as Share-To Intent.
 
 #### OpenSSL 1.1.0 AES
 
