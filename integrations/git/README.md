@@ -16,6 +16,8 @@ Regular diff can be used as well as diff options, like word-diff:
 
 ## Setup
 
+Git support is implemented via .gitattributes, for additional information see https://git-scm.com/docs/gitattributes#_generating_diff_text
+
 Need to edit two files in a checkout:
 
   1. `.git/config` (or `.git\config`)
