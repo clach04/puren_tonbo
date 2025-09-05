@@ -116,7 +116,19 @@ class FakeOptions:  # to match ptgrep (OptParse) options
 
 # Extracted (subset) from ptgrep.main()
 # FIXME refactor ptgrep to have a shared, reusable parser and use here. E.g. would add support for -t
-grep_parser = ptgrep.MyParser(usage='usage: %prog [options] [search_term]',
+
+class PtigParser(ptgrep.MyParser):
+    def exit(self, status=0, msg=None):
+        # Override the default exit behavior to do nothing - other than emit error
+        if msg:
+            print('ERROR %s' % msg)
+        pass
+
+    def error(self, msg):
+        self._ptig_error = True
+        ptgrep.MyParser.error(self, msg)
+
+grep_parser = PtigParser(usage='usage: %prog [options] [search_term]',
                         prog='grep',
                         description=ptgrep.ptgrep_description,
                         epilog =ptgrep.ptgrep_examples
@@ -1069,17 +1081,16 @@ Also see `edit`
         if not line:
             print('Need a search term')  # TODO show help?
             return
-        if line.strip() in ('-h', '--help'):  # Quick and dirty https://github.com/clach04/puren_tonbo/issues/139 workaround/fix
-            print('%s' % grep_help)
-            return
-            # TODO look at how to intercept help command in optparse.OptionParser
 
         options = copy.copy(self.grep_options)
         if line[0] != '-':
             search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
         else:
             parsed_line = shlex.split(line)
+            grep_parser._ptig_error = None
             (grep_parser_options, grep_parser_args) = grep_parser.parse_args(parsed_line)  # FIXME ptig can exit with bad (ptig) ptgrep params
+            if grep_parser._ptig_error:
+                return
             if not grep_parser_args:
                 print('Need a search term')  # TODO show help?
                 return
