@@ -1069,6 +1069,11 @@ Also see `edit`
         if not line:
             print('Need a search term')  # TODO show help?
             return
+        if line.strip() in ('-h', '--help'):  # Quick and dirty https://github.com/clach04/puren_tonbo/issues/139 workaround/fix
+            print('%s' % grep_help)
+            return
+            # TODO look at how to intercept help command in optparse.OptionParser
+
         options = copy.copy(self.grep_options)
         if line[0] != '-':
             search_term = line  # TODO option to strip (default) and retain trailing/leading blanks
