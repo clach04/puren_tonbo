@@ -784,7 +784,7 @@ Search previous results for search term.
         self.file_hits = [final_filename]
         self.do_results()  # display
         # TODO add single filename into result list so it can be used in recent/edit 1 command
-
+    do_create = do_new
 
     def do_edit_multiple(self, line=None):
         """edit multiple files from numbers. Also see `edit`. Alias `en`
