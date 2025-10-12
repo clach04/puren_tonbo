@@ -651,6 +651,7 @@ Depending on which gpg Python module is installed **might require** a gpg binary
 
     gpg --pinentry-mode=loopback --decrypt  --passphrase test README.gpg
     gpg --pinentry-mode=loopback --no-tty --no-verbose --decrypt  --passphrase password puren_tonbo/tests/data/aesop_win_encryptpad.asc
+    gpg -d puren_tonbo/tests/data/aesop_win_encryptpad.asc   # Will prompt
 
 Also known to work withL
 
