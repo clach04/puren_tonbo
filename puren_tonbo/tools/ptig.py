@@ -780,7 +780,12 @@ Search previous results for search term.
         #data = notes.note_contents(in_filename, password_func)
         # def note_contents_save(self, note_text, sub_dir=None, filename=None, original_full_filename=None, get_pass=None, dos_newlines=True, backup=True):
 
-        final_filename = puren_tonbo.note_contents_save_filename(plain_str, filename=validated_filename, handler=handler)  # TODO note_encoding missing, filename_generator=None?  # FIXME native only
+        try:
+            final_filename = puren_tonbo.note_contents_save_filename(plain_str, filename=validated_filename, handler=handler)  # TODO note_encoding missing, filename_generator=None?  # FIXME native only
+        except FileNotFoundError:  # NOTE FIXME this is limited to native file system
+            print('Error creating file "%s", likely directory does not exist' % (validated_filename,))  # FIXME if use_color colors?
+            return
+
         self.file_hits = [final_filename]
         self.do_results()  # display
         # TODO add single filename into result list so it can be used in recent/edit 1 command
