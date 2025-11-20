@@ -250,12 +250,14 @@ class BaseFile:
             raise PurenTonboBadCall('need password or key')
         if key is not None:
             self.key = key
+            """# TODO handle case where string was passed
+                if not isinstance(password, bytes):
+                    password = password.decode("utf-8")
+            """
         elif password:
-            key = password.encode(password_encoding)
-            if self.kdf:
-                self.key = self.kdf(key)
-            else:
-                self.key = key
+            self.key = password.encode(password_encoding)
+        if self.kdf:
+            self.key = self.kdf(self.key)
 
     ## TODO rename read_from() -> read() - NOTE this would not be file-like
     # TODO add wrapper class for file-like object api
