@@ -81,7 +81,7 @@ def main(argv=None):
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or default_password_value
     decrypt = True
     if password is None and decrypt:
-        password = puren_tonbo.ui.getpassfunc("Puren Tonbo ptcipher Password:", preference_list=options.password_prompt, for_decrypt=decrypt)
+        password = puren_tonbo.ui.getpassfunc("Puren Tonbo ptnewline_check Password:", preference_list=options.password_prompt, for_decrypt=decrypt)  # FIXME include filename in prompt
     if password and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
@@ -119,7 +119,7 @@ def main(argv=None):
 
         file_handler_class = handler_class
         try:
-            if file_handler_class is None:
+            if file_handler_class is None:ptnewline_check
                 file_handler_class = puren_tonbo.filename2handler(in_filename)
             handler = file_handler_class(key=password)
 
@@ -148,7 +148,7 @@ def main(argv=None):
             print('skipping...')
         except puren_tonbo.PurenTonboException as info:
             log.error('%r', info, exc_info=1)  # include traceback
-            print("ptcipher Encrypt/Decrypt problem. %r" % (info,))
+            print("ptnewline_check Encrypt/Decrypt problem. %r" % (info,))
             # TODO stop or continue on error
         finally:
             if in_filename != '-':  # i.e. sys.stdin

@@ -301,7 +301,7 @@ find filenames ONLY encrypted with regex
     ptnewline_check -t puren_tonbo/tests/data/aesop.chi
 
     fd \.chi --exec-batch  ptnewline_check  {}
-    # TODO find + xargs
+    find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check
 
 ### ptrecrypt
 
