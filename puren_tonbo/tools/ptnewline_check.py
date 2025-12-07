@@ -118,11 +118,11 @@ def main(argv=None):
             in_file = open(in_filename, 'rb')
 
         file_handler_class = handler_class
-        if file_handler_class is None:
-            file_handler_class = puren_tonbo.filename2handler(in_filename)
-        handler = file_handler_class(key=password)
-
         try:
+            if file_handler_class is None:
+                file_handler_class = puren_tonbo.filename2handler(in_filename)
+            handler = file_handler_class(key=password)
+
             plain_bytes = handler.read_from(in_file)
             failed = False
 
@@ -142,6 +142,10 @@ def main(argv=None):
             else:
                 # Unix/Linux
                 print('unix: %s' % (in_filename,))
+        except puren_tonbo.UnsupportedFile as info:
+            log.error('%r', info, exc_info=1)  # include traceback
+            print('unsupported: %s' % (in_filename,))
+            print('skipping...')
         except puren_tonbo.PurenTonboException as info:
             log.error('%r', info, exc_info=1)  # include traceback
             print("ptcipher Encrypt/Decrypt problem. %r" % (info,))

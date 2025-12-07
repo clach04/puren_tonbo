@@ -300,6 +300,9 @@ find filenames ONLY encrypted with regex
     ptnewline_check puren_tonbo/tests/data/aesop.chi
     ptnewline_check -t puren_tonbo/tests/data/aesop.chi
 
+    fd \.chi --exec-batch  ptnewline_check  {}
+    # TODO find + xargs
+
 ### ptrecrypt
 
 Help:
