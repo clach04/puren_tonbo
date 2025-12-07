@@ -37,6 +37,7 @@ def main(argv=None):
     parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; " + ','.join(puren_tonbo.ui.supported_password_prompt_mechanisms()), default="any")
     parser.add_option("--no-prompt", "--no_prompt", help="do not prompt for password", action="store_true")
     parser.add_option("--cipher", help="Which encryption mechanism to use (file extension used as hint)")
+    parser.add_option("-b", "--bad_only", action="store_true", help="only display broken/bad files")
     parser.add_option("-p", "--password", help="password, if omitted but OS env PT_PASSWORD is set use that, if missing prompt")
     parser.add_option("-P", "--password_file", help="file name where password is to be read from, trailing blanks are ignored")
     parser.add_option("-t", "--time", action="store_true")
@@ -91,6 +92,7 @@ def main(argv=None):
     else:
         handler_class = None
 
+    bad_only = options.bad_only
     if options.password_file:
         f = open(options.password_file, 'rb')
         password_file = f.read()
@@ -119,7 +121,7 @@ def main(argv=None):
 
         file_handler_class = handler_class
         try:
-            if file_handler_class is None:ptnewline_check
+            if file_handler_class is None:
                 file_handler_class = puren_tonbo.filename2handler(in_filename)
             handler = file_handler_class(key=password)
 
@@ -138,9 +140,11 @@ def main(argv=None):
                 if simple_dos2unix(plain_bytes_no_CR) != plain_bytes:
                     print('broken_windows: %s' % (in_filename,))
                 else:
+                    if bad_only: continue
                     print('windows: %s' % (in_filename,))
             else:
                 # Unix/Linux
+                if bad_only: continue
                 print('unix: %s' % (in_filename,))
         except puren_tonbo.UnsupportedFile as info:
             log.error('%r', info, exc_info=1)  # include traceback
