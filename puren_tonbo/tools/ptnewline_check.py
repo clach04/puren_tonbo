@@ -29,7 +29,6 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    usage = "usage: %prog [options] in_filename"  # TODO filenames plural (and recursive) see ptgrep
     usage = "usage: %prog [options] [dir_name_or_filename1] [dir_name_or_filename2...]"
     parser = ptgrep.MyParser(
         usage=usage,
