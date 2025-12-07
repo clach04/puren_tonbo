@@ -22,11 +22,15 @@ is_py3 = sys.version_info >= (3,)
 
 log = puren_tonbo.log_setup(__file__)
 
+CR = b'\r'
+NL = b'\n'
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
 
     usage = "usage: %prog [options] in_filename"  # TODO filenames plural (and recursive) see ptgrep
+    usage = "usage: %prog [options] [dir_name_or_filename1] [dir_name_or_filename2...]"
     parser = ptgrep.MyParser(
         usage=usage,
         version="%%prog %s" % puren_tonbo.__version__,
@@ -55,20 +59,12 @@ def main(argv=None):
 
     failed = True  # Assume this for now...
 
-    """
-    if not args:
-        parser.print_usage()
-    """
-    try:
-        in_filename = args[0]
-    except IndexError:
-        # no filename specified so default to stdin
-        in_filename = '-'
+    if options.time:
+        start_time = time.time()
 
-    if puren_tonbo.is_encrypted(in_filename):
-        decrypt = True
-    else:
-        decrypt = False
+    paths_to_search = args
+    if not paths_to_search:
+        paths_to_search = ['-']
 
     if options.password_file:
         f = open(options.password_file, 'rb')
@@ -96,9 +92,6 @@ def main(argv=None):
     else:
         handler_class = None
 
-    if options.time:
-        start_time = time.time()
-
     if options.password_file:
         f = open(options.password_file, 'rb')
         password_file = f.read()
@@ -107,52 +100,56 @@ def main(argv=None):
     else:
         password_file = None
 
-    if in_filename == '-':
-        if is_py3:
-            in_file = sys.stdin.buffer
+    for in_filename in paths_to_search:  # TODO directory, recursive, and (Windows) glob/wildcard support
+        if puren_tonbo.is_encrypted(in_filename):
+            decrypt = True
         else:
-            in_file = sys.stdin
-        if options.silent:
-            sys.stderr.write('Read in from stdin...')
-            sys.stderr.flush()
-        # TODO for py3 handle string versus bytes
-    else:
-        in_file = open(in_filename, 'rb')
+            decrypt = False
 
-    if handler_class is None:
-        handler_class = puren_tonbo.filename2handler(in_filename)
-    handler = handler_class(key=password)
-
-    try:
-        plain_str = handler.read_from(in_file)
-        failed = False
-
-        # For now, assume reading Windows (or pure potentially Unix/Linux) text
-        #print('DEBUG %r' % plain_str)
-        CR = b'\r'
-        NL = b'\n'
-        if CR in plain_str:
-            windows_file = True
-        else:
-            windows_file = False  # Assume Unix/Linux (not Mac)
-
-        if windows_file:
-            plain_str_no_CR = plain_str.replace(CR, b'')
-            if plain_str_no_CR.replace(NL, CR + NL) != plain_str:
-                print('broken_windows')
+        if in_filename == '-':
+            if is_py3:
+                in_file = sys.stdin.buffer
             else:
-                print('windows')
+                in_file = sys.stdin
+            if options.silent:
+                sys.stderr.write('Read in from stdin...')
+                sys.stderr.flush()
+            # TODO for py3 handle string versus bytes
         else:
-            # Unix/Linux
-            print('unix')
-    except puren_tonbo.PurenTonboException as info:
-        log.error('%r', info, exc_info=1)  # include traceback
-        print("ptcipher Encrypt/Decrypt problem. %r" % (info,))
-    finally:
-        if in_filename != '-':  # i.e. sys.stdin
-            in_file.close()
+            in_file = open(in_filename, 'rb')
 
+        file_handler_class = handler_class
+        if file_handler_class is None:
+            file_handler_class = puren_tonbo.filename2handler(in_filename)
+        handler = file_handler_class(key=password)
 
+        try:
+            plain_str = handler.read_from(in_file)
+            failed = False
+
+            # For now, assume reading Windows (or pure potentially Unix/Linux) text
+            #print('DEBUG %r' % plain_str)
+            if CR in plain_str:
+                windows_file = True
+            else:
+                windows_file = False  # Assume Unix/Linux (not Mac)
+
+            if windows_file:
+                plain_str_no_CR = plain_str.replace(CR, b'')
+                if plain_str_no_CR.replace(NL, CR + NL) != plain_str:
+                    print('broken_windows: %s' % (in_filename,))
+                else:
+                    print('windows: %s' % (in_filename,))
+            else:
+                # Unix/Linux
+                print('unix: %s' % (in_filename,))
+        except puren_tonbo.PurenTonboException as info:
+            log.error('%r', info, exc_info=1)  # include traceback
+            print("ptcipher Encrypt/Decrypt problem. %r" % (info,))
+            # TODO stop or continue on error
+        finally:
+            if in_filename != '-':  # i.e. sys.stdin
+                in_file.close()
 
     if options.time:
         end_time = time.time()
@@ -161,7 +158,6 @@ def main(argv=None):
 
     if failed:
         return 1
-
 
     return 0
 
