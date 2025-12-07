@@ -53,7 +53,6 @@ def main(argv=None):
     def usage():
         parser.print_usage()
 
-    decrypt = True  # Assume this for now...
     failed = True  # Assume this for now...
 
     """
@@ -65,6 +64,11 @@ def main(argv=None):
     except IndexError:
         # no filename specified so default to stdin
         in_filename = '-'
+
+    if puren_tonbo.is_encrypted(in_filename):
+        decrypt = True
+    else:
+        decrypt = False
 
     if options.password_file:
         f = open(options.password_file, 'rb')
@@ -82,10 +86,7 @@ def main(argv=None):
         default_password_value = None
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or default_password_value
     if password is None:
-        if puren_tonbo.is_encrypted(in_filename):
-            password = puren_tonbo.ui.getpassfunc("Puren Tonbo ptcipher Password:", preference_list=options.password_prompt, for_decrypt=decrypt)
-        else:
-            password = puren_tonbo.ui.getpassfunc("Puren Tonbo ptcipher Password:", preference_list=options.password_prompt, for_decrypt=False)
+        password = puren_tonbo.ui.getpassfunc("Puren Tonbo ptcipher Password:", preference_list=options.password_prompt, for_decrypt=decrypt)
     if password and not isinstance(password, bytes):
         password = password.encode('us-ascii')
 
@@ -97,9 +98,6 @@ def main(argv=None):
 
     if options.time:
         start_time = time.time()
-
-
-
 
     if options.password_file:
         f = open(options.password_file, 'rb')
@@ -130,7 +128,7 @@ def main(argv=None):
         failed = False
 
         # For now, assume reading Windows (or pure potentially Unix/Linux) text
-        print('DEBUG %r' % plain_str)
+        #print('DEBUG %r' % plain_str)
         CR = b'\r'
         NL = b'\n'
         if CR in plain_str:
