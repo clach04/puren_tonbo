@@ -85,7 +85,7 @@ def main(argv=None):
         options.password_prompt = options.password_prompt.split(',')  # TODO validation options? for now rely on puren_tonbo.getpassfunc()
         default_password_value = None
     password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or default_password_value
-    if password is None:
+    if password is None and decrypt:
         password = puren_tonbo.ui.getpassfunc("Puren Tonbo ptcipher Password:", preference_list=options.password_prompt, for_decrypt=decrypt)
     if password and not isinstance(password, bytes):
         password = password.encode('us-ascii')
