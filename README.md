@@ -294,6 +294,11 @@ find filenames ONLY encrypted with regex
 ### ptnewline_check
 
     python -m puren_tonbo.tools.ptnewline_check SINGLE_FILENAME
+    ptnewline_check SINGLE_FILENAME
+
+    ptnewline_check puren_tonbo/tests/data/aesop.rot13
+    ptnewline_check puren_tonbo/tests/data/aesop.chi
+    ptnewline_check -t puren_tonbo/tests/data/aesop.chi
 
 ### ptrecrypt
 
