@@ -274,7 +274,7 @@ class EncryptedFile(BaseFile):
     pass
 
 class RawFile(BaseFile):
-    """Raw/binary/text file - Read/write raw bytes. 
+    """Raw/binary/text file - Read/write raw bytes.
     Use for plain text files.
     TODO this requires a password on init, plain text/unencrypted files should not need a password
     """
@@ -1079,6 +1079,10 @@ def debug_get_password():
 
 
 #################
+
+CR = b'\r'
+NL = b'\n'
+
 
 # TODO replace with plugin classes
 class gen_caching_get_password(object):

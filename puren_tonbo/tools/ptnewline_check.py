@@ -15,15 +15,13 @@ import tempfile
 import time
 
 import puren_tonbo
+from puren_tonbo import CR, NL
 import puren_tonbo.ui
 from puren_tonbo.tools import ptgrep
 
 is_py3 = sys.version_info >= (3,)
 
 log = puren_tonbo.log_setup(__file__)
-
-CR = b'\r'
-NL = b'\n'
 
 def main(argv=None):
     if argv is None:
