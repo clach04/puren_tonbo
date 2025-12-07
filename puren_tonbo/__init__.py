@@ -1084,6 +1084,14 @@ CR = b'\r'
 NL = b'\n'
 
 
+def simple_unix2dos(plain_byte):
+    """Assume input bytes are clean/correct Windows linefeeds"""
+    return plain_byte.replace(CR, b'')
+
+def simple_dos2unix(plain_byte):
+    """Assume input bytes are clean Unix/Linux linefeeds"""
+    return plain_byte.replace(NL, CR + NL)
+
 # TODO replace with plugin classes
 class gen_caching_get_password(object):
     def __init__(self, dirname=None):

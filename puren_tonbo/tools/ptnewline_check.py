@@ -15,7 +15,7 @@ import tempfile
 import time
 
 import puren_tonbo
-from puren_tonbo import CR, NL
+from puren_tonbo import CR, NL, simple_dos2unix, simple_unix2dos
 import puren_tonbo.ui
 from puren_tonbo.tools import ptgrep
 
@@ -132,8 +132,8 @@ def main(argv=None):
                 windows_file = False  # Assume Unix/Linux (not Mac)
 
             if windows_file:
-                plain_str_no_CR = plain_str.replace(CR, b'')
-                if plain_str_no_CR.replace(NL, CR + NL) != plain_str:
+                plain_str_no_CR = simple_unix2dos(plain_str)
+                if simple_dos2unix(plain_str_no_CR) != plain_str:
                     print('broken_windows: %s' % (in_filename,))
                 else:
                     print('windows: %s' % (in_filename,))
