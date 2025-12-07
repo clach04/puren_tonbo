@@ -121,19 +121,19 @@ def main(argv=None):
         handler = file_handler_class(key=password)
 
         try:
-            plain_str = handler.read_from(in_file)
+            plain_bytes = handler.read_from(in_file)
             failed = False
 
             # For now, assume reading Windows (or pure potentially Unix/Linux) text
-            #print('DEBUG %r' % plain_str)
-            if CR in plain_str:
+            #print('DEBUG %r' % plain_bytes)
+            if CR in plain_bytes:
                 windows_file = True
             else:
                 windows_file = False  # Assume Unix/Linux (not Mac)
 
             if windows_file:
-                plain_str_no_CR = simple_unix2dos(plain_str)
-                if simple_dos2unix(plain_str_no_CR) != plain_str:
+                plain_bytes_no_CR = simple_unix2dos(plain_bytes)
+                if simple_dos2unix(plain_bytes_no_CR) != plain_bytes:
                     print('broken_windows: %s' % (in_filename,))
                 else:
                     print('windows: %s' % (in_filename,))
