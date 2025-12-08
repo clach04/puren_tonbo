@@ -131,13 +131,13 @@ def main(argv=None):
             # For now, assume reading Windows (or pure potentially Unix/Linux) text
             #print('DEBUG %r' % plain_bytes)
             if CR in plain_bytes:
-                windows_file = True
+                windows_file = True  # or at least Windows-like
             else:
                 windows_file = False  # Assume Unix/Linux (not Mac)
 
             if windows_file:
-                plain_bytes_no_CR = simple_unix2dos(plain_bytes)
-                if simple_dos2unix(plain_bytes_no_CR) != plain_bytes:
+                plain_bytes_no_CR = simple_dos2unix(plain_bytes)
+                if simple_unix2dos(plain_bytes_no_CR) != plain_bytes:
                     print('broken_windows: %s' % (in_filename,))
                 else:
                     if bad_only: continue

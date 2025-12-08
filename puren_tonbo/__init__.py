@@ -1080,15 +1080,15 @@ def debug_get_password():
 
 #################
 
-CR = b'\r'  # Carriage Return
-LF = b'\n'  # Line Feed / New Line
+CR = b'\r'  # 0x0D - Carriage Return
+LF = b'\n'  # 0x0A - Line Feed / New Line
 
-
-def simple_unix2dos(plain_byte):
-    """Assume input bytes are clean/correct Windows linefeeds"""
-    return plain_byte.replace(CR, b'')
 
 def simple_dos2unix(plain_byte):
+    """Assume input bytes are clean/correct DOS/Windows linefeeds"""
+    return plain_byte.replace(CR, b'')
+
+def simple_unix2dos(plain_byte):
     """Assume input bytes are clean Unix/Linux linefeeds"""
     return plain_byte.replace(LF, CR + LF)
 
