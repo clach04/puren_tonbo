@@ -130,7 +130,7 @@ local function SaveEncryptedFile(filename)
     --print(plain_text)  -- to output pane
     --print('-------------')  -- to output pane
     -- default encryption type based on file extension
-    local prog = PTCIPHER_EXE .. ' --silent --password-prompt=gui --encrypt --output "' .. filename .. '"'
+    local prog = PTCIPHER_EXE .. ' --silent --password-prompt=gui --force-newline dos --encrypt --output "' .. filename .. '"'
     --print(prog)
 
     if is_win then
@@ -198,7 +198,7 @@ local function LoadEncryptedFile(filename)
     if PT_PASSWORD==nil then
         print('WARNING: PT_PASSWORD has not been set')
     end
-    local prog = PTCIPHER_EXE .. ' --decrypt "' .. filename .. '" --output=- --password-prompt=gui'
+    local prog = PTCIPHER_EXE .. ' --force-newline dos --decrypt "' .. filename .. '" --output=- --password-prompt=gui'
     --print(prog)
     local f
     if is_win then

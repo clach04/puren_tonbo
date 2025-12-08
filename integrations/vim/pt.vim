@@ -51,7 +51,7 @@ function! s:PurenTonboReadPost()
         let $PT_PASSWORD = inputsecret("ptcipher Password: ")
     endif
     " let ptcipher determine cipher type from filename
-    let l:expr = "1,$!$PTCIPHER_EXE --silent --no-prompt --decrypt '<afile>'"
+    let l:expr = "1,$!$PTCIPHER_EXE --silent --no-prompt --force-newline dos --decrypt '<afile>'"
     silent! execute l:expr
     if v:shell_error
         silent! 0,$y
@@ -106,7 +106,7 @@ function! s:PurenTonboWritePre()
     "let l:expr = "1,$!ptcipher --cipher " . l:file_extension . " -e -o -"
     "let l:expr = "1,$!ptcipher --silent --cipher " . l:file_extension . " -e -o -"
     "let l:expr = "1,$!ptcipher --silent --cipher " . l:file_extension . "  --encrypt -o -"
-    let l:expr = "1,$!$PTCIPHER_EXE --silent --no-prompt --cipher " . l:file_extension . "  --encrypt -o -"
+    let l:expr = "1,$!$PTCIPHER_EXE --silent --no-prompt --force-newline dos --cipher " . l:file_extension . "  --encrypt -o -"
 
     silent! execute l:expr
     if v:shell_error
