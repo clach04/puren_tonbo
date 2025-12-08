@@ -305,6 +305,7 @@ find filenames ONLY encrypted with regex
 
     find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check
     find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check -b  # only show bad (*.chi) files
+    find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check -b | cut -d: -f2 | cut -b2-  # only show bad (*.chi) file names only, ready to pipe back into ptrecrypt
 
 ### ptrecrypt
 
