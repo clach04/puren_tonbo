@@ -15,7 +15,7 @@ import tempfile
 import time
 
 import puren_tonbo
-from puren_tonbo import simple_dos2unix, simple_unix2dos
+from puren_tonbo import forcebad_dos2unix, simple_unix2dos
 import puren_tonbo.ui
 from puren_tonbo.tools import ptgrep
 
@@ -209,7 +209,7 @@ def main(argv=None):
             plain_str = handler.read_from(in_file)
             if force_newline:
                 #sys.stderr.write('plain_str %r\n' % (plain_str,))
-                plain_str = simple_dos2unix(plain_str)
+                plain_str = forcebad_dos2unix(plain_str)
                 #sys.stderr.write('plain_str %r\n' % (plain_str,))
                 if force_newline == 'dos':
                     plain_str = simple_unix2dos(plain_str)
@@ -224,7 +224,7 @@ def main(argv=None):
             handler = handler_class(key=password)
             plain_text = in_file.read()
             if force_newline:
-                plain_text = simple_dos2unix(plain_text)
+                plain_text = forcebad_dos2unix(plain_text)
                 if force_newline == 'dos':
                     plain_text = simple_unix2dos(plain_text)
             handler.write_to(out_file, plain_text)

@@ -1084,9 +1084,18 @@ CR = b'\r'  # 0x0D - Carriage Return
 LF = b'\n'  # 0x0A - Line Feed / New Line
 
 
+def hacky_dos2unix(plain_byte):
+    """Use a shortcut to convert. Assume input bytes are clean/correct DOS/Windows linefeeds"""
+    return plain_byte.replace(CR, b'')
+
 def simple_dos2unix(plain_byte):
     """Assume input bytes are clean/correct DOS/Windows linefeeds"""
-    return plain_byte.replace(CR, b'')
+    return plain_byte.replace(CR + LF, LF)
+
+def forcebad_dos2unix(plain_byte):
+    """Assume input bytes are bad DOS/Windows linefeeds"""
+    plain_byte = plain_byte.replace(CR + LF, LF)  # handle good lines correctly
+    return plain_byte.replace(CR, LF)  # now the bad/incomplete ones
 
 def simple_unix2dos(plain_byte):
     """Assume input bytes are clean Unix/Linux linefeeds"""
