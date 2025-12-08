@@ -228,6 +228,7 @@ def main(argv=None):
         version="%%prog %s" % puren_tonbo.__version__,
         description="Command line tool to (re-)encrypt files. Any files passed on the command line WILL BE encrypted (in the requested format, if none requested original format) unless it is the same format and password. Any directories may have some form of filtering based on type."
     )
+    # TODO implement "--force-newline" / force_newline from pycipher - force Windows newline fixes option when writting out
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
     parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; " + ','.join(puren_tonbo.ui.supported_password_prompt_mechanisms()), default="any")

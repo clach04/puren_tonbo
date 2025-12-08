@@ -91,7 +91,6 @@ def main(argv=None):
                         help="decrypt in_filename")
     parser.add_option("-e", "--encrypt", action="store_false", dest="decrypt",
                         help="encrypt in_filename")
-    # TODO force Windows newline fixes option when writting out - and use with scite (and maybe vim too?)
     parser.add_option("--force-newline", "--force_newline", help="If set, force newlines. Options; dos, windows, CRLF, unix, LF")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
