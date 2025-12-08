@@ -301,7 +301,10 @@ find filenames ONLY encrypted with regex
     ptnewline_check -t puren_tonbo/tests/data/aesop.chi
 
     fd \.chi --exec-batch  ptnewline_check  {}
+    fd \.chi -X ptnewline_check -b
+
     find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check
+    find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check -b  # only show bad (*.chi) files
 
 ### ptrecrypt
 
