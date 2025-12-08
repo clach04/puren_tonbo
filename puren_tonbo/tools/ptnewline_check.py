@@ -15,7 +15,7 @@ import tempfile
 import time
 
 import puren_tonbo
-from puren_tonbo import CR, NL, simple_dos2unix, simple_unix2dos
+from puren_tonbo import CR, simple_dos2unix, simple_unix2dos
 import puren_tonbo.ui
 from puren_tonbo.tools import ptgrep
 

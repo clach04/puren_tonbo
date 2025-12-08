@@ -1080,8 +1080,8 @@ def debug_get_password():
 
 #################
 
-CR = b'\r'
-NL = b'\n'
+CR = b'\r'  # Carriage Return
+LF = b'\n'  # Line Feed / New Line
 
 
 def simple_unix2dos(plain_byte):
@@ -1090,7 +1090,7 @@ def simple_unix2dos(plain_byte):
 
 def simple_dos2unix(plain_byte):
     """Assume input bytes are clean Unix/Linux linefeeds"""
-    return plain_byte.replace(NL, CR + NL)
+    return plain_byte.replace(LF, CR + LF)
 
 # TODO replace with plugin classes
 class gen_caching_get_password(object):
