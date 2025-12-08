@@ -152,7 +152,7 @@ def main(argv=None):
             print('skipping...')
         except puren_tonbo.PurenTonboException as info:
             log.error('%r', info, exc_info=1)  # include traceback
-            print("ptnewline_check Encrypt/Decrypt problem with %s. %r" % (in_filename, info,))
+            print("ptnewline_check Encrypt/Decrypt problem with %s. %r" % (in_filename, info,))  # FIXME why is re-prompt not happening? Possibly due to "During handling of the above exception, another exception occurred:"
             # TODO stop or continue on error
         finally:
             if in_filename != '-':  # i.e. sys.stdin
