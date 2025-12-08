@@ -152,7 +152,7 @@ def main(argv=None):
             print('skipping...')
         except puren_tonbo.PurenTonboException as info:
             log.error('%r', info, exc_info=1)  # include traceback
-            print("ptnewline_check Encrypt/Decrypt problem. %r" % (info,))
+            print("ptnewline_check Encrypt/Decrypt problem with %s. %r" % (in_filename, info,))
             # TODO stop or continue on error
         finally:
             if in_filename != '-':  # i.e. sys.stdin
