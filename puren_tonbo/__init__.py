@@ -183,7 +183,7 @@ log = log_setup("mylogger")
 log.debug('encodings %r', (sys.getdefaultencoding(), sys.getfilesystemencoding(), locale.getdefaultlocale()))
 
 class PurenTonboException(Exception):
-    '''Base chi I/O exception'''
+    '''Base PurenTonbo I/O exception'''
 
 
 class BadPassword(PurenTonboException):
@@ -272,7 +272,7 @@ class EncryptedFile(BaseFile):
     pass
 
 class RawFile(BaseFile):
-    """Raw/binary/text file - Read/write raw bytes. 
+    """Raw/binary/text file - Read/write raw bytes.
     Use for plain text files.
     TODO this requires a password on init, plain text/unencrypted files should not need a password
     """
