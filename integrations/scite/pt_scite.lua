@@ -16,6 +16,8 @@
 --      c) scite variable/property set to path, for example; props['clach04.puren_tonbo.ptcipher'] = 'C:\\code\\puren_tonbo\\py3.12.5venv\\Scripts\\ptcipher.exe'
 
 -- TODO
+--  * --force-newline dos - make this a config option and do-not-repeat
+--  * local hard_coded_file_extensions - make this a config option
 --  * write support - file that was loaded
 --  * write support - file that was loaded - missing exe, password, unsupported extension (maybe lib missing)
 --  * write support - new file
