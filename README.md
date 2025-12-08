@@ -302,6 +302,7 @@ find filenames ONLY encrypted with regex
 
     fd \.chi --exec-batch  ptnewline_check  {}
     fd \.chi -X ptnewline_check -b
+    fd \.chi$ -X ptnewline_check -b  # ONLY files that end in .chi (above is any file with chi, including backup files)
 
     find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check
     find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check -b  # only show bad (*.chi) files
