@@ -15,6 +15,7 @@ import tempfile
 import time
 
 import puren_tonbo
+from puren_tonbo import forcebad_dos2unix, simple_unix2dos
 import puren_tonbo.ui
 from puren_tonbo.tools import ptgrep
 
@@ -90,6 +91,7 @@ def main(argv=None):
                         help="decrypt in_filename")
     parser.add_option("-e", "--encrypt", action="store_false", dest="decrypt",
                         help="encrypt in_filename")
+    parser.add_option("--force-newline", "--force_newline", help="If set, force newlines. Options; dos, windows, CRLF, unix, LF")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
     parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; " + ','.join(puren_tonbo.ui.supported_password_prompt_mechanisms()), default="any")
@@ -121,6 +123,18 @@ def main(argv=None):
     except IndexError:
         # no filename specified so default to stdin
         in_filename = '-'
+
+    force_newline = None
+    if options.force_newline:
+        force_newline = options.force_newline.lower()
+        if force_newline not in ('dos', 'windows', 'CRLF', 'unix', 'LF'):
+            usage()
+            print('Invalid force-newline %r' % (force_newline,))
+            return 1
+        if force_newline in ('dos', 'windows', 'CRLF'):
+            force_newline = 'dos'
+        elif force_newline in ('unix', 'LF'):
+            force_newline = 'unix'
 
     if options.password_file:
         f = open(options.password_file, 'rb')
@@ -192,6 +206,13 @@ def main(argv=None):
                 handler_class = puren_tonbo.filename2handler(in_filename)
             handler = handler_class(key=password)
             plain_str = handler.read_from(in_file)
+            if force_newline:
+                #sys.stderr.write('plain_str %r\n' % (plain_str,))
+                plain_str = forcebad_dos2unix(plain_str)
+                #sys.stderr.write('plain_str %r\n' % (plain_str,))
+                if force_newline == 'dos':
+                    plain_str = simple_unix2dos(plain_str)
+                #sys.stderr.write('plain_str %r\n' % (plain_str,))
             out_file.write(plain_str)
             failed = False
         else:
@@ -201,6 +222,10 @@ def main(argv=None):
                 handler_class = puren_tonbo.filename2handler(out_filename)  # FIXME handle -
             handler = handler_class(key=password)
             plain_text = in_file.read()
+            if force_newline:
+                plain_text = forcebad_dos2unix(plain_text)
+                if force_newline == 'dos':
+                    plain_text = simple_unix2dos(plain_text)
             handler.write_to(out_file, plain_text)
             failed = False
     except puren_tonbo.PurenTonboException as info:

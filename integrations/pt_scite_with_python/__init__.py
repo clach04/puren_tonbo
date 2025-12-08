@@ -65,7 +65,7 @@ def OnBeforeSave(filename):
             # assuming no failure; ScEditor.SetSavePoint()  # indicate to editor that save happened and file is unchanged
             #return ScConst.StopEventPropagation  # works, tells Scite to NOT save
             expand_shell = True  # avoid pop-up black CMD window
-            cmd = [PTCIPHER_EXE, '--silent', '--no-prompt', '--encrypt', '--cipher', file_extension, '--output', filename]
+            cmd = [PTCIPHER_EXE, '--silent', '--no-prompt', '--force-newline', 'dos', '--encrypt', '--cipher', file_extension, '--output', filename]
             p = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout_value, stderr_value = p.communicate(input=file_contents)
 
@@ -107,7 +107,7 @@ def OnOpen(filename):
     else:
         expand_shell = False
     # TODO prompt for password, for now pick up from env (by default)
-    cmd = [PTCIPHER_EXE, '--silent', '--no-prompt', '--decrypt', filename, '--output=-']
+    cmd = [PTCIPHER_EXE, '--silent', '--no-prompt', '--force-newline', 'dos', '--decrypt', filename, '--output=-']
     # DEBUG code that shows we can inject into the sub-process environment
     #os.environ['PT_PASSWORD'] = 'bad'
     #os.environ['PT_PASSWORD'] = 'password'  # works  # FIXME prompt!

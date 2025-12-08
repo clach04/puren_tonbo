@@ -120,6 +120,7 @@ setup(
             'ptcipher = puren_tonbo.tools.ptcipher:main',
             'ptconfig = puren_tonbo.tools.ptconfig:main',
             'ptgrep = puren_tonbo.tools.ptgrep:main',
+            'ptnewline_check = puren_tonbo.tools.ptnewline_check:main',
             'ptrecrypt = puren_tonbo.tools.ptrecrypt:main',
             'ptig = puren_tonbo.tools.ptig:main',
             'pttkview = puren_tonbo.tools.pttkview:main',  # Assume tk available

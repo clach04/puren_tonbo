@@ -250,12 +250,14 @@ class BaseFile:
             raise PurenTonboBadCall('need password or key')
         if key is not None:
             self.key = key
+            """# TODO handle case where string was passed
+                if not isinstance(password, bytes):
+                    password = password.decode("utf-8")
+            """
         elif password:
-            key = password.encode(password_encoding)
-            if self.kdf:
-                self.key = self.kdf(key)
-            else:
-                self.key = key
+            self.key = password.encode(password_encoding)
+        if self.kdf:
+            self.key = self.kdf(self.key)
 
     ## TODO rename read_from() -> read() - NOTE this would not be file-like
     # TODO add wrapper class for file-like object api
@@ -1077,6 +1079,27 @@ def debug_get_password():
 
 
 #################
+
+CR = b'\r'  # 0x0D - Carriage Return
+LF = b'\n'  # 0x0A - Line Feed / New Line
+
+
+def hacky_dos2unix(plain_byte):
+    """Use a shortcut to convert. Assume input bytes are clean/correct DOS/Windows linefeeds"""
+    return plain_byte.replace(CR, b'')
+
+def simple_dos2unix(plain_byte):
+    """Assume input bytes are clean/correct DOS/Windows linefeeds"""
+    return plain_byte.replace(CR + LF, LF)
+
+def forcebad_dos2unix(plain_byte):
+    """Assume input bytes are bad DOS/Windows linefeeds"""
+    plain_byte = plain_byte.replace(CR + LF, LF)  # handle good lines correctly
+    return plain_byte.replace(CR, LF)  # now the bad/incomplete ones
+
+def simple_unix2dos(plain_byte):
+    """Assume input bytes are clean Unix/Linux linefeeds"""
+    return plain_byte.replace(LF, CR + LF)
 
 # TODO replace with plugin classes
 class gen_caching_get_password(object):

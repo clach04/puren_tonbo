@@ -26,6 +26,7 @@ NO WARRANTY - see the LICENSE
   * [Examples](#examples)
     + [ptcat](#ptcat)
     + [ptgrep](#ptgrep)
+    + [ptnewline_check](#ptnewline_check)
     + [ptrecrypt](#ptrecrypt)
     + [ptig](#ptig)
       - [Sample ptig session](#sample-ptig-session)
@@ -100,6 +101,7 @@ Purēntonbo
       * `ptcipher` - process raw binary files, controlled via command line and environment variables
       * `ptcat` - in addition to command line and environment variables, also has an (optional) config file and the concept of a root directory of notes
   * `ptgrep` - a grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/ripgrep), [silver-searcher](https://geoff.greer.fm/ag/), [pss](https://github.com/eliben/pss) like tool that works on encrypted (and plain text) files
+  * `ptnewline_check` - sanity check file for line endings, help detect bad Windows files that don't have consistent CR followed by NL
   * `ptig` an interactive grep like tool that can also view/edit
   * `ptrecrypt` a TODO
   * `ptpyvim` a vim-like editor that works on encrypted (and plain text) files
@@ -288,6 +290,23 @@ find filenames encrypted with regex
 find filenames ONLY encrypted with regex
 
     python -m puren_tonbo.tools.ptgrep --note-root=puren_tonbo/tests/data -y -k -r ^aesop
+
+### ptnewline_check
+
+    python -m puren_tonbo.tools.ptnewline_check SINGLE_FILENAME
+    ptnewline_check SINGLE_FILENAME
+
+    ptnewline_check puren_tonbo/tests/data/aesop.rot13
+    ptnewline_check puren_tonbo/tests/data/aesop.chi
+    ptnewline_check -t puren_tonbo/tests/data/aesop.chi
+
+    fd \.chi --exec-batch  ptnewline_check  {}
+    fd \.chi -X ptnewline_check -b
+    fd \.chi$ -X ptnewline_check -b  # ONLY files that end in .chi (above is any file with chi, including backup files)
+
+    find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check
+    find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check -b  # only show bad (*.chi) files
+    find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check -b | cut -d: -f2 | cut -b2-  # only show bad (*.chi) file names only, ready to pipe back into ptrecrypt
 
 ### ptrecrypt
 
