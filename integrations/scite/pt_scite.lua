@@ -44,14 +44,15 @@ end
 --print('DEBUG PTCIPHER_EXE: >' .. PTCIPHER_EXE .. '<')
 
 local function determine_encrypted_file_extensions()
-  local hard_coded_file_extensions = true
-  local hard_coded_file_extensions = false
+  local hard_coded_file_extensions = true  -- faster performance boost but not dynamic, FIXME pick this up from config, like props['clach04.puren_tonbo.ptcipher']
+  local hard_coded_file_extensions = false  -- sanity check each time what file types/extensions are understood
   if hard_coded_file_extensions == true then
     -- avoids process spawning unless an actual encrypted file is loaded
     return {
         'gz', 'Z',  -- no password needed, no encryption
         'chi', 'chs',
         'age',
+        'jenc',
         'aes.zip', 'aes256.zip', 'aeszip', 'old.zip', 'aes256stored.zip', 'oldstored.zip', 'aes256lzma.zip', 'aes256bzip2.zip',
         'vimcrypt', 'vimcrypt1', 'vimcrypt2', 'vimcrypt3'
     }
@@ -130,7 +131,7 @@ local function SaveEncryptedFile(filename)
     --print(plain_text)  -- to output pane
     --print('-------------')  -- to output pane
     -- default encryption type based on file extension
-    local prog = PTCIPHER_EXE .. ' --silent --password-prompt=gui --force-newline dos --encrypt --output "' .. filename .. '"'
+    local prog = PTCIPHER_EXE .. ' --force-newline dos --silent --password-prompt=gui --encrypt --output "' .. filename .. '"'
     --print(prog)
 
     if is_win then
