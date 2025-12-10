@@ -30,8 +30,8 @@ r"""Command line tool to re-encrypt Puren Tonbo files from any format into any f
     python -m puren_tonbo.tools.ptrecrypt --cipher .v001_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
     python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
 
-    ptrecrypt --cipher .zip --new_extension .zip --skip_unencrypted --existing-files=delete .
-    ptrecrypt --cipher .chi --new_extension .chi --skip_unencrypted --existing-files=delete --force_recrypt_same_format_password --simulate file1.chi file2.chi
+    ptrecrypt --cipher .zip --new_extension .zip --skip_unencrypted --existing-files=delete .  # NOTE need a destination directory, without will delete file resulting in data loss!
+    ptrecrypt --cipher .chi --new_extension .chi --skip_unencrypted --existing-files=replace --force_recrypt_same_format_password --simulate file1.chi file2.chi
 
 
     python -m puren_tonbo.tools.ptrecrypt --simulate  -p password  --force_recrypt_same_format_password  --existing_files replace --skip_unencrypted  puren_tonbo/tests/data/
@@ -65,6 +65,7 @@ import tempfile
 import time
 
 import puren_tonbo
+from puren_tonbo import forcebad_dos2unix, simple_unix2dos
 import puren_tonbo.ui
 
 
@@ -116,7 +117,7 @@ def write_encrypted_file(out_handler, filename, plaintext_bytes):
     out_file.close()
 
 
-def process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=False, destination_directory=None, new_extension=None, existing_files_resolution=None, simulate=None):
+def process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=False, destination_directory=None, new_extension=None, existing_files_resolution=None, simulate=None, force_newline=None):
     """destination_directory can only work if filename is NOT an absolute path... which may be passed in via command line (for either filename or directory name).
     """
     new_extension = new_extension or "default"
@@ -144,6 +145,12 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
     in_file = open(filename_abs, 'rb')
     try:
         plaintext_bytes = in_handler.read_from(in_file)
+
+        if force_newline:
+            log.info('Forcing (single-byte text) new lines conversion %r', force_newline)
+            plaintext_bytes = forcebad_dos2unix(plaintext_bytes)
+            if force_newline == 'dos':
+                plaintext_bytes = simple_unix2dos(plaintext_bytes)
     except puren_tonbo.UnsupportedFile as info:
         log.error('Skipping UnsupportedFile (TODO option to allow continue, and default to stopping?) %s, %r', filename, info)
         return
@@ -193,7 +200,7 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
             log.warning('Skipping already existing file (see existing_files option) %s', new_filename)
             return
         elif existing_files_resolution in ('overwrite' ,'replace', 'delete'):
-            log.error('About to write/delete existing file %s', new_filename)
+            log.warning('About to write/delete existing file %s', new_filename)
             pass
         else:
             raise NotImplementedError('new file matches existing, unknown existing_files_resolution %r', existing_files_resolution)  # TODO different exception
@@ -210,7 +217,7 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
             write_encrypted_file(out_handler, new_filename_abs, plaintext_bytes)
 
     if existing_files_resolution == 'delete':
-        log.info('about to delete old file %s', filename)
+        log.warning('about to delete old file %s', filename)
         if simulate:
             return
         #raise NotImplementedError('Actual delete')
@@ -229,7 +236,7 @@ def main(argv=None):
         version="%%prog %s" % puren_tonbo.__version__,
         description="Command line tool to (re-)encrypt files. Any files passed on the command line WILL BE encrypted (in the requested format, if none requested original format) unless it is the same format and password. Any directories may have some form of filtering based on type."
     )
-    # TODO implement "--force-newline" / force_newline from pycipher - force Windows newline fixes option when writting out
+    parser.add_option("--force-newline", "--force_newline", help="If set, force newlines. Options; dos, windows, CRLF, unix, LF")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
     parser.add_option("--password-prompt", "--password_prompt", help="Comma seperated list of prompt mechanism to use, options; " + ','.join(puren_tonbo.ui.supported_password_prompt_mechanisms()), default="any")
@@ -249,6 +256,7 @@ def main(argv=None):
     parser.add_option("--skip-unencrypted", "--skip_unencrypted", help="For directories, skip files that are not already encrypted", action="store_true")  # TODO consider applying to files specified on command line
     parser.add_option("--existing-files", "--existing_files", help="How to handle existing files; resolving files that already exist; default error/stop, skip, overwrite/replace/delete (in safe mode - needed for same file type, new password), delete (after successful write)")
     parser.add_option("--simulate", help="Do not write/delete/change files", action="store_true")
+
     # TODO option on saving to delete original file -- see existing-files / --existing_files
     (options, args) = parser.parse_args(argv[1:])
     log.debug('args: %r' % ((options, args),))
@@ -274,6 +282,18 @@ def main(argv=None):
     if not args:
         parser.print_usage()
         return 1
+
+    force_newline = None
+    if options.force_newline:
+        force_newline = options.force_newline.lower()
+        if force_newline not in ('dos', 'windows', 'CRLF', 'unix', 'LF'):
+            usage()
+            print('Invalid force-newline %r' % (force_newline,))
+            return 1
+        if force_newline in ('dos', 'windows', 'CRLF'):
+            force_newline = 'dos'
+        elif force_newline in ('unix', 'LF'):
+            force_newline = 'unix'
 
     if options.cipher:
         handler_class_newfile = puren_tonbo.filename2handler('_.' + options.cipher)  # TODO options.cipher to filename extension is less than ideal
@@ -320,7 +340,7 @@ def main(argv=None):
             directory_list.append(filename_pattern)
             continue
         for filename in glob.glob(filename_pattern):
-            process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory, new_extension=options.new_extension, existing_files_resolution=options.existing_files, simulate=simulate)
+            process_file(filename, password, new_password, handler_class_newfile, force_recrypt_same_format_password=options.force_recrypt_same_format_password, destination_directory=destination_directory, new_extension=options.new_extension, existing_files_resolution=options.existing_files, simulate=simulate, force_newline=force_newline)
 
     if directory_list:
         # or use puren_tonbo.walker(), potentially more efficient with filename lookup?

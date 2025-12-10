@@ -293,6 +293,9 @@ find filenames ONLY encrypted with regex
 
 ### ptnewline_check
 
+Check for inconsistent newlines in (encrypted) files.
+Fix by using force-newline option, with ptrecrypt or ptcipher.
+
     python -m puren_tonbo.tools.ptnewline_check SINGLE_FILENAME
     ptnewline_check SINGLE_FILENAME
 
@@ -307,6 +310,11 @@ find filenames ONLY encrypted with regex
     find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check
     find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check -b  # only show bad (*.chi) files
     find /note/path -type f  -name \*\.chi | xargs -d '\n' ptnewline_check -b | cut -d: -f2 | cut -b2-  # only show bad (*.chi) file names only, ready to pipe back into ptrecrypt
+
+Fix newlines in files:
+
+    ptrecrypt --force-newline dos --cipher .chi --new_extension .chi --skip_unencrypted --existing-files=replace --force_recrypt_same_format_password  file1.chi file2.chi ...  # specific files
+    ptrecrypt --force-newline dos --cipher .chi --new_extension .chi --skip_unencrypted --existing-files=replace --force_recrypt_same_format_password  .  # directory
 
 ### ptrecrypt
 
