@@ -31,7 +31,8 @@ r"""Command line tool to re-encrypt Puren Tonbo files from any format into any f
     python -m puren_tonbo.tools.ptrecrypt --cipher .v002_jenc --new_extension .jenc  -p password  --destination_directory /tmp/all_jenc puren_tonbo/tests/data/merge3_base.txt
 
     ptrecrypt --cipher .zip --new_extension .zip --skip_unencrypted --existing-files=delete .
-    ptrecrypt --cipher .zip --new_extension .zip --skip_unencrypted --existing-files=delete --force_recrypt_same_format_password .
+    ptrecrypt --cipher .chi --new_extension .chi --skip_unencrypted --existing-files=delete --force_recrypt_same_format_password --simulate file1.chi file2.chi
+
 
     python -m puren_tonbo.tools.ptrecrypt --simulate  -p password  --force_recrypt_same_format_password  --existing_files replace --skip_unencrypted  puren_tonbo/tests/data/
 
@@ -209,7 +210,7 @@ def process_file(filename, password, new_password, handler_class_newfile, force_
             write_encrypted_file(out_handler, new_filename_abs, plaintext_bytes)
 
     if existing_files_resolution == 'delete':
-        log.info('about to delete old file %', filename)
+        log.info('about to delete old file %s', filename)
         if simulate:
             return
         #raise NotImplementedError('Actual delete')
@@ -264,6 +265,7 @@ def main(argv=None):
         #print(log.level)
         if log.level < logging.INFO:
             log.setLevel(logging.INFO)  # ensure logging info enabled for filenames and operations
+        log.info('Simulate mode ON, debug messages about file deletion, etc. will not be honored.')
     destination_directory = options.destination_directory
 
     def usage():
