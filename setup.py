@@ -119,6 +119,7 @@ setup(
             'ptcat = puren_tonbo.tools.ptcat:main',
             'ptcipher = puren_tonbo.tools.ptcipher:main',
             'ptconfig = puren_tonbo.tools.ptconfig:main',
+            'ptdiff3merge = puren_tonbo.tools.ptdiff3merge:main',
             'ptgrep = puren_tonbo.tools.ptgrep:main',
             'ptnewline_check = puren_tonbo.tools.ptnewline_check:main',
             'ptrecrypt = puren_tonbo.tools.ptrecrypt:main',
