@@ -64,6 +64,7 @@ except ImportError:
     try:
         import gnupg  # https://github.com/vsajip/python-gnupg NOTE requires gpg binary
         """NOTE hacked version of gnupg.py python-gnupg version 0.5.2
+            # https://github.com/vsajip/python-gnupg/issues/270
             shell=False
             if sys.platform.startswith('win'):
                 shell=True

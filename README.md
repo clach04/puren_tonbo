@@ -697,6 +697,10 @@ gpg command line for encrypt:
     gpg --pinentry-mode loopback --status-fd 2 --no-tty --no-verbose --fixed-list-mode --batch --with-colons --passphrase-fd 0 --symmetric --armor
     echo secret stuff| gpg --pinentry-mode loopback --status-fd 2 --no-tty --no-verbose --fixed-list-mode --batch --with-colons --passphrase-fd 0 --symmetric --armor
 
+encrypt with prompt:
+
+    gpg --status-fd 2 --no-tty --no-verbose --fixed-list-mode --batch --with-colons  --symmetric --armor
+
 Also known to work with:
 
 
