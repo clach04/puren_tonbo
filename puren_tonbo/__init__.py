@@ -83,6 +83,9 @@ except ImportError:
         except OSError:
             # Assume;     GnuPG is not installed!
             gpg = None
+        except ValueError:
+            # Assume;     GnuPG is not installed!
+            gpg = None
     except ImportError:
         gpg = gnupg = None
 
