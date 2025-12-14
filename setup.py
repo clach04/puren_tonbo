@@ -75,6 +75,9 @@ extras_require = {
     'jenc': ['jenc>=0.0.5', ],
     'pyvim': ['pyvim', ],  # TODO version?
     'python-gnupg': ['python-gnupg', ],  # TODO version?
+    # Web
+    'cherrypy': ['cherrypy', ],  # TODO version?
+    'Markdown': ['Markdown', ],  # TODO version?
     # TODO python-gnupg (consider replacements before implementing https://github.com/clach04/puren_tonbo/issues/118)
 }
 if is_cpython and is_py3:
@@ -85,6 +88,7 @@ extras_require_all = []
 for extra_name in extras_require:
     extras_require_all.append(extras_require[extra_name])
 extras_require['all'] = extras_require_all  # convenience, all of the above. NOTE duplicate of above
+extras_require['web'] = extras_require['cherrypy'] + extras_require['Markdown']  # convenience. NOTE duplicate of above
 
 # disable package finding, explictly list package
 find_packages = False
@@ -125,6 +129,7 @@ setup(
             'ptrecrypt = puren_tonbo.tools.ptrecrypt:main',
             'ptig = puren_tonbo.tools.ptig:main',
             'pttkview = puren_tonbo.tools.pttkview:main',  # Assume tk available
+            #'ptwebcp = puren_tonbo.tools.ptwebcp:main',  # Assume CherryPy (or dietcherrypy) and Markdown
         ] + (['ptpyvim = puren_tonbo.tools.ptpyvim:main'] if pyvim else []),
     },
     #data_files=[('.', [readme_filename])],  # does not work :-( ALso tried setup.cfg [metadata]\ndescription-file = README.md # Maybe try include_package_data = True and a MANIFEST.in?

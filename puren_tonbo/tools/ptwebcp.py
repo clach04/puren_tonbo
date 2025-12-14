@@ -62,7 +62,36 @@ except ImportError:
         serve_file = cherrypy.serve_file
 
 
+
+def fake_module(name):  # Optional import
+    # Fail with a clear message (possibly at an unexpected time) for module access and method/class/function
+    class MissingModule(object):
+        def __getattr__(self, attr):
+            raise ImportError('No module named %s' % name)
+
+        def __bool__(self):  # Not sure __nonzero__ check was working in py3
+            # truthy if checks on this will fail
+            return False
+        __nonzero__ = __bool__
+
+        def __call__(self, *args, **kwargs):
+            raise ImportError('No module named %s' % name)
+    return MissingModule()
+
+
+try:
+    import markdown  # https://pypi.org/project/Markdown/  --  https://github.com/Python-Markdown/markdown  --  pip install Markdown
+except ImportError:
+    markdown = fake_module('markdown')
+# TODO additional / alternative Markdown converters
+
 import puren_tonbo
+
+
+def markdown_to_html(input_str):
+    # TODO header 1 the first line - see PyTombo / WebTombo - also additional filters support
+    html_str = markdown.markdown(input_str)
+    return html_str
 
 
 def filename_no_path(in_path):
@@ -87,7 +116,7 @@ class Root(object):
     # /note/filename.chi - VIEW with password payload
     # /note/filename.chi - RAW / RAWSAVE? pull-down/upload raw for end to end encryption support
 
-    def view(self, note=None, password=None, html=False):
+    def view(self, note=None, password=None, html=False, markdown=False):
         # note is relative pathname
         if note is None:
             return 'Missing note filename'
@@ -103,6 +132,9 @@ class Root(object):
         except puren_tonbo.PurenTonboException as info:
             print('%r' % info)
             return 'file IO error'
+        if markdown:
+            cherrypy.response.headers['Content-Type'] = 'text/html'
+            data = markdown_to_html(data)
         return data
     view.exposed = True
 
