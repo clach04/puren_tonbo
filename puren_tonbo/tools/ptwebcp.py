@@ -201,9 +201,9 @@ class Root(object):
             """
             tmp_html = """%s
             <a href="view?note=%s">Raw Text</a>
-
+            <a href="view?note=%s&markdown=true">Markdown</a>
             </br>
-            """ % (escapecgi(disp_filename), filename, )
+            """ % (escapecgi(disp_filename), filename, filename,)
             #""" % (escapecgi(disp_filename), filename, filename, filename, filename, )
             result.append(tmp_html)
         cherrypy.response.headers['Content-Type'] = 'text/html'
