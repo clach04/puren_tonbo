@@ -3,9 +3,10 @@
 # vim:ts=4:sw=4:softtabstop=4:smarttab:expandtab
 """Web server using CherryPy/DietCherryPy to serve files via web browser
 
+    python -m puren_tonbo.tools.ptwebcp --help
     python -m puren_tonbo.tools.ptwebcp
 
-    $ cat pt.json 
+    $ cat pt.json
     {
         "_version_created_with": "0.0.3.git",
         "codec": [
@@ -18,6 +19,8 @@
     }
 
 test/demo/debug urls
+
+http://localhost:8888/list
 
 http://localhost:8888/view?note=pants
 http://localhost:8888/view?note=aesop.chi&password=bad
