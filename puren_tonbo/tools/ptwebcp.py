@@ -48,7 +48,7 @@ import time
 
 try:
     if os.environ.get('FORCE_DIETCHERRYPY'):  raise ImportError()  # force usage of dietcherrypy
-    import cherrypy
+    import cherrypy  # known to work with cherrypy-18.10.0 - NOTE uses wrong post
     dietcherrypy = dietcherrypy_wsgi = None
 except ImportError:
     try:
@@ -218,11 +218,16 @@ def main(argv=None):
     server_port = os.environ.get('LISTEN_PORT') or 8888
     server_port = int(server_port) or 8888
     print('http://localhost:%d' % server_port)
+    print('http://localhost:%d/list?recursive=y' % server_port)
+    print('http://localhost:%d/list' % server_port)
     if dietcherrypy:
         cherrypy.dietcherry_start(server_host=None, server_port=server_port, root_class=webapp)
     else:
         ## CherryPy version 3.x style
+        cherrypy_config = {'server.socket_port': server_port}
+        cherrypy.config.update(cherrypy_config)  # works with cherrypy-18.10.0
         cherrypy.quickstart(webapp)
+        #cherrypy.quickstart(webapp, config=cherrypy_config)  # does NOT work with cherrypy-18.10.0 - needs more config
 
     return 0
 
