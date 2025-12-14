@@ -63,9 +63,18 @@ except ImportError:
     gpgme = None
     try:
         import gnupg  # https://github.com/vsajip/python-gnupg NOTE requires gpg binary
+        """NOTE hacked version of gnupg.py python-gnupg version 0.5.2
+            shell=False
+            if sys.platform.startswith('win'):
+                shell=True
+            result = Popen(cmd, shell=shell, stdin=PIPE, stdout=PIPE, stderr=PIPE, startupinfo=si, env=self.env)
+
+        """
         GPG_EXE = os.environ.get('GPG_EXE', 'gpg')
+        GPG_HOME = os.environ.get('GPG_HOME', os.path.expanduser('~'))
         try:
-            gpg = gnupg.GPG(gpgbinary=GPG_EXE)
+            gpg = gnupg.GPG(gpgbinary=GPG_EXE)  # fails under Windows, even though available
+            #gpg = gnupg.GPG(gpgbinary=GPG_EXE, gnupghome=GPG_HOME, env=os.environ)  # fails under Windows, even though available
             #gpg = gnupg.GPG(ignore_homedir_permissions=True)
         except RuntimeError:
             # Assume;     RuntimeError: GnuPG is not installed!

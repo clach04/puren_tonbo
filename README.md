@@ -669,18 +669,35 @@ spaces, do NOT use double quotes in the SET. Example: `set CCRYPT_EXE=C:\3rd par
 
 Symmetric encryption/decryption from passphase, key support not explictly implemented. RFC-4880 sec 5.13 (Symmetrically Encrypted Integrity Protected Data packet) OCFB-MDC.
 
-Depending on which gpg Python module is installed **might require** a gpg binary, download from https://gnupg.org/download/ or use one provided by Git For Windows
+Depending on which gpg Python module is installed **might require** a gpg binary, download from https://gnupg.org/download/ or use one provided by Git For Windows.
+
+Git for Windows, add to path:
+
+    path %PATH%;"C:\Program Files\Git\usr\bin\"
+
+Alternatively, set exe full path:
+
+    set GPG_EXE="C:\Program Files\Git\usr\bin\gpg.exe"
+
+Samples:
 
     set GPG_EXE=C:\Program Files\Git\usr\bin\gpg.exe
     python -m puren_tonbo.tools.ptcipher --cipher=asc -e -p test README.md -o README.asc
     python -m puren_tonbo.tools.ptcipher --cipher=gpg -e -p test README.md -o README.gpg
     ptcipher -p password puren_tonbo/tests/data/aesop_win_encryptpad.asc
+    echo secret stuff| ptcipher --cipher=asc -e   # prompt for password
+    echo secret stuff| ptcipher --cipher=asc -e -p password
 
     gpg --pinentry-mode=loopback --decrypt  --passphrase test README.gpg
     gpg --pinentry-mode=loopback --no-tty --no-verbose --decrypt  --passphrase password puren_tonbo/tests/data/aesop_win_encryptpad.asc
     gpg -d puren_tonbo/tests/data/aesop_win_encryptpad.asc   # Will prompt
 
-Also known to work withL
+gpg command line for encrypt:
+
+    gpg --pinentry-mode loopback --status-fd 2 --no-tty --no-verbose --fixed-list-mode --batch --with-colons --passphrase-fd 0 --symmetric --armor
+    echo secret stuff| gpg --pinentry-mode loopback --status-fd 2 --no-tty --no-verbose --fixed-list-mode --batch --with-colons --passphrase-fd 0 --symmetric --armor
+
+Also known to work with:
 
 
   * EncryptPad (cross platform, QT) from https://github.com/evpo/EncryptPad
