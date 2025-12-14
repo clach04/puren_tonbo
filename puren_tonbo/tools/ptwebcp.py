@@ -255,8 +255,11 @@ def main(argv=None):
     if dietcherrypy:
         cherrypy.dietcherry_start(server_host=None, server_port=server_port, root_class=webapp)
     else:
-        ## CherryPy version 3.x style
-        cherrypy_config = {'server.socket_port': server_port}
+        ## CherryPy version 3.x - 18.x style
+        socket_host = '0.0.0.0'  # allow access from any client
+        #socket_host = '127.0.0.1'  # only allow access from local machine
+
+        cherrypy_config = {'server.socket_port': server_port, 'server.socket_host': socket_host}
         cherrypy.config.update(cherrypy_config)  # works with cherrypy-18.10.0
         cherrypy.quickstart(webapp)
         #cherrypy.quickstart(webapp, config=cherrypy_config)  # does NOT work with cherrypy-18.10.0 - needs more config
