@@ -278,6 +278,7 @@ def main(argv=None):
     parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
+    parser.add_option("-I", "--case_sensitive", "--case-sensitive", help="Case sensitive search (override insensitive flag)", action="store_true")
     parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")  # TODO see -g options for rg-like tools
     parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="Only print filenames, do not display matches in file content", action="store_true")
     parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
@@ -385,6 +386,9 @@ def main(argv=None):
     if options.time and callable(password_func):
         print('timing requested and password missing, grabbing password now so as to not time user interactions (for single/same password scenerio)')
         _ = password_func()
+
+    if options.case_sensitive:
+        options.ignore_case = False  # doesn't matter what original ignore_case flag/setting was
 
     grep(search_term, paths_to_search, options, use_color, password_func, note_encoding)
 

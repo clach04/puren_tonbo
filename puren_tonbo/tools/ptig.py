@@ -134,6 +134,7 @@ grep_parser = PtigParser(usage='usage: %prog [options] [search_term]',
                         epilog =ptgrep.ptgrep_examples
                     )
 grep_parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
+grep_parser.add_option("-I", "--case_sensitive", "--case-sensitive", help="Case sensitive search (override insensitive flag)", action="store_true")
 grep_parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")
 grep_parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="Only print filenames that contain matches", action="store_true")
 grep_parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
@@ -1105,6 +1106,8 @@ Also see `edit`
             search_term = grep_parser_args[0]
             # TODO consider a loop of get /set attr
             options.ignore_case = options.ignore_case or grep_parser_options.ignore_case
+            if grep_parser_options.case_sensitive:
+                options.ignore_case = False  # doesn't matter what original ignore_case flag/setting was
             options.find_only_filename = options.find_only_filename or grep_parser_options.find_only_filename
             options.files_with_matches = options.files_with_matches or grep_parser_options.files_with_matches
             options.regex_search = options.regex_search or grep_parser_options.regex_search
