@@ -668,6 +668,7 @@ spaces, do NOT use double quotes in the SET. Example: `set CCRYPT_EXE=C:\3rd par
 #### OpenPGP - gpg / pgp
 
 Symmetric encryption/decryption from passphase, key support not explictly implemented. RFC-4880 sec 5.13 (Symmetrically Encrypted Integrity Protected Data packet) OCFB-MDC.
+AES256.CFB ?
 
 Depending on which gpg Python module is installed **might require** a gpg binary, download from https://gnupg.org/download/ or use one provided by Git For Windows.
 
@@ -691,9 +692,13 @@ Samples:
     gpg --pinentry-mode=loopback --decrypt  --passphrase test README.gpg
     gpg --pinentry-mode=loopback --no-tty --no-verbose --decrypt  --passphrase password puren_tonbo/tests/data/aesop_win_encryptpad.asc
     gpg -d puren_tonbo/tests/data/aesop_win_encryptpad.asc   # Will prompt
+    echo password| gpg --pinentry-mode loopback --passphrase-fd 0 --decrypt  puren_tonbo/tests/data/aesop_win_encryptpad.asc  # no prompt - note potentially issues with Git for Windows provided gpg.exe, appears that newline causes issues. Redirect from (password) file is fine
 
 gpg command line for encrypt:
 
+    echo password| gpg --pinentry-mode loopback --passphrase-fd 0 --symmetric --armor -o - plain_text.txt  # ASCII armor to stdout
+    echo password| gpg --pinentry-mode loopback --passphrase-fd 0 --symmetric         -o - plain_text.txt  # Binary (i.e. no ASCII armor) to stdout
+    echo password| gpg --pinentry-mode loopback --passphrase-fd 0 --symmetric --armor plain_text.txt  # FIXME writes to disk not stdout
     gpg --pinentry-mode loopback --status-fd 2 --no-tty --no-verbose --fixed-list-mode --batch --with-colons --passphrase-fd 0 --symmetric --armor
     echo secret stuff| gpg --pinentry-mode loopback --status-fd 2 --no-tty --no-verbose --fixed-list-mode --batch --with-colons --passphrase-fd 0 --symmetric --armor
 
@@ -718,6 +723,47 @@ Also known to work with:
 
   * EncryptedNotepad2 (cross platform) from https://github.com/ivoras/EncryptedNotepad2/
       * According to https://github.com/ivoras/EncryptedNotepad2/issues/4 should be compatible.
+
+NOTES
+
+Windows issues with Git for Windows provided gpg exe, CTRL-Z interactive does not trigger encrypt/decrypt for:
+
+    gpg.exe --pinentry-mode loopback --passphrase-fd 0 --symmetric --armor  -
+
+But newer seems fine:
+
+    C:\>....\gpg.exe --version
+    gpg (GnuPG) 2.4.8
+    libgcrypt 1.11.1
+    Copyright (C) 2025 g10 Code GmbH
+    License GNU GPL-3.0-or-later <https://gnu.org/licenses/gpl.html>
+    This is free software: you are free to change and redistribute it.
+    There is NO WARRANTY, to the extent permitted by law.
+
+    Home: %APPDATA%\gnupg
+    Supported algorithms:
+    Pubkey: RSA, ELG, DSA, ECDH, ECDSA, EDDSA
+    Cipher: IDEA, 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH,
+            CAMELLIA128, CAMELLIA192, CAMELLIA256
+    Hash: SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+    Compression: Uncompressed, ZIP, ZLIB, BZIP2
+
+    C:\>"C:\Program Files\Git\usr\bin\gpg.exe" --version
+    gpg (GnuPG) 2.2.41-unknown
+    libgcrypt 1.9.4-unknown
+    Copyright (C) 2022 g10 Code GmbH
+    License GNU GPL-3.0-or-later <https://gnu.org/licenses/gpl.html>
+    This is free software: you are free to change and redistribute it.
+    There is NO WARRANTY, to the extent permitted by law.
+
+    Home: /c/Users/USERNAME/.gnupg
+    Supported algorithms:
+    Pubkey: RSA, ELG, DSA, ECDH, ECDSA, EDDSA
+    Cipher: IDEA, 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH,
+            CAMELLIA128, CAMELLIA192, CAMELLIA256
+    Hash: SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+    Compression: Uncompressed, ZIP, ZLIB, BZIP2
+
 
 #### OpenSSL 1.1.0 AES
 
