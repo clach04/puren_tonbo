@@ -85,9 +85,13 @@ if is_cpython and is_py3:
     #'ssage': ['ssage', ],  # ssage-1.4.0
 
 extras_require_all = []
+extras_require_testing = []
 for extra_name in extras_require:
     extras_require_all.append(extras_require[extra_name])
+    if extra_name not in ('cherrypy'):
+        extras_require_testing.append(extras_require[extra_name])
 extras_require['all'] = extras_require_all  # convenience, all of the above. NOTE duplicate of above
+extras_require['testing'] = extras_require_testing
 extras_require['web'] = extras_require['cherrypy'] + extras_require['Markdown']  # convenience. NOTE duplicate of above
 
 # disable package finding, explictly list package
