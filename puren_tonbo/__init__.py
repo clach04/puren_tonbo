@@ -744,7 +744,8 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
 
     #@classmethod()
     def exe_version_check(self):
-        # combination exe present and version check
+        # combination exe present and version check - TODO check for different flavors and versions. For example age v1.3.1+ with age-plugin-batchpass versus forks and other implementations
+        # See https://github.com/FiloSottile/age/discussions/256 UX: Missing option for noninteractive use of passwords
         cmd = [self._exe_name, '--version']
         if is_win:
             expand_shell = True  # avoid pop-up black CMD window - TODO review safety
@@ -776,7 +777,7 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
             password = password.decode("utf-8")
 
         os.environ[self._envvar_name] = password
-        cmd = [self._exe_name, '--decrypt']
+        cmd = [self._exe_name, '--decrypt']  # version dependent, use "-j batchpass" - and also force "-o -" in case of binary output
 
         # expand-shell true for windows to avoid pop-up window, no user input used so shell escape/esculation not expected
         # TODO look at alernative, Windows only startupinfo param STARTUPINFO class, wShowWindow = SW_HIDE
@@ -804,7 +805,7 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
             password = password.decode("utf-8")
 
         os.environ[self._envvar_name] = password
-        cmd = [self._exe_name, '--encrypt', '--passphrase']
+        cmd = [self._exe_name, '--encrypt', '--passphrase']  # version dependent, remove '--passphrase' and use "-j batchpass" - and also force "-o -" in case of binary output
         # FIXME TODO - ensure passphrae prompt does not occur....
         p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
