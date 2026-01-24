@@ -227,12 +227,16 @@ class CommandPrompt(Cmd):
             password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
 
         self.paths_to_search_instances = []
+        start_time = time.time()
         for note_root in self.paths_to_search:
             notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
             # FIXME handle password from environment, e.g. env PT_PASSWORD=password (keyring)
             # FIXME handle cancel from password prompt
             notes.fts_index(get_password_callback=password_func)
             self.paths_to_search_instances.append(notes)
+        end_time = time.time()
+        search_time = end_time - start_time
+        print('Query time: %.2f seconds' % search_time)
 
     def do_fts_search(self, line=None):
         """Perform a Full Text Search (fts), using sqlite3 FTS syntax
@@ -291,6 +295,7 @@ NOTE requires fts_index to have been issued.
         ripgrep_outout_style = False  # file, newline, line_number:hit
         ripgrep_outout_style = True  # grep-style; filename:line_number:hit  # FIXME / TODO config option needed
         self.file_hits = []
+        start_time = time.time()
         try:
             for notes in self.paths_to_search_instances:
                 index_lines = notes.fts_instance.index_lines
@@ -323,6 +328,10 @@ NOTE requires fts_index to have been issued.
             print(info)
         if and_or_warning_message:
             print(and_or_warning_message)
+
+        end_time = time.time()
+        search_time = end_time - start_time
+        print('Query time: %.2f seconds' % search_time)
     do_fts = do_fts_search
 
     def do_ls(self, line=None):
