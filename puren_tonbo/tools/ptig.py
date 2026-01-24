@@ -39,7 +39,7 @@ except ImportError:
     percol = None
 
 import puren_tonbo
-from puren_tonbo import SearchCancelled
+from puren_tonbo import SearchException, SearchCancelled
 from puren_tonbo.tools import ptcat, ptgrep  # FIXME TODO actually use these
 
 
@@ -278,8 +278,11 @@ NOTE requires fts_index to have been issued.
         and_or_warning_message = ''
         if ' and ' in line or ' or 'in line or ' not ' in line:
             and_or_warning_message = warn_prefix + 'or/and/not detected, SQLite3 FTS5 expects upper case'
-        else:
-            and_or_warning_message = None
+        if '-' in shlex.shlex(line):
+            # probably a mistake, a raw word with a hypen which SQLite FTS treats as a negative column match request
+            if and_or_warning_message:
+                and_or_warning_message += '\n'
+            and_or_warning_message = warn_prefix + '"-" detected, SQLite3 FTS5 treats this as a negative colum match, double quote hyphenated words'
         # warn at start and end
         if and_or_warning_message:
             print(and_or_warning_message)
@@ -288,33 +291,36 @@ NOTE requires fts_index to have been issued.
         ripgrep_outout_style = False  # file, newline, line_number:hit
         ripgrep_outout_style = True  # grep-style; filename:line_number:hit  # FIXME / TODO config option needed
         self.file_hits = []
-        for notes in self.paths_to_search_instances:
-            index_lines = notes.fts_instance.index_lines
-            for counter, hit in enumerate(notes.fts_search(line, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop), start=1):
-                #print('hit %r' % (hit,) )
-                #print('%s:%s' % hit)
-                filename, filename_highlighted, note_text, size = hit
-                """
-                # display_full_path - assume True
-                if len(self.paths_to_search) == 1:
-                    filename = os.path.join(self.paths_to_search[0], filename)  # or store full pathname in database at index time...
-                """
-                self.file_hits.append(filename)  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
-                if self.grep_options.use_color:
-                    filename = ptgrep.color_filename + filename + ptgrep.color_reset
+        try:
+            for notes in self.paths_to_search_instances:
+                index_lines = notes.fts_instance.index_lines
+                for counter, hit in enumerate(notes.fts_search(line, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop), start=1):
+                    #print('hit %r' % (hit,) )
+                    #print('%s:%s' % hit)
+                    filename, filename_highlighted, note_text, size = hit
+                    """
+                    # display_full_path - assume True
+                    if len(self.paths_to_search) == 1:
+                        filename = os.path.join(self.paths_to_search[0], filename)  # or store full pathname in database at index time...
+                    """
+                    self.file_hits.append(filename)  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
+                    if self.grep_options.use_color:
+                        filename = ptgrep.color_filename + filename + ptgrep.color_reset
 
-                note_text = note_text.replace('\n', ' ')  # TODO consider using .. or some user configurable replacement
-                # NOTE filename_highlighted unused
-                size_str = '%dKb' % (size / 1024,)  # FIXME human readable size conversion
-                if ripgrep_outout_style:
-                    print('[%d] %s %s' % (counter, filename, size_str))
-                    if index_lines:
-                        print('%s' % (note_text,))  # FIXME color support
+                    note_text = note_text.replace('\n', ' ')  # TODO consider using .. or some user configurable replacement
+                    # NOTE filename_highlighted unused
+                    size_str = '%dKb' % (size / 1024,)  # FIXME human readable size conversion
+                    if ripgrep_outout_style:
+                        print('[%d] %s %s' % (counter, filename, size_str))
+                        if index_lines:
+                            print('%s' % (note_text,))  # FIXME color support
+                        else:
+                            print('??:%s' % (note_text,))
                     else:
-                        print('??:%s' % (note_text,))
-                else:
-                    # grep-style
-                    print('[%d] %s:%s -- %s' % (counter, filename, note_text, size_str))  # unknown line number - depending on index_lines
+                        # grep-style
+                        print('[%d] %s:%s -- %s' % (counter, filename, note_text, size_str))  # unknown line number - depending on index_lines
+        except SearchException as info:
+            print(info)
         if and_or_warning_message:
             print(and_or_warning_message)
     do_fts = do_fts_search

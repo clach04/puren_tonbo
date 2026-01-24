@@ -2257,26 +2257,31 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
 
         '''
 
-        if index_lines:
-            cur.execute("""SELECT
-                            filename,
-                            snippet(note, 0, ?, ?, '...', ?) as title,
-                            CAST(line_number as TEXT) || ':' || snippet(note, 1, ?, ?, '...', ?) as body,
-                            size
-                        FROM note(?)
-                        ORDER  BY rank""",
-                        (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
-        else:
-            cur.execute("""SELECT
-                            filename,
-                            snippet(note, 0, ?, ?, '...', ?) as title,
-                            snippet(note, 1, ?, ?, '...', ?) as body,
-                            size
-                        FROM note(?)
-                        ORDER  BY rank""",
-                        (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
+        try:
+            if index_lines:
+                cur.execute("""SELECT
+                                filename,
+                                snippet(note, 0, ?, ?, '...', ?) as title,
+                                CAST(line_number as TEXT) || ':' || snippet(note, 1, ?, ?, '...', ?) as body,
+                                size
+                            FROM note(?)
+                            ORDER  BY rank""",
+                            (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
+            else:
+                cur.execute("""SELECT
+                                filename,
+                                snippet(note, 0, ?, ?, '...', ?) as title,
+                                snippet(note, 1, ?, ?, '...', ?) as body,
+                                size
+                            FROM note(?)
+                            ORDER  BY rank""",
+                            (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
 
-        return cur.fetchall()  # [(filename, title, body, size), ...]
+            return cur.fetchall()  # [(filename, title, body, size), ...]
+        except sqlite3.OperationalError as info:
+            # this could be; sqlite3.OperationalError: no such column: COLUMN_NAME
+            # where COLUMN_NAME was picked up from search team; something-COLUMN_NAME
+            raise SearchException(str(info))
 
 ##############################
 
