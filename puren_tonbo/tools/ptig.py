@@ -269,12 +269,15 @@ NOTE requires fts_index to have been issued.
             print('%s' % self.do_fts_search.__doc__)
             return
 
-
+        # TODO refactor, move and do this one (or at least less times than each search)
+        if highlight_text_start:
+            warn_prefix = highlight_text_start + 'WARNING' + highlight_text_stop + ' '
+        else:
+            warn_prefix = 'WARNING '
+        # FIXME / TODO consider refactor - this logic leaks the FTS implementation outside of the implementation :-(
+        and_or_warning_message = ''
         if ' and ' in line or ' or 'in line or ' not ' in line:
-            if highlight_text_start:
-                and_or_warning_message = highlight_text_start + 'WARNING' + highlight_text_stop + ' or/and/not detected, SQLite3 FTS5 expects upper case'
-            else:
-                and_or_warning_message = 'WARNING or/and/not detected, SQLite3 FTS5 expects upper case'
+            and_or_warning_message = warn_prefix + 'or/and/not detected, SQLite3 FTS5 expects upper case'
         else:
             and_or_warning_message = None
         # warn at start and end
