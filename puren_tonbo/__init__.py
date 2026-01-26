@@ -405,6 +405,130 @@ class VimDecrypt(EncryptedFile):
             raise PurenTonboException(info)
 
 
+#############################
+
+class GenericExe(EncryptedFile):  # TODO use as base for AgeExe
+    """Generic Executable Encrypt/Decrypt - sub-class for use.
+    Initial implementation, needs refactoring
+    """
+
+    description = 'GENERIC' + ' (EXE)'
+    extensions = [
+        '.GENERIC_BIN',  # binary
+        '.GENERIC_ASCII',  # ascii-armored
+    ]
+    _exe_name = os.environ.get('GENERIC_EXE', 'generic')
+    _envvar_name = 'GENERIC_PASSPHRASE'  # Set to None if not supported/used. TODO allow config...
+    _exe_encrypt_params = ['--encrypt', '-E', 'GENERIC_PASSPHRASE']  # Check if there is a parameter to avoid passphrase prompt does not occur....
+    _exe_decrypt_params = ['--decrypt', '-E', 'GENERIC_PASSPHRASE']  # Check if there is a parameter to avoid passphrase prompt does not occur....
+    _exe_present = False
+    _exe_version_str = None
+    #_exe_version = None  # UNUSED
+    implementation = 'exe'
+
+    #@classmethod()
+    def exe_version_check(self):
+        # combination exe present and version check
+        cmd = [self._exe_name, '--version']
+        if is_win:
+            expand_shell = True  # avoid pop-up black CMD window - TODO review safety
+        else:
+            expand_shell = False
+
+        try:
+            p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # timeout not suported by older python versions, pre 3.3?
+            stdout_value, stderr_value = p_exe.communicate()
+
+            """
+            print('stdout: %r' % stdout_value)
+            print('stderr: %r' % stderr_value)
+            print('returncode: %r' % p_exe.returncode)
+            """
+            if p_exe.returncode == 0:
+                self._exe_present = True
+                self._exe_version_str = stdout_value.strip()
+                #self._exe_version = self._exe_version_str.split(b' ', 2)[1].decode('utf-8')  # will fail on "(develop)" and other non integer-period/dot strings
+        except FileNotFoundError:
+            # some (but not all, Windows does not require this) platforms raise exception on missing binary
+            pass
+
+    def read_from(self, file_object):
+        password = self.key  # TODO enforce byte check?
+        if isinstance(password, bytes):
+            # environment variables (in Microsoft Windows) have to be strings in py3
+            password = password.decode("utf-8")
+
+        if self._envvar_name:
+            os.environ[self._envvar_name] = password
+        cmd = [self._exe_name] + self._exe_decrypt_params
+
+        try:
+            # expand-shell true for windows to avoid pop-up window, no user input used so shell escape/esculation not expected
+            # TODO look at alternative, Windows only startupinfo param STARTUPINFO class, wShowWindow = SW_HIDE
+            byte_data = file_object.read()
+            p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            # timeout not supported by older python versions, pre 3.3
+            #stdout_value, stderr_value = p_exe.communicate()
+            stdout_value, stderr_value = p_exe.communicate(input=byte_data)
+            if p_exe.returncode != 0:
+                """
+                if stderr_value== b'TODO EXE SPECIFIC CHECK GOES HERE\n':
+                    raise BadPassword('with %r' % file_object)
+                """
+                #if stderr_value.startswith(b'passphrase'):  # error, bad, password....
+                if b'passphrase' in stderr_value:  # error, bad, password....  # TODO refactor, have string present as class attribute
+                    raise BadPassword('with %r' % file_object)
+                raise PurenTonboException('failed to spawn, %r' % stderr_value)
+            return stdout_value
+        finally:
+            if self._envvar_name:
+                del os.environ[self._envvar_name]
+
+    def write_to(self, file_object, byte_data):
+        password = self.key  # TODO enforce byte check?
+        if isinstance(password, bytes):
+            # environment variables (in Microsoft Windows) have to be strings in py3
+            password = password.decode("utf-8")
+
+        if self._envvar_name:
+            os.environ[self._envvar_name] = password
+        cmd = [self._exe_name] + self._exe_encrypt_params
+        try:
+            p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            # timeout not supported by older python versions, pre 3.3
+            stdout_value, stderr_value = p_exe.communicate(input=byte_data)
+            if p_exe.returncode != 0:
+                raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
+            file_object.write(stdout_value)  # only write to fileobject on successful encryption
+        finally:
+            if self._envvar_name:
+                del os.environ[self._envvar_name]
+
+#############################
+
+class KrExe(GenericExe):
+    """Kr Monocypher
+    https://github.com/clach04/kr
+    """
+
+    description = 'Kr Monocypher' + ' (EXE)'
+    extensions = [
+        '.kr',  # binary
+    ]
+    _exe_name = os.environ.get('KR_EXE', 'kr')
+    _envvar_name = 'PTKR_PASSPHRASE'  # match encrypt/decrypt cmd params
+    _exe_encrypt_params = ['--encrypt', '--envvar=PTKR_PASSPHRASE', '-', '-']
+    #_exe_decrypt_params = ['--decrypt', '-E=PTKR_PASSPHRASE', '-', '-']
+    _exe_decrypt_params = ['--decrypt', '--envvar=PTKR_PASSPHRASE', '-', '-']
+    # Error for bad/incorrect passphrase/password: "Wrong passphrase / bad input"
+
+KrExe.exe_version_check(KrExe)  # TODO move/refactor into introspection loop
+
+#############################
+
 CCRYPT_EXE = os.environ.get('CCRYPT_EXE', 'ccrypt')
 ccrypt = None
 ccrypt_version = 'MISSING'  # TODO make this part of Ccrypt class
@@ -729,7 +853,7 @@ class Age(EncryptedFile):
             #raise PurenTonboException(info.message)
             raise PurenTonboException(info)
 
-class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
+class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class using GenericExe as base
     """
     """
 
@@ -978,6 +1102,12 @@ if age:
             file_type_handlers[file_extension] = enc_class
 elif AgeExe._exe_present:
     for enc_class in (AgeExe, ):
+        for file_extension in enc_class.extensions:
+            file_type_handlers[file_extension] = enc_class
+
+# TODO replace with introspection loop into all *Exe classes (ignoring GenericExe)
+if KrExe._exe_present:
+    for enc_class in (KrExe, ):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 
@@ -2872,6 +3002,7 @@ def print_version_info(list_all=False):
     if chi_io:
         print('\tchi_io.implementation: %s' % chi_io.implementation)
     print('\tccrypt version: %s exe: %s' % (ccrypt_version, CCRYPT_EXE))
+    print('\tKrExe version: %s exe: %s' % (KrExe._exe_version_str, KrExe._exe_name))  # FIXME / TODO refactor and loop through introspection
     if OpenSslEncDecCompat:
         print('\topenssl_enc_compat version: %s' % openssl_enc_compat.__version__)
     if gnupg:

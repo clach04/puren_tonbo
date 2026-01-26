@@ -161,6 +161,16 @@ class TestBaseEncryptedCrypt(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
         def test_same_input_different_crypted_text(self):
             self.skip('ccrypt not available')
 
+class TestBaseEncryptedKr(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
+    test_data_bytes = b"this is just a small piece of text."
+    test_password_bytes = b'mypassword'
+    pt_handler_class = puren_tonbo.KrExe
+
+    if not puren_tonbo.KrExe._exe_version_str:
+        def test_get_what_you_put_in(self):
+            self.skip('kr not available')
+        def test_same_input_different_crypted_text(self):
+            self.skip('kr not available')
 
 class TestBaseEncryptedPurePyZipAES(TestBaseEncryptedFileUtil, TestBaseEncryptedFile):
     test_data_bytes = b"this is just a small piece of text."
@@ -321,6 +331,29 @@ ter no rule than cruel rule.\n'''
         test_note_filename = 'aesop.chi'
         data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
         self.assertEqual(self.plain_text_data_windows_newlines, data)
+
+    def test_aesop_win_kr(self):
+        if not puren_tonbo.KrExe._exe_version_str:  # TODO replace with calls to skip_if_missing_handler()
+            self.skip('kr not available')
+
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = self.test_password_bytes
+        test_note_filename = 'aesop.kr'
+        data = note_root.note_contents(test_note_filename, password, dos_newlines=False)  # TODO same test but False and single canon
+        if is_win:
+            canon = self.plain_text_data_windows_newlines
+        else:
+            canon = self.plain_text_data_linux_newlines
+        self.assertTrue(data == self.plain_text_data_windows_newlines or data == self.plain_text_data_linux_newlines)
+
+    def test_aesop_win_kr_bad_password(self):
+        if not puren_tonbo.KrExe._exe_version_str:
+            self.skip('kr not available')
+
+        note_root = puren_tonbo.FileSystemNotes(self.data_folder, self.note_encoding)
+        password = 'bad'
+        test_note_filename = 'aesop.kr'
+        self.assertRaises(puren_tonbo.BadPassword, note_root.note_contents, test_note_filename, password)
 
     def test_aesop_win_ccrypt_cpt(self):
         if not puren_tonbo.ccrypt:  # TODO replace with calls to skip_if_missing_handler()
@@ -877,6 +910,12 @@ class TestFileSystemNotesWriteClassSaveEncryptedCcrypt(TestFileSystemNotesWriteC
 
 class TestFileSystemNotesWriteFunctionSaveEncryptedCcrypt(TestFileSystemNotesWriteFunctionSaveRawPlainText):
     handler_class = puren_tonbo.Ccrypt
+
+class TestFileSystemNotesWriteClassSaveEncryptedKr(TestFileSystemNotesWriteClassSaveRawPlainText):
+    handler_class = puren_tonbo.KrExe
+
+class TestFileSystemNotesWriteFunctionSaveEncryptedKr(TestFileSystemNotesWriteFunctionSaveRawPlainText):
+    handler_class = puren_tonbo.KrExe
 
 class TestFileSystemNotesWriteClassSaveEncryptedOpenSsl10k(TestFileSystemNotesWriteClassSaveRawPlainText):
     handler_class = puren_tonbo.OpenSslEnc10k # OpenSSL aes256cbc pbkdf2 10k

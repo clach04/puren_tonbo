@@ -75,6 +75,7 @@ Plain text notes search/edit tool that supports encrypted files, formats:
   * [Age](https://github.com/clach04/age/tree/pr520_osenv_password) age passphrase encryption (not key)
   * [jenc / markor](https://github.com/clach04/jenc-py)
   * [ccrypt](https://ccrypt.sourceforge.net/) - Rijndael-256 (no authentication)
+  * [kr Monocypher](https://github.com/clach04/kr) - AEAD interface of Monocypher version 4.0.1 using XChaCha20-Poly1305
   * [GnuPG (OpenPGP, gpg)](https://www.gnupg.org/) - [symmetric](https://www.gnupg.org/gph/en/manual/r656.html) see https://tutonics.com/articles/gpg-encryption-guide-part-4-symmetric-encryption/#:~:text=Another%20type%20of%20cryptographic%20solution,also%20called%20a%20shared%20secret.
   * [OpenSSL 1.1.0 aes-256-cbc](https://github.com/openssl/openssl) - [symmetric](https://www.openssl.org/docs/manmaster/man1/openssl.html) AES-256-CBC encryption with pbkdf2.
   * [Tombo (chi, chs)](https://github.com/clach04/chi_io) - blowfish-ECB as used by https://github.com/clach04/tombo/
@@ -664,6 +665,20 @@ spaces, do NOT use double quotes in the SET. Example: `set CCRYPT_EXE=C:\3rd par
 
     ccrypt -c README.cpt
     ccrypt -c -K test README.cpt
+
+#### kr Monocypher
+
+Symmetric encryption/decryption from passphase.
+
+Tested with kr v0.3 (64-bit Intel x86/x64).
+
+Requires a kr binary, download from https://github.com/clach04/kr
+kr binary/executable needs to be in the path or
+the environment variable KR_EXE needs to have the (full) path.
+NOTE Under Microsoft Windows, is the kr.exe is in a path with
+spaces, do NOT use double quotes in the SET. Example: `set KR_EXE=C:\3rd party bins\kr.exe`
+
+    python -m puren_tonbo.tools.ptcipher --password password puren_tonbo/tests/data/aesop.kr
 
 #### OpenPGP - gpg / pgp
 
