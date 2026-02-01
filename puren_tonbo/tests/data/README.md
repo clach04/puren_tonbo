@@ -35,6 +35,11 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * password is `password`
       * Approx 1.5Kb.
 
+  * aesop.kr -  kr Monocypher encrypted from `aesop.txt`
+    Created with Windows win32 https://github.com/ewd340/kr / https://github.com/clach04/kr kr version 0.3 (Monocypher version 4.0.1)
+      * password is `password`
+      * Approx 1.5Kb.
+
   * aesop_win_ccrypt.cpt - ccrypt encrypted from `aesop.txt`
     Created with Windows win32 ccrypt 1.11 https://ccrypt.sourceforge.net/
       * password is `password`
