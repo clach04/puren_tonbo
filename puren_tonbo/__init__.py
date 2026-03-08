@@ -2429,13 +2429,14 @@ class FileSystemNotes(BaseNotes):
     """PyTombo notes on local file system, just like original Windows Tombo
     """
 
-    def __init__(self, note_root, note_encoding=None, fts_class=FullTextSearchSqlite):  # FIXME default fts to None?
+    def __init__(self, note_root, note_encoding=None, fts_class=FullTextSearchSqlite, fts_options=None):  # FIXME default fts to None?
         note_root = self.unicode_path(note_root)  # either a file or a directory of files
         self.note_root = os.path.abspath(note_root)
         self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash.. unless this is a file
         #self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
-        self.fts_class = fts_class  # FIXME how do parameters get passed in?
+        self.fts_options = fts_options or {}  # optionally use engine and avoid fts_class?
+        self.fts_class = fts_class
         self.fts_instance = None
 
     def abspath2relative(self, input_path):
@@ -2524,7 +2525,11 @@ class FileSystemNotes(BaseNotes):
         if self.fts_instance:
             fts_instance = self.fts_instance
         else:
-            fts_instance = self.fts_class(':memory:')
+            #fts_instance = self.fts_class(':memory:')
+            # FIXME use engine or not...
+            args = self.fts_options.get('args')
+            kwargs = self.fts_options.get('kwargs')
+            fts_instance = self.fts_class(*args, **kwargs)
         self.fts_instance = fts_instance
         fts_instance.index_delete()
         fts_instance.create_index_start()
@@ -2980,7 +2985,14 @@ def get_config(config_filename=None):
             '#linuxGUI_file_browser': 'pcmanfm',
             '#linuxCLI_file_browser': 'mc',
             '##win_file_browser': 'explorer',
-        }
+        },
+        'fts': {
+            'engine': 'sqlite3',
+            'sqlite3': {
+                'args': [':memory:'],
+                'kwargs': {},
+            }
+        },
     }
 
     # platform specific

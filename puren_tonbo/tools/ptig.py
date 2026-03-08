@@ -229,7 +229,7 @@ class CommandPrompt(Cmd):
         self.paths_to_search_instances = []
         start_time = time.time()
         for note_root in self.paths_to_search:
-            notes = puren_tonbo.FileSystemNotes(note_root, note_encoding)
+            notes = puren_tonbo.FileSystemNotes(note_root, note_encoding, fts_options=self.pt_config['fts']['sqlite3'])  # FIXME remove 'sqlite3', this is a test
             # FIXME handle password from environment, e.g. env PT_PASSWORD=password (keyring)
             # FIXME handle cancel from password prompt
             notes.fts_index(get_password_callback=password_func)
