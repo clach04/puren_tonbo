@@ -2661,7 +2661,7 @@ class FileSystemNotes(BaseNotes):
             fts_engine_options = self.fts_options[self.fts_options['engine']]
             args = fts_engine_options.get('args', [])
             kwargs = fts_engine_options.get('kwargs', {})
-            fts_instance = self.fts_class(*args, **kwargs)
+            fts_instance = self.fts_class(*args, **kwargs)  # note if missing args entries in fts config will see errors like; TypeError: FullTextSearchWhoosh.__init__() missing 1 required positional argument: 'index_location'
         self.fts_instance = fts_instance
         fts_instance.index_delete()
         fts_instance.create_index_start()
@@ -3123,6 +3123,12 @@ def get_config(config_filename=None):
             'sqlite3': {
                 'args': [':memory:'],
                 'kwargs': {},
+            },
+            "whoosh": {
+                #"args": [
+                #    "C:\\tmp\\pt_whoosh"  # FIXME / TODO what is a good default here? XDG_CONFIG_HOME ~/.config/puren_tombo/fts_whoosh_index - what about secrets/decrypted content?
+                #],
+                "kwargs": {}
             }
         },
     }
