@@ -252,12 +252,18 @@ Usage:
 
 NOTE requires fts_index to have been issued.
 """
-        # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
-        if self.grep_options.use_color:
-            highlight_text_start, highlight_text_stop = ptgrep.color_linenum, ptgrep.color_reset
-            highlight_text_start, highlight_text_stop = ptgrep.color_searchhit, ptgrep.color_reset
+
+        if self.grep_options.highlight_text_start:
+            # for now, just use as-is, don't mess with color
+            highlight_text_start = self.grep_options.highlight_text_start
+            highlight_text_stop = self.grep_options.highlight_text_stop or ''
         else:
-            highlight_text_start, highlight_text_stop = None, None  # revisit this
+            # this is temporary, ideally fts should be callable from the regular search interface - self.file_hits needs setting up
+            if self.grep_options.use_color:
+                highlight_text_start, highlight_text_stop = ptgrep.color_linenum, ptgrep.color_reset
+                highlight_text_start, highlight_text_stop = ptgrep.color_searchhit, ptgrep.color_reset
+            else:
+                highlight_text_start, highlight_text_stop = None, None  # revisit this
 
         if not line:
             error_message = '\nNeed a search term!\n'
