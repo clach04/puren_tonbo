@@ -92,6 +92,8 @@ class FakeOptions:  # to match ptgrep (OptParse) options
     display_full_path = True
     count_files_matched = True  # prefix filenames with a number, for easy reference/selection
     zebra_color_filenames = True  # (note, use_color=True) every other filename in search results use a different background color. Control: set no zebra_color_filenames / set zebra_color_filenames
+    highlight_text_start = None
+    highlight_text_stop = None
     ignore_case = False
     regex_search = False
     line_numbers = True
