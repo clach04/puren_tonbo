@@ -75,6 +75,7 @@ extras_require = {
     'jenc': ['jenc>=0.0.5', ],
     'pyvim': ['pyvim', ],  # TODO version?
     'python-gnupg': ['python-gnupg', ],  # TODO version?
+    'whoosh': ['whoosh-reloaded', ],  # version 2.7.5 (no longer maintained) works well with CPython 3.12.1
     # Web
     'cherrypy': ['cherrypy', ],  # TODO version?
     'Markdown': ['Markdown', ],  # TODO version?

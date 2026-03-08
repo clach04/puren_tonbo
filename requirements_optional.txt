@@ -2,3 +2,4 @@
 
 age; python_version > "2.7"  # 0.5.1 - CPython only, not pypy/jython
 pywin32; sys_platform == "win32"
+whoosh-reloaded  # version 2.7.5 (no longer maintained) works well with CPython 3.12.1
