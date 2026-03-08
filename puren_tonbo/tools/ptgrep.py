@@ -136,10 +136,16 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
         start_time = time.time()
     try:
         stdout_hack()
-        if use_color:
-            highlight_text_start, highlight_text_stop = color_searchhit, color_reset
+        if options.highlight_text_start:
+            # for now, just use as-is, don't mess with color
+            highlight_text_start = options.highlight_text_start
+            highlight_text_stop = options.highlight_text_stop or ''
         else:
-            highlight_text_start, highlight_text_stop = None, None
+            # Guess
+            if use_color:
+                highlight_text_start, highlight_text_stop = color_searchhit, color_reset
+            else:
+                highlight_text_start, highlight_text_stop = None, None
 
         if count_files_matched:
             result = []
@@ -279,6 +285,8 @@ def main(argv=None):
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
     parser.add_option("--note-root", help="Directory of notes, or dir_name_or_filename1.... will pick up from config file and default to '.'")
+    parser.add_option("--highlight-text-start", "--highlight_text_start", help="Prefix marker for hits")
+    parser.add_option("--highlight-text-stop", "--highlight_text_stop", help="Postfix marker for hits")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
     parser.add_option("-I", "--case_sensitive", "--case-sensitive", help="Case sensitive search (override insensitive flag)", action="store_true")
     parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")  # TODO see -g options for rg-like tools
