@@ -52,9 +52,11 @@ if colorama:
     color_error = colorama.Fore.RED  # Background instead?
     color_filename = colorama.Fore.BLUE
     color_filename = colorama.Fore.BLUE + colorama.Back.BLACK
+    color_filename = colorama.Fore.YELLOW + colorama.Back.BLACK  # Windows default Blue is hard to read with Windows 11 on Black, also see color_filename_zebra
     #color_filename_zebra = color_filename + colorama.Back.WHITE  # TODO allow control and override of this
     color_filename_zebra = colorama.Back.BLUE  # TODO specify fg - TODO allow control and override of this
     color_filename_zebra = colorama.Fore.BLACK + colorama.Back.BLUE  # TODO specify fg - TODO allow control and override of this
+    color_filename_zebra = colorama.Fore.BLACK + colorama.Back.YELLOW  # TODO specify fg - TODO allow control and override of this
     color_linenum = colorama.Fore.GREEN
     color_searchhit = colorama.Fore.RED
     color_reset = colorama.Style.RESET_ALL
