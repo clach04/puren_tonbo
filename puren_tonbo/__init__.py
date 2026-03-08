@@ -2559,6 +2559,7 @@ class FileSystemNotes(BaseNotes):
         self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash.. unless this is a file
         #self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
+        fts_options = fts_options or {}
         self.fts_options = fts_options or {}
         if fts_options.get('engine'):
             if fts_options.get('engine') == 'sqlite3':
