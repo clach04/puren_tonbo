@@ -2429,13 +2429,21 @@ class FileSystemNotes(BaseNotes):
     """PyTombo notes on local file system, just like original Windows Tombo
     """
 
-    def __init__(self, note_root, note_encoding=None, fts_class=FullTextSearchSqlite, fts_options=None):  # FIXME default fts to None?
+    def __init__(self, note_root, note_encoding=None, fts_options=None):
         note_root = self.unicode_path(note_root)  # either a file or a directory of files
         self.note_root = os.path.abspath(note_root)
         self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash.. unless this is a file
         #self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
-        self.fts_options = fts_options or {}  # optionally use engine and avoid fts_class?
+        self.fts_options = fts_options or {}
+        print(fts_options)  # DEBUG delete
+        if fts_options.get('engine'):
+            if fts_options.get('engine') == 'sqlite3':
+                fts_class = FullTextSearchSqlite
+            else:
+                raise NotImplementedError('fts engine: ' % (fts_options.get('engine'),))
+        else:
+            fts_class = None
         self.fts_class = fts_class
         self.fts_instance = None
 
@@ -2525,10 +2533,9 @@ class FileSystemNotes(BaseNotes):
         if self.fts_instance:
             fts_instance = self.fts_instance
         else:
-            #fts_instance = self.fts_class(':memory:')
-            # FIXME use engine or not...
-            args = self.fts_options.get('args')
-            kwargs = self.fts_options.get('kwargs')
+            fts_engine_options = self.fts_options[self.fts_options['engine']]
+            args = fts_engine_options.get('args', [])
+            kwargs = fts_engine_options.get('kwargs', {})
             fts_instance = self.fts_class(*args, **kwargs)
         self.fts_instance = fts_instance
         fts_instance.index_delete()
