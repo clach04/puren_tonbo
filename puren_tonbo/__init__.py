@@ -2249,10 +2249,19 @@ def directory_contents(dirname, filename_filter=None):
 # NIH FTS Abstraction.. focused on plain text notes
 
 class FullTextSearch:
-    def __init__(self, index_location):
+    """Full Text Search FTS Abstraction. Model for search is:
+        * filename
+        * contents - Unicode string
+        * contents_size character count (fallback, byte count)
+        * mtime - optional file integer modificaton time os.path.getmtime()
+        * line_number - optional, if used contents is a single line. Conditional on self.index_lines
+    """
+
+    def __init__(self, index_location, index_lines=False):
         """Potentially opens index
         """
         self.index_location = index_location  # unspecified type, could be; URL (auth handled by implementation), file, directory, ....
+        self.index_lines = index_lines  # if true, index lines in each file seperately
         raise NotImplementedError()
 
     def index_close(self):
