@@ -2436,7 +2436,6 @@ class FileSystemNotes(BaseNotes):
         #self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
         self.fts_options = fts_options or {}
-        print(fts_options)  # DEBUG delete
         if fts_options.get('engine'):
             if fts_options.get('engine') == 'sqlite3':
                 fts_class = FullTextSearchSqlite
