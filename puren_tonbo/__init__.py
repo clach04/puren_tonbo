@@ -128,6 +128,14 @@ except ImportError:
     age = fake_module('age')
 
 try:
+    import whoosh  #  pip install whoosh-reloaded  -- whoosh.__version__ == (2, 7, 5)
+    import whoosh.highlight
+    import whoosh.index
+    import whoosh.qparser
+except ImportError:
+    whoosh = fake_module('whoosh')
+
+try:
     import puren_tonbo.mzipaes as mzipaes
     from puren_tonbo.mzipaes import ZIP_DEFLATED, ZIP_STORED
 except ImportError:
@@ -2280,15 +2288,119 @@ class FullTextSearch:
         """Add to index self.index_location (from scratch, no update support API.... yet.)
         """
         if contents and not contents_size:
-            contents_size = length(contents)
+            contents_size = len(contents)
         raise NotImplementedError()
 
     # TODO date (size) query parameter restrictions (with ranges)
     # FIXME context_distance / snippet length parameter support needed - ideas; here as parameter, init parameter, attribute that can be changed at runtime - leaning towards the later
     def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
         """Search self.index_location for `search_term`
+        Returns/yields; [(filename, title, body, size), ...]  # TODO line_number
+
+            filename,
+            snippet(note, 0, ?, ?, '...', ?) as title,
+            snippet(note, 1, ?, ?, '...', ?) as body,
+            size
+
+        TODO mtime
+        TODO line_number
         """
         raise NotImplementedError()
+
+
+def safe_mkdir(newdir):  # FIXME code duplication
+    result_dir = os.path.abspath(newdir)
+    try:
+        os.makedirs(result_dir)
+    except OSError as info:
+        if info.errno == 17 and os.path.isdir(result_dir):
+            pass
+        else:
+            raise
+
+class FullTextSearchWhoosh:
+    """Full Text Search using Whoosh (or deriviatives)
+    Model for search is:
+        * filename
+        * contents - Unicode string
+        * contents_size character count (fallback, byte count)
+        * mtime - optional file integer modificaton time os.path.getmtime()
+        * line_number - optional, if used contents is a single line. Conditional on self.index_lines
+    """
+
+    def __init__(self, index_location, index_lines=False):
+        """Potentially opens index
+        """
+        self.index_location = index_location  # unspecified type, could be; URL (auth handled by implementation), file, directory, ....
+        self.index_lines = index_lines  # if true, index lines in each file seperately
+
+        # TODO line_number
+        self.schema = whoosh.fields.Schema(filename=whoosh.fields.TEXT(stored=True), contents=whoosh.fields.TEXT(stored=True), contents_size=whoosh.fields.NUMERIC(stored=True), mtime=whoosh.fields.NUMERIC(stored=True))
+        ## FIXME
+        ## FIXME
+        # FIXME close index
+
+    def index_close(self):
+        raise NotImplementedError()
+
+    def index_delete(self):
+        pass ## FIXME
+        #raise NotImplementedError()
+
+    def create_index_start(self):
+        index_location = self.index_location
+        safe_mkdir(index_location)  # TODO don't always create dir?
+        self.ix = whoosh.index.create_in(index_location, self.schema)  # FIXME don't recreate each time
+        self.writer = self.ix.writer()
+
+    def create_index_end(self):
+        self.writer.commit()
+        self.writer = None  # overkill?
+
+    def add_to_index(self, filename, contents=None, contents_size=None, mtime=None, line_number=None):
+        """Add to index self.index_location (from scratch, no update support API.... yet.)
+        """
+        if contents and not contents_size:
+            contents_size = len(contents)
+        # TODO line_number
+        self.writer.add_document(filename=filename, contents=contents, contents_size=contents_size, mtime=mtime)  # TODO line_number
+
+    # TODO date (size) query parameter restrictions (with ranges)
+    # FIXME context_distance / snippet length parameter support needed - ideas; here as parameter, init parameter, attribute that can be changed at runtime - leaning towards the later
+    def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
+        """Search self.index_location for `search_term`
+        """
+        class TempWhooshFormatter(whoosh.highlight.Formatter):
+            """Puts highlight_text_start/highlight_text_stop around the matched terms.
+            """
+            def format_token(self, text, token, replace=False):
+                tokentext = whoosh.highlight.get_text(text, token, replace)
+                return "%s%s%s" % (highlight_text_start, tokentext, highlight_text_stop)
+
+        ix = self.ix
+        with ix.searcher() as searcher:
+            query = whoosh.qparser.QueryParser("contents", ix.schema).parse(search_term)  # by default use contents field
+            # QueryParser("content", schema=ix.schema, termclass=whoosh.qparser.query.Variations)  # Variations means search for "appliance" will match "appliance" and "appliances" (and vice-versa)
+            results = searcher.search(query)
+            #import pdb ; pdb.set_trace()
+            if highlight_text_start:
+                tmp_formatter = TempWhooshFormatter()
+                results.formatter = tmp_formatter
+            for result in results:
+                """ Old notes
+                ## TODO Whoosh fragmenter is OK, but not that that great. E.g. I have document with the words "home directions" at the start of the file, first line, first byte. lowercase highlighter does not highlight it
+                ## Also note the Woosh 2.2.2 highlighter shows less context :-(
+
+                result_text_fragment = hit.highlights('content', text=doc_contents)
+                result_text_fragment+='\r' # note \r on the end, issue under window that needs to be fixed in regular search module - this is a work around
+                """
+                contents_fragment = result.highlights('contents', text=result['contents'])
+
+                yield (result['filename'],
+                    'FIXME missing title',  # TODO research, looks like this is ignored?
+                    contents_fragment,
+                    result['contents_size'])
+
 
 class FullTextSearchSqlite:  # TODO either inherit from or document why not inherited from FullTextSearch - possibly mtime param difference?
     def __init__(self, index_location, index_lines=False):
@@ -2355,6 +2467,18 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
           * files_with_matches=False - Not Implemented!  # only display filename, do not include file content matches, just filenames in results
           * highlight_text_start=None  # (ANSI escape) characters to prefix search start
           * highlight_text_stop=None  # (ANSI escape) characters to prefix search end/stop
+
+        Returns:
+            filename,
+            snippet(note, 0, ?, ?, '...', ?) as title,
+            snippet(note, 1, ?, ?, '...', ?) as body,
+            size
+
+        with linenumber returns
+            filename,
+            snippet(note, 0, ?, ?, '...', ?) as title,
+            CAST(line_number as TEXT) || ':' || snippet(note, 1, ?, ?, '...', ?) as body,
+            size
         """
         index_lines = self.index_lines
         # FIXME here and grep find_only_filename=False == files_with_matches? duplicate?
@@ -2439,8 +2563,10 @@ class FileSystemNotes(BaseNotes):
         if fts_options.get('engine'):
             if fts_options.get('engine') == 'sqlite3':
                 fts_class = FullTextSearchSqlite
+            elif fts_options.get('engine') == 'whoosh':
+                fts_class = FullTextSearchWhoosh
             else:
-                raise NotImplementedError('fts engine: ' % (fts_options.get('engine'),))
+                raise NotImplementedError('fts engine: %r' % (fts_options.get('engine'),))
         else:
             fts_class = None
         self.fts_class = fts_class
