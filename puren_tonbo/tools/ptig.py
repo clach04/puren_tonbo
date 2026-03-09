@@ -246,6 +246,7 @@ Usage:
     fts_search TERM_OR_QUERY
     fts_search king OR frog OR hares
     fts_search frog AND king
+        Whoosh, same as: fts_search frog king
     fts_search frog NOT king
     fts_search filename:frog
     fts_search filename:frog AND constitution
