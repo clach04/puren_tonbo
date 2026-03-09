@@ -1275,6 +1275,8 @@ def main(argv=None):
 
     ptig_options = config['ptig']
     grep_options.use_pager = ptig_options['use_pager']  # TODO revisit this, should ptig pick this up from pt_config directly instead of grep_options/Fakeoptions - see do_set() comments on grep config versus pt_config
+    grep_options.highlight_text_start = ptig_options.get('highlight_text_start')  # TODO revisit this - for loop
+    grep_options.highlight_text_stop = ptig_options.get('highlight_text_stop')  # TODO revisit this - for loop
 
     interpreter = CommandPrompt(paths_to_search=paths_to_search, pt_config=config, grep_options=grep_options)
     interpreter.onecmd('version')
