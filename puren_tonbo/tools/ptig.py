@@ -253,7 +253,8 @@ Usage:
     fts_search filename:frog AND constitution
 
 NOTE requires fts_index to have been issued.
-See https://sqlite.org/fts5.html#full_text_query_syntax for details.
+Additional SQLite3 FTS syntax https://sqlite.org/fts5.html#full_text_query_syntax
+Additional Whoosh FTS syntax https://sygil-dev.github.io/whoosh-reloaded/querylang.html
 """
 
         if self.grep_options.highlight_text_start:
