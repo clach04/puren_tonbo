@@ -228,6 +228,7 @@ class CommandPrompt(Cmd):
             # NOTE CRTL-c is not handled the same way for index as it is for cat/grep-searching
             password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
 
+        print('%s Full Text Search indexing using options: %r' % (self.pt_config['fts']['engine'], line))
         self.paths_to_search_instances = []
         start_time = time.time()
         for note_root in self.paths_to_search:
@@ -268,20 +269,26 @@ See https://sqlite.org/fts5.html#full_text_query_syntax for details.
                 highlight_text_start, highlight_text_stop = None, None  # revisit this
 
         if not line:
-            error_message = '\nNeed a search term!\n'
+            error_message = 'Need a search term!'
             if highlight_text_start:
                 error_message = highlight_text_start + error_message + highlight_text_stop
+            print('\n')
             print(error_message)
+            print('\n')
             print('%s' % self.do_fts_search.__doc__)
             return
 
         if not self.paths_to_search_instances:
-            error_message = '\nNo FTS index, issue: fts_index\n'
+            error_message = 'No FTS index, issue: fts_index'
             if highlight_text_start:
                 error_message = highlight_text_start + error_message + highlight_text_stop
+            print('\n')
             print(error_message)
+            print('\n')
             print('%s' % self.do_fts_search.__doc__)
             return
+
+        print('%s Full Text Search for: %s' % (self.pt_config['fts']['engine'], line))
 
         # TODO refactor, move and do this one (or at least less times than each search)
         if highlight_text_start:
