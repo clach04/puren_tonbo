@@ -2459,7 +2459,8 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
             cur.execute("""INSERT INTO note (filename, contents, size) VALUES (?, ?, ?)""", (filename, contents, contents_size) )
 
     def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
-        """Search self.index_location for `search_term`
+        """Search self.index_location for `search_term`\
+        where search_term follows https://sqlite.org/fts5.html#full_text_query_syntax
         TODO control over context_distance
 
           * search_term  # search term to look for, string

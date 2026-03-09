@@ -251,6 +251,7 @@ Usage:
     fts_search filename:frog AND constitution
 
 NOTE requires fts_index to have been issued.
+See https://sqlite.org/fts5.html#full_text_query_syntax for details.
 """
 
         if self.grep_options.highlight_text_start:
