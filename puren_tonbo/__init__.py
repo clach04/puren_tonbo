@@ -2380,9 +2380,8 @@ class FullTextSearchWhoosh:
         ix = self.ix
         with ix.searcher() as searcher:
             query = whoosh.qparser.QueryParser("contents", ix.schema, termclass=whoosh.qparser.query.Variations).parse(search_term)  # by default use contents field for search words without a field specifier
-            # QueryParser("content", schema=ix.schema, termclass=whoosh.qparser.query.Variations)  # Variations means search for "appliance" will match "appliance" and "appliances" (and vice-versa)
+            # Variations means search for "appliance" will match "appliance" and "appliances" (and vice-versa)
             results = searcher.search(query)
-            #import pdb ; pdb.set_trace()
             if highlight_text_start:
                 tmp_formatter = TempWhooshFormatter()
                 results.formatter = tmp_formatter
@@ -2397,7 +2396,7 @@ class FullTextSearchWhoosh:
                 contents_fragment = result.highlights('contents', text=result['contents'])
 
                 yield (result['filename'],
-                    'FIXME missing title',  # TODO research, looks like this is ignored?
+                    'FIXME missing title',  # TODO research, looks like this is ignored (by ptig)?
                     contents_fragment,
                     result['contents_size'])
 
