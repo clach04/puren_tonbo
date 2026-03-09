@@ -3117,7 +3117,7 @@ def get_config(config_filename=None):
             'use_pager': False,
             'highlight_text_start': '',  # example: "**" or "["
             'highlight_text_stop': '',  # example: "**" or "]"
-            'prompt': u'ptig: \U0001f50e ',
+            'prompt': u'ptig: \U0001f50e ',  # U+1F50E == Right-Pointing Magnifying Glass
             '#linuxGUI_file_browser': 'pcmanfm',
             '#linuxCLI_file_browser': 'mc',
             '##win_file_browser': 'explorer',
