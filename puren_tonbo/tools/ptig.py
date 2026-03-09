@@ -31,6 +31,7 @@ except ImportError:
     ptpyvim = None
 
 try:
+    # NOTE percolator may have issues in Python 3.14 depends on windows-curses
     import percol  # percolator https://github.com/clach04/percolator/
     import percol.actions
     import percol.command
@@ -714,7 +715,7 @@ Search previous results for search term.
         # TODO regex option for this
         # TODO cancel - ctrl-c doesn't abort it picks selected
         if not percol:
-            print('percol missing, required for fuzzy fine')
+            print('percol missing, required for fuzzy find/search')
             return
 
         file_and_path_names = self.file_hits

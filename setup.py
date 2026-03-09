@@ -62,7 +62,7 @@ exec(open(os.path.join(os.path.abspath(os.path.dirname(__file__)), project_name_
 
 
 # TODO/FIXME dupe of requirements.txt - also chi_io missing here (as not on pypi)
-install_requires = ['colorama', 'pycryptodome', 'openssl_enc_compat', 'percolator']  # TODO reorder/indent
+install_requires = ['colorama', 'pycryptodome', 'openssl_enc_compat']  # TODO reorder/indent
 if is_py3:
     install_requires += ['pyzipper']  # pyzipperis python 3.x+
 if is_win and is_cpython:
@@ -75,6 +75,7 @@ extras_require = {
     'jenc': ['jenc>=0.0.5', ],
     'pyvim': ['pyvim', ],  # TODO version?
     'python-gnupg': ['python-gnupg', ],  # TODO version?
+    'fzf': ['percolator' ],  # TODO version?
     'whoosh': ['whoosh-reloaded', ],  # version 2.7.5 (no longer maintained) works well with CPython 3.12.1
     # Web
     'cherrypy': ['cherrypy', ],  # TODO version?
@@ -89,7 +90,7 @@ extras_require_all = []
 extras_require_testing = []
 for extra_name in extras_require:
     extras_require_all.append(extras_require[extra_name])
-    if extra_name not in ('cherrypy'):
+    if extra_name not in ('cherrypy', 'fzf'):
         extras_require_testing.append(extras_require[extra_name])
 extras_require['all'] = extras_require_all  # convenience, all of the above. NOTE duplicate of above
 extras_require['testing'] = extras_require_testing
