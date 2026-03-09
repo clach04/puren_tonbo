@@ -332,7 +332,10 @@ Additional Whoosh FTS syntax https://sygil-dev.github.io/whoosh-reloaded/queryla
 
                     note_text = note_text.replace('\n', ' ')  # TODO consider using .. or some user configurable replacement
                     # NOTE filename_highlighted unused
-                    size_str = '%dKb' % (size / 1024,)  # FIXME human readable size conversion
+                    if size < 10 * 1024:  # some threshold TBD (or replace with human sizes)
+                        size_str = '%0.2fKb' % (size / 1024,)  # FIXME human readable size conversion
+                    else:
+                        size_str = '%dKb' % (size / 1024,)  # FIXME human readable size conversion
                     if ripgrep_outout_style:
                         print('[%d] %s %s' % (counter, filename, size_str))
                         if index_lines:
