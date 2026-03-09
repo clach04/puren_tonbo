@@ -3115,8 +3115,8 @@ def get_config(config_filename=None):
             },
             'init': ['set ic', ],  # , "set enc", etc.
             'use_pager': False,
-            'highlight_text_start': '',
-            'highlight_text_stop': '',
+            'highlight_text_start': '',  # example: "**" or "["
+            'highlight_text_stop': '',  # example: "**" or "]"
             'prompt': u'ptig: \U0001f50e ',
             '#linuxGUI_file_browser': 'pcmanfm',
             '#linuxCLI_file_browser': 'mc',
