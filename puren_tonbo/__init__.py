@@ -205,6 +205,10 @@ log = log_setup("mylogger")
 log.debug('encodings %r', (sys.getdefaultencoding(), sys.getfilesystemencoding(), locale.getdefaultlocale()))
 
 IN_MEMORY = ':memory:'  # sqlite special value, also used to indicate memory for non-sqlite3
+if whoosh:
+    DEFAULT_FTS_ENGINE = 'whoosh'
+else:
+    DEFAULT_FTS_ENGINE = 'sqlite3'
 
 class PurenTonboException(Exception):
     '''Base PurenTonbo I/O exception'''
@@ -3131,7 +3135,7 @@ def get_config(config_filename=None):
             '##win_file_browser': 'explorer',
         },
         'fts': {
-            'engine': 'sqlite3',
+            'engine': DEFAULT_FTS_ENGINE,
             'sqlite3': {
                 'args': [IN_MEMORY],
                 'kwargs': {},
