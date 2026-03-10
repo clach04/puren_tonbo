@@ -129,6 +129,7 @@ except ImportError:
 
 try:
     import whoosh  #  pip install whoosh-reloaded  -- whoosh.__version__ == (2, 7, 5)
+    import whoosh.filedb
     import whoosh.highlight
     import whoosh.index
     import whoosh.qparser
@@ -2349,8 +2350,11 @@ class FullTextSearchWhoosh:
 
     def create_index_start(self):
         index_location = self.index_location
-        safe_mkdir(index_location)  # TODO don't always create dir?
-        self.ix = whoosh.index.create_in(index_location, self.schema)  # FIXME don't recreate each time
+        if index_location == ':memory:':
+            self.ix = whoosh.filedb.filestore.RamStorage().create_index(self.schema)
+        else:
+            safe_mkdir(index_location)  # TODO don't always create dir?
+            self.ix = whoosh.index.create_in(index_location, self.schema)  # FIXME don't recreate each time
         self.writer = self.ix.writer()
 
     def create_index_end(self):
@@ -2521,6 +2525,9 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
         '''
 
         try:
+            # TODO logging debug
+            #print("search %r" % ((highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term),))
+            #print("search term %r" % (search_term,))
             if index_lines:
                 cur.execute("""SELECT
                                 filename,
@@ -3124,10 +3131,11 @@ def get_config(config_filename=None):
         'fts': {
             'engine': 'sqlite3',
             'sqlite3': {
-                'args': [':memory:'],
+                'args': [':memory:'],  # TODO replace literal with a constant
                 'kwargs': {},
             },
             "whoosh": {
+                'args': [':memory:'],  # this is an Puren Tonbo internal special value to indicate RAM, matches the sqlite special value
                 #"args": [
                 #    "C:\\tmp\\pt_whoosh"  # FIXME / TODO what is a good default here? XDG_CONFIG_HOME ~/.config/puren_tombo/fts_whoosh_index - what about secrets/decrypted content?
                 #],
