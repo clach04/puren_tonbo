@@ -204,6 +204,8 @@ def log_setup(log_name):
 log = log_setup("mylogger")
 log.debug('encodings %r', (sys.getdefaultencoding(), sys.getfilesystemencoding(), locale.getdefaultlocale()))
 
+IN_MEMORY = ':memory:'  # sqlite special value, also used to indicate memory for non-sqlite3
+
 class PurenTonboException(Exception):
     '''Base PurenTonbo I/O exception'''
 
@@ -2350,7 +2352,7 @@ class FullTextSearchWhoosh:
 
     def create_index_start(self):
         index_location = self.index_location
-        if index_location == ':memory:':
+        if index_location == IN_MEMORY:
             self.ix = whoosh.filedb.filestore.RamStorage().create_index(self.schema)
         else:
             safe_mkdir(index_location)  # TODO don't always create dir?
@@ -3131,11 +3133,11 @@ def get_config(config_filename=None):
         'fts': {
             'engine': 'sqlite3',
             'sqlite3': {
-                'args': [':memory:'],  # TODO replace literal with a constant
+                'args': [IN_MEMORY],
                 'kwargs': {},
             },
             "whoosh": {
-                'args': [':memory:'],  # this is an Puren Tonbo internal special value to indicate RAM, matches the sqlite special value
+                'args': [IN_MEMORY],  # this is an Puren Tonbo internal special value to indicate RAM, matches the sqlite special value
                 #"args": [
                 #    "C:\\tmp\\pt_whoosh"  # FIXME / TODO what is a good default here? XDG_CONFIG_HOME ~/.config/puren_tombo/fts_whoosh_index - what about secrets/decrypted content?
                 #],
