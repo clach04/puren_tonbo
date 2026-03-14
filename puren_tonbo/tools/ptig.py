@@ -237,8 +237,8 @@ class CommandPrompt(Cmd):
             return
 
         note_encoding = self.pt_config['codec']
-        password_func = None  # no password, will not attempt to index files that need passwords    #FIXME include encrypted option
-        if fts_index_parser_options.search_encrypted:
+        password_func = None  # no password, will not attempt to index files that need passwords
+        if fts_index_parser_options.search_encrypted or self.grep_options.search_encrypted:  # TODO potentially fts_index_parser_options.search_encrypted_only
             # index files that need passwords, using regular password prompt/caching
             # NOTE CRTL-c is not handled the same way for index as it is for cat/grep-searching
             password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
@@ -602,7 +602,7 @@ Examples
             return
 
         # pt specific enc - less typing than full
-        if line in ('enc', 'search_encrypted'):
+        if line in ('enc', 'search_encrypted'):  # set enc | set search_encrypted
             print('search enabled for encrypted files')
             self.grep_options.search_encrypted = True
             return
