@@ -145,6 +145,15 @@ grep_parser.add_option("-e", "--search_encrypted", help='Search encrypted files 
 grep_parser.add_option("-k", "--search_encrypted_only", help='Search encrypted files (default false)', action="store_const", const='only', dest='search_encrypted')
 grep_help = grep_parser.format_help()
 
+fts_index_parser = PtigParser(usage='usage: %prog [options]',
+                        prog='fts_index',
+                        description="Created index for full text search FTS"
+                    )
+fts_index_parser.add_option("-e", "--search_encrypted", help='Search encrypted files (default false)', action="store_true")  # match grep, even though it's index rather than search
+#fts_index_parser.add_option("-k", "--search_encrypted_only", help='Search encrypted files (default false)', action="store_const", const='only', dest='search_encrypted')  # TODO, consider supporting this
+fts_index_parser.add_option("-v", "--verbose", help='Verbose progress details', action="store_true")
+fts_index_parser_help = fts_index_parser.format_help()
+
 class FakeMethodEdit(object):
     def __init__(self, name, parent):
         self.name = name
@@ -216,27 +225,35 @@ class CommandPrompt(Cmd):
 
     def do_fts_index(self, line=None):
         """Created index for full text search FTS
-            fts_index [enc]
+            fts_index -e/--search_encrypted -v/--verbose
         """
-        if line:
-            if line != 'enc':
-                print('Parameters not supported')  # TODO handle and also cwd support
-                return
+        parsed_line = shlex.split(line)
+        fts_index_parser._ptig_error = None
+        (fts_index_parser_options, fts_index_parser_args) = fts_index_parser.parse_args(parsed_line)  # FIXME ptig can exit with bad (ptig) ptgrep params
+        if fts_index_parser._ptig_error:
+            return
+        if fts_index_parser_args:
+            print('Parameters not supported')  # TODO handle and also cwd support
+            return
+
         note_encoding = self.pt_config['codec']
         password_func = None  # no password, will not attempt to index files that need passwords    #FIXME include encrypted option
-        if line == 'enc':
+        if fts_index_parser_options.search_encrypted:
             # index files that need passwords, using regular password prompt/caching
             # NOTE CRTL-c is not handled the same way for index as it is for cat/grep-searching
             password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
+        verbose = None
+        if fts_index_parser_options.verbose:
+            verbose = True
 
-        print('%s Full Text Search indexing using options: %r' % (self.pt_config['fts']['engine'], line))
+        print('%s Full Text Search indexing using options: %r' % (self.pt_config['fts']['engine'], fts_index_parser_options))
         self.paths_to_search_instances = []
         start_time = time.time()
         for note_root in self.paths_to_search:
             notes = puren_tonbo.FileSystemNotes(note_root, note_encoding, fts_options=self.pt_config['fts'])
             # FIXME handle password from environment, e.g. env PT_PASSWORD=password (keyring)
             # FIXME handle cancel from password prompt
-            notes.fts_index(get_password_callback=password_func)
+            notes.fts_index(get_password_callback=password_func, verbose=verbose)
             self.paths_to_search_instances.append(notes)
         end_time = time.time()
         search_time = end_time - start_time
@@ -1222,6 +1239,7 @@ Also see `edit`
 
 try:
     CommandPrompt.do_grep.__doc__ = grep_help
+    CommandPrompt.do_fts_index.__doc__ = fts_index_parser_help
 except AttributeError:
     # AttributeError: attribute '__doc__' of 'instancemethod' objects is not writable
     pass  # assumue Python 2.7

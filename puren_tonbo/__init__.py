@@ -2644,7 +2644,7 @@ class FileSystemNotes(BaseNotes):
         fts_instance = self.fts_instance
         return fts_instance.search(search_term=s, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop)  # or yield...
 
-    def fts_index(self, sub_dir=None, get_password_callback=None):
+    def fts_index(self, sub_dir=None, get_password_callback=None, verbose=False):
         """only files that do not need passwords are indexed
         If get_password_callback is set, all files are indexed, and password prompted for. FIXME curently no way to skip a file (either becauase want to for some reason or have to as password not available)
         """
@@ -2685,6 +2685,9 @@ class FileSystemNotes(BaseNotes):
                 filename = self.abspath2relative(tmp_filename)
                 log.debug('index %r', filename)
                 log.info('index %s', filename)
+                if verbose:
+                    # TODO use logger instead of print? re-use above?
+                    print('FTS index: %s' % (filename,))
                 try:
                     contents = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)
                     # TODO contents_size, mtime
