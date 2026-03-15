@@ -127,6 +127,12 @@ except ImportError:
     #ssage = fake_module('ssage')
     age = fake_module('age')
 
+
+try:
+    from sqlcipher3 import dbapi2 as sqlcipher  # pip install sqlcipher3  -- sqlcipher3.version_info == (2, 6, 0)
+except ImportError:
+    sqlcipher = fake_module('sqlcipher')
+
 try:
     import whoosh  #  pip install whoosh-reloaded  -- whoosh.__version__ == (2, 7, 5)
     import whoosh.filedb
@@ -208,7 +214,7 @@ IN_MEMORY = ':memory:'  # sqlite special value, also used to indicate memory for
 if whoosh:
     DEFAULT_FTS_ENGINE = 'whoosh'
 else:
-    DEFAULT_FTS_ENGINE = 'sqlite3'
+    DEFAULT_FTS_ENGINE = 'sqlite3'  # sqlcipher3
 
 class PurenTonboException(Exception):
     '''Base PurenTonbo I/O exception'''
@@ -2412,13 +2418,22 @@ class FullTextSearchWhoosh:
 
 
 class FullTextSearchSqlite:  # TODO either inherit from or document why not inherited from FullTextSearch - possibly mtime param difference?
-    def __init__(self, index_location, index_lines=False):
+    def __init__(self, index_location, index_lines=False, passphrase=None, kdr_iter=64000):
         """index_location - SQLite database, probably a pathname could be memory
         SQLite FTS5 - https://www.sqlite.org/fts5.html - TODO FTS4/FTS3 fallback support?
+        kdr_iter and passphrase only used with/for sqlcipher3 / sqlcipher - ignored for sqlite3
+        FIXME exception catchers for sqlcipher3 are basically missing....
         """
         self.index_location = index_location  # unspecified type, could be; URL (auth handled by implementation), file, directory, ....
         self.index_lines = index_lines  # if true, index lines in each file seperately
-        con = sqlite3.connect(index_location)
+        if passphrase:
+            con = sqlcipher.connect(index_location)
+            #print('pragma kdf_iter=%d' % (kdr_iter,))
+            #con.execute('pragma kdf_iter=?', (kdr_iter,))  # this does not work, I do NOT think bind parameters are supported for pragmas
+            con.execute('pragma kdf_iter=%d' % (kdr_iter,))  # explictly set KDF interation count. Default likely 64000 (TODO review this)
+            con.execute('pragma key="%s"' % (passphrase,))  # database decrypt passphrase, lets hope nothing bad happens here with escaping...
+        else:
+            con = sqlite3.connect(index_location)
         #if index_location == ':memory:':
         self.db = con
         cur = con.cursor()
@@ -2575,7 +2590,7 @@ class FileSystemNotes(BaseNotes):
         fts_options = fts_options or {}
         self.fts_options = fts_options or {}
         if fts_options.get('engine'):
-            if fts_options.get('engine') == 'sqlite3':
+            if fts_options.get('engine') in ('sqlite3', 'sqlcipher3') :
                 fts_class = FullTextSearchSqlite
             elif fts_options.get('engine') == 'whoosh':
                 fts_class = FullTextSearchWhoosh
@@ -3141,7 +3156,10 @@ def get_config(config_filename=None):
             'engine': DEFAULT_FTS_ENGINE,
             'sqlite3': {
                 'args': [IN_MEMORY],
-                'kwargs': {},
+                'kwargs': {
+                    'kdr_iter': 64000,  # ignored by SQLite3, used by sqlcipher3 ONLY if a passhrase is passed in
+                    #"passphrase": "password",  # passphrase should be set via caller, like ptig and NOT stored in config file!
+                },
             },
             "whoosh": {
                 'args': [IN_MEMORY],  # this is an Puren Tonbo internal special value to indicate RAM, matches the sqlite special value
