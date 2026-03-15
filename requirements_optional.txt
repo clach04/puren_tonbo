@@ -2,6 +2,9 @@
 
 age; python_version > "2.7"  # 0.5.1 - CPython only, not pypy/jython
 pywin32; sys_platform == "win32"
+
+# FTS related
 whoosh-reloaded  # version 2.7.5 (no longer maintained) works well with CPython 3.12.1
+sqlcipher3  # version 2.6.0 works well with CPython 3.12.1
 
 percolator  # note potentially my fork https://github.com/clach04/percolator/ - only needed for fzf support in ptig

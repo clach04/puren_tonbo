@@ -77,6 +77,7 @@ extras_require = {
     'python-gnupg': ['python-gnupg', ],  # TODO version?
     'fzf': ['percolator' ],  # TODO version?
     'whoosh': ['whoosh-reloaded', ],  # version 2.7.5 (no longer maintained) works well with CPython 3.12.1
+    'sqlcipher3': ['sqlcipher3', ],  # version 2.6.0 works well with CPython 3.12.1
     # Web
     'cherrypy': ['cherrypy', ],  # TODO version?
     'Markdown': ['Markdown', ],  # TODO version?
