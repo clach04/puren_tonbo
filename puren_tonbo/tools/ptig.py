@@ -246,7 +246,35 @@ class CommandPrompt(Cmd):
         if fts_index_parser_options.verbose:
             verbose = True
 
-        print('%s Full Text Search indexing using options: %r' % (self.pt_config['fts']['engine'], fts_index_parser_options))
+        # FIXME duplicated code
+        encrypted_fts = False
+        engine = self.pt_config['fts']['engine']
+        if engine == "sqlcipher3":
+            # why use sqlcipher3 if not for encryption support?
+            encrypted_fts = True
+        if engine == "sqlcipher3" and self.pt_config['fts'].get(engine) is None:
+            engine = "sqlite3"
+        fts_engine_options = self.pt_config['fts'][engine]
+        kwargs = fts_engine_options.get('kwargs', {})
+        if kwargs.get("passphrase"):
+            encrypted_fts = True
+        if encrypted_fts and kwargs.get("passphrase") is None:
+            # get passhprase from user and then inject into config
+
+            # TODO refactor this into a reusable/shared function in parent library
+            if callable(password_func):
+                reset_password = False  ## ??
+                note_password = password_func(filename='FTS Index', reset=reset_password, for_decrypt=True)
+                # sanity check needed in case function returned string
+                if not isinstance(note_password, bytes):
+                    note_password = note_password.encode("utf-8")
+            else:
+                # Assume password bytes passed in
+                note_password = password_func
+
+            fts_engine_options['kwargs']["passphrase"] = note_password
+
+        print('%s Full Text Search indexing using options: %r' % (engine, fts_index_parser_options))
         self.paths_to_search_instances = []
         start_time = time.time()
         for note_root in self.paths_to_search:
@@ -296,6 +324,35 @@ Additional Whoosh FTS syntax https://sygil-dev.github.io/whoosh-reloaded/queryla
             print('\n')
             print('%s' % self.do_fts_search.__doc__)
             return
+
+        password_func = self.grep_options.password or puren_tonbo.caching_console_password_prompt
+        # FIXME duplicated code
+        encrypted_fts = False
+        engine = self.pt_config['fts']['engine']
+        if engine == "sqlcipher3":
+            # why use sqlcipher3 if not for encryption support?
+            encrypted_fts = True
+        if engine == "sqlcipher3" and self.pt_config['fts'].get(engine) is None:
+            engine = "sqlite3"
+        fts_engine_options = self.pt_config['fts'][engine]
+        kwargs = fts_engine_options.get('kwargs', {})
+        if kwargs.get("passphrase"):
+            encrypted_fts = True
+        if encrypted_fts and kwargs.get("passphrase") is None:
+            # get passhprase from user and then inject into config
+
+            # TODO refactor this into a reusable/shared function in parent library
+            if callable(password_func):
+                reset_password = False  ## ??
+                note_password = password_func(filename='FTS Index', reset=reset_password, for_decrypt=True)
+                # sanity check needed in case function returned string
+                if not isinstance(note_password, bytes):
+                    note_password = note_password.encode("utf-8")
+            else:
+                # Assume password bytes passed in
+                note_password = password_func
+
+            fts_engine_options['kwargs']["passphrase"] = note_password
 
         print('self.paths_to_search_instances %r' % (self.paths_to_search_instances,))
         if not self.paths_to_search_instances:
