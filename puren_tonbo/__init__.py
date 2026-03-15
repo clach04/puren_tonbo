@@ -2659,7 +2659,10 @@ class FileSystemNotes(BaseNotes):
         if self.fts_instance:
             fts_instance = self.fts_instance
         else:
-            fts_engine_options = self.fts_options[self.fts_options['engine']]
+            engine = self.fts_options['engine']
+            if engine == "sqlcipher3" and self.fts_options.get(engine) is None:
+                engine = "sqlite3"
+            fts_engine_options = self.fts_options[engine]
             args = fts_engine_options.get('args', [])
             kwargs = fts_engine_options.get('kwargs', {})
             fts_instance = self.fts_class(*args, **kwargs)  # note if missing args entries in fts config will see errors like; TypeError: FullTextSearchWhoosh.__init__() missing 1 required positional argument: 'index_location'
@@ -2694,7 +2697,10 @@ class FileSystemNotes(BaseNotes):
         if self.fts_instance:
             fts_instance = self.fts_instance
         else:
-            fts_engine_options = self.fts_options[self.fts_options['engine']]
+            engine = self.fts_options['engine']
+            if engine == "sqlcipher3" and self.fts_options.get(engine) is None:
+                engine = "sqlite3"
+            fts_engine_options = self.fts_options[engine]
             args = fts_engine_options.get('args', [])
             kwargs = fts_engine_options.get('kwargs', {})
             fts_instance = self.fts_class(*args, **kwargs)  # note if missing args entries in fts config will see errors like; TypeError: FullTextSearchWhoosh.__init__() missing 1 required positional argument: 'index_location'
