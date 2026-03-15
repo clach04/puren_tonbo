@@ -91,7 +91,7 @@ extras_require_all = []
 extras_require_testing = []
 for extra_name in extras_require:
     extras_require_all.append(extras_require[extra_name])
-    if extra_name not in ('cherrypy', 'fzf'):
+    if extra_name not in ('cherrypy', 'fzf', 'sqlcipher3'):
         extras_require_testing.append(extras_require[extra_name])
 extras_require['all'] = extras_require_all  # convenience, all of the above. NOTE duplicate of above
 extras_require['testing'] = extras_require_testing
