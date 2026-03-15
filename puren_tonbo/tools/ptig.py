@@ -297,7 +297,14 @@ Additional Whoosh FTS syntax https://sygil-dev.github.io/whoosh-reloaded/queryla
             print('%s' % self.do_fts_search.__doc__)
             return
 
+        print('self.paths_to_search_instances %r' % (self.paths_to_search_instances,))
         if not self.paths_to_search_instances:
+            print('Empty paths_to_search_instances, temp workaround/hack to populate...')
+            note_encoding = self.pt_config['codec']
+            for note_root in self.paths_to_search:
+                notes = puren_tonbo.FileSystemNotes(note_root, note_encoding, fts_options=self.pt_config['fts'])
+                self.paths_to_search_instances.append(notes)
+            """
             error_message = 'No FTS index, issue: fts_index'
             if highlight_text_start:
                 error_message = highlight_text_start + error_message + highlight_text_stop
@@ -306,6 +313,7 @@ Additional Whoosh FTS syntax https://sygil-dev.github.io/whoosh-reloaded/queryla
             print('\n')
             print('%s' % self.do_fts_search.__doc__)
             return
+            """
 
         print('%s Full Text Search for: %s' % (self.pt_config['fts']['engine'], line))
 
@@ -334,7 +342,10 @@ Additional Whoosh FTS syntax https://sygil-dev.github.io/whoosh-reloaded/queryla
         start_time = time.time()
         try:
             for notes in self.paths_to_search_instances:
-                index_lines = notes.fts_instance.index_lines
+                if notes.fts_instance:
+                    index_lines = notes.fts_instance.index_lines  # TODO review this logic...
+                else:
+                    index_lines = False  # FIXME
                 for counter, hit in enumerate(notes.fts_search(line, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop), start=1):
                     #print('hit %r' % (hit,) )
                     #print('%s:%s' % hit)

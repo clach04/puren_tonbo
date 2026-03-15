@@ -2656,7 +2656,14 @@ class FileSystemNotes(BaseNotes):
 
 
     def fts_search(self, s, highlight_text_start=None, highlight_text_stop=None):  # FIXME API
-        fts_instance = self.fts_instance
+        if self.fts_instance:
+            fts_instance = self.fts_instance
+        else:
+            fts_engine_options = self.fts_options[self.fts_options['engine']]
+            args = fts_engine_options.get('args', [])
+            kwargs = fts_engine_options.get('kwargs', {})
+            fts_instance = self.fts_class(*args, **kwargs)  # note if missing args entries in fts config will see errors like; TypeError: FullTextSearchWhoosh.__init__() missing 1 required positional argument: 'index_location'
+        # TODO when / how should self.fts_instance be updated?
         return fts_instance.search(search_term=s, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop)  # or yield...
 
     def fts_index(self, sub_dir=None, get_password_callback=None, verbose=False):
@@ -2683,7 +2690,7 @@ class FileSystemNotes(BaseNotes):
             is_note_filename_filter = plaintext_filename_filter
 
 
-        # FIXME store constucted
+        # FIXME store constructed
         if self.fts_instance:
             fts_instance = self.fts_instance
         else:
