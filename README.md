@@ -1071,6 +1071,7 @@ TODO consider using (OpenSSL) https://www.vim.org/scripts/script.php?script_id=2
 
 Puren Tonbo is implemented in Python, with support for Python 3.x and 2.7.
 
+Aim to follow https://www.conventionalcommits.org/en/v1.0.0/#summary commit message style.
 
 ### Run test suite
 
