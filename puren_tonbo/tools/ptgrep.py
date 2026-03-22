@@ -292,7 +292,7 @@ def main(argv=None):
     parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")  # TODO see -g options for rg-like tools
     parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="Only print filenames, do not display matches in file content", action="store_true")
     parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
-    parser.add_option("-n", "--line_numbers", help="Print line number with output lines (grep format only)", action="store_true")  # grep uses hypen; --line-number
+    parser.add_option("-n", "--line_numbers", "--line-number", help="Print line number with output lines (grep format only)", action="store_true")
     parser.add_option("-s", "--search_term", help="Term to search for, if omitted, [search_term] is used instead")
     parser.add_option("-c", "--codec", help="Override config file encoding (can be a list TODO format comma?)")
     parser.add_option("-p", "--password", help="password, if omitted and OS env PT_PASSWORD is set use that, next checks keyring, if missing prompt")
@@ -302,7 +302,7 @@ def main(argv=None):
     parser.add_option("-k", "--search_encrypted_only", help='Search encrypted files (default false)', action="store_const", const='only', dest='search_encrypted')
     parser.add_option("-v", "--verbose", help='Print query search time', action="store_true")
     parser.add_option("--config-file", "--config_file", help="Override config file")
-    parser.add_option("--grep", help='Use grep-like output format instead of ripgrep-like', action="store_true")
+    parser.add_option("--grep", "--no-heading", help='Use grep-like output format instead of ripgrep-like', action="store_true")
     parser.add_option("--display-full-path", "--display_full_path", help='Display full/absolute path/URI in results for note filename', action="store_true")
     parser.add_option("--zebra", "--zebra_color_filenames", "--zebra-color-filenames", help='Display alternate filenames with different (zebra) stripe color (note, counts filenames)', action="store_true", dest='zebra_color_filenames')
     """ TODO
