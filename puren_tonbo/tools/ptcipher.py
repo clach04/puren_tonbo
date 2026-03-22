@@ -228,8 +228,11 @@ def main(argv=None):
                     plain_text = simple_unix2dos(plain_text)
             handler.write_to(out_file, plain_text)
             failed = False
+    except puren_tonbo.BadPassword as info:
+        log.error('%r', info)
+        print("ptcipher bad password, missing or incorrect %r" % (info,))
     except puren_tonbo.PurenTonboException as info:
-        log.error('%r', info, exc_info=1)  # include traceback
+        log.error('%r', info, exc_info=1)  # include traceback -- TODO if debug?
         print("ptcipher Encrypt/Decrypt problem. %r" % (info,))
     finally:
         if in_filename != '-':  # i.e. sys.stdin

@@ -281,7 +281,8 @@ class BaseFile:
         password_encoding is used to create key from password if key is not provided
         """
         if key is None and password is None:
-            raise PurenTonboBadCall('need password or key')
+            #raise BadPassword('need password or key')
+            raise PurenTonboBadCall('need password or key')  # TODO revisit this, should this be a BadPassword() exception with same error message?
         if key is not None:
             self.key = key
             """# TODO handle case where string was passed
