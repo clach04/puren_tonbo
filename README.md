@@ -994,6 +994,12 @@ By default uses `ptcipher` in path, override via `PTCIPHER_EXE` environment vari
 Does NOT prompt for password, requires setting `PT_PASSWORD` environment variable.
 
 
+### television channel for fuzzy find
+
+See integrations/television/
+
+Install and edit to select password prefered password prompt option.
+
 ### vim plugin
 
 Tested under Linux with vim 8.0 and 8.1. under x86, x64, and arm 32-bit.

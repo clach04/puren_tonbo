@@ -1,0 +1,23 @@
+# Puren Tonbo encrypted file channel, based on original files channel
+# https://github.com/clach04/puren_tonbo/issues/234
+# https://github.com/alexpasmantier/television/blob/main/cable/windows/files.toml
+# https://alexpasmantier.github.io/television/getting-started/first-channel
+# Windows copy into "%LOCALAPPDATA%\television\config\cable"
+# Linux/Unix/BSD copy into ~/.config/television/cable
+
+[metadata]
+name = "pt"
+description = "A channel to select encrypted files and directories"
+requirements = ["ptcipher", "fd", "bat"]
+
+[source]
+command = ["fd -t f", "fd -t f -H"]
+
+[preview]
+#command = "bat -n --color=always -- '{}'"
+# TODO edit/set prompt type to your choosing
+command = "ptcipher --decrypt --no-prompt '{}'"
+env = { BAT_THEME = "ansi" }
+
+[keybindings]
+shortcut = "f1"
