@@ -392,6 +392,33 @@ Also see https://github.com/clach04/puren_tonbo/wiki/tool-ptig
     ptig puren_tonbo/tests/demo_notes/stories/aesop
     ptig puren_tonbo/tests/demo_notes/fts_stemming
 
+#### ptig Full Text Search (FTS)
+
+ptig supports Full Text Search (FTS), once an index has been created.
+
+To create an index, issue :
+
+    fts_index
+
+Then search with:
+
+    fts_search SEARCH_EXPRESSION
+    fts SEARCH_EXPRESSION
+
+sqlite3 (FTS5) is assumed to be available, but Whoosh will be defaulted if available.
+sqlcipher3 (encrypted sqlite3) can also be used for a persistent index, and will be encrypted with the same key/passphrase/password as used to decrypt file as they are added to the index.
+
+sqlite3 (and sqlcipher3) has some limitations:
+
+  1. limited stemming; "generic" and "generated" are considered the same root word by FTS5 / sqlite3
+  2. backslashes are not supported by sqlite3 and will lead to errors, `'fts5: syntax error near "\\"'`, irrespective of the number of backslashes used in the search expression
+
+Issue:
+
+    help fts
+
+for more help.
+
 #### Sample ptig session
 
     $ ptig --note-root=puren_tonbo/tests/data
