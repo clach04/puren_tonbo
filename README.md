@@ -388,6 +388,9 @@ Also see https://github.com/clach04/puren_tonbo/wiki/tool-ptig
 
     ptig
     python -m puren_tonbo.tools.ptig
+    ptig puren_tonbo/tests/data
+    ptig puren_tonbo/tests/demo_notes/stories/aesop
+    ptig puren_tonbo/tests/demo_notes/fts_stemming
 
 #### Sample ptig session
 
