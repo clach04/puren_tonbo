@@ -1,4 +1,3 @@
-
 import bisect
 import datetime
 import errno
@@ -25,6 +24,7 @@ except AttributeError:
 from ._version import __version__, __version_info__
 from . import ui
 
+
 def fake_module(name):
     # Fail with a clear message (possibly at an unexpected time)
     class MissingModule(object):
@@ -32,15 +32,17 @@ def fake_module(name):
             raise ImportError('No module named %s' % name)
 
         def __getattr__(self, attr):
-            #raise ImportError('No module named %s' % name)  # allow attribute lookup to pass through without error
+            # raise ImportError('No module named %s' % name)  # allow attribute lookup to pass through without error
             return 'No module named %s' % name
 
         def __bool__(self):
             # if checks on this will fail
             return False
+
         __nonzero__ = __bool__  # support py3 and py2
 
     return MissingModule()
+
 
 try:
     import chi_io  # https://github.com/clach04/chi_io/
@@ -58,11 +60,13 @@ except ImportError:
 try:
     raise ImportError()  # on my armbian distro the SWIG layer appears to have issues and caches plaintext, test_aesop_win_encryptpad_gpg_bad_password fails due to NOT getting bad password exception
     import gpg as gpgme  # `apt install python3-gpg` https://github.com/gpg/gpgme
+
     gpg = gpgme.core.Context()
 except ImportError:
     gpgme = None
     try:
         import gnupg  # https://github.com/vsajip/python-gnupg NOTE requires gpg binary
+
         """NOTE hacked version of gnupg.py python-gnupg version 0.5.2
             # https://github.com/vsajip/python-gnupg/issues/270
             shell=False
@@ -75,8 +79,8 @@ except ImportError:
         GPG_HOME = os.environ.get('GPG_HOME', os.path.expanduser('~'))
         try:
             gpg = gnupg.GPG(gpgbinary=GPG_EXE)  # fails under Windows, even though available
-            #gpg = gnupg.GPG(gpgbinary=GPG_EXE, gnupghome=GPG_HOME, env=os.environ)  # fails under Windows, even though available
-            #gpg = gnupg.GPG(ignore_homedir_permissions=True)
+            # gpg = gnupg.GPG(gpgbinary=GPG_EXE, gnupghome=GPG_HOME, env=os.environ)  # fails under Windows, even though available
+            # gpg = gnupg.GPG(ignore_homedir_permissions=True)
         except RuntimeError:
             # Assume;     RuntimeError: GnuPG is not installed!
             gpg = None
@@ -101,7 +105,9 @@ except ImportError:
     keyring = fake_module('keyring')
 
 try:
-    from openssl_enc_compat.cipher import OpenSslEncDecCompat  # https://github.com/clach04/openssl_enc_compat/
+    from openssl_enc_compat.cipher import (
+        OpenSslEncDecCompat,
+    )  # https://github.com/clach04/openssl_enc_compat/
     import openssl_enc_compat
 except ImportError:
     OpenSslEncDecCompat = fake_module('openssl_enc_compat')
@@ -112,24 +118,27 @@ except ImportError:
     pyzipper = fake_module('pyzipper')
 
 try:
-    #import vimdecrypt  # https://github.com/nlitsme/vimdecrypt
+    # import vimdecrypt  # https://github.com/nlitsme/vimdecrypt
     from puren_tonbo import vimdecrypt  # https://github.com/nlitsme/vimdecrypt
 except ImportError:
     vimdecrypt = fake_module('vimdecrypt')
 
 try:
-    if os.environ.get('FORCE_AGEEXE'):  raise ImportError()  # force usage of age command line binary exe
-    #import ssage  # https://github.com/esoadamo/ssage/  # does not (yet?) support passphrases
+    if os.environ.get('FORCE_AGEEXE'):
+        raise ImportError()  # force usage of age command line binary exe
+    # import ssage  # https://github.com/esoadamo/ssage/  # does not (yet?) support passphrases
     import age  # https://github.com/jojonas/pyage
     import age.file
     import age.keys.password
 except ImportError:
-    #ssage = fake_module('ssage')
+    # ssage = fake_module('ssage')
     age = fake_module('age')
 
 
 try:
-    from sqlcipher3 import dbapi2 as sqlcipher  # pip install sqlcipher3  -- sqlcipher3.version_info == (2, 6, 0)
+    from sqlcipher3 import (
+        dbapi2 as sqlcipher,
+    )  # pip install sqlcipher3  -- sqlcipher3.version_info == (2, 6, 0)
 except ImportError:
     sqlcipher = fake_module('sqlcipher')
 
@@ -147,10 +156,9 @@ try:
     from puren_tonbo.mzipaes import ZIP_DEFLATED, ZIP_STORED
 except ImportError:
     mzipaes = fake_module('mzipaes')
-    #ZIP_DEFLATED, ZIP_STORED = mzipaes.ZIP_DEFLATED, mzipaes.ZIP_STORED
+    # ZIP_DEFLATED, ZIP_STORED = mzipaes.ZIP_DEFLATED, mzipaes.ZIP_STORED
     ZIP_STORED = 0
     ZIP_DEFLATED = 8
-
 
 
 is_py3 = sys.version_info >= (3,)
@@ -165,9 +173,8 @@ except NameError:
 try:
     basestring  # only used to determine if parameter is a filename
 except NameError:
-    basestring = (
-        str  # py3 - in this module, only used to determine if parameter is a filename
-    )
+    basestring = str  # py3 - in this module, only used to determine if parameter is a filename
+
 
 def log_setup(log_name):
     # create log
@@ -191,13 +198,13 @@ def log_setup(log_name):
 
     if sys.version_info >= (2, 5):
         # 2.5 added function name tracing
-        logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d %(funcName)s() - %(levelname)s - %(message)s"
+        logging_fmt_str = '%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d %(funcName)s() - %(levelname)s - %(message)s'
     else:
         if JYTHON_RUNTIME_DETECTED:
             # process is None under Jython 2.2
-            logging_fmt_str = "%(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
+            logging_fmt_str = '%(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s'
         else:
-            logging_fmt_str = "%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s"
+            logging_fmt_str = '%(process)d %(thread)d %(asctime)s - %(name)s %(filename)s:%(lineno)d - %(levelname)s - %(message)s'
 
     if colorlog:
         formatter = colorlog.ColoredFormatter('%(log_color)s' + logging_fmt_str)
@@ -207,8 +214,12 @@ def log_setup(log_name):
     log.addHandler(ch)
     return log
 
-log = log_setup("mylogger")
-log.debug('encodings %r', (sys.getdefaultencoding(), sys.getfilesystemencoding(), locale.getdefaultlocale()))
+
+log = log_setup('mylogger')
+log.debug(
+    'encodings %r',
+    (sys.getdefaultencoding(), sys.getfilesystemencoding(), locale.getdefaultlocale()),
+)
 
 IN_MEMORY = ':memory:'  # sqlite special value, also used to indicate memory for non-sqlite3
 if whoosh:
@@ -216,22 +227,25 @@ if whoosh:
 else:
     DEFAULT_FTS_ENGINE = 'sqlite3'  # sqlcipher3
 
+
 class PurenTonboException(Exception):
-    '''Base PurenTonbo I/O exception'''
+    """Base PurenTonbo I/O exception"""
 
 
 class BadPassword(PurenTonboException):
-    '''Bad password exception'''
+    """Bad password exception"""
 
 
 class UnsupportedFile(PurenTonboException):
-    '''File not encrypted/not supported exception'''
+    """File not encrypted/not supported exception"""
+
 
 class PurenTonboIO(PurenTonboException):
-    '''(File) I/O exception'''
+    """(File) I/O exception"""
+
 
 class PurenTonboBadCall(PurenTonboException):
-    '''Incorrect API call'''
+    """Incorrect API call"""
 
 
 class SearchException(Exception):
@@ -257,8 +271,8 @@ which is based on block input.
 puren_tonbo expects to be dealing with (on-disk) files, hence the focus on file-like objects.
 """
 
-class BaseFile:
 
+class BaseFile:
     description = 'Base Encrypted File'
     extensions = []  # non-empty list of file extensions, first is the default (e.g. for writing) and last should be the most generic
     implementation = 'py'  # exe
@@ -271,7 +285,7 @@ class BaseFile:
     def split_extension(self, filename):
         for extn in self.extensions:
             if filename.endswith(extn):
-                return filename[:-len(extn)], extn
+                return filename[: -len(extn)], extn
         pass
 
     def __init__(self, key=None, password=None, password_encoding='utf8'):
@@ -281,8 +295,10 @@ class BaseFile:
         password_encoding is used to create key from password if key is not provided
         """
         if key is None and password is None:
-            #raise BadPassword('need password or key')
-            raise PurenTonboBadCall('need password or key')  # TODO revisit this, should this be a BadPassword() exception with same error message?
+            # raise BadPassword('need password or key')
+            raise PurenTonboBadCall(
+                'need password or key'
+            )  # TODO revisit this, should this be a BadPassword() exception with same error message?
         if key is not None:
             self.key = key
             """# TODO handle case where string was passed
@@ -308,6 +324,7 @@ class BaseFile:
 class EncryptedFile(BaseFile):
     pass
 
+
 class RawFile(BaseFile):
     """Raw/binary/text file - Read/write raw bytes.
     Use for plain text files.
@@ -327,6 +344,7 @@ class RawFile(BaseFile):
     def write_to(self, file_object, byte_data):
         file_object.write(byte_data)
 
+
 class CompressedFile(BaseFile):
     description = 'Compressed file Base Class - not encrypted'
     needs_key = False  # not encrpypted
@@ -334,9 +352,13 @@ class CompressedFile(BaseFile):
     def __init__(self, key=None, password=None, password_encoding='utf8'):
         pass  # NOOP, password/key is NOT required and IGNORED!
 
+
 class CompressedZlib(CompressedFile):
     description = 'zlib - could be gz or Z'
-    extensions = ['.gz', '.Z']  # NOTE this is a little greedy, matches .tar.gz (which is currently not supported) which really should be ignored (until/if archive support is added) TODO how to skip tar files (etc.)
+    extensions = [
+        '.gz',
+        '.Z',
+    ]  # NOTE this is a little greedy, matches .tar.gz (which is currently not supported) which really should be ignored (until/if archive support is added) TODO how to skip tar files (etc.)
 
     def read_from(self, file_object):
         # NOTE no password/key usage!
@@ -348,7 +370,7 @@ class CompressedZlib(CompressedFile):
                 # Python 2 has now idea about wbits
                 return zlib.decompress(data)
         except Exception as info:
-            #raise  # debug
+            # raise  # debug
             # chain exception...
             raise PurenTonboException(info)
 
@@ -368,7 +390,10 @@ class Rot13(SubstitutionCipher):
     description = 'rot-13 UNSECURE!'
     extensions = ['.rot13']
 
-    substitution_table = maketrans(b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', b'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm')
+    substitution_table = maketrans(
+        b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+        b'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm',
+    )
 
     def read_from(self, file_object):
         # NOTE no password/key usage!
@@ -376,7 +401,7 @@ class Rot13(SubstitutionCipher):
         try:
             return data.translate(self.substitution_table)
         except Exception as info:
-            #raise  # debug
+            # raise  # debug
             # chain exception...
             raise PurenTonboException(info)
 
@@ -390,12 +415,13 @@ class Rot47(Rot13):
 
     substitution_table = maketrans(
         b'!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~',
-        b'PQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO'
+        b'PQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO',
     )
 
 
-class VimDecryptArgs():
+class VimDecryptArgs:
     verbose = False
+
 
 class VimDecrypt(EncryptedFile):
     """vimcrypt - can ONLY decrypt
@@ -417,7 +443,9 @@ class VimDecrypt(EncryptedFile):
         data = file_object.read()
         password = self.key
         if isinstance(password, bytes):
-            password = password.decode("utf-8")  # vimdecrypt expects passwords as strings and will encode to utf8 - TODO update vimdecrypt library to support bytes
+            password = password.decode(
+                'utf-8'
+            )  # vimdecrypt expects passwords as strings and will encode to utf8 - TODO update vimdecrypt library to support bytes
         args = VimDecryptArgs
         try:
             return vimdecrypt.decryptfile(data, password, args)
@@ -428,6 +456,7 @@ class VimDecrypt(EncryptedFile):
 
 
 #############################
+
 
 class GenericExe(EncryptedFile):  # TODO use as base for AgeExe
     """Generic Executable Encrypt/Decrypt - sub-class for use.
@@ -441,14 +470,22 @@ class GenericExe(EncryptedFile):  # TODO use as base for AgeExe
     ]
     _exe_name = os.environ.get('GENERIC_EXE', 'generic')
     _envvar_name = 'GENERIC_PASSPHRASE'  # Set to None if not supported/used. TODO allow config...
-    _exe_encrypt_params = ['--encrypt', '-E', 'GENERIC_PASSPHRASE']  # Check if there is a parameter to avoid passphrase prompt does not occur....
-    _exe_decrypt_params = ['--decrypt', '-E', 'GENERIC_PASSPHRASE']  # Check if there is a parameter to avoid passphrase prompt does not occur....
+    _exe_encrypt_params = [
+        '--encrypt',
+        '-E',
+        'GENERIC_PASSPHRASE',
+    ]  # Check if there is a parameter to avoid passphrase prompt does not occur....
+    _exe_decrypt_params = [
+        '--decrypt',
+        '-E',
+        'GENERIC_PASSPHRASE',
+    ]  # Check if there is a parameter to avoid passphrase prompt does not occur....
     _exe_present = False
     _exe_version_str = None
-    #_exe_version = None  # UNUSED
+    # _exe_version = None  # UNUSED
     implementation = 'exe'
 
-    #@classmethod()
+    # @classmethod()
     def exe_version_check(self):
         # combination exe present and version check
         cmd = [self._exe_name, '--version']
@@ -458,7 +495,13 @@ class GenericExe(EncryptedFile):  # TODO use as base for AgeExe
             expand_shell = False
 
         try:
-            p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p_exe = subprocess.Popen(
+                cmd,
+                shell=expand_shell,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
             # timeout not suported by older python versions, pre 3.3?
             stdout_value, stderr_value = p_exe.communicate()
 
@@ -470,7 +513,7 @@ class GenericExe(EncryptedFile):  # TODO use as base for AgeExe
             if p_exe.returncode == 0:
                 self._exe_present = True
                 self._exe_version_str = stdout_value.strip()
-                #self._exe_version = self._exe_version_str.split(b' ', 2)[1].decode('utf-8')  # will fail on "(develop)" and other non integer-period/dot strings
+                # self._exe_version = self._exe_version_str.split(b' ', 2)[1].decode('utf-8')  # will fail on "(develop)" and other non integer-period/dot strings
         except FileNotFoundError:
             # some (but not all, Windows does not require this) platforms raise exception on missing binary
             pass
@@ -479,7 +522,7 @@ class GenericExe(EncryptedFile):  # TODO use as base for AgeExe
         password = self.key  # TODO enforce byte check?
         if isinstance(password, bytes):
             # environment variables (in Microsoft Windows) have to be strings in py3
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         if self._envvar_name:
             os.environ[self._envvar_name] = password
@@ -489,18 +532,26 @@ class GenericExe(EncryptedFile):  # TODO use as base for AgeExe
             # expand-shell true for windows to avoid pop-up window, no user input used so shell escape/esculation not expected
             # TODO look at alternative, Windows only startupinfo param STARTUPINFO class, wShowWindow = SW_HIDE
             byte_data = file_object.read()
-            p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p_exe = subprocess.Popen(
+                cmd,
+                shell=expand_shell,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
 
             # timeout not supported by older python versions, pre 3.3
-            #stdout_value, stderr_value = p_exe.communicate()
+            # stdout_value, stderr_value = p_exe.communicate()
             stdout_value, stderr_value = p_exe.communicate(input=byte_data)
             if p_exe.returncode != 0:
                 """
                 if stderr_value== b'TODO EXE SPECIFIC CHECK GOES HERE\n':
                     raise BadPassword('with %r' % file_object)
                 """
-                #if stderr_value.startswith(b'passphrase'):  # error, bad, password....
-                if b'passphrase' in stderr_value:  # error, bad, password....  # TODO refactor, have string present as class attribute
+                # if stderr_value.startswith(b'passphrase'):  # error, bad, password....
+                if (
+                    b'passphrase' in stderr_value
+                ):  # error, bad, password....  # TODO refactor, have string present as class attribute
                     raise BadPassword('with %r' % file_object)
                 raise PurenTonboException('failed to spawn, %r' % stderr_value)
             return stdout_value
@@ -512,24 +563,34 @@ class GenericExe(EncryptedFile):  # TODO use as base for AgeExe
         password = self.key  # TODO enforce byte check?
         if isinstance(password, bytes):
             # environment variables (in Microsoft Windows) have to be strings in py3
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         if self._envvar_name:
             os.environ[self._envvar_name] = password
         cmd = [self._exe_name] + self._exe_encrypt_params
         try:
-            p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p_exe = subprocess.Popen(
+                cmd,
+                shell=expand_shell,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
 
             # timeout not supported by older python versions, pre 3.3
             stdout_value, stderr_value = p_exe.communicate(input=byte_data)
             if p_exe.returncode != 0:
-                raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
+                raise PurenTonboException(
+                    'failed to spawn, %r' % stderr_value
+                )  # TODO test and review
             file_object.write(stdout_value)  # only write to fileobject on successful encryption
         finally:
             if self._envvar_name:
                 del os.environ[self._envvar_name]
 
+
 #############################
+
 
 class KrExe(GenericExe):
     """Kr Monocypher
@@ -543,9 +604,10 @@ class KrExe(GenericExe):
     _exe_name = os.environ.get('KR_EXE', 'kr')
     _envvar_name = 'PTKR_PASSPHRASE'  # match encrypt/decrypt cmd params
     _exe_encrypt_params = ['--encrypt', '--envvar=PTKR_PASSPHRASE', '-', '-']
-    #_exe_decrypt_params = ['--decrypt', '-E=PTKR_PASSPHRASE', '-', '-']
+    # _exe_decrypt_params = ['--decrypt', '-E=PTKR_PASSPHRASE', '-', '-']
     _exe_decrypt_params = ['--decrypt', '--envvar=PTKR_PASSPHRASE', '-', '-']
     # Error for bad/incorrect passphrase/password: "Wrong passphrase / bad input"
+
 
 KrExe.exe_version_check(KrExe)  # TODO move/refactor into introspection loop
 
@@ -554,6 +616,7 @@ KrExe.exe_version_check(KrExe)  # TODO move/refactor into introspection loop
 CCRYPT_EXE = os.environ.get('CCRYPT_EXE', 'ccrypt')
 ccrypt = None
 ccrypt_version = 'MISSING'  # TODO make this part of Ccrypt class
+
 
 class CcryptExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
     """ccrypt - ccrypt - https://ccrypt.sourceforge.net/
@@ -568,12 +631,11 @@ class CcryptExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
     ]
     implementation = 'exe'
 
-
     def read_from(self, file_object):
         password = self.key  # TODO enforce byte check?
         if isinstance(password, bytes):
             # environment variables (in Microsoft Windows) have to be strings in py3
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         CCRYPT_ENVVAR_NAME = 'PT_PASSWORD'
         os.environ[CCRYPT_ENVVAR_NAME] = password
@@ -581,15 +643,21 @@ class CcryptExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
 
         # expand-shell true for windows to avoid pop-up window, no user input used so shell escape/esculation not expected
         # TODO look at alernative, Windows onlyl startupinfo param STARTUPINFO class, wShowWindow = SW_HIDE
-        #p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=file_object, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # works for real files, fails in test suite under Windows with fake files as Windows stdlib goes looking for a fileno()
+        # p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=file_object, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # works for real files, fails in test suite under Windows with fake files as Windows stdlib goes looking for a fileno()
         byte_data = file_object.read()
-        p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p_ccrypt = subprocess.Popen(
+            cmd,
+            shell=expand_shell,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
 
         # timeout not suported by older python versions, pre 3.3
-        #stdout_value, stderr_value = p_ccrypt.communicate()
+        # stdout_value, stderr_value = p_ccrypt.communicate()
         stdout_value, stderr_value = p_ccrypt.communicate(input=byte_data)
         if p_ccrypt.returncode != 0:
-            if stderr_value== b'ccrypt: key does not match\n':
+            if stderr_value == b'ccrypt: key does not match\n':
                 raise BadPassword('with %r' % file_object)
             raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
         return stdout_value
@@ -598,18 +666,25 @@ class CcryptExe(EncryptedFile):  # TODO refactor into a shared spawn exe class
         password = self.key  # TODO enforce byte check?
         if isinstance(password, bytes):
             # environment variables (in Microsoft Windows) have to be strings in py3
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         CCRYPT_ENVVAR_NAME = 'PT_PASSWORD'
         os.environ[CCRYPT_ENVVAR_NAME] = password
         cmd = [CCRYPT_EXE, '-e', '-E', CCRYPT_ENVVAR_NAME]
-        p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p_ccrypt = subprocess.Popen(
+            cmd,
+            shell=expand_shell,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
 
         # timeout not suported by older python versions, pre 3.3
         stdout_value, stderr_value = p_ccrypt.communicate(input=byte_data)
         if p_ccrypt.returncode != 0:
             raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
         file_object.write(stdout_value)  # only write to fileobject on successful encryption
+
 
 Ccrypt = CcryptExe
 
@@ -620,7 +695,13 @@ else:
     expand_shell = False
 
 try:
-    p_ccrypt = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p_ccrypt = subprocess.Popen(
+        cmd,
+        shell=expand_shell,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     # timeout not suported by older python versions, pre 3.3?
     stdout_value, stderr_value = p_ccrypt.communicate()
 
@@ -636,9 +717,9 @@ except FileNotFoundError:
     # some (but not all, Windows does not require this) platforms raise exception on missing binary
     pass  # leave ccrypt as None
 
+
 class GnuPG(EncryptedFile):
-    """GnuPG - GPG binary
-    """
+    """GnuPG - GPG binary"""
 
     description = 'gpg (GnuPG) symmetric 1.x and 2.x, does NOT uses keys'
     extensions = [
@@ -669,7 +750,7 @@ TypeError: a bytes-like object is required, not 'str'
         """
         # Seems to require strings - TODO open a bug upstream for this
         if isinstance(password, bytes):
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
         edata = file_object.read()
         if gpgme:
             try:
@@ -679,9 +760,9 @@ TypeError: a bytes-like object is required, not 'str'
                 raise BadPassword('with %r' % file_object)
         else:
             result = gpg.decrypt(edata, passphrase=password)
-        #result = gpgme.core.Context().decrypt(edata, passphrase=password)
-        #result = gpgme.core.Context().decrypt(edata, passphrase='this is shot')
-        #result = gpg.decrypt_file(file_object, passphrase=password)
+        # result = gpgme.core.Context().decrypt(edata, passphrase=password)
+        # result = gpgme.core.Context().decrypt(edata, passphrase='this is shot')
+        # result = gpg.decrypt_file(file_object, passphrase=password)
         if result:
             if gpgme:
                 result = result[0]  # just ignore the validation.. # FIXME!
@@ -697,13 +778,15 @@ TypeError: a bytes-like object is required, not 'str'
         password = self.key
         # Seems to require strings - TODO open a bug upstream for this
         if isinstance(password, bytes):
-            password = password.decode("utf-8")
-        enc_data = gpg.encrypt(byte_data, recipients=[], symmetric=True, armor=False, passphrase=password)
+            password = password.decode('utf-8')
+        enc_data = gpg.encrypt(
+            byte_data, recipients=[], symmetric=True, armor=False, passphrase=password
+        )
         file_object.write(enc_data.data)
 
+
 class GnuPGascii(GnuPG):
-    """GnuPG - GPG ASCII armored
-    """
+    """GnuPG - GPG ASCII armored"""
 
     extensions = [
         '.asc',  # ASCII Armored File
@@ -713,7 +796,7 @@ class GnuPGascii(GnuPG):
         password = self.key
         # Seems to require strings - TODO open a bug upstream for this
         if isinstance(password, bytes):
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
         enc_data = gpg.encrypt(byte_data, recipients=[], symmetric=True, passphrase=password)
         file_object.write(enc_data.data)
 
@@ -730,7 +813,7 @@ class OpenSslEnc10k(EncryptedFile):
         data = file_object.read()
         password = self.key
         if not isinstance(password, bytes):
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
         cipher = OpenSslEncDecCompat(password)
         plaintext = cipher.decrypt(data)  # guesses if base64 encoded or note
         return plaintext
@@ -738,10 +821,11 @@ class OpenSslEnc10k(EncryptedFile):
     def write_to(self, file_object, byte_data):
         password = self.key
         if not isinstance(password, bytes):
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
         cipher = OpenSslEncDecCompat(password)
         crypted_bytes = cipher.encrypt(byte_data)
         file_object.write(crypted_bytes)
+
 
 class Jenc(EncryptedFile):
     description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 10000 AES-256-GCM'
@@ -755,7 +839,7 @@ class Jenc(EncryptedFile):
         encrypted_bytes = file_object.read()
         password = self.key
         if not isinstance(password, bytes):
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         plaintext = jenc.decrypt(password, encrypted_bytes)
         return plaintext
@@ -763,10 +847,11 @@ class Jenc(EncryptedFile):
     def write_to(self, file_object, byte_data):
         password = self.key
         if not isinstance(password, bytes):
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         crypted_bytes = jenc.encrypt(password, byte_data, jenc_version=self._jenc_version)
         file_object.write(crypted_bytes)
+
 
 class JencU001(Jenc):
     description = 'Markor / jpencconverter U001 PBKDF2WithHmacSHA1 iterations 10000 AES-256-GCM, legacy for older Android versions'
@@ -777,6 +862,7 @@ class JencU001(Jenc):
     ]
     _jenc_version = 'U001'  # FIXME constant from jenc instead of literal
 
+
 class JencV001(Jenc):
     description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 10000 AES-256-GCM'
     extensions = [
@@ -785,6 +871,7 @@ class JencV001(Jenc):
         # Do NOT include generic .jenc
     ]
     _jenc_version = 'V001'
+
 
 class JencV002(Jenc):
     description = 'Markor / jpencconverter pbkdf2-hmac-sha512 iterations 210000 AES-256-GCM - EXPERIMENTAL https://github.com/clach04/jenc-py/issues/7'
@@ -816,13 +903,13 @@ class TomboBlowfish(EncryptedFile):
             return chi_io.read_encrypted_file(file_object, self.key)
         except chi_io.BadPassword as info:  # FIXME place holder
             # TODO chain exception...
-            #print(dir(info))
-            #raise BadPassword(info.message)  # does not work for python 3.6.9
+            # print(dir(info))
+            # raise BadPassword(info.message)  # does not work for python 3.6.9
             raise BadPassword(info)  # FIXME BadPassword(BadPassword("for 'file-like-object'",),)
         except Exception as info:
             raise  # DEBUG
             # TODO chain exception...
-            #raise PurenTonboException(info.message)
+            # raise PurenTonboException(info.message)
             raise PurenTonboException(info)
 
     def write_to(self, file_object, byte_data):
@@ -838,10 +925,10 @@ class Age(EncryptedFile):
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTonboException()
         # TODO AsciiArmoredInput()
-        #encrypted_bytes = file_object.read()
+        # encrypted_bytes = file_object.read()
         password = self.key
         if not isinstance(password, bytes):
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         try:
             identities = [age.keys.password.PasswordKey(password)]
@@ -851,9 +938,9 @@ class Age(EncryptedFile):
             # probbaly NoIdentity("No matching key")
             raise BadPassword(info)  # FIXME BadPassword(BadPassword("for 'file-like-object'",),)
         except Exception as info:
-            #raise  # DEBUG
+            # raise  # DEBUG
             # TODO chain exception...
-            #raise PurenTonboException(info.message)
+            # raise PurenTonboException(info.message)
             raise PurenTonboException(info)
 
         return plaintext
@@ -863,32 +950,34 @@ class Age(EncryptedFile):
         # TODO AsciiArmoredInput()
         password = self.key
         if not isinstance(password, bytes):
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         try:
             identities = [age.keys.password.PasswordKey(password)]
             with age.file.Encryptor(identities, file_object) as encryptor:
                 encryptor.write(byte_data)
         except Exception as info:
-            #raise  # DEBUG
+            # raise  # DEBUG
             # TODO chain exception...
-            #raise PurenTonboException(info.message)
+            # raise PurenTonboException(info.message)
             raise PurenTonboException(info)
 
+
 class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class using GenericExe as base
-    """
-    """
+    """ """
 
     description = Age.description + ' (EXE)'
     extensions = Age.extensions
     implementation = 'exe'
-    _exe_name = os.environ.get('AGE_EXE', 'age')  # https://github.com/wj/age.git (https://github.com/clach04/age/tree/pr520_osenv_password) - that supports environment variable for passphrase
+    _exe_name = os.environ.get(
+        'AGE_EXE', 'age'
+    )  # https://github.com/wj/age.git (https://github.com/clach04/age/tree/pr520_osenv_password) - that supports environment variable for passphrase
     _envvar_name = 'AGE_PASSPHRASE'  # TODO allow config...
     _exe_present = False
     _exe_version_str = None
     _exe_version = None
 
-    #@classmethod()
+    # @classmethod()
     def exe_version_check(self):
         # combination exe present and version check - TODO check for different flavors and versions. For example age v1.3.1+ with age-plugin-batchpass versus forks and other implementations
         # See https://github.com/FiloSottile/age/discussions/256 UX: Missing option for noninteractive use of passwords
@@ -899,7 +988,13 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class usin
             expand_shell = False
 
         try:
-            p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p_exe = subprocess.Popen(
+                cmd,
+                shell=expand_shell,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
             # timeout not suported by older python versions, pre 3.3?
             stdout_value, stderr_value = p_exe.communicate()
 
@@ -911,7 +1006,7 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class usin
             if p_exe.returncode == 0:
                 self._exe_present = True
                 self._exe_version_str = stdout_value.strip()
-                #self._exe_version = self._exe_version_str.split(b' ', 2)[1].decode('utf-8')  # will fail on "(develop)" and other non integer-period/dot strings
+                # self._exe_version = self._exe_version_str.split(b' ', 2)[1].decode('utf-8')  # will fail on "(develop)" and other non integer-period/dot strings
         except FileNotFoundError:
             # some (but not all, Windows does not require this) platforms raise exception on missing binary
             pass
@@ -920,19 +1015,28 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class usin
         password = self.key  # TODO enforce byte check?
         if isinstance(password, bytes):
             # environment variables (in Microsoft Windows) have to be strings in py3
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         os.environ[self._envvar_name] = password
-        cmd = [self._exe_name, '--decrypt']  # version dependent, use "-j batchpass" - and also force "-o -" in case of binary output
+        cmd = [
+            self._exe_name,
+            '--decrypt',
+        ]  # version dependent, use "-j batchpass" - and also force "-o -" in case of binary output
 
         # expand-shell true for windows to avoid pop-up window, no user input used so shell escape/esculation not expected
         # TODO look at alernative, Windows only startupinfo param STARTUPINFO class, wShowWindow = SW_HIDE
         byte_data = file_object.read()
         # FIXME TODO - ensure passphrae prompt does not occur....
-        p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p_exe = subprocess.Popen(
+            cmd,
+            shell=expand_shell,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
 
         # timeout not suported by older python versions, pre 3.3
-        #stdout_value, stderr_value = p_exe.communicate()
+        # stdout_value, stderr_value = p_exe.communicate()
         stdout_value, stderr_value = p_exe.communicate(input=byte_data)
         if p_exe.returncode != 0:
             """
@@ -948,21 +1052,34 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class usin
         password = self.key  # TODO enforce byte check?
         if isinstance(password, bytes):
             # environment variables (in Microsoft Windows) have to be strings in py3
-            password = password.decode("utf-8")
+            password = password.decode('utf-8')
 
         os.environ[self._envvar_name] = password
-        cmd = [self._exe_name, '--encrypt', '--passphrase']  # version dependent, remove '--passphrase' and use "-j batchpass" - and also force "-o -" in case of binary output
+        cmd = [
+            self._exe_name,
+            '--encrypt',
+            '--passphrase',
+        ]  # version dependent, remove '--passphrase' and use "-j batchpass" - and also force "-o -" in case of binary output
         # FIXME TODO - ensure passphrae prompt does not occur....
-        p_exe = subprocess.Popen(cmd, shell=expand_shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p_exe = subprocess.Popen(
+            cmd,
+            shell=expand_shell,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
 
         # timeout not suported by older python versions, pre 3.3
         stdout_value, stderr_value = p_exe.communicate(input=byte_data)
         if p_exe.returncode != 0:
             raise PurenTonboException('failed to spawn, %r' % stderr_value)  # TODO test and review
         file_object.write(stdout_value)  # only write to fileobject on successful encryption
+
+
 if is_py3:
     AgeExe.exe_version_check(AgeExe)  # TODO review this and classmethod
 # ELSE todo py2.7 - TypeError: unbound method exe_version_check() must be called with AgeExe instance as first argument (got classobj instance instead)
+
 
 # TODO AE-2 (no CRC), otherwise the same as AE-1 - see https://github.com/clach04/puren_tonbo/wiki/zip-format
 class ZipEncryptedFileBase(EncryptedFile):
@@ -981,10 +1098,13 @@ class PurePyZipAES(ZipEncryptedFileBase):
     """
 
     description = 'AES-256 ZIP AE-1 DEFLATED (regular compression)'
-    extensions = ZipEncryptedFileBase.extensions + [
-        # TODO '.zip', see ZipAES() implementation
-        #'.zip',  # any Zip file - NOTE if included, some tools may then attempt to treat regular zip files as potentially readable encrypted files and then fail; puren_tonbo.PurenTonboException: "There is no item named 'encrypted.md' in the archive"
-    ]
+    extensions = (
+        ZipEncryptedFileBase.extensions
+        + [
+            # TODO '.zip', see ZipAES() implementation
+            #'.zip',  # any Zip file - NOTE if included, some tools may then attempt to treat regular zip files as potentially readable encrypted files and then fail; puren_tonbo.PurenTonboException: "There is no item named 'encrypted.md' in the archive"
+        ]
+    )
 
     def read_from(self, file_object):
         # TODO catch specific exceptions and raise better mapped exception
@@ -997,21 +1117,24 @@ class PurePyZipAES(ZipEncryptedFileBase):
             raise UnsupportedFile(info)
         except mzipaes.AesZipException as info:
             # TODO chain exception...
-            #raise PurenTonboException(info.message)
+            # raise PurenTonboException(info.message)
             raise PurenTonboException(info)
 
     def write_to(self, file_object, byte_data):
-        assert self._compression in (ZIP_DEFLATED, ZIP_STORED)  # FIXME/TODO add proper check and raise explict exception
+        assert self._compression in (
+            ZIP_DEFLATED,
+            ZIP_STORED,
+        )  # FIXME/TODO add proper check and raise explict exception
         # TODO catch specific exceptions and raise better mapped exception
         # TODO e.g. Exception('BAD PASSWORD',)
         try:
             zf = mzipaes.MiniZipAE1Writer(file_object, self.key, compression=self._compression)
             zf.append(self._filename, byte_data)
-            #zf.zipcomment = 'optional comment'
+            # zf.zipcomment = 'optional comment'
             zf.write()
         except mzipaes.AesZipException as info:
             # TODO chain exception...
-            #raise PurenTonboException(info.message)
+            # raise PurenTonboException(info.message)
             raise PurenTonboException(info)
 
 
@@ -1032,10 +1155,13 @@ class ZipAES(ZipEncryptedFileBase):
     """
 
     description = 'AES-256 ZIP AE-1 DEFLATED (regular compression), and read-only ZipCrypto'
-    extensions = ZipEncryptedFileBase.extensions + [
-        '.old.zip',  # Zip file with old old ZipCrypto - reading/decrypting (writing not supported/implemented)
-        '.zip',  # any Zip file - NOTE if included, some tools may then attempt to treat regular zip files as potentially readable encrypted files and then fail; puren_tonbo.PurenTonboException: "There is no item named 'encrypted.md' in the archive"
-    ]
+    extensions = (
+        ZipEncryptedFileBase.extensions
+        + [
+            '.old.zip',  # Zip file with old old ZipCrypto - reading/decrypting (writing not supported/implemented)
+            '.zip',  # any Zip file - NOTE if included, some tools may then attempt to treat regular zip files as potentially readable encrypted files and then fail; puren_tonbo.PurenTonboException: "There is no item named 'encrypted.md' in the archive"
+        ]
+    )
 
     def read_from(self, file_object):
         # TODO catch exceptions and raise PurenTonboException()
@@ -1052,19 +1178,20 @@ class ZipAES(ZipEncryptedFileBase):
             # TODO chain exception...
         except Exception as info:
             # TODO chain exception...
-            #raise
+            # raise
             # TODO decide how to handle regular zip files that do NOT contain encrypted notes; KeyError: "There is no item named 'encrypted.md' in the archive"
-            #print(info)
-            #print(type(info))
-            #print(dir(info))
+            # print(info)
+            # print(type(info))
+            # print(dir(info))
             raise PurenTonboException(info)
 
     def write_to(self, file_object, byte_data):
-        with pyzipper.AESZipFile(file_object,
-                                 'w',
-                                 compression=self._compression,
-                                 encryption=pyzipper.WZ_AES,  # no other options
-                                 ) as zf:
+        with pyzipper.AESZipFile(
+            file_object,
+            'w',
+            compression=self._compression,
+            encryption=pyzipper.WZ_AES,  # no other options
+        ) as zf:
             # defaults to nbits=256 - TODO make explict?
             zf.setpassword(self.key)
             zf.writestr(self._filename, byte_data)  # pyzipper can take string or bytes
@@ -1078,12 +1205,14 @@ class ZipNoCompressionAES(ZipAES):
         '.oldstored.zip',  # Zip file with old old ZipCrypto - writing not supported/implemented
     ]
 
+
 class ZipLzmaAES(ZipAES):
     description = 'AES-256 ZIP AE-1 LZMA'
     _compression = pyzipper.ZIP_LZMA
     extensions = [
         '.aes256lzma.zip',  # LZMA Zip file with AES-256 7z .zip (not the old ZipCrypto!)
     ]
+
 
 class ZipBzip2AES(ZipAES):
     description = 'AES-256 ZIP AE-1 BZIP2'
@@ -1092,11 +1221,12 @@ class ZipBzip2AES(ZipAES):
         '.aes256bzip2.zip',  # bzip2 Zip file with AES-256 7z .zip (not the old ZipCrypto!)
     ]
 
+
 # note uses file extension - could also sniff file header and use file magic
 all_file_type_handlers = {}  # all but RawFile
 file_type_handlers = {}
 
-for enc_class_name in dir():  #(RawFile, Rot13):
+for enc_class_name in dir():  # (RawFile, Rot13):
     enc_class = globals()[enc_class_name]
     if not inspect.isclass(enc_class):
         continue
@@ -1108,33 +1238,36 @@ for enc_class_name in dir():  #(RawFile, Rot13):
         all_file_type_handlers[file_extension] = enc_class
 
 # Dumb introspect code for RawFile and SubstitutionCipher (rot13 and rot47)
-for enc_class_name in dir():  #(RawFile, Rot13):
+for enc_class_name in dir():  # (RawFile, Rot13):
     enc_class = globals()[enc_class_name]
     if not inspect.isclass(enc_class):
         continue
-    if not issubclass(enc_class, RawFile) and not issubclass(enc_class, SubstitutionCipher) and not issubclass(enc_class, CompressedFile):
+    if (
+        not issubclass(enc_class, RawFile)
+        and not issubclass(enc_class, SubstitutionCipher)
+        and not issubclass(enc_class, CompressedFile)
+    ):
         continue
     for file_extension in enc_class.extensions:
         file_type_handlers[file_extension] = enc_class
 
 
 if age:
-    for enc_class in (Age, ):
+    for enc_class in (Age,):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 elif AgeExe._exe_present:
-    for enc_class in (AgeExe, ):
+    for enc_class in (AgeExe,):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 
 # TODO replace with introspection loop into all *Exe classes (ignoring GenericExe)
 if KrExe._exe_present:
-    for enc_class in (KrExe, ):
+    for enc_class in (KrExe,):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 
 if jenc:  # FIXME, handle this via introspection, see code above for RawFile
-
     # https://github.com/clach04/jenc-py/issues/7
     if 'V002' not in jenc.jenc_version_details:
         jenc.jenc_version_details['V002'] = {
@@ -1147,7 +1280,12 @@ if jenc:  # FIXME, handle this via introspection, see code above for RawFile
             'nonceLenth': 32,  # nonceLenth (sic.) == Nonce Length, i.e. IV length  # in bytes
         }
 
-    for enc_class in (JencV002, JencV001, JencU001, Jenc):  # order significant for filename extension lookup
+    for enc_class in (
+        JencV002,
+        JencV001,
+        JencU001,
+        Jenc,
+    ):  # order significant for filename extension lookup
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 
@@ -1170,10 +1308,12 @@ if mzipaes:
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
 if OpenSslEncDecCompat:
-    for enc_class in (OpenSslEnc10k, ):
+    for enc_class in (OpenSslEnc10k,):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
-if pyzipper:  # potentially overwrite PurePyZipAES and ZipNoCompressionPurePyZipAES as default zip support
+if (
+    pyzipper
+):  # potentially overwrite PurePyZipAES and ZipNoCompressionPurePyZipAES as default zip support
     for enc_class in (ZipAES, ZipNoCompressionAES, ZipLzmaAES, ZipBzip2AES):
         for file_extension in enc_class.extensions:
             file_type_handlers[file_extension] = enc_class
@@ -1184,6 +1324,7 @@ if vimdecrypt:
 # Consider command line crypto (via pipe to avoid plaintext on disk)
 # TODO? openssl aes-128-cbc -in in_file -out out_file.aes128
 # TODO? openpgp
+
 
 def filename2handler(filename, default_handler=None):
     filename = filename.lower()
@@ -1202,7 +1343,9 @@ def filename2handler(filename, default_handler=None):
         file_extn = '.oldstored.zip'
     else:
         # TODO loop through extensions in class
-        _dummy, file_extn = os.path.splitext(filename)  # this is very agressive, splits on most-right-hand side (maybe want cipher name lookup ASWELL as filename extension)
+        _dummy, file_extn = os.path.splitext(
+            filename
+        )  # this is very agressive, splits on most-right-hand side (maybe want cipher name lookup ASWELL as filename extension)
     log.debug('clach04 DEBUG file_extn: %r', file_extn)
     log.debug('clach04 DEBUG file_type_handlers: %r', file_type_handlers)
     handler_class = file_type_handlers.get(file_extn) or default_handler
@@ -1211,10 +1354,13 @@ def filename2handler(filename, default_handler=None):
     log.debug('clach04 DEBUG handler_class: %r', handler_class)
     return handler_class
 
+
 encrypted_file_extensions = []
 supported_handlers = {}  # supported handlers, mapped to first (default) filename extension
 for file_extension in file_type_handlers.keys():
-    supported_handlers[file_type_handlers[file_extension]] = file_type_handlers[file_extension].extensions[0]
+    supported_handlers[file_type_handlers[file_extension]] = file_type_handlers[
+        file_extension
+    ].extensions[0]
     if issubclass(file_type_handlers[file_extension], EncryptedFile):
         encrypted_file_extensions.append(file_extension)
 if mzipaes:
@@ -1225,7 +1371,9 @@ if mzipaes:
 
 def debug_get_password():
     # DEBUG this should be a callback mechanism
-    crypto_key = os.getenv('DEBUG_CRYPTO_KEY', 'test')  # dumb default password, should raise exception on missing password
+    crypto_key = os.getenv(
+        'DEBUG_CRYPTO_KEY', 'test'
+    )  # dumb default password, should raise exception on missing password
     log.debug('clach04 DEBUG key: %r', crypto_key)
     return crypto_key
 
@@ -1241,7 +1389,7 @@ def debug_get_password():
     else:
         log.debug('clach04 DEBUG : regular read')
         with open(path, 'r') as f:
-          content = f.read()
+            content = f.read()
 
 
 #################
@@ -1254,18 +1402,22 @@ def hacky_dos2unix(plain_byte):
     """Use a shortcut to convert. Assume input bytes are clean/correct DOS/Windows linefeeds"""
     return plain_byte.replace(CR, b'')
 
+
 def simple_dos2unix(plain_byte):
     """Assume input bytes are clean/correct DOS/Windows linefeeds"""
     return plain_byte.replace(CR + LF, LF)
+
 
 def forcebad_dos2unix(plain_byte):
     """Assume input bytes are bad DOS/Windows linefeeds"""
     plain_byte = plain_byte.replace(CR + LF, LF)  # handle good lines correctly
     return plain_byte.replace(CR, LF)  # now the bad/incomplete ones
 
+
 def simple_unix2dos(plain_byte):
     """Assume input bytes are clean Unix/Linux linefeeds"""
     return plain_byte.replace(LF, CR + LF)
+
 
 # TODO replace with plugin classes
 class gen_caching_get_password(object):
@@ -1273,27 +1425,30 @@ class gen_caching_get_password(object):
         """If dirname is specified, removes that part of the pathname when prompting for the password for that file"""
         self.user_password = None
         self.dirname = dirname
+
     def gen_func(self):
         ## TODO add (optional) timeout "forget"/wipe password from memory
         def get_pass(prompt=None, filename=None, reset=False, for_decrypt=False, brave_mode=False):
             """Caching password prompt for CONSOLE.
-                prompt - the prompt to print for password prompt
-                reset - if set to True will forget the cached password and prompt for it
+            prompt - the prompt to print for password prompt
+            reset - if set to True will forget the cached password and prompt for it
             """
             if reset:
                 self.user_password = None
             if self.user_password is None:
                 if prompt is None:
                     if filename is None:
-                        prompt = "Password:"
+                        prompt = 'Password:'
                     else:
                         if self.dirname is not None:
                             filename = remove_leading_path(self.dirname, filename)
-                            prompt = "Password for note %s:" % filename
+                            prompt = 'Password for note %s:' % filename
                         else:
-                            prompt = "Password for file %s:" % filename
-                self.user_password = ui.getpassfunc(prompt, for_decrypt=for_decrypt, brave_mode=brave_mode)
-                if self.user_password  is None or self.user_password  == b'':
+                            prompt = 'Password for file %s:' % filename
+                self.user_password = ui.getpassfunc(
+                    prompt, for_decrypt=for_decrypt, brave_mode=brave_mode
+                )
+                if self.user_password is None or self.user_password == b'':
                     self.user_password = None
                 """
                 else:
@@ -1301,7 +1456,9 @@ class gen_caching_get_password(object):
                     self.user_password = chi_io.CHI_cipher(self.user_password)
                 """
             return self.user_password
+
         return get_pass
+
 
 class gen_caching_get_passwordWIP(object):
     def __init__(self, dirname=None, promptfunc=None):
@@ -1312,15 +1469,16 @@ class gen_caching_get_passwordWIP(object):
         if promptfunc is None:
             promptfunc = ui.getpassfunc
         self.promptfunc = promptfunc
+
     def gen_func(self):
         ## TODO add (optional) timeout "forget"/wipe password from memory
         def get_pass(prompt_str=None, filename=None, reset=False, value=None, prompt=True):
             """Caching password prompt for CONSOLE.
-                prompt_str - the prompt to print for password prompt
-                filename - the filename the password is required for
-                reset - if set to True will set cached password to "value" (which is set to default of None means forget the cached password and prompt for it)
-                value - see reset parameter
-                prompt - if not True will NOT prompt user and simply return the cached password
+            prompt_str - the prompt to print for password prompt
+            filename - the filename the password is required for
+            reset - if set to True will set cached password to "value" (which is set to default of None means forget the cached password and prompt for it)
+            value - see reset parameter
+            prompt - if not True will NOT prompt user and simply return the cached password
             """
             if reset:
                 self.user_password = value
@@ -1330,20 +1488,21 @@ class gen_caching_get_passwordWIP(object):
             if self.user_password is None and prompt:
                 if prompt_str is None:
                     if filename is None:
-                        prompt_str = "Password:"
+                        prompt_str = 'Password:'
                     else:
                         if self.dirname is not None:
                             filename = remove_leading_path(self.dirname, filename)
-                            prompt = "Password for note %s:" % filename
+                            prompt = 'Password for note %s:' % filename
                         else:
-                            prompt = "Password for file %s:" % filename
+                            prompt = 'Password for file %s:' % filename
                 self.user_password = self.promptfunc(prompt)
-                if self.user_password  is None or self.user_password  == b'':
+                if self.user_password is None or self.user_password == b'':
                     self.user_password = None  # Alternatively could raise SearchCancelled
                 else:
                     ## not sure if this logic belongs at this level....
                     self.user_password = chi_io.CHI_cipher(self.user_password)
             return self.user_password
+
         return get_pass
 
 
@@ -1366,7 +1525,7 @@ if keyring:
         @headers - dictionary - optional
         """
         log.debug('get_url=%r', url)
-        #log.debug('headers=%r', headers)
+        # log.debug('headers=%r', headers)
         response = None
         try:
             if headers:
@@ -1376,15 +1535,15 @@ if keyring:
             response = urlopen(request)
             url = response.geturl()  # may have changed in case of redirect
             code = response.getcode()
-            #log("getURL [{}] response code:{}".format(url, code))
+            # log("getURL [{}] response code:{}".format(url, code))
             result = response.read()
             return result
         except:  # HTTPError, ConnectionRefusedError
             # probably got HTTPError, may be ConnectionRefusedError
             if ignore_errors:
-               return None
+                return None
             else:
-               raise
+                raise
         finally:
             if response != None:
                 response.close()
@@ -1394,6 +1553,7 @@ if keyring:
         """http server access, local only across regular tcp_ip socket (no need for unix domain sockets)
         ONLY uses GET calls (not POST)
         """
+
         def __init__(self):
             self._server_url = 'http://127.0.0.1:4277/'
 
@@ -1424,7 +1584,9 @@ if keyring:
             pass
 
     if os.environ.get('PT_KEYRING_SERVER'):
-        new_keyring = DumbServer()  # NOTE this introduces a delay if server not present when calling keyring.get_password()
+        new_keyring = (
+            DumbServer()
+        )  # NOTE this introduces a delay if server not present when calling keyring.get_password()
         keyring.set_keyring(new_keyring)
 
 
@@ -1462,6 +1624,7 @@ def supported_filetypes_info(encrypted_only=False, unencrypted_only=False, list_
             continue
         yield (file_extension, handler_class.__name__, handler_class.description)
 
+
 def encrypted_filename_filter(in_filename):
     name = in_filename.lower()
     for file_extension in encrypted_file_extensions:
@@ -1469,53 +1632,74 @@ def encrypted_filename_filter(in_filename):
             return True
     return False
 
+
 def supported_filename_filter(in_filename):
     name = in_filename.lower()
-    #print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
+    # print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
     for file_extension in file_type_handlers:
         if name.endswith(file_extension):
             # TODO could look at mapping and check that too, e.g. only Raw files
             return True
     return False
 
-encrypted_extensions = list(supported_filetypes_info(encrypted_only=True))  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
-unencrypted_extensions = list(supported_filetypes_info(unencrypted_only=True))  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
+
+encrypted_extensions = list(
+    supported_filetypes_info(encrypted_only=True)
+)  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
+unencrypted_extensions = list(
+    supported_filetypes_info(unencrypted_only=True)
+)  # generator gets exhusted and encrypted check only works the first time!. TODO for (future) dynamic plugins with discovery to work, can't use a static list here
+
 
 def plaintext_filename_filter(in_filename):
     name = in_filename.lower()
-    #print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
-    #for file_extension in ('.txt', '.md', ):  # FIXME hard coded for known plain text extensions that Rawfile is configured with. See supported_filetypes_info() for less fragile approach
+    # print('DEBUG %r %r' % (in_filename, list(file_type_handlers.keys())))
+    # for file_extension in ('.txt', '.md', ):  # FIXME hard coded for known plain text extensions that Rawfile is configured with. See supported_filetypes_info() for less fragile approach
     for file_extension in unencrypted_extensions:
         if name.endswith(file_extension):
             # TODO could look at mapping and check that too, e.g. only Raw files
             return True
     return False
 
-def encrypted_filename_filter(filename):  # TODO if ever support zip without encryption check inside and see if a password is needed
+
+def encrypted_filename_filter(
+    filename,
+):  # TODO if ever support zip without encryption check inside and see if a password is needed
     filename_lower = filename.lower()
     for file_extension in encrypted_extensions:
         if filename_lower.endswith(file_extension):
             return True
     return False
+
+
 is_encrypted = encrypted_filename_filter
 
 ## TODO implement generator function that takes in filename search term
 
+
 def example_progess_callback(*args, **kwargs):
     print('example_progess_callback:', args, kwargs)
 
-def grep_string(search_text, regex_object, highlight_text_start=None, highlight_text_stop=None, files_with_matches=False):
+
+def grep_string(
+    search_text,
+    regex_object,
+    highlight_text_start=None,
+    highlight_text_stop=None,
+    files_with_matches=False,
+):
     """Given input string "search_text" and compiled regex regex_object
     search for regex matches and return list of tuples of line number and text for that line
     for matches, prefix and postfix with highlight_text_start, highlight_text_stop
     files_with_matches?? - only return filename, not line matches, stops after first line hit. Similar to grep -l, --files-with-matches
     """
+
     def process_matches(match):
         return highlight_text_start + match.group(0) + highlight_text_stop
 
     linecount = 0
     results = []
-    #print('%r' % ((regex_object, search_text,),))
+    # print('%r' % ((regex_object, search_text,),))
     for x in search_text.split('\n'):
         linecount += 1
         if regex_object.search(x):
@@ -1535,10 +1719,12 @@ class BaseNotes(object):
 
     def __init__(self, note_root, note_encoding=None):
         self.note_root = note_root
-        #self.note_encoding = note_encoding or 'utf8'
+        # self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
 
-    def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):  # Also supported_filename_filter
+    def recurse_notes(
+        self, sub_dir=None, filename_filter=any_filename_filter
+    ):  # Also supported_filename_filter
         """Recursive Tombo note lister.
         Iterator of files in @sub_dir"""
         raise NotImplementedError('Implement in sub-class')
@@ -1548,14 +1734,16 @@ class BaseNotes(object):
         Returns tuple (list of directories, list of files) in @sub_dir"""
         raise NotImplementedError('Implement in sub-class')
 
-    #def search(self, *args, **kwargs):
+    # def search(self, *args, **kwargs):
     def search(self, search_term):
         """iterator that searches note directory, grep/regex-like
         returns values like:
             ('somefile.txt', [(2, 'line two'),])"""
         raise NotImplementedError('Implement in sub-class')
 
-    def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
+    def note_contents(
+        self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None
+    ):
         """load/read/decrypt notes file, also see note_contents_save()
 
         @filename is relative to `self.note_root` and includes directory name if not in the root.
@@ -1567,7 +1755,16 @@ class BaseNotes(object):
         """
         raise NotImplementedError('Implement in sub-class')
 
-    def note_contents_save(self, note_text, sub_dir=None, filename=None, original_full_filename=None, get_pass=None, dos_newlines=True, backup=True):
+    def note_contents_save(
+        self,
+        note_text,
+        sub_dir=None,
+        filename=None,
+        original_full_filename=None,
+        get_pass=None,
+        dos_newlines=True,
+        backup=True,
+    ):
         """Save/write/encrypt the contents, also see note_contents()
 
         Save contents of the string @note_text, to @filename if specified else derive filename from first line in note.
@@ -1588,6 +1785,7 @@ class BaseNotes(object):
 
 ##############################
 
+
 def is_bytes(b):
     return isinstance(b, bytes)
 
@@ -1595,10 +1793,10 @@ def is_bytes(b):
 def is_text(s):
     return not is_bytes(s)
 
+
 # Local file system functions
 def to_bytes(data_in_string, note_encoding='utf-8'):
-    """Where note_encoding can also be a list, e.g. ['utf8', 'cp1252']
-    """
+    """Where note_encoding can also be a list, e.g. ['utf8', 'cp1252']"""
     if isinstance(data_in_string, (bytes, bytearray)):
         return data_in_string  # assume bytes already
     if isinstance(note_encoding, basestring):
@@ -1611,11 +1809,13 @@ def to_bytes(data_in_string, note_encoding='utf-8'):
             pass  # try next
     raise NotImplementedError('ran out of valid encodings to try, %r' % (data_in_string[:20],))
 
-def to_string(data_in_bytes, note_encoding='utf-8'):  # TODO add option to support best effort, use replacement characters (ideally XML/html ref ot hex ala git - to avoid data loss)?
-    """Where note_encoding can also be a list, e.g. ['utf8', 'cp1252']
-    """
-    #log.debug('note_encoding %r', note_encoding)
-    #log.debug('data_in_bytes %r', data_in_bytes)
+
+def to_string(
+    data_in_bytes, note_encoding='utf-8'
+):  # TODO add option to support best effort, use replacement characters (ideally XML/html ref ot hex ala git - to avoid data loss)?
+    """Where note_encoding can also be a list, e.g. ['utf8', 'cp1252']"""
+    # log.debug('note_encoding %r', note_encoding)
+    # log.debug('data_in_bytes %r', data_in_bytes)
     if not isinstance(data_in_bytes, (bytes, bytearray)):  # FIXME revisit this, "is string" check
         return data_in_bytes  # assume a string already
     if isinstance(note_encoding, basestring):
@@ -1627,13 +1827,19 @@ def to_string(data_in_bytes, note_encoding='utf-8'):  # TODO add option to suppo
         except UnicodeDecodeError:
             pass  # try next
         # TODO try/except
-    raise UnsupportedFile('ran out of valid encodings to try, %r' % (data_in_bytes[:20],))  # likely user error (incorrect encodings) or simply a bad /unsupported file
+    raise UnsupportedFile(
+        'ran out of valid encodings to try, %r' % (data_in_bytes[:20],)
+    )  # likely user error (incorrect encodings) or simply a bad /unsupported file
+
 
 def unicode_path(filename):
     if isinstance(filename, bytes):
         # want unicode string so that all file interaction is unicode based
-        filename = filename.decode('utf8')  # FIXME hard coded, pick up from config or locale/system encoding
+        filename = filename.decode(
+            'utf8'
+        )  # FIXME hard coded, pick up from config or locale/system encoding
     return filename
+
 
 def file_replace(src, dst):
     if is_py3:
@@ -1649,7 +1855,7 @@ def file_replace(src, dst):
                 mode='wb',
                 dir=os.path.dirname(dst),
                 prefix=os.path.basename(dst) + datetime.datetime.now().strftime('%Y%m%d_%H%M%S'),
-                delete=False
+                delete=False,
             )
             tmp_backup = t.name
             t.close()
@@ -1661,51 +1867,68 @@ def file_replace(src, dst):
         if dest_exists:
             os.remove(tmp_backup)
 
+
 # filename derivation/generation options/techniques
 FILENAME_TIMESTAMP = 'TIMESTAMP'  # could have lots of options, this one will be YYYY-MM-DD_hhmmss ## TODO handle case whdre generate more than one file in less than a sec?
 FILENAME_FIRSTLINE = 'FIRSTLINE'  # Tombo like, needs to be file system safe but retains spaces
-FILENAME_FIRSTLINE_CLEAN = 'FIRSTLINE_CLEAN'  # TODO firstline but clean, remove dupe hypens, underscores, spaces, etc.
+FILENAME_FIRSTLINE_CLEAN = (
+    'FIRSTLINE_CLEAN'  # TODO firstline but clean, remove dupe hypens, underscores, spaces, etc.
+)
 FILENAME_FIRSTLINE_SNAKE_CASE = 'FIRSTLINE_SNAKE_CASE'
 FILENAME_FIRSTLINE_KEBAB_CASE = 'FIRSTLINE_KEBAB_CASE'
 FILENAME_UUID4 = 'UUID4'
 
-def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None, note_encoding='utf-8'):
+
+def note_contents_load_filename(
+    filename,
+    get_pass=None,
+    dos_newlines=True,
+    return_bytes=False,
+    handler_class=None,
+    note_encoding='utf-8',
+):
     """Uses local file system IO api
-        @handler dictates encryption mode/format (if any)
-        @filename if handler is ommited, file extension derives handler - i.e. encryption mode/format (if any)
-        @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'.
-            See caching_console_password_prompt() for an example. API expected:
-                get_pass(filename=filename, reset=reset_password)
-        dos_newlines=True means use Windows/DOS newlines, emulates win32 behavior of Tombo and is the default
-        @return_bytes returns bytes rather than (Unicode) strings
-        @note_encoding can also be a list, e.g. ['utf8', 'cp1252']
+    @handler dictates encryption mode/format (if any)
+    @filename if handler is ommited, file extension derives handler - i.e. encryption mode/format (if any)
+    @get_pass is either plaintext (bytes) password or a callback function that returns a password, get_pass() should return None for 'cancel'.
+        See caching_console_password_prompt() for an example. API expected:
+            get_pass(filename=filename, reset=reset_password)
+    dos_newlines=True means use Windows/DOS newlines, emulates win32 behavior of Tombo and is the default
+    @return_bytes returns bytes rather than (Unicode) strings
+    @note_encoding can also be a list, e.g. ['utf8', 'cp1252']
     """
     try:
-        #log.debug('filename: %r', filename)
+        # log.debug('filename: %r', filename)
         filename = unicode_path(filename)
 
         handler_class = handler_class or filename2handler(filename)
         reset_password = False
         while True:
-            #import pdb ; pdb.set_trace()
+            # import pdb ; pdb.set_trace()
             if not handler_class.needs_key:
                 log.debug('key not required (maybe it is plain text)')
-                note_password = ''  # fake it. Alternatively override init for RawFile, etc. to remove check
+                note_password = (
+                    ''  # fake it. Alternatively override init for RawFile, etc. to remove check
+                )
             else:
-                #import pdb ; pdb.set_trace()
+                # import pdb ; pdb.set_trace()
                 if callable(get_pass):
-                    note_password = get_pass(filename=filename, reset=reset_password, for_decrypt=True)
+                    note_password = get_pass(
+                        filename=filename, reset=reset_password, for_decrypt=True
+                    )
                     # sanity check needed in case function returned string
                     if not isinstance(note_password, bytes):
-                        note_password = note_password.encode("utf-8")
+                        note_password = note_password.encode('utf-8')
                 else:
                     # Assume password bytes passed in
                     note_password = get_pass
                 if note_password is None:
                     raise SearchCancelled('empty password for for %s' % filename)
 
-            #import pdb ; pdb.set_trace()
-            handler = handler_class(key=note_password)  # FIXME callback function support for password func
+            # import pdb ; pdb.set_trace()
+            handler = handler_class(
+                key=note_password
+            )  # FIXME callback function support for password func
             # TODO repeat on bad password func
             log.debug('DEBUG filename %r', filename)
 
@@ -1716,7 +1939,9 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
                 if dos_newlines:
                     # FIXME TODO only do newline processing after decode
                     # NOTE this will NOT work for utf-16
-                    plain_str = plain_str.replace(b'\r\n', b'\n')  # TODO consider remove all \r first as a cleaning step?
+                    plain_str = plain_str.replace(
+                        b'\r\n', b'\n'
+                    )  # TODO consider remove all \r first as a cleaning step?
 
                 if return_bytes:
                     return plain_str
@@ -1736,20 +1961,32 @@ def note_contents_load_filename(filename, get_pass=None, dos_newlines=True, retu
         else:
             raise
     except PurenTonboException as info:
-        log.debug("Encrypt/Decrypt problem. %r", (info,))
+        log.debug('Encrypt/Decrypt problem. %r', (info,))
         raise
+
 
 #          note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
 #             note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
 # TODO https://github.com/clach04/puren_tonbo/issues/173 allow warning to be disabled on duplicate derived filename
-def note_contents_save_native_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
+def note_contents_save_native_filename(
+    note_text,
+    filename=None,
+    original_filename=None,
+    folder=None,
+    handler=None,
+    dos_newlines=True,
+    backup=True,
+    use_tempfile=True,
+    note_encoding='utf-8',
+    filename_generator=FILENAME_FIRSTLINE,
+):
     """Uses native/local file system IO api
     @handler is the encryption file handler to use, that is already initialized with a password
     @note_encoding if None, assume note_text is bytes, if a string use as the encoding, can also be a list, e.g. ['utf8', 'cp1252'] in which case use the first one
     folder - if specified (new) filename and original_filename are relative. if missing filename and original_filename are absolute
     """
-    #import pdb; pdb.set_trace()
-    #log.setLevel(logging.DEBUG)
+    # import pdb; pdb.set_trace()
+    # log.setLevel(logging.DEBUG)
     log.debug('original file %r', original_filename)
     log.debug('new file %r', filename)
     # Start - restrictions/checks that should be removed
@@ -1764,12 +2001,14 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
 
     if handler is None:
         if filename is None:
-            raise NotImplementedError('handler is required')  # Idea filename required, then use that to detemine handler
+            raise NotImplementedError(
+                'handler is required'
+            )  # Idea filename required, then use that to detemine handler
         else:
             raise NotImplementedError('handler is required, no way to pass in password (yet)')
             handler_class = None
             handler_class = handler_class or filename2handler(filename)
-            #handler = handler_class(key=note_password)
+            # handler = handler_class(key=note_password)
             handler = handler_class()
     filename_generator_func = None
     if filename is None:
@@ -1781,7 +2020,9 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
             if folder:
                 # relative path names for files as given as input to this function
                 if original_filename:
-                    original_filename = os.path.join(folder, original_filename)  # TODO abspath for safety?
+                    original_filename = os.path.join(
+                        folder, original_filename
+                    )  # TODO abspath for safety?
                     folder = os.path.dirname(original_filename)
             else:
                 # folder not set, so absolute paths given as input to this function
@@ -1790,7 +2031,9 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
             validate_filename_generator(filename_generator)
             filename_generator_func = filename_generators[filename_generator]
             log.debug('filename_generator_func %r', filename_generator_func)
-            file_extension = handler.extensions[0]  # pick the first one - TODO refactor into a function/method - call handler.default_extension()
+            file_extension = handler.extensions[
+                0
+            ]  # pick the first one - TODO refactor into a function/method - call handler.default_extension()
             filename_without_path_and_extension = filename_generator_func(note_text)
 
             filename = os.path.join(folder, filename_without_path_and_extension + file_extension)
@@ -1798,16 +2041,19 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
                 # now check if generated filename already exists, if so need to make unique
                 unique_counter = 1
                 while os.path.exists(filename):
-                    log.warning('generated filename %r already exists, generating alternative', filename)  # TODO consider making optional and also info instead of warning? Test suite triggers this which is simply not useful information as the test does it's own validation https://github.com/clach04/puren_tonbo/issues/173
+                    log.warning(
+                        'generated filename %r already exists, generating alternative', filename
+                    )  # TODO consider making optional and also info instead of warning? Test suite triggers this which is simply not useful information as the test does it's own validation https://github.com/clach04/puren_tonbo/issues/173
                     unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
-                    filename = os.path.join(folder, filename_without_path_and_extension + unique_part + file_extension)
+                    filename = os.path.join(
+                        folder, filename_without_path_and_extension + unique_part + file_extension
+                    )
                     unique_counter += 1
 
             # TODO handle format conversion (e.g. original text, new encrypted)
             log.debug('generated filename: %r', filename)
     else:
         filename = unicode_path(filename)
-
 
     """
     # sanity checks
@@ -1876,10 +2122,14 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     """
 
     if note_encoding is None:
-        plain_str_bytes = note_text  # Assume bytes passed in (if so.. why not check here to enforce)
+        plain_str_bytes = (
+            note_text  # Assume bytes passed in (if so.. why not check here to enforce)
+        )
     else:
         if dos_newlines:
-            note_text = note_text.replace('\n', '\r\n')  # TODO remove all \r first as a cleaning step?
+            note_text = note_text.replace(
+                '\n', '\r\n'
+            )  # TODO remove all \r first as a cleaning step?
         # see to_string() for reverse
         plain_str_bytes = to_bytes(note_text, note_encoding)
 
@@ -1890,7 +2140,7 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
             mode='wb',
             dir=os.path.dirname(filename),
             prefix=os.path.basename(filename) + timestamp_now,
-            delete=False
+            delete=False,
         )
         tmp_out_filename = out_file.name
         log.debug('DEBUG tmp_out_filename %r', tmp_out_filename)
@@ -1899,9 +2149,9 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
         out_file = open(filename, 'wb')  # Untested
 
     log.debug('writting bytes')
-    #log.setLevel(logging.NOTSET)
+    # log.setLevel(logging.NOTSET)
     handler.write_to(out_file, plain_str_bytes)
-    #log.setLevel(logging.DEBUG)
+    # log.setLevel(logging.DEBUG)
     out_file.close()
 
     if backup:
@@ -1920,27 +2170,37 @@ def note_contents_save_native_filename(note_text, filename=None, original_filena
     # handle rename/delete
     if filename_generator_func:
         # filename generator was used, have have an old file to cleanup
-        if original_filename and filename != original_filename and os.path.exists(original_filename):
+        if (
+            original_filename
+            and filename != original_filename
+            and os.path.exists(original_filename)
+        ):
             log.debug('about to remove original file %r', original_filename)
             os.remove(original_filename)
 
     return filename
 
+
 def validate_filename_generator(filename_generator):
-    if filename_generator not in (
-        FILENAME_TIMESTAMP,
-        FILENAME_FIRSTLINE,  # TODO Tombo like, for missing first line returns "memo", "memo(1)", "memo(2)", ....
-        FILENAME_FIRSTLINE_CLEAN,
-        FILENAME_FIRSTLINE_SNAKE_CASE,
-        FILENAME_FIRSTLINE_KEBAB_CASE,
-        FILENAME_UUID4,  # TODO
+    if (
+        filename_generator
+        not in (
+            FILENAME_TIMESTAMP,
+            FILENAME_FIRSTLINE,  # TODO Tombo like, for missing first line returns "memo", "memo(1)", "memo(2)", ....
+            FILENAME_FIRSTLINE_CLEAN,
+            FILENAME_FIRSTLINE_SNAKE_CASE,
+            FILENAME_FIRSTLINE_KEBAB_CASE,
+            FILENAME_UUID4,  # TODO
+        )
     ):
         raise NotImplementedError('filename generator %r' % filename_generator)
 
+
 def filename_generator_timestamp(note_text):
-    """FILENAME_TIMESTAMP
-    """
-    filename_without_path_and_extension = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')  # FILENAME_TIMESTAMP
+    """FILENAME_TIMESTAMP"""
+    filename_without_path_and_extension = datetime.datetime.now().strftime(
+        '%Y-%m-%d_%H%M%S'
+    )  # FILENAME_TIMESTAMP
     return filename_without_path_and_extension
 
 
@@ -1958,7 +2218,7 @@ def safe_filename(filename, replacement_char='_', allow_space=False, max_filenam
     result = []
     last_char = ''
     for x in filename:
-        if not(x.isalnum() or x in additional_allowed_characters):
+        if not (x.isalnum() or x in additional_allowed_characters):
             x = replacement_char
         if x not in ['-', replacement_char] or last_char not in ['-', replacement_char]:
             # avoid duplicate '_'
@@ -2013,8 +2273,8 @@ def safe_filename(filename, replacement_char='_', allow_space=False, max_filenam
         'LPT6',
         'LPT7',
         'LPT8',
-        'LPT9'
-        ]
+        'LPT9',
+    ]
     new_filename_upper = new_filename.upper()
     for device_name in blocked_filenames:
         """
@@ -2022,47 +2282,49 @@ def safe_filename(filename, replacement_char='_', allow_space=False, max_filenam
             new_filename = '_' + new_filename
             break
         """
-        #if new_filename_upper == device_name or new_filename_upper.startswith(device_name + '.'):
+        # if new_filename_upper == device_name or new_filename_upper.startswith(device_name + '.'):
         # postfix an underscore/bar '_'  # TODO use double do help id possible problem filenames?
         if new_filename_upper == device_name:
             new_filename = new_filename + '_'
             break
         elif new_filename_upper.startswith(device_name + '.'):
-            new_filename = new_filename[:len(device_name)] + '_' +new_filename[len(device_name):]
+            new_filename = new_filename[: len(device_name)] + '_' + new_filename[len(device_name) :]
             break
-
 
     if new_filename == '':
         new_filename = 'memo'
 
     if max_filename_length:
         if len(new_filename) > max_filename_length:
-            new_filename = new_filename[:max_filename_length-2] + '__'  # append multiple '__' to indicate may want review
+            new_filename = (
+                new_filename[: max_filename_length - 2] + '__'
+            )  # append multiple '__' to indicate may want review
 
     return new_filename
 
+
 def filename_generator_firstline(note_text):
-    """FILENAME_FIRSTLINE
-    """
-    generated_name = note_text[:note_text.find('\n')].strip()
+    """FILENAME_FIRSTLINE"""
+    generated_name = note_text[: note_text.find('\n')].strip()
     return safe_filename(generated_name, allow_space=True)
 
+
 def filename_generator_firstline_clean_kebab_case(note_text):
-    """FILENAME_FIRSTLINE_KEBAB_CASE
-    """
-    generated_name = note_text[:note_text.find('\n')].strip()
+    """FILENAME_FIRSTLINE_KEBAB_CASE"""
+    generated_name = note_text[: note_text.find('\n')].strip()
     return safe_filename(generated_name, replacement_char='-')
 
+
 def filename_generator_firstline_clean(note_text):
-    """snake_case, example: FILENAME_FIRSTLINE_CLEAN
-    """
-    generated_name = note_text[:note_text.find('\n')].strip()
+    """snake_case, example: FILENAME_FIRSTLINE_CLEAN"""
+    generated_name = note_text[: note_text.find('\n')].strip()
     return safe_filename(generated_name)
 
+
 def filename_generator_uuid4(note_text):
-    """FILENAME_FIRSTLINE_UUID4
-    """
+    """FILENAME_FIRSTLINE_UUID4"""
     return str(uuid.uuid4())
+
 
 filename_generators = {
     FILENAME_FIRSTLINE: filename_generator_firstline,
@@ -2073,8 +2335,20 @@ filename_generators = {
     FILENAME_UUID4: filename_generator_uuid4,
 }
 
+
 #      note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
-def note_contents_save_filename(note_text, filename=None, original_filename=None, folder=None, handler=None, dos_newlines=True, backup=True, use_tempfile=True, note_encoding='utf-8', filename_generator=FILENAME_FIRSTLINE):
+def note_contents_save_filename(
+    note_text,
+    filename=None,
+    original_filename=None,
+    folder=None,
+    handler=None,
+    dos_newlines=True,
+    backup=True,
+    use_tempfile=True,
+    note_encoding='utf-8',
+    filename_generator=FILENAME_FIRSTLINE,
+):
     """Save/write/encrypt the notes contents, also see note_contents()
 
     @note_text string contents to Save/write/encrypt, using self.to_string() to encode to disk (if bytes use as-is)
@@ -2090,11 +2364,24 @@ def note_contents_save_filename(note_text, filename=None, original_filename=None
     """
     validate_filename_generator(filename_generator)
 
-    return note_contents_save_native_filename(note_text, filename=filename, original_filename=original_filename, folder=folder, handler=handler, dos_newlines=dos_newlines, backup=backup, use_tempfile=use_tempfile, note_encoding=note_encoding, filename_generator=filename_generator)
+    return note_contents_save_native_filename(
+        note_text,
+        filename=filename,
+        original_filename=original_filename,
+        folder=folder,
+        handler=handler,
+        dos_newlines=dos_newlines,
+        backup=backup,
+        use_tempfile=use_tempfile,
+        note_encoding=note_encoding,
+        filename_generator=filename_generator,
+    )
 
 
 # Local file system navigation functions
-def walker(directory_name, process_file_function=None, process_dir_function=None, extra_params_dict=None):
+def walker(
+    directory_name, process_file_function=None, process_dir_function=None, extra_params_dict=None
+):
     """extra_params_dict optional dict to be passed into process_file_function() and process_dir_function()
 
     def process_file_function(full_path, extra_params_dict=None)
@@ -2113,17 +2400,18 @@ def walker(directory_name, process_file_function=None, process_dir_function=None
             except ValueError:
                 pass
         # TODO even more hacky, exclude list/set parameter:
-        #dirs[:] = [d for d in dirs if d not in exclude]
+        # dirs[:] = [d for d in dirs if d not in exclude]
         # for d in exclude: subdirs.remove(d)
 
         if process_file_function:
             for filepath in files:
-                full_path = os.path.join(root,filepath)
+                full_path = os.path.join(root, filepath)
                 process_file_function(full_path, extra_params_dict=extra_params_dict)
         if process_dir_function:
             for sub in subdirs:
                 full_path = os.path.join(root, sub)
                 process_dir_function(full_path, extra_params_dict=extra_params_dict)
+
 
 def recent_files_filter(full_path, extra_params_dict=None):
     max_recent_files = extra_params_dict['max_recent_files']
@@ -2143,8 +2431,11 @@ def recent_files_filter(full_path, extra_params_dict=None):
         if len(recent_files) > max_recent_files:
             del recent_files[0]
 
+
 ORDER_ASCENDING = 'ascending'
 ORDER_DESCENDING = 'descending'
+
+
 def find_recent_files(test_path, number_of_files=20, order=ORDER_ASCENDING, ignore_folders=None):
     extra_params_dict = {
         #'directory_path': directory_path,  # not used
@@ -2156,12 +2447,15 @@ def find_recent_files(test_path, number_of_files=20, order=ORDER_ASCENDING, igno
     if ignore_folders:
         extra_params_dict['ignore_folders'] += ignore_folders
 
-    walker(test_path, process_file_function=recent_files_filter, extra_params_dict=extra_params_dict)
+    walker(
+        test_path, process_file_function=recent_files_filter, extra_params_dict=extra_params_dict
+    )
     recent_files = extra_params_dict['recent_files']
     if ORDER_DESCENDING == order:
         recent_files.reverse()
     for mtime, filename in recent_files:
         yield filename
+
 
 def unsupported_files_filter(full_path, extra_params_dict=None):
     # TODO lower filename
@@ -2170,7 +2464,10 @@ def unsupported_files_filter(full_path, extra_params_dict=None):
             return
     extra_params_dict['unsupported_files'].append(full_path)
 
-def find_unsupported_files(test_path, order=ORDER_ASCENDING, ignore_files=None, ignore_folders=None):
+
+def find_unsupported_files(
+    test_path, order=ORDER_ASCENDING, ignore_files=None, ignore_folders=None
+):
     extra_params_dict = {
         #'directory_path': directory_path,  # not used
         #'directory_path_len': directory_path_len,
@@ -2187,11 +2484,16 @@ def find_unsupported_files(test_path, order=ORDER_ASCENDING, ignore_files=None, 
 
     for handler in supported_handlers:
         extra_params_dict['supported_extensions'] += handler.extensions
-    walker(test_path, process_file_function=unsupported_files_filter, extra_params_dict=extra_params_dict)
+    walker(
+        test_path,
+        process_file_function=unsupported_files_filter,
+        extra_params_dict=extra_params_dict,
+    )
     if ORDER_DESCENDING == order:
         extra_params_dict['unsupported_files'].reverse()
     for filename in extra_params_dict['unsupported_files']:
         yield filename
+
 
 def recurse_notes(path_to_search, filename_filter, ignore_folders=None):
     """Walk (local file system) directory of notes, directory depth first (just like Tombo find does), returns generator
@@ -2205,11 +2507,11 @@ def recurse_notes(path_to_search, filename_filter, ignore_folders=None):
     ##  http://osdir.com/ml/lang.jython.user/2006-04/msg00032.html
     ## but lacks "topdown" support, walk class later
     ignore_folders = ignore_folders or ['.git']
-    #import pdb ; pdb.set_trace()
-    #topdown = False
+    # import pdb ; pdb.set_trace()
+    # topdown = False
     topdown = True
     for dirpath, dirnames, filenames in os.walk(path_to_search, topdown=topdown):
-        #print('walker', repr((dirnames, filenames)))
+        # print('walker', repr((dirnames, filenames)))
 
         # skip .git directories hack/side effect - also see recurse_notes()
         # hacking directory requires topdown=True... else need to filter files to ignore directory
@@ -2220,22 +2522,22 @@ def recurse_notes(path_to_search, filename_filter, ignore_folders=None):
                 pass
 
         # TODO even more hacky, exclude list/set parameter:
-        #dirs[:] = [d for d in dirnames if d not in exclude]
+        # dirs[:] = [d for d in dirnames if d not in exclude]
         # for d in exclude: dirnames.remove(d)
 
         filenames.sort()
-        #print('walker', repr((dirnames, filenames)))
+        # print('walker', repr((dirnames, filenames)))
         for temp_filename in filenames:
             if filename_filter(temp_filename):
-                #print('filename filter true ', repr((temp_filename,)))
+                # print('filename filter true ', repr((temp_filename,)))
                 temp_filename = os.path.join(dirpath, temp_filename)
-                #print 'yield ', temp_filename
+                # print 'yield ', temp_filename
                 yield temp_filename
 
 
 def fake_recurse_notes(path_to_search, filename_filter):
     """Same API as recurse_notes(), returns generator
-        BUT used on a single file (and ignores filename_filter)
+    BUT used on a single file (and ignores filename_filter)
     """
     yield path_to_search
 
@@ -2266,22 +2568,23 @@ def directory_contents(dirname, filename_filter=None):
     file_list.sort()
     return dir_list, file_list
 
+
 ##############################
 
 # NIH FTS Abstraction.. focused on plain text notes
 
+
 class FullTextSearch:
     """Full Text Search FTS Abstraction. Model for search is:
-        * filename
-        * contents - Unicode string
-        * contents_size character count (fallback, byte count)
-        * mtime - optional file integer modificaton time os.path.getmtime()
-        * line_number - optional, if used contents is a single line. Conditional on self.index_lines
+    * filename
+    * contents - Unicode string
+    * contents_size character count (fallback, byte count)
+    * mtime - optional file integer modificaton time os.path.getmtime()
+    * line_number - optional, if used contents is a single line. Conditional on self.index_lines
     """
 
     def __init__(self, index_location, index_lines=False):
-        """Potentially opens index
-        """
+        """Potentially opens index"""
         self.index_location = index_location  # unspecified type, could be; URL (auth handled by implementation), file, directory, ....
         self.index_lines = index_lines  # if true, index lines in each file seperately
         raise NotImplementedError()
@@ -2298,16 +2601,24 @@ class FullTextSearch:
     def create_index_end(self):
         raise NotImplementedError()
 
-    def add_to_index(self, filename, contents=None, contents_size=None, mtime=None, line_number=None):
-        """Add to index self.index_location (from scratch, no update support API.... yet.)
-        """
+    def add_to_index(
+        self, filename, contents=None, contents_size=None, mtime=None, line_number=None
+    ):
+        """Add to index self.index_location (from scratch, no update support API.... yet.)"""
         if contents and not contents_size:
             contents_size = len(contents)
         raise NotImplementedError()
 
     # TODO date (size) query parameter restrictions (with ranges)
     # FIXME context_distance / snippet length parameter support needed - ideas; here as parameter, init parameter, attribute that can be changed at runtime - leaning towards the later
-    def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
+    def search(
+        self,
+        search_term,
+        find_only_filename=False,
+        files_with_matches=False,
+        highlight_text_start=None,
+        highlight_text_stop=None,
+    ):
         """Search self.index_location for `search_term`
         Returns/yields; [(filename, title, body, size), ...]  # TODO line_number
 
@@ -2332,6 +2643,7 @@ def safe_mkdir(newdir):  # FIXME code duplication
         else:
             raise
 
+
 class FullTextSearchWhoosh:
     """Full Text Search using Whoosh (or deriviatives)
     Model for search is:
@@ -2343,13 +2655,17 @@ class FullTextSearchWhoosh:
     """
 
     def __init__(self, index_location, index_lines=False):
-        """Potentially opens index
-        """
+        """Potentially opens index"""
         self.index_location = index_location  # unspecified type, could be; URL (auth handled by implementation), file, directory, ....
         self.index_lines = index_lines  # if true, index lines in each file seperately
 
         # TODO line_number
-        self.schema = whoosh.fields.Schema(filename=whoosh.fields.TEXT(stored=True), contents=whoosh.fields.TEXT(stored=True), contents_size=whoosh.fields.NUMERIC(stored=True), mtime=whoosh.fields.NUMERIC(stored=True))
+        self.schema = whoosh.fields.Schema(
+            filename=whoosh.fields.TEXT(stored=True),
+            contents=whoosh.fields.TEXT(stored=True),
+            contents_size=whoosh.fields.NUMERIC(stored=True),
+            mtime=whoosh.fields.NUMERIC(stored=True),
+        )
         ## FIXME
         ## FIXME
         # FIXME close index
@@ -2358,8 +2674,8 @@ class FullTextSearchWhoosh:
         raise NotImplementedError()
 
     def index_delete(self):
-        pass ## FIXME
-        #raise NotImplementedError()
+        pass  ## FIXME
+        # raise NotImplementedError()
 
     def create_index_start(self):
         index_location = self.index_location
@@ -2367,36 +2683,52 @@ class FullTextSearchWhoosh:
             self.ix = whoosh.filedb.filestore.RamStorage().create_index(self.schema)
         else:
             safe_mkdir(index_location)  # TODO don't always create dir?
-            self.ix = whoosh.index.create_in(index_location, self.schema)  # FIXME don't recreate each time
+            self.ix = whoosh.index.create_in(
+                index_location, self.schema
+            )  # FIXME don't recreate each time
         self.writer = self.ix.writer()
 
     def create_index_end(self):
         self.writer.commit()
         self.writer = None  # overkill?
 
-    def add_to_index(self, filename, contents=None, contents_size=None, mtime=None, line_number=None):
-        """Add to index self.index_location (from scratch, no update support API.... yet.)
-        """
+    def add_to_index(
+        self, filename, contents=None, contents_size=None, mtime=None, line_number=None
+    ):
+        """Add to index self.index_location (from scratch, no update support API.... yet.)"""
         if contents and not contents_size:
             contents_size = len(contents)
         # TODO line_number
-        self.writer.add_document(filename=filename, contents=contents, contents_size=contents_size, mtime=mtime)  # TODO line_number
+        self.writer.add_document(
+            filename=filename, contents=contents, contents_size=contents_size, mtime=mtime
+        )  # TODO line_number
 
     # TODO date (size) query parameter restrictions (with ranges)
     # FIXME context_distance / snippet length parameter support needed - ideas; here as parameter, init parameter, attribute that can be changed at runtime - leaning towards the later
-    def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
-        """Search self.index_location for `search_term`
-        """
+    def search(
+        self,
+        search_term,
+        find_only_filename=False,
+        files_with_matches=False,
+        highlight_text_start=None,
+        highlight_text_stop=None,
+    ):
+        """Search self.index_location for `search_term`"""
+
         class TempWhooshFormatter(whoosh.highlight.Formatter):
-            """Puts highlight_text_start/highlight_text_stop around the matched terms.
-            """
+            """Puts highlight_text_start/highlight_text_stop around the matched terms."""
+
             def format_token(self, text, token, replace=False):
                 tokentext = whoosh.highlight.get_text(text, token, replace)
-                return "%s%s%s" % (highlight_text_start, tokentext, highlight_text_stop)
+                return '%s%s%s' % (highlight_text_start, tokentext, highlight_text_stop)
 
         ix = self.ix
         with ix.searcher() as searcher:
-            query = whoosh.qparser.QueryParser("contents", ix.schema, termclass=whoosh.qparser.query.Variations).parse(search_term)  # by default use contents field for search words without a field specifier
+            query = whoosh.qparser.QueryParser(
+                'contents', ix.schema, termclass=whoosh.qparser.query.Variations
+            ).parse(
+                search_term
+            )  # by default use contents field for search words without a field specifier
             # Variations means search for "appliance" will match "appliance" and "appliances" (and vice-versa)
             results = searcher.search(query)
             if highlight_text_start:
@@ -2412,10 +2744,12 @@ class FullTextSearchWhoosh:
                 """
                 contents_fragment = result.highlights('contents', text=result['contents'])
 
-                yield (result['filename'],
+                yield (
+                    result['filename'],
                     'FIXME missing title',  # TODO research, looks like this is ignored (by ptig)?
                     contents_fragment,
-                    result['contents_size'])
+                    result['contents_size'],
+                )
 
 
 class FullTextSearchSqlite:  # TODO either inherit from or document why not inherited from FullTextSearch - possibly mtime param difference?
@@ -2429,13 +2763,17 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
         self.index_lines = index_lines  # if true, index lines in each file seperately
         if passphrase:
             con = sqlcipher.connect(index_location)
-            #print('pragma kdf_iter=%d' % (kdr_iter,))
-            #con.execute('pragma kdf_iter=?', (kdr_iter,))  # this does not work, I do NOT think bind parameters are supported for pragmas
-            con.execute('pragma kdf_iter=%d' % (kdr_iter,))  # explictly set KDF interation count. Default likely 64000 (TODO review this)
-            con.execute('pragma key="%s"' % (passphrase,))  # database decrypt passphrase, lets hope nothing bad happens here with escaping...
+            # print('pragma kdf_iter=%d' % (kdr_iter,))
+            # con.execute('pragma kdf_iter=?', (kdr_iter,))  # this does not work, I do NOT think bind parameters are supported for pragmas
+            con.execute(
+                'pragma kdf_iter=%d' % (kdr_iter,)
+            )  # explictly set KDF interation count. Default likely 64000 (TODO review this)
+            con.execute(
+                'pragma key="%s"' % (passphrase,)
+            )  # database decrypt passphrase, lets hope nothing bad happens here with escaping...
         else:
             con = sqlite3.connect(index_location)
-        #if index_location == ':memory:':
+        # if index_location == ':memory:':
         self.db = con
         cur = con.cursor()
         self.cursor = cur
@@ -2444,7 +2782,7 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
         available_pragmas = cur.fetchall()
 
         if ('ENABLE_FTS5',) not in available_pragmas:
-            raise NotImplementedError('FTS5 missing %r' % (available_pragmas, ) )
+            raise NotImplementedError('FTS5 missing %r' % (available_pragmas,))
 
     def index_close(self):
         self.db.close()
@@ -2471,19 +2809,33 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
     def create_index_end(self):
         self.db.commit()
 
-    def add_to_index(self, filename, contents=None, contents_size=None, line_number=None):  #, TODO mtime=None):
-        """Add to index self.index_location (from scratch, no update support API.... yet.)
-        """
+    def add_to_index(
+        self, filename, contents=None, contents_size=None, line_number=None
+    ):  # , TODO mtime=None):
+        """Add to index self.index_location (from scratch, no update support API.... yet.)"""
         index_lines = self.index_lines
         if contents and not contents_size:
             contents_size = len(contents)
         cur = self.cursor
         if index_lines:
-            cur.execute("""INSERT INTO note (filename, contents, size, line_number) VALUES (?, ?, ?, ?)""", (filename, contents, contents_size, line_number) )
+            cur.execute(
+                """INSERT INTO note (filename, contents, size, line_number) VALUES (?, ?, ?, ?)""",
+                (filename, contents, contents_size, line_number),
+            )
         else:
-            cur.execute("""INSERT INTO note (filename, contents, size) VALUES (?, ?, ?)""", (filename, contents, contents_size) )
+            cur.execute(
+                """INSERT INTO note (filename, contents, size) VALUES (?, ?, ?)""",
+                (filename, contents, contents_size),
+            )
 
-    def search(self, search_term, find_only_filename=False, files_with_matches=False, highlight_text_start=None, highlight_text_stop=None):
+    def search(
+        self,
+        search_term,
+        find_only_filename=False,
+        files_with_matches=False,
+        highlight_text_start=None,
+        highlight_text_stop=None,
+    ):
         """Search self.index_location for `search_term`\
         where search_term follows https://sqlite.org/fts5.html#full_text_query_syntax
         TODO control over context_distance
@@ -2548,26 +2900,46 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
 
         try:
             # TODO logging debug
-            #print("search %r" % ((highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term),))
-            #print("search term %r" % (search_term,))
+            # print("search %r" % ((highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term),))
+            # print("search term %r" % (search_term,))
             if index_lines:
-                cur.execute("""SELECT
+                cur.execute(
+                    """SELECT
                                 filename,
                                 snippet(note, 0, ?, ?, '...', ?) as title,
                                 CAST(line_number as TEXT) || ':' || snippet(note, 1, ?, ?, '...', ?) as body,
                                 size
                             FROM note(?)
                             ORDER  BY rank""",
-                            (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
+                    (
+                        highlight_text_start,
+                        highlight_text_stop,
+                        context_distance,
+                        highlight_text_start,
+                        highlight_text_stop,
+                        context_distance,
+                        search_term,
+                    ),
+                )
             else:
-                cur.execute("""SELECT
+                cur.execute(
+                    """SELECT
                                 filename,
                                 snippet(note, 0, ?, ?, '...', ?) as title,
                                 snippet(note, 1, ?, ?, '...', ?) as body,
                                 size
                             FROM note(?)
                             ORDER  BY rank""",
-                            (highlight_text_start, highlight_text_stop, context_distance, highlight_text_start, highlight_text_stop, context_distance, search_term, ) )
+                    (
+                        highlight_text_start,
+                        highlight_text_stop,
+                        context_distance,
+                        highlight_text_start,
+                        highlight_text_stop,
+                        context_distance,
+                        search_term,
+                    ),
+                )
 
             return cur.fetchall()  # [(filename, title, body, size), ...]
         except sqlite3.OperationalError as info:
@@ -2575,23 +2947,25 @@ class FullTextSearchSqlite:  # TODO either inherit from or document why not inhe
             # where COLUMN_NAME was picked up from search team; something-COLUMN_NAME
             raise SearchException(str(info))
 
+
 ##############################
 
 
 class FileSystemNotes(BaseNotes):
-    """PyTombo notes on local file system, just like original Windows Tombo
-    """
+    """PyTombo notes on local file system, just like original Windows Tombo"""
 
     def __init__(self, note_root, note_encoding=None, fts_options=None):
         note_root = self.unicode_path(note_root)  # either a file or a directory of files
         self.note_root = os.path.abspath(note_root)
-        self.abs_ignore_path = os.path.join(self.note_root, '') ## add trailing slash.. unless this is a file
-        #self.note_encoding = note_encoding or 'utf8'
+        self.abs_ignore_path = os.path.join(
+            self.note_root, ''
+        )  ## add trailing slash.. unless this is a file
+        # self.note_encoding = note_encoding or 'utf8'
         self.note_encoding = note_encoding or ('utf8', 'cp1252')
         fts_options = fts_options or {}
         self.fts_options = fts_options or {}
         if fts_options.get('engine'):
-            if fts_options.get('engine') in ('sqlite3', 'sqlcipher3') :
+            if fts_options.get('engine') in ('sqlite3', 'sqlcipher3'):
                 fts_class = FullTextSearchSqlite
             elif fts_options.get('engine') == 'whoosh':
                 fts_class = FullTextSearchWhoosh
@@ -2609,19 +2983,22 @@ class FileSystemNotes(BaseNotes):
         abs_ignore_path = self.abs_ignore_path
         abs_input_path = os.path.abspath(input_path)  # normalize the path - normpath()
         if abs_input_path.startswith(abs_ignore_path):
-            return abs_input_path[len(abs_ignore_path):]
+            return abs_input_path[len(abs_ignore_path) :]
         elif abs_input_path + '/' == abs_ignore_path:
             return ''
-        raise PurenTonboException('path not in note tree')  # TODO compare with native_full_path() exception
+        raise PurenTonboException(
+            'path not in note tree'
+        )  # TODO compare with native_full_path() exception
 
     def native_full_path(self, filename):
-        """validate and convert relative path to absolute native path
-        """
+        """validate and convert relative path to absolute native path"""
         filename = self.unicode_path(filename)
         fullpath_filename = os.path.join(self.note_root, filename)
         fullpath_filename = os.path.abspath(fullpath_filename)
         if not fullpath_filename.startswith(self.note_root):
-            raise PurenTonboIO('outside of note tree root')  # TODO compare with native_full_path() abspath2relative
+            raise PurenTonboIO(
+                'outside of note tree root'
+            )  # TODO compare with native_full_path() abspath2relative
         return fullpath_filename
 
     def to_bytes(self, data_in_string):
@@ -2633,13 +3010,22 @@ class FileSystemNotes(BaseNotes):
     def unicode_path(self, filename):
         if isinstance(filename, bytes):
             # want unicode string so that all file interaction is unicode based
-            filename = filename.decode('utf8')  # FIXME hard coded, pick up from config or locale/system encoding
+            filename = filename.decode(
+                'utf8'
+            )  # FIXME hard coded, pick up from config or locale/system encoding
         return filename
 
-    def recent_notes(self, sub_dir=None, number_of_files=20, order=ORDER_ASCENDING, ignore_folders=None):
+    def recent_notes(
+        self, sub_dir=None, number_of_files=20, order=ORDER_ASCENDING, ignore_folders=None
+    ):
         """Recursive Tombo note lister for recently updated/modified files.
         Iterator of files in @sub_dir"""
-        return find_recent_files(self.note_root, number_of_files=number_of_files, order=order, ignore_folders=ignore_folders)
+        return find_recent_files(
+            self.note_root,
+            number_of_files=number_of_files,
+            order=order,
+            ignore_folders=ignore_folders,
+        )
 
     def recurse_notes(self, sub_dir=None, filename_filter=any_filename_filter):
         """Recursive Tombo note lister.
@@ -2655,20 +3041,25 @@ class FileSystemNotes(BaseNotes):
             sub_dir = self.note_root
         return directory_contents(dirname=sub_dir)
 
-
     def fts_search(self, s, highlight_text_start=None, highlight_text_stop=None):  # FIXME API
         if self.fts_instance:
             fts_instance = self.fts_instance
         else:
             engine = self.fts_options['engine']
-            if engine == "sqlcipher3" and self.fts_options.get(engine) is None:
-                engine = "sqlite3"
+            if engine == 'sqlcipher3' and self.fts_options.get(engine) is None:
+                engine = 'sqlite3'
             fts_engine_options = self.fts_options[engine]
             args = fts_engine_options.get('args', [])
             kwargs = fts_engine_options.get('kwargs', {})
-            fts_instance = self.fts_class(*args, **kwargs)  # note if missing args entries in fts config will see errors like; TypeError: FullTextSearchWhoosh.__init__() missing 1 required positional argument: 'index_location'
+            fts_instance = self.fts_class(
+                *args, **kwargs
+            )  # note if missing args entries in fts config will see errors like; TypeError: FullTextSearchWhoosh.__init__() missing 1 required positional argument: 'index_location'
         # TODO when / how should self.fts_instance be updated?
-        return fts_instance.search(search_term=s, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop)  # or yield...
+        return fts_instance.search(
+            search_term=s,
+            highlight_text_start=highlight_text_start,
+            highlight_text_stop=highlight_text_stop,
+        )  # or yield...
 
     def fts_index(self, sub_dir=None, get_password_callback=None, verbose=False):
         """only files that do not need passwords are indexed
@@ -2693,59 +3084,75 @@ class FileSystemNotes(BaseNotes):
         else:
             is_note_filename_filter = plaintext_filename_filter
 
-
         # FIXME store constructed
         if self.fts_instance:
             fts_instance = self.fts_instance
         else:
             engine = self.fts_options['engine']
-            if engine == "sqlcipher3" and self.fts_options.get(engine) is None:
-                engine = "sqlite3"
+            if engine == 'sqlcipher3' and self.fts_options.get(engine) is None:
+                engine = 'sqlite3'
             fts_engine_options = self.fts_options[engine]
             args = fts_engine_options.get('args', [])
             kwargs = fts_engine_options.get('kwargs', {})
-            fts_instance = self.fts_class(*args, **kwargs)  # note if missing args entries in fts config will see errors like; TypeError: FullTextSearchWhoosh.__init__() missing 1 required positional argument: 'index_location'
+            fts_instance = self.fts_class(
+                *args, **kwargs
+            )  # note if missing args entries in fts config will see errors like; TypeError: FullTextSearchWhoosh.__init__() missing 1 required positional argument: 'index_location'
         self.fts_instance = fts_instance
         fts_instance.index_delete()
         fts_instance.create_index_start()
         index_lines = fts_instance.index_lines
         ignore_unsupported_filetypes = True
         for tmp_filename in recurse_notes_func(search_path, is_note_filename_filter):
-                filename = self.abspath2relative(tmp_filename)
-                log.debug('index %r', filename)
-                log.info('index %s', filename)
-                if verbose:
-                    # TODO use logger instead of print? re-use above?
-                    print('FTS index: %s' % (filename,))
-                try:
-                    contents = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)
-                    # TODO contents_size, mtime
-                    #stored_filename = filename  # relative
-                    stored_filename = tmp_filename  # absolute
-                    if not index_lines:
-                        fts_instance.add_to_index(stored_filename, contents=contents)
-                    else:
-                        for line_number, line in enumerate(contents.split('\n')):
-                            line = line.strip()
-                            if line:
-                                fts_instance.add_to_index(stored_filename, contents=line, line_number=line_number)
-                except UnsupportedFile as error_info:
-                    # TODO - what!? options; ignore, raise, treat as RawFile type
-                    log.warning('UnsupportedFile Ignored %r - reason %r', filename, error_info)
-                    if ignore_unsupported_filetypes:
-                        continue
-                    else:
-                        log.error('UnsupportedFile %r', filename)  # todo exception trace?
-                        raise
+            filename = self.abspath2relative(tmp_filename)
+            log.debug('index %r', filename)
+            log.info('index %s', filename)
+            if verbose:
+                # TODO use logger instead of print? re-use above?
+                print('FTS index: %s' % (filename,))
+            try:
+                contents = self.note_contents(
+                    filename, get_pass=get_password_callback, dos_newlines=True
+                )
+                # TODO contents_size, mtime
+                # stored_filename = filename  # relative
+                stored_filename = tmp_filename  # absolute
+                if not index_lines:
+                    fts_instance.add_to_index(stored_filename, contents=contents)
+                else:
+                    for line_number, line in enumerate(contents.split('\n')):
+                        line = line.strip()
+                        if line:
+                            fts_instance.add_to_index(
+                                stored_filename, contents=line, line_number=line_number
+                            )
+            except UnsupportedFile as error_info:
+                # TODO - what!? options; ignore, raise, treat as RawFile type
+                log.warning('UnsupportedFile Ignored %r - reason %r', filename, error_info)
+                if ignore_unsupported_filetypes:
+                    continue
+                else:
+                    log.error('UnsupportedFile %r', filename)  # todo exception trace?
+                    raise
 
         fts_instance.create_index_end()
-
 
     # TODO remove (or depreicate) search_term_is_a_regex and replace with search_type=(plain, regex, fts)
     # FIXME Consider adding dictionary parameter for search options rather than new keywords each time?
     #         (self, search_term, search_term_is_a_regex=True,  ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, find_only_filename=None, index_name=None, note_encoding=None):
     #               (search_term, search_term_is_a_regex=True , ignore_case=True,  search_encrypted=False, get_password_callback=None, progess_callback=None, find_only_filename=None, index_name=None, note_encoding=None):
-    def search(self, search_term, search_term_is_a_regex=False, ignore_case=False, search_encrypted=False, find_only_filename=False, files_with_matches=False, get_password_callback=None, progess_callback=None, highlight_text_start=None, highlight_text_stop=None):
+    def search(
+        self,
+        search_term,
+        search_term_is_a_regex=False,
+        ignore_case=False,
+        search_encrypted=False,
+        find_only_filename=False,
+        files_with_matches=False,
+        get_password_callback=None,
+        progess_callback=None,
+        highlight_text_start=None,
+        highlight_text_stop=None,
+    ):
         """search note directory, grep/regex like actualy an iterator
 
         search_encrypted - special value "only" means will only search encrypted files (based on filename) either truthy check performed
@@ -2763,7 +3170,7 @@ class FileSystemNotes(BaseNotes):
           * highlight_text_stop=None  # (ANSI escape) characters to prefix search end/stop
 
         """
-        #print('get_password_callback %r' % get_password_callback)
+        # print('get_password_callback %r' % get_password_callback)
 
         search_path = self.note_root
         """
@@ -2779,7 +3186,7 @@ class FileSystemNotes(BaseNotes):
         filename_filter_str = None
         if find_only_filename:
             filename_filter_str = regex_object
-        #is_note_filename_filter = pytombo.search.note_filename_filter_gen(allow_encrypted=search_encrypted, filename_filter_str=filename_filter_str)  # FIXME implement
+        # is_note_filename_filter = pytombo.search.note_filename_filter_gen(allow_encrypted=search_encrypted, filename_filter_str=filename_filter_str)  # FIXME implement
         if search_encrypted:
             if search_encrypted == 'only':
                 is_note_filename_filter = encrypted_filename_filter
@@ -2793,7 +3200,7 @@ class FileSystemNotes(BaseNotes):
         else:
             recurse_notes_func = self.recurse_notes
         ignore_unsupported_filetypes = True
-        #ignore_unsupported_filetypes = False  # original behavior
+        # ignore_unsupported_filetypes = False  # original behavior
         for tmp_filename in recurse_notes_func(search_path, is_note_filename_filter):
             if recurse_notes_func == fake_recurse_notes:
                 filename = tmp_filename  # already absolute?  TODO check abspath2relative() - could sanity check already absoloute?
@@ -2808,9 +3215,11 @@ class FileSystemNotes(BaseNotes):
             include_contents = False
             ## TODO decide what to do with include_contents - default or make a parameter
             if not filename_filter_str or include_contents:
-                #import pdb ; pdb.set_trace()
+                # import pdb ; pdb.set_trace()
                 try:
-                    note_text = self.note_contents(filename, get_pass=get_password_callback, dos_newlines=True)  # FIXME determine what to do about dos_newlines (rename?)
+                    note_text = self.note_contents(
+                        filename, get_pass=get_password_callback, dos_newlines=True
+                    )  # FIXME determine what to do about dos_newlines (rename?)
                 except UnsupportedFile as error_info:
                     # TODO - what!? options; ignore, raise, treat as RawFile type
                     log.warning('UnsupportedFile Ignored %r - reason %r', filename, error_info)
@@ -2824,16 +3233,25 @@ class FileSystemNotes(BaseNotes):
                 except:
                     # we have no idea what happened :-(
                     if is_py3:
-                        log.error('UnsupportedFile %r', filename, exc_info=1, stack_info=1)  # include traceback, and and Python 3 only full stack/trace
+                        log.error(
+                            'UnsupportedFile %r', filename, exc_info=1, stack_info=1
+                        )  # include traceback, and and Python 3 only full stack/trace
                     else:
                         log.error('UnsupportedFile %r', filename, exc_info=1)  # include traceback
                     raise
-                search_res = grep_string(note_text, regex_object, highlight_text_start, highlight_text_stop, files_with_matches=files_with_matches)
+                search_res = grep_string(
+                    note_text,
+                    regex_object,
+                    highlight_text_start,
+                    highlight_text_stop,
+                    files_with_matches=files_with_matches,
+                )
                 if search_res:
                     yield (filename, search_res)
 
-
-    def note_contents(self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None):
+    def note_contents(
+        self, filename, get_pass=None, dos_newlines=True, return_bytes=False, handler_class=None
+    ):
         """load/read/decrypt notes file, also see note_contents_save()
         TODO take/merge doc comments from function note_contents_load_filename()
 
@@ -2848,13 +3266,31 @@ class FileSystemNotes(BaseNotes):
         """
         filename = self.unicode_path(filename)
         fullpath_filename = self.native_full_path(filename)
-        plain_str = note_contents_load_filename(fullpath_filename, get_pass=get_pass, dos_newlines=dos_newlines, return_bytes=True, handler_class=handler_class)
+        plain_str = note_contents_load_filename(
+            fullpath_filename,
+            get_pass=get_pass,
+            dos_newlines=dos_newlines,
+            return_bytes=True,
+            handler_class=handler_class,
+        )
         if return_bytes:
             return plain_str
         else:
             return self.to_string(plain_str)
 
-    def note_contents_save(self, note_text, filename=None, original_filename=None, folder=None, get_pass=None, dos_newlines=True, backup=True, use_tempfile=True, filename_generator=FILENAME_FIRSTLINE, handler_class=None):
+    def note_contents_save(
+        self,
+        note_text,
+        filename=None,
+        original_filename=None,
+        folder=None,
+        get_pass=None,
+        dos_newlines=True,
+        backup=True,
+        use_tempfile=True,
+        filename_generator=FILENAME_FIRSTLINE,
+        handler_class=None,
+    ):
         """Save/write/encrypt the notes contents, also see note_contents() for load/read/decrypt
         FIXME make calls to note_contents_save_filename() function instead
 
@@ -2873,15 +3309,22 @@ class FileSystemNotes(BaseNotes):
         """
         # sanity checks
         if filename is not None and folder is not None:
-            raise NotImplementedError('incompatible/inconsistent filename: %r folder: %r ' % (filename, folder))
+            raise NotImplementedError(
+                'incompatible/inconsistent filename: %r folder: %r ' % (filename, folder)
+            )
         if original_filename is not None and folder is not None:
-            raise NotImplementedError('incompatible/inconsistent original_filename: %r folder: %r ' % (original_filename, folder))
+            raise NotImplementedError(
+                'incompatible/inconsistent original_filename: %r folder: %r '
+                % (original_filename, folder)
+            )
         if filename is None and original_filename:
-            raise NotImplementedError('renaming files base on content - incompatible/inconsistent original_filename: %r filename: %r ' % (original_filename, filename))
+            raise NotImplementedError(
+                'renaming files base on content - incompatible/inconsistent original_filename: %r filename: %r '
+                % (original_filename, filename)
+            )
         if filename_generator:
             validate_filename_generator(filename_generator)
             filename_generator_func = filename_generators[filename_generator]
-
 
         if original_filename:
             # TODO just use the old name? or handle rename. rename depends on filename generator
@@ -2892,29 +3335,40 @@ class FileSystemNotes(BaseNotes):
         generated_filename = False
         if filename is None:
             if handler_class is None:
-                raise NotImplementedError('Missing handler_class for missing filename, could default to Raw - make decision')
-            file_extension = handler_class.extensions[0]  # pick the first one - TODO refactor into a function/method - call handler_class.default_extension() - Is this callable? Is there a test suite for this code path?
+                raise NotImplementedError(
+                    'Missing handler_class for missing filename, could default to Raw - make decision'
+                )
+            file_extension = handler_class.extensions[
+                0
+            ]  # pick the first one - TODO refactor into a function/method - call handler_class.default_extension() - Is this callable? Is there a test suite for this code path?
             if folder:
                 native_folder = self.native_full_path(folder)
             else:
                 native_folder = self.note_root
             filename_without_path_and_extension = filename_generator_func(note_text)
-            native_filename = os.path.join(native_folder, filename_without_path_and_extension + file_extension)
+            native_filename = os.path.join(
+                native_folder, filename_without_path_and_extension + file_extension
+            )
             # now check if generated filename already exists, if so need to make unique
             unique_counter = 1
             while os.path.exists(native_filename):
-                #log.warning('generated filename %r already exists', native_filename)
+                # log.warning('generated filename %r already exists', native_filename)
                 unique_part = '(%d)' % unique_counter  # match Tombo duplicate names avoidance
-                native_filename = os.path.join(native_folder, filename_without_path_and_extension + unique_part + file_extension)
+                native_filename = os.path.join(
+                    native_folder,
+                    filename_without_path_and_extension + unique_part + file_extension,
+                )
                 unique_counter += 1
             filename = self.abspath2relative(native_filename)
             generated_filename = True
 
-
         filename = self.unicode_path(filename)
         fullpath_native_filename = self.native_full_path(filename)
         if original_filename and filename != original_filename:
-            raise NotImplementedError('renaming files not yet supported; original_filename !=  filename  %r != %r ' % (original_filename, filename))
+            raise NotImplementedError(
+                'renaming files not yet supported; original_filename !=  filename  %r != %r '
+                % (original_filename, filename)
+            )
 
         handler_class = handler_class or filename2handler(filename)
         if get_pass:
@@ -2928,14 +3382,14 @@ class FileSystemNotes(BaseNotes):
         # TODO original filename and rename
         plain_str_bytes = self.to_bytes(note_text)
 
-        #use_tempfile = True  # do not offer external control over this?
+        # use_tempfile = True  # do not offer external control over this?
         if use_tempfile:
             timestamp_now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
             out_file = tempfile.NamedTemporaryFile(
                 mode='wb',
                 dir=os.path.dirname(fullpath_native_filename),
                 prefix=os.path.basename(fullpath_native_filename) + timestamp_now,
-                delete=False
+                delete=False,
             )
             tmp_out_filename = out_file.name
             log.debug('DEBUG tmp_out_filename %r', tmp_out_filename)
@@ -2947,7 +3401,9 @@ class FileSystemNotes(BaseNotes):
 
         if backup:
             if os.path.exists(fullpath_native_filename):
-                file_replace(fullpath_native_filename, fullpath_native_filename + '.bak')  # backup existing
+                file_replace(
+                    fullpath_native_filename, fullpath_native_filename + '.bak'
+                )  # backup existing
 
         if use_tempfile:
             file_replace(tmp_out_filename, fullpath_native_filename)
@@ -2959,6 +3415,7 @@ class FileSystemNotes(BaseNotes):
         return 9999999999  # more likely to be noticed as an anomaly
         return -1
 
+
 class FileLike:
     """Partial API (i.e. incomplete) file-like API that wraps a file like object
     using PurenTonbo BaseFile / EncryptedFile / RawFile encrypted files for reading and writing.
@@ -2966,9 +3423,9 @@ class FileLike:
     Partial seek() support for read operations ONLY.
     Works with byte and text mode, NOTE encoding is either encoding name OR list of encoding names.
     """
+
     def __init__(self, fileptr, pt_object, mode=None, encoding=None):
-        """Where pt_object is an initialized object of BaseFile (or subclass)
-        """
+        """Where pt_object is an initialized object of BaseFile (or subclass)"""
         self._fileptr = fileptr
         self._pt_object = pt_object
         self._bufferedfileptr = FakeFile()
@@ -2986,7 +3443,7 @@ class FileLike:
             self._binary = True
         else:
             self._binary = False
-        #encoding = encoding or ... TODO handle None case? Could expect caller to deal with this
+        # encoding = encoding or ... TODO handle None case? Could expect caller to deal with this
         self._encoding = encoding
         if self._mode in ('r', '+'):
             self._read_from_file()  # FIXME make this lazy, rather than at init time
@@ -2994,6 +3451,7 @@ class FileLike:
     # context manager protocol - "with" support
     def __enter__(self):
         return self
+
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
@@ -3031,9 +3489,7 @@ class FileLike:
     def seek(self, offset):  # TODO `whence` support?
         self._sanity_check()
         if self._mode != 'r':
-            raise IOError(
-                'seek issued for non-read operation'
-            )
+            raise IOError('seek issued for non-read operation')
         return self._bufferedfileptr.seek(offset)
 
     def write(self, str_or_bytes):
@@ -3062,6 +3518,7 @@ class FileLike:
         # self._fileptr.close()  # TODO close here or require caller? Probably makese sense here
         ## TODO disallow more read/writes/closes....
 
+
 def pt_open(file, mode='r', encoding=None):
     """Partially implemented API to clone builtin https://docs.python.org/3/library/functions.html#open
     If encoding is specified use that, else use (default) config encoding **list**
@@ -3083,11 +3540,14 @@ def pt_open(file, mode='r', encoding=None):
     if not encoding:
         config = get_config()
         encoding = config['codec']
-    password = os.environ.get('PT_PASSWORD') or keyring_get_password() or caching_console_password_prompt()
+    password = (
+        os.environ.get('PT_PASSWORD') or keyring_get_password() or caching_console_password_prompt()
+    )
     pt_object = handler_class(password=password)
     fileptr = open(filename, mode + 'b')
     filelike = FileLike(fileptr, pt_object, mode, encoding=encoding)
     return filelike
+
 
 #############
 
@@ -3097,7 +3557,9 @@ default_config_filename = 'pt.ini'  # if using https://github.com/DiffSK/configo
 # Consider YAML? toml - https://toml.io/ https://github.com/hukkin/tomli
 default_config_filename = 'pt.json'  # built in so easy choice for now
 # TODO Android home directory?
-default_config_dirname = os.environ.get('HOME', os.environ.get('USERPROFILE'))  # TODO consider os.path.expanduser("~") and for Windows My Documents
+default_config_dirname = os.environ.get(
+    'HOME', os.environ.get('USERPROFILE')
+)  # TODO consider os.path.expanduser("~") and for Windows My Documents
 
 
 def get_config_path(config_filename=None, dirs_to_search=None, dir_if_not_found=None):
@@ -3107,7 +3569,7 @@ def get_config_path(config_filename=None, dirs_to_search=None, dir_if_not_found=
         - @dirs_to_search list of directories to search, if not specified defaults
         - @dir_if_not_found is the directory to use if no config file is found
     """
-    config_filename  = config_filename or default_config_filename
+    config_filename = config_filename or default_config_filename
     dirs_to_search = dirs_to_search or ['.', default_config_dirname]
     dir_if_not_found = dir_if_not_found or default_config_dirname
 
@@ -3119,12 +3581,13 @@ def get_config_path(config_filename=None, dirs_to_search=None, dir_if_not_found=
             break
 
     if full_config_pathname is None:
-        #print('no config file found, defaulting')
+        # print('no config file found, defaulting')
         full_config_pathname = os.path.join(dir_if_not_found, config_filename)
 
-    #print('full_config_pathname = %r' % full_config_pathname)
+    # print('full_config_pathname = %r' % full_config_pathname)
     full_config_pathname = os.path.normpath(full_config_pathname)  # abspath?
     return full_config_pathname
+
 
 def get_config(config_filename=None):
     config_filename = config_filename or get_config_path()
@@ -3137,31 +3600,38 @@ def get_config(config_filename=None):
     defaults = {
         '_version_created_with': '%s' % __version__,
         'note_root': '.',  # root directory of notes, other idea; ['.']
-        'codec': ('utf8', 'cp1252'),  # note encoding(s) in order to try for reading, first is the encoding for writing
+        'codec': (
+            'utf8',
+            'cp1252',
+        ),  # note encoding(s) in order to try for reading, first is the encoding for writing
         'default_text_ext': 'txt',
         'default_encryption_ext': 'chi',
         #'default_encryption_ext': 'aes256.zip',
         #'new_lines': 'dos',
         #'new_lines': 'unix',
         #'': '',
-        'ignore_folders': ['.git'],  # '.hg', '__pycache__'  TODO doc, other options ['.git', '.hg', '__pycache__', '.mozilla', '.cache'] (also check notes on ignore locations like Mac Dstore)
+        'ignore_folders': [
+            '.git'
+        ],  # '.hg', '__pycache__'  TODO doc, other options ['.git', '.hg', '__pycache__', '.mozilla', '.cache'] (also check notes on ignore locations like Mac Dstore)
         'ignore_file_extensions': ['.bak', '~', '_MOD'],  # currently ptig only
         'ptig': {
-            "editors": {  # if specified in config, defaults for editors WILL be lost
-                "pttkview": "pttkview",  # part of PT
-                "bat": "bat",
-                "#vi": "tend to be builtin ptpyvim",
-                "view": "view",
-                "vim": "vim",
-                "gvim": "gvim",
-                "scite": "start scite",
-                "nano": "nano",
+            'editors': {  # if specified in config, defaults for editors WILL be lost
+                'pttkview': 'pttkview',  # part of PT
+                'bat': 'bat',
+                '#vi': 'tend to be builtin ptpyvim',
+                'view': 'view',
+                'vim': 'vim',
+                'gvim': 'gvim',
+                'scite': 'start scite',
+                'nano': 'nano',
             },
-            'init': ['set ic', ],  # , "set enc", etc.
+            'init': [
+                'set ic',
+            ],  # , "set enc", etc.
             'use_pager': False,
             'highlight_text_start': '',  # example: "**" or "["
             'highlight_text_stop': '',  # example: "**" or "]"
-            'prompt': u'ptig: \U0001f50e ',  # U+1F50E == Right-Pointing Magnifying Glass
+            'prompt': 'ptig: \U0001f50e ',  # U+1F50E == Right-Pointing Magnifying Glass
             '#linuxGUI_file_browser': 'pcmanfm',
             '#linuxCLI_file_browser': 'mc',
             '##win_file_browser': 'explorer',
@@ -3172,16 +3642,18 @@ def get_config(config_filename=None):
                 'args': [IN_MEMORY],
                 'kwargs': {
                     'kdr_iter': 64000,  # ignored by SQLite3, used by sqlcipher3 ONLY if a passhrase is passed in
-                    #"passphrase": "password",  # passphrase should be set via caller, like ptig and NOT stored in config file!
+                    # "passphrase": "password",  # passphrase should be set via caller, like ptig and NOT stored in config file!
                 },
             },
-            "whoosh": {
-                'args': [IN_MEMORY],  # this is an Puren Tonbo internal special value to indicate RAM, matches the sqlite special value
-                #"args": [
+            'whoosh': {
+                'args': [
+                    IN_MEMORY
+                ],  # this is an Puren Tonbo internal special value to indicate RAM, matches the sqlite special value
+                # "args": [
                 #    "C:\\tmp\\pt_whoosh"  # FIXME / TODO what is a good default here? XDG_CONFIG_HOME ~/.config/puren_tombo/fts_whoosh_index - what about secrets/decrypted content?
-                #],
-                "kwargs": {}
-            }
+                # ],
+                'kwargs': {},
+            },
         },
     }
 
@@ -3196,9 +3668,12 @@ def get_config(config_filename=None):
         # TODO add heuristics; xdg-open, jaro, mc, etc.
         defaults['ptig']['file_browser'] = 'pcfileman'
 
-    defaults.update(config)  # NOTE this does not handle nested, i.e. if config file has 'ptig' but not ptig.prompt, default above will not be retained
+    defaults.update(
+        config
+    )  # NOTE this does not handle nested, i.e. if config file has 'ptig' but not ptig.prompt, default above will not be retained
     # TODO codec may need to be parsed if it came from config file as was a comma seperate string
     return defaults
+
 
 def print_version_info(list_all=False):
     print(sys.version.replace('\n', ' '))
@@ -3213,7 +3688,9 @@ def print_version_info(list_all=False):
     if chi_io:
         print('\tchi_io.implementation: %s' % chi_io.implementation)
     print('\tccrypt version: %s exe: %s' % (ccrypt_version, CCRYPT_EXE))
-    print('\tKrExe version: %s exe: %s' % (KrExe._exe_version_str, KrExe._exe_name))  # FIXME / TODO refactor and loop through introspection
+    print(
+        '\tKrExe version: %s exe: %s' % (KrExe._exe_version_str, KrExe._exe_name)
+    )  # FIXME / TODO refactor and loop through introspection
     if OpenSslEncDecCompat:
         print('\topenssl_enc_compat version: %s' % openssl_enc_compat.__version__)
     if gnupg:
@@ -3225,10 +3702,12 @@ def print_version_info(list_all=False):
     if pyzipper:
         print('\tpyzipper version: %s' % pyzipper.__version__)
     if mzipaes:
-        #print('\tmzipaes version: %s' % 'puren_tonbo_internal' + repr(mzipaes.crypto_kit))
-        print('\tmzipaes version: %s' % 'puren_tonbo_internal implementation ' + mzipaes.crypto_kit.__class__.__name__)
+        # print('\tmzipaes version: %s' % 'puren_tonbo_internal' + repr(mzipaes.crypto_kit))
+        print(
+            '\tmzipaes version: %s' % 'puren_tonbo_internal implementation '
+            + mzipaes.crypto_kit.__class__.__name__
+        )
     print('')
-
 
 
 def main(argv=None):
@@ -3242,5 +3721,5 @@ def main(argv=None):
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())
