@@ -983,33 +983,31 @@ class CommandPrompt(Cmd):
             print('no results')
             return
 
-        with (
-            percol.Percol(
+        with percol.Percol(
                 finder=percol.finder.FinderMultiQueryString,  # what's the difference between finder and action_finder? I think this is a no-op
                 actions=[percol.actions.no_output],
                 descriptors={'stdin': None, 'stdout': None, 'stderr': None},
                 candidates=iter(file_and_path_names),
-            ) as p
-        ):
-            p.import_keymap(
-                {
-                    'C-a': lambda percol: (
-                        percol.command.toggle_mark_all()
-                    ),  # invert selection on screen
-                    'C-c': lambda percol: (
-                        percol.cancel()
-                    ),  # NOTE need to check exit/result code - same as built-in support
-                    #'Escape': lambda percol: percol.cancel(),  # NOTE need to check exit/result code - Esc/Escape does NOT work bug https://github.com/mooz/percol/issues/56
-                    'C-t': lambda percol: (
-                        percol.command.toggle_mark_and_next()
-                    ),  # works great, Ctrl-t now togles multi-select - same as Midnight Commander
-                    #'C-SPACE': lambda percol: percol.command.toggle_mark_and_next(),  # nope, built in (expected) C-SPC also does not work under Windows. TODO debug Percol bug https://github.com/mooz/percol/issues/120
-                }
-            )
-            # NOTE do not attempt any stdio in this block
-            exit_code = p.loop()  # cancel causes failure on later calls - see bug https://github.com/mooz/percol/issues/122
-            # exit_code = p.cancel_with_exit_code()  # straight up fails first time
-            # exit_code = p.finish_with_exit_code(1)  # straight up fails first time
+            ) as p :
+                p.import_keymap(
+                    {
+                        'C-a': lambda percol: (
+                            percol.command.toggle_mark_all()
+                        ),  # invert selection on screen
+                        'C-c': lambda percol: (
+                            percol.cancel()
+                        ),  # NOTE need to check exit/result code - same as built-in support
+                        #'Escape': lambda percol: percol.cancel(),  # NOTE need to check exit/result code - Esc/Escape does NOT work bug https://github.com/mooz/percol/issues/56
+                        'C-t': lambda percol: (
+                            percol.command.toggle_mark_and_next()
+                        ),  # works great, Ctrl-t now togles multi-select - same as Midnight Commander
+                        #'C-SPACE': lambda percol: percol.command.toggle_mark_and_next(),  # nope, built in (expected) C-SPC also does not work under Windows. TODO debug Percol bug https://github.com/mooz/percol/issues/120
+                    }
+                )
+                # NOTE do not attempt any stdio in this block
+                exit_code = p.loop()  # cancel causes failure on later calls - see bug https://github.com/mooz/percol/issues/122
+                # exit_code = p.cancel_with_exit_code()  # straight up fails first time
+                # exit_code = p.finish_with_exit_code(1)  # straight up fails first time
         results = p.model_candidate.get_selected_results_with_index()
         if exit_code == 0:
             self.file_hits = [r[0] for r in results]
