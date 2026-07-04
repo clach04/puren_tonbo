@@ -245,6 +245,11 @@ def main(argv=None):
                     if os.path.exists(out_filename):
                         file_replace(out_filename, out_filename + '.bak')  # backup existing
                 file_replace(tmp_out_filename, out_filename)
+            else:
+                try:
+                    os.remove(tmp_out_filename)
+                except OSError:
+                    pass
 
     if options.time:
         end_time = time.time()
