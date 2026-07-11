@@ -42,56 +42,139 @@ try:
     # pywin32
     from pythonwin.pywin.dialogs.login import GetPassword as win32_getpassword
 except ImportError:
-    try:
-        from pywin.mfc import dialog  # pywin32
-        import win32con
-        import win32ui
+    win32_getpassword = None
 
-        # from pythonwin.pywin.dialogs.login -- https://github.com/mhammond/pywin32/blob/main/Pythonwin/pywin/dialogs/login.py
-        def MakePasswordDlgTemplate(title):
-            style = (
-                win32con.DS_MODALFRAME
-                | win32con.WS_POPUP
-                | win32con.WS_VISIBLE
-                | win32con.WS_CAPTION
-                | win32con.WS_SYSMENU
-                | win32con.DS_SETFONT
-            )
-            cs = win32con.WS_CHILD | win32con.WS_VISIBLE
-            # Window frame and title
-            dlg = [
-                [title, (0, 0, 177, 45), style, None, (8, "MS Sans Serif")],
-            ]
+try:
+    from pywin.mfc import dialog  # pywin32
+    import win32con
+    import win32gui
+    import win32ui
 
-            # Password label and text box
-            dlg.append([130, "Password:", -1, (7, 7, 69, 9), cs | win32con.SS_LEFT])
-            s = cs | win32con.WS_TABSTOP | win32con.WS_BORDER
-            dlg.append(
-                ["EDIT", None, win32ui.IDC_EDIT1, (50, 7, 60, 12), s | win32con.ES_PASSWORD]
-            )
+    # from pythonwin.pywin.dialogs.login -- https://github.com/mhammond/pywin32/blob/main/Pythonwin/pywin/dialogs/login.py
+    def MakePasswordDlgTemplate(title):
+        style = (
+            win32con.DS_MODALFRAME
+            | win32con.WS_POPUP
+            | win32con.WS_VISIBLE
+            | win32con.WS_CAPTION
+            | win32con.WS_SYSMENU
+            | win32con.DS_SETFONT
+        )
+        cs = win32con.WS_CHILD | win32con.WS_VISIBLE
+        # Window frame and title
+        dlg = [
+            [title, (0, 0, 177, 45), style, None, (8, "MS Sans Serif")],
+        ]
 
-            # OK/Cancel Buttons
-            s = cs | win32con.WS_TABSTOP | win32con.BS_PUSHBUTTON
-            dlg.append(
-                [128, "OK", win32con.IDOK, (124, 5, 50, 14), s | win32con.BS_DEFPUSHBUTTON]
-            )
-            dlg.append([128, "Cancel", win32con.IDCANCEL, (124, 22, 50, 14), s])
-            return dlg
+        # Password label and text box
+        dlg.append([130, "Password:", -1, (7, 7, 69, 9), cs | win32con.SS_LEFT])
+        s = cs | win32con.WS_TABSTOP | win32con.WS_BORDER
+        dlg.append(
+            ["EDIT", None, win32ui.IDC_EDIT1, (50, 7, 60, 12), s | win32con.ES_PASSWORD]
+        )
 
-        class PasswordDlg(dialog.Dialog):
-            def __init__(self, title):
-                dialog.Dialog.__init__(self, MakePasswordDlgTemplate(title))
-                self.AddDDX(win32ui.IDC_EDIT1, "password")
+        # OK/Cancel Buttons
+        s = cs | win32con.WS_TABSTOP | win32con.BS_PUSHBUTTON
+        dlg.append(
+            [128, "OK", win32con.IDOK, (124, 5, 50, 14), s | win32con.BS_DEFPUSHBUTTON]
+        )
+        dlg.append([128, "Cancel", win32con.IDCANCEL, (124, 22, 50, 14), s])
+        return dlg
+
+    class PasswordDlg(dialog.Dialog):
+        def __init__(self, title):
+            dialog.Dialog.__init__(self, MakePasswordDlgTemplate(title))
+            self.AddDDX(win32ui.IDC_EDIT1, "password")
 
 
-        def win32_getpassword(title="Password", password=""):
-            d = PasswordDlg(title)
-            d["password"] = password
-            if d.DoModal() != win32con.IDOK:
-                return None
-            return d["password"]
-    except ImportError:
-        win32_getpassword = None
+    def win32_getpassword_internal(title="Password", password=""):
+        """win32 Dialog"""
+        d = PasswordDlg(title)
+        d["password"] = password
+        if d.DoModal() != win32con.IDOK:
+            return None
+        return d["password"]
+
+    if win32_getpassword is None:
+        win32_getpassword = win32_getpassword_internal  # TODO revisit this
+
+    def win32_getpassword_window(title="Password", password=""):
+        initial_password = password or ""
+        hinstance = win32gui.GetModuleHandle(None)
+        result = [None]
+        ctrl_handles = {}
+
+        IDC_EDIT = 100
+
+        def wnd_proc(hwnd, msg, wparam, lparam):
+            if msg == win32con.WM_COMMAND:
+                ctrl_id = win32gui.LOWORD(wparam)
+                if ctrl_id == win32con.IDOK:
+                    h_edit = ctrl_handles.get('edit')
+                    if h_edit:
+                        result[0] = win32gui.GetWindowText(h_edit)
+                    win32gui.DestroyWindow(hwnd)
+                elif ctrl_id == win32con.IDCANCEL:
+                    result[0] = None
+                    win32gui.DestroyWindow(hwnd)
+            elif msg == win32con.WM_DESTROY:
+                win32gui.PostQuitMessage(0)
+            return win32gui.DefWindowProc(hwnd, msg, wparam, lparam)
+
+        class_name = "PurenTonboPwdWnd"
+        wc = win32gui.WNDCLASS()
+        wc.hInstance = hinstance
+        wc.lpszClassName = class_name
+        wc.lpfnWndProc = wnd_proc
+        wc.hbrBackground = win32con.COLOR_WINDOW + 1
+        wc.hCursor = win32gui.LoadCursor(0, win32con.IDC_ARROW)
+        wc_atom = win32gui.RegisterClass(wc)
+
+        style = (
+            win32con.WS_OVERLAPPED
+            | win32con.WS_CAPTION
+            | win32con.WS_SYSMENU
+            | win32con.WS_VISIBLE
+        )
+
+        hwnd = win32gui.CreateWindowEx(
+            win32con.WS_EX_APPWINDOW, wc_atom, title, style,
+            100, 100, 280, 110,
+            0, 0, hinstance, None
+        )
+
+        hfont = win32gui.GetStockObject(17)  # DEFAULT_GUI_FONT
+
+        win32gui.CreateWindow("STATIC", "Password:",
+            win32con.WS_CHILD | win32con.WS_VISIBLE,
+            10, 12, 70, 20, hwnd, 0, hinstance, None)
+
+        h_edit = win32gui.CreateWindow("EDIT", initial_password,
+            win32con.WS_CHILD | win32con.WS_VISIBLE | win32con.WS_BORDER | win32con.ES_PASSWORD,
+            85, 10, 170, 22, hwnd, IDC_EDIT, hinstance, None)
+        win32gui.SendMessage(h_edit, win32con.WM_SETFONT, hfont, 1)
+
+        h_ok = win32gui.CreateWindow("BUTTON", "OK",
+            win32con.WS_CHILD | win32con.WS_VISIBLE | win32con.BS_PUSHBUTTON | win32con.BS_DEFPUSHBUTTON,
+            85, 42, 80, 24, hwnd, win32con.IDOK, hinstance, None)
+        win32gui.SendMessage(h_ok, win32con.WM_SETFONT, hfont, 1)
+
+        h_cancel = win32gui.CreateWindow("BUTTON", "Cancel",
+            win32con.WS_CHILD | win32con.WS_VISIBLE | win32con.BS_PUSHBUTTON,
+            175, 42, 80, 24, hwnd, win32con.IDCANCEL, hinstance, None)
+        win32gui.SendMessage(h_cancel, win32con.WM_SETFONT, hfont, 1)
+
+        ctrl_handles['edit'] = h_edit
+
+        win32gui.SetFocus(h_edit)
+        win32gui.SendMessage(h_edit, win32con.EM_SETSEL, 0, -1)
+
+        win32gui.PumpMessages()
+        return result[0]
+
+except ImportError:
+    win32_getpassword = None
+    win32_getpassword_window = None
 
 
 def easydialogs_getpass(prompt):
@@ -113,6 +196,8 @@ def tk_getpass(prompt):
 supported_password_prompt = ('any', 'text', 'gui',)  # although GUI may not be possible
 if win32_getpassword:
     supported_password_prompt += ('win32',)
+if win32_getpassword_window:
+    supported_password_prompt += ('win32_window',)  # TODO revisit
 if EasyDialogs:
     supported_password_prompt += ('EasyDialogs',)  # case?
 if tkinter:
@@ -138,6 +223,12 @@ def call_getpassfunc(prompt=None, preference_list=None):
         else:
             return getpass.getpass()
 
+    """
+    if win32_getpassword_window and ('win32_window' in preference_list or 'gui' in preference_list or 'any' in preference_list):
+        return win32_getpassword_window(prompt)  # TODO double prompt dialog
+    """
+
+    # NOTE due to win32_getpassword_window() this may never get called. For standalone tools, this is ideal, for built-in tools likely not desirable
     if win32_getpassword and ('win32' in preference_list or 'gui' in preference_list or 'any' in preference_list):
         return win32_getpassword(prompt)
 
