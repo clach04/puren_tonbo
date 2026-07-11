@@ -45,6 +45,9 @@ except ImportError:
     win32_getpassword = None
 
 try:
+    import ctypes
+    from ctypes import wintypes
+
     from pywin.mfc import dialog  # pywin32
     import win32con
     import win32gui
@@ -169,7 +172,22 @@ try:
         win32gui.SetFocus(h_edit)
         win32gui.SendMessage(h_edit, win32con.EM_SETSEL, 0, -1)
 
-        win32gui.PumpMessages()
+        class MSG(ctypes.Structure):
+            _fields_ = [
+                ("hwnd", wintypes.HWND),
+                ("message", wintypes.UINT),
+                ("wParam", wintypes.WPARAM),
+                ("lParam", wintypes.LPARAM),
+                ("time", wintypes.DWORD),
+                ("pt", wintypes.POINT),
+            ]
+
+        _user32 = ctypes.windll.user32
+        msg = MSG()
+        while _user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
+            if not _user32.IsDialogMessageW(hwnd, ctypes.byref(msg)):
+                _user32.TranslateMessage(ctypes.byref(msg))
+                _user32.DispatchMessageW(ctypes.byref(msg))
         return result[0]
 
 except ImportError:
@@ -223,10 +241,8 @@ def call_getpassfunc(prompt=None, preference_list=None):
         else:
             return getpass.getpass()
 
-    """
     if win32_getpassword_window and ('win32_window' in preference_list or 'gui' in preference_list or 'any' in preference_list):
         return win32_getpassword_window(prompt)  # TODO double prompt dialog
-    """
 
     # NOTE due to win32_getpassword_window() this may never get called. For standalone tools, this is ideal, for built-in tools likely not desirable
     if win32_getpassword and ('win32' in preference_list or 'gui' in preference_list or 'any' in preference_list):
