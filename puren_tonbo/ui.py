@@ -103,6 +103,13 @@ try:
 
     def win32_getpassword_window(title="Password", password=""):
         initial_password = password or ""
+
+        global ctypes  # force local scope, avoid; UnboundLocalError: cannot access local variable 'ctypes' where it is not associated with a value
+        # before GUI code, inform Windows to use the icon provided at runtime, not from the (exe) resource
+        # https://learn.microsoft.com/en-us/windows/win32/shell/appids?redirectedfrom=MSDN#host
+        myappid = u'mycompany.myproduct.subproduct.version' # arbitrary string
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
         hinstance = win32gui.GetModuleHandle(None)
         result = [None]
         ctrl_handles = {}
@@ -145,6 +152,12 @@ try:
             100, 100, 280, 110,
             0, 0, hinstance, None
         )
+
+        icon_path = os.path.join(os.path.dirname(__file__), 'resources', 'puren_tonbo_red_icon_32x32.ico')
+        if os.path.exists(icon_path):
+            h_icon = win32gui.LoadImage(0, icon_path, win32con.IMAGE_ICON, 0, 0, win32con.LR_LOADFROMFILE)
+            win32gui.SendMessage(hwnd, win32con.WM_SETICON, win32con.ICON_BIG, h_icon)
+            win32gui.SendMessage(hwnd, win32con.WM_SETICON, win32con.ICON_SMALL, h_icon)
 
         hfont = win32gui.GetStockObject(17)  # DEFAULT_GUI_FONT
 
