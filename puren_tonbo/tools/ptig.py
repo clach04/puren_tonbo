@@ -139,13 +139,14 @@ class PtigParser(ptgrep.MyParser):
         self._ptig_error = True
         ptgrep.MyParser.error(self, msg)
 
-
+# Subset of ptgrep command line arguments and flags
 grep_parser = PtigParser(
     usage='usage: %prog [options] [search_term]',
     prog='grep',
     description=ptgrep.ptgrep_description,
     epilog=ptgrep.ptgrep_examples,
 )
+grep_parser.add_option("--fuzzy", help="Fuzzy match filenames", action="store_true")
 grep_parser.add_option('-i', '--ignore_case', help='Case insensitive search', action='store_true')
 grep_parser.add_option(
     '-I',
@@ -967,7 +968,7 @@ class CommandPrompt(Cmd):
     do_res = do_results
     do_r = do_results
 
-    def do_fzf(self, line=None):
+    def do_fzf(self, line=None):  # TODO rename this, fuzzy not great, main feature is interactivity
         # TODO docs, Windows testing, help (multi-select)
         # Windows works with windows-curses installed and percol syslog "fix"
         # TODO Selecting multiple candidates options. Ctrl-Space does not work out of box (under Windows) percol.command.toggle_mark_and_next()
@@ -1448,6 +1449,7 @@ class CommandPrompt(Cmd):
         else:
             parsed_line = shlex.split(line)
             grep_parser._ptig_error = None
+            # (manually) copy from local grep_parser options to ptgrep options  # TODO refactor and do this in a loop, so as to auto-pick up new items
             (grep_parser_options, grep_parser_args) = grep_parser.parse_args(
                 parsed_line
             )  # FIXME ptig can exit with bad (ptig) ptgrep params
@@ -1461,6 +1463,7 @@ class CommandPrompt(Cmd):
                 return
             search_term = grep_parser_args[0]
             # TODO consider a loop of get /set attr
+            options.fuzzy = options.fuzzy or grep_parser_options.fuzzy
             options.ignore_case = options.ignore_case or grep_parser_options.ignore_case
             if grep_parser_options.case_sensitive:
                 options.ignore_case = (
@@ -1499,10 +1502,10 @@ class CommandPrompt(Cmd):
     do_rg = do_grep  # ripgrep alias for convenience
     do_ugrep = do_grep  # ugrep alias for convenience
 
-    # TODO refactor to call do_grep() to remove code duplication
     def do_find(self, line=None, paths_to_search=None):
         """find to pathname/filename, same as grep but only matches directory and file names
 
+        --fuzzy               Fuzzy match filenames
         -i, --ignore_case     Case insensitive search
         -r, --regex_search    Treat search term as a regex (default is to treat as
                               literal word/phrase)
@@ -1523,6 +1526,12 @@ class CommandPrompt(Cmd):
 
     do_f = do_find  # shortcut to save typing
     do_fd = do_find  # fd alias for convenience
+
+    def do_fuzzy_find(self, line=None):
+        line = '--fuzzy ' + line
+        return self.do_find(line=line)
+    do_fdz = do_fuzzy_find  # alias for convenience
+    do_fz = do_fuzzy_find  # alias for convenience
 
     def do_config(self, line=None):
         """show puren tonbo config"""
