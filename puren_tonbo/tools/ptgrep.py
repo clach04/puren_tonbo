@@ -154,7 +154,7 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
             #print('%r' % ((search_term, path_to_search, search_is_regex, ignore_case, search_encrypted, password_func),))  # TODO make pretty and/or log instead
             notes = puren_tonbo.FileSystemNotes(path_to_search, note_encoding)
 
-            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, find_only_filename=find_only_filename, files_with_matches=options.files_with_matches, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop):
+            for hit in notes.search(search_term, search_term_is_a_regex=search_is_regex, ignore_case=ignore_case, search_encrypted=search_encrypted, find_only_filename=find_only_filename, files_with_matches=options.files_with_matches, get_password_callback=password_func, highlight_text_start=highlight_text_start, highlight_text_stop=highlight_text_stop, fuzzy=options.fuzzy):
                 filename, hit_detail = hit
                 #filename = remove_leading_path(path_to_search, filename)  # abspath2relative()
                 if filename:
@@ -289,7 +289,8 @@ def main(argv=None):
     parser.add_option("--highlight-text-stop", "--highlight_text_stop", help="Postfix marker for hits")
     parser.add_option("-i", "--ignore_case", help="Case insensitive search", action="store_true")
     parser.add_option("-I", "--case_sensitive", "--case-sensitive", help="Case sensitive search (override insensitive flag)", action="store_true")
-    parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")  # TODO see -g options for rg-like tools
+    parser.add_option("-y", "--find-only-filename", "--find_only_filename", help="Only search filenames, do not search file content", action="store_true")  # TODO see -g options for rg-like tools (note glob spec is different)
+    parser.add_option("--fuzzy", help="Fuzzy match filenames", action="store_true")
     parser.add_option("-l", "--files-with-matches", "--files_with_matches", help="Only print filenames, do not display matches in file content", action="store_true")
     parser.add_option("-r", "--regex_search", help="Treat search term as a regex (default is to treat as literal word/phrase)", action="store_true")
     parser.add_option("-n", "--line_numbers", "--line-number", help="Print line number with output lines (grep format only)", action="store_true")

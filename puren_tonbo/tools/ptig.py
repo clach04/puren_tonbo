@@ -104,6 +104,7 @@ class FakeOptions:  # to match ptgrep (OptParse) options
     regex_search = False
     line_numbers = True
     grep = False  # i.e ripgrep=True
+    fuzzy = False  # set to True to fuzzy search ONLY on filename - FIXME implement/expose in ptig
     find_only_filename = False  # set to True to only search on filename
     files_with_matches = False  # set to True to only list filenames (not lines/hits)
     search_encrypted = False  # TODO add away to change this (set...

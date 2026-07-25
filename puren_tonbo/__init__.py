@@ -1680,6 +1680,38 @@ is_encrypted = encrypted_filename_filter
 def example_progess_callback(*args, **kwargs):
     print('example_progess_callback:', args, kwargs)
 
+def fuzzy_match_simple(pattern, instring):
+    """Return True if each character in pattern is found in order in instring.
+
+    :param pattern: the pattern to be matched
+    :type pattern: ``str``
+    :param instring: the containing string to search against
+    :type instring: ``str``
+
+    :return: True if there is a match, False otherwise
+    :rtype: ``bool``
+
+    https://github.com/clach04/fuzzy-search
+    MIT License
+
+    Copyright (c) 2016 Matt Menzenski
+    """
+    p_idx, s_idx, p_len, s_len = 0, 0, len(pattern), len(instring)
+    while (p_idx != p_len) and (s_idx != s_len):
+        if pattern[p_idx].lower() == instring[s_idx].lower():
+            p_idx += 1
+        s_idx += 1
+    return p_len != 0 and s_len != 0 and p_idx == p_len
+
+def fuzzy_str_compare(search_term, term):
+    """Return True if search_term fuzzy matches in term.
+    Where "fuzzy matches" is implementation dependent...
+    """
+    return fuzzy_match_simple(search_term, term)
+    #from fuzzywuzzy import fuzz
+    #import fuzzywuzzy
+    #return 80 < fuzzywuzzy.fuzz.partial_ratio(search_term, term)
+    #return 80 < fuzz.partial_ratio(search_term, term)
 
 def grep_string(
     search_text,
@@ -3152,6 +3184,7 @@ class FileSystemNotes(BaseNotes):
         progess_callback=None,
         highlight_text_start=None,
         highlight_text_stop=None,
+        fuzzy=None,  # NOTE for now, only for filenames with non-regex. TODO add param to others (with an assert). TODO fuzzy line contents in grep_string()
     ):
         """search note directory, grep/regex like actualy an iterator
 
@@ -3177,15 +3210,23 @@ class FileSystemNotes(BaseNotes):
         if (highlight_text_start or highlight_text_stop) and None in (highlight_text_start or highlight_text_stop):
             raise SearchException('highlight_text_start and highlight_text_stop need to both be set or both not-set %r %r' % (highlight_text_start, highlight_text_stop))
         """
-        if not search_term_is_a_regex:
-            search_term = re.escape(search_term)
-        if ignore_case:
-            regex_object = re.compile(search_term, re.IGNORECASE)
-        else:
-            regex_object = re.compile(search_term)
+        if fuzzy and not find_only_filename:
+            log.error('fuzzy search is ONLY for filenames')
+            raise NotImplementedError('fuzzy search is ONLY for filenames')
+        #raw_search_term = search_term
+        if not fuzzy:
+            if not search_term_is_a_regex:
+                search_term = re.escape(search_term)
+            if ignore_case:
+                regex_object = re.compile(search_term, re.IGNORECASE)
+            else:
+                regex_object = re.compile(search_term)
         filename_filter_str = None
         if find_only_filename:
-            filename_filter_str = regex_object
+            if not fuzzy:
+                filename_filter_str = regex_object
+            else:  # fuzzy
+                filename_filter_str = search_term  # NOTE, the original raw_search_term
         # is_note_filename_filter = pytombo.search.note_filename_filter_gen(allow_encrypted=search_encrypted, filename_filter_str=filename_filter_str)  # FIXME implement
         if search_encrypted:
             if search_encrypted == 'only':
@@ -3209,8 +3250,12 @@ class FileSystemNotes(BaseNotes):
             if progess_callback:
                 progess_callback(filename=x)
             if filename_filter_str:
-                if regex_object.search(filename):
-                    yield (filename, [(1, 'FILENAME SEARCH HIT\n')])
+                if not fuzzy:
+                    if regex_object.search(filename):
+                        yield (filename, [(1, 'FILENAME SEARCH HIT\n')])
+                else:
+                    if fuzzy_str_compare(filename_filter_str, filename):
+                        yield (filename, [(1, 'FILENAME SEARCH HIT\n')])  # FIXME duplicates above
             include_contents = True  # possible override to include line matches but ONLY doing that for filename matches
             include_contents = False
             ## TODO decide what to do with include_contents - default or make a parameter
