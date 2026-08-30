@@ -30,6 +30,18 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * Contains long lines (one is 1435 bytes)
       * Approx 1.5Kb.
 
+  * aesop.age - age encrypted from `aesop.txt`
+    Created with Windows win32 rage https://github.com/str4d/rage https://github.com/filosottile/age
+    `rage --encrypt --passphrase -o aesop.age aesop.txt`
+      * password is `password`
+      * Approx 1.5Kb.
+
+  * aesop.age.asc - age encrypted from `aesop.txt`
+    Created with Windows win32 rage https://github.com/str4d/rage https://github.com/filosottile/age
+    `rage --encrypt --passphrase --armor -o aesop.age.asc aesop.txt`
+      * password is `password`
+      * Approx 1.5Kb.
+
   * aesop.chi -  Tombo Blowfish encrypted from `aesop.txt`
     Created with Windows win32 Tombo http://tombo.sourceforge.jp/En/
       * password is `password`
