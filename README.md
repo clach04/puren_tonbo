@@ -656,7 +656,9 @@ The chi/chs file can also be read/written by Tombo http://tombo.sourceforge.jp/E
 
 #### Age encryption
 
-NOTE age passphrase encryption, not key.
+NOTE age (scrypt) passphrase encryption, not key (X25519).
+
+https://github.com/C2SP/C2SP/blob/main/age.md
 
 Can either use Python library or age/rage exe/binary - NOTE binary is significantly faster, there are also decryption failures with pyage!
 Age exe from https://github.com/wj/age recommended which implements support for password from environment variable
