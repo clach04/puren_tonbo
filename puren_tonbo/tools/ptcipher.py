@@ -91,6 +91,7 @@ def main(argv=None):
                         help="decrypt in_filename")
     parser.add_option("-e", "--encrypt", action="store_false", dest="decrypt",
                         help="encrypt in_filename")
+    parser.add_option("-E", "--envvar", help="Name of environment variable to get password from (defaults to PT_PASSWORD) - unsafe", default="PT_PASSWORD")  # similar to https://ccrypt.sourceforge.net/
     parser.add_option("--force-newline", "--force_newline", help="If set, force newlines. Options; dos, windows, CRLF, unix, LF")
     parser.add_option("--list-formats", help="Which encryption/file formats are available", action="store_true")
     parser.add_option("--list-all-formats", help="List all (non-Raw) encryption/file formats are suportted (potentially not available", action="store_true")
@@ -180,7 +181,7 @@ def main(argv=None):
     else:
         options.password_prompt = options.password_prompt.split(',')  # TODO validation options? for now rely on puren_tonbo.getpassfunc()
         default_password_value = None
-    password = options.password or password_file or os.environ.get('PT_PASSWORD') or puren_tonbo.keyring_get_password() or default_password_value
+    password = options.password or password_file or os.environ.get(options.envvar or 'PT_PASSWORD') or puren_tonbo.keyring_get_password() or default_password_value
     if password is None:
         if puren_tonbo.is_encrypted(in_filename):
             password = puren_tonbo.ui.getpassfunc("Puren Tonbo ptcipher Password:", preference_list=options.password_prompt, for_decrypt=decrypt)
