@@ -30,15 +30,31 @@ Ideally generated with external tools that Puren Tonbo can validate against.
       * Contains long lines (one is 1435 bytes)
       * Approx 1.5Kb.
 
+  * aesop.default.age - age encrypted from `aesop.txt`
+    Created with Windows win32 age-v1.3.2 https://github.com/filosottile/age
+    `age --encrypt --passphrase -o aesop.age aesop.txt`
+    NOTE scrypt factor is expected to be 18, requires 256Mb memory for key expansion - UNCONFIRMED! age-inspect doesn't report details
+      * password is `password`
+      * Approx 1.5Kb.
+
+  * aesop.default.age.asc - age encrypted from `aesop.txt`
+    Created with Windows win32 age-v1.3.2 https://github.com/filosottile/age
+    `age --encrypt --passphrase --armor -o aesop.age.asc aesop.txt`
+    NOTE scrypt factor is expected to be 18, requires 256Mb memory for key expansion - UNCONFIRMED! age-inspect doesn't report details
+      * password is `password`
+      * Approx 1.5Kb.
+
   * aesop.age - age encrypted from `aesop.txt`
     Created with Windows win32 rage https://github.com/str4d/rage https://github.com/filosottile/age
     `rage --encrypt --passphrase -o aesop.age aesop.txt`
+    NOTE scrypt factor is 20 (not default, expectd 18 that reference age implementation uses), requires 1Gb memory for key expansion.
       * password is `password`
       * Approx 1.5Kb.
 
   * aesop.age.asc - age encrypted from `aesop.txt`
     Created with Windows win32 rage https://github.com/str4d/rage https://github.com/filosottile/age
     `rage --encrypt --passphrase --armor -o aesop.age.asc aesop.txt`
+    NOTE scrypt factor is 20 (not default, expectd 18 that reference age implementation uses), requires 1Gb memory for key expansion.
       * password is `password`
       * Approx 1.5Kb.
 
