@@ -576,8 +576,14 @@ class CommandPrompt(Cmd):
                     self.file_hits.append(
                         filename
                     )  # not sure how this can work for multi dir search - nor for "results" directive as parent dir is lost
-                    if self.grep_options.use_color:
-                        filename = ptgrep.color_filename + filename + ptgrep.color_reset
+                    # stripe alternate filenames, same as grep/find/results
+                    # (zebra_stripe is a no-op when use_color is False)
+                    filename = zebra_stripe(
+                        filename,
+                        use_color=self.grep_options.use_color,
+                        use_zebra_color_filenames=self.grep_options.zebra_color_filenames,
+                        line_counter=counter,
+                    )
 
                     note_text = note_text.replace(
                         '\n', ' '
@@ -837,6 +843,8 @@ class CommandPrompt(Cmd):
             set no use_pager
             set use_pager=True
             set use_pager=false
+            set zebra_color_filenames
+            set no zebra_color_filenames
 
         """  ## TODO more examples
         # NOTE only sets options in self.grep_options (not self.pt_config, i.e. pt.json)

@@ -451,6 +451,12 @@ That file holds decrypted note contents in the clear; use `sqlcipher3` with a
 (`index_delete()` drops the table first), so a path buys persistence, not
 incremental updates.
 
+`fts_search` results are zebra-striped like `grep`/`find` results: alternate
+filenames get a different background colour, and the `[n]` counter is always
+printed. Turn it off with `set no zebra_color_filenames` (or on again with
+`set zebra_color_filenames`); it needs colour, so `NO_COLOR` and non-TTY output
+stay plain.
+
 sqlite3 (and sqlcipher3) has some limitations:
 
   1. limited stemming; "generic" and "generated" are considered the same root word by FTS5 / sqlite3
