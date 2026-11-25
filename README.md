@@ -104,7 +104,7 @@ Purēntonbo
   * `ptgrep` - a grep, [ack](https://beyondgrep.com/), [ripgrep](https://github.com/BurntSushi/ripgrep), [silver-searcher](https://geoff.greer.fm/ag/), [pss](https://github.com/eliben/pss) like tool that works on encrypted (and plain text) files
   * `ptnewline_check` - sanity check file for line endings, help detect bad Windows files that don't have consistent CR followed by NL
   * `ptig` an interactive grep like tool that can also view/edit
-  * `ptrecrypt` a TODO
+  * `ptrecrypt` - bulk (re-)encrypt and convert notes, e.g. change cipher, password or newlines across a tree; see [ptrecrypt](#ptrecrypt)
   * `ptpyvim` a vim-like editor that works on encrypted (and plain text) files
   * `ptdiff3merge` 3-way diff/merge too that can works with encrypted (and plain text) files
 
@@ -378,6 +378,12 @@ Help:
                             same file type, new password), delete (after
                             successful write)
       --simulate            Do not write/delete/change files
+
+Note: `--new-password` is resolved once, before any file is processed. If it is
+omitted, the password read first (option, `-E` env var, `PT_PASSWORD`, keyring,
+prompt) is reused for every file, even if the original note had a different
+password. Pass `--new-password` explicitly when migrating notes that do not all
+share one password.
 
 ### ptig
 
