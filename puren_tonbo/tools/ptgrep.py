@@ -436,7 +436,10 @@ def main(argv=None):
         # Pre-fetching keeps user typing out of the timing for the encrypted
         # case, at the cost of prompting even if the tree has no encrypted notes.
         print('timing requested and encrypted search enabled, grabbing password now so as to not time user interactions (for single/same password scenerio)')
-        _ = password_func()
+        # for_decrypt=True so the user is prompted once, not twice: the
+        # two-prompt flow is the encrypt-time confirmation check, and this is a
+        # search. The lazy path (note_contents_load_filename) already passes it.
+        _ = password_func(for_decrypt=True)
 
     if options.case_sensitive:
         options.ignore_case = False  # doesn't matter what original ignore_case flag/setting was
