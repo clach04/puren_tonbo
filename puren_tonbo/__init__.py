@@ -517,6 +517,10 @@ class GenericExe(EncryptedFile):  # TODO use as base for AgeExe
         except FileNotFoundError:
             # some (but not all, Windows does not require this) platforms raise exception on missing binary
             pass
+        except OSError as error_info:
+            # e.g. a non-executable file with the same name on PATH raises
+            # PermissionError (errno 13) - treat as binary not usable
+            log.debug('exe version check failed for %r: %r', self._exe_name, error_info)
 
     def read_from(self, file_object):
         password = self.key  # TODO enforce byte check?
@@ -1010,6 +1014,10 @@ class AgeExe(EncryptedFile):  # TODO refactor into a shared spawn exe class usin
         except FileNotFoundError:
             # some (but not all, Windows does not require this) platforms raise exception on missing binary
             pass
+        except OSError as error_info:
+            # e.g. a non-executable file with the same name on PATH raises
+            # PermissionError (errno 13) - treat as binary not usable
+            log.debug('exe version check failed for %r: %r', self._exe_name, error_info)
 
     def read_from(self, file_object):
         password = self.key  # TODO enforce byte check?
