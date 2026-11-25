@@ -137,6 +137,11 @@ Picking up the latest version
     python -m pip install -e .
     python -m pip install -e .[all]
 
+Optional extras, e.g. colour logging (`colorlog`, used automatically by
+`log_setup()` when installed):
+
+    python -m pip install -e .[colorlog]
+
 
     # sanity check, and dump sample config to stdout
     ptconfig
