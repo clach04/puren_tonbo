@@ -132,7 +132,12 @@ class PtigParser(ptgrep.MyParser):
     def exit(self, status=0, msg=None):
         # Override the default exit behavior to do nothing - other than emit error
         if msg:
-            print('ERROR %s' % msg)
+            # No grep_options here (parse_args runs before they exist), so fall
+            # back to the same NO_COLOR/tty rule ptgrep uses for its colours
+            if not os.environ.get('NO_COLOR') and sys.stdout.isatty():
+                print(ptgrep.color_error + 'ERROR %s' % msg + ptgrep.color_reset)
+            else:
+                print('ERROR %s' % msg)
         pass
 
     def error(self, msg):
@@ -303,6 +308,17 @@ class CommandPrompt(Cmd):
         self.prompt = self.prompt_text()
         return stop
 
+    def error_print(self, message):
+        """Print an error message in red so failures stand out from results.
+
+        Gated on use_color so NO_COLOR and non-TTY output stay plain.
+        TODO red is also ptgrep.color_searchhit, so an error and a search hit
+        share a colour; revisit if that makes real failures hard to spot.
+        """
+        if self.grep_options.use_color:
+            message = ptgrep.color_error + message + ptgrep.color_reset
+        print('%s' % message)
+
     def emptyline(self):
         "NOOP - do not repeat last command like cmd.Cmd"
         pass
@@ -332,7 +348,7 @@ class CommandPrompt(Cmd):
         if fts_index_parser._ptig_error:
             return
         if fts_index_parser_args:
-            print('Parameters not supported')  # TODO handle and also cwd support
+            self.error_print('Parameters not supported')  # TODO handle and also cwd support
             return
 
         note_encoding = self.pt_config['codec']
@@ -432,11 +448,10 @@ class CommandPrompt(Cmd):
                 highlight_text_start, highlight_text_stop = None, None  # revisit this
 
         if not line:
-            error_message = 'Need a search term!'
-            if highlight_text_start:
-                error_message = highlight_text_start + error_message + highlight_text_stop
+            # errors are coloured by error_print(), not by the search
+            # highlight_text_start/stop config - that is for search hits
             print('\n')
-            print(error_message)
+            self.error_print('Need a search term!')
             print('\n')
             print('%s' % self.do_fts_search.__doc__)
             return
@@ -482,11 +497,10 @@ class CommandPrompt(Cmd):
                 )
                 self.paths_to_search_instances.append(notes)
             """
-            error_message = 'No FTS index, issue: fts_index'
-            if highlight_text_start:
-                error_message = highlight_text_start + error_message + highlight_text_stop
+            # errors are coloured by error_print(), not by the search
+            # highlight_text_start/stop config - that is for search hits
             print('\n')
-            print(error_message)
+            self.error_print('No FTS index, issue: fts_index')
             print('\n')
             print('%s' % self.do_fts_search.__doc__)
             return
@@ -667,7 +681,7 @@ class CommandPrompt(Cmd):
         Also see `cache`.
         """
         if line:
-            print('params not supported')
+            self.error_print('params not supported')
             return
         self.cache = None
         print('cache off')
@@ -750,7 +764,7 @@ class CommandPrompt(Cmd):
             try:
                 number_of_files = int(line)
             except ValueError:
-                print('invalid parameter/number')
+                self.error_print('invalid parameter/number')
                 return
         note_encoding = self.pt_config['codec']
         ignore_folders = self.pt_config['ignore_folders']
@@ -921,7 +935,7 @@ class CommandPrompt(Cmd):
                         completely_parsed_line.append(y)
             # print('\t\t %r' % completely_parsed_line)
             if len(completely_parsed_line) != 2:
-                print('unsupported set operation: %r' % (completely_parsed_line,))
+                self.error_print('unsupported set operation: %r' % (completely_parsed_line,))
                 return
             attribute_name, attribute_value = completely_parsed_line
             # dumb boolean detection/force
@@ -943,7 +957,7 @@ class CommandPrompt(Cmd):
         return
 
         # TODO set should support prompt change
-        print('unsupported set operation')
+        self.error_print('unsupported set operation')
 
     def do_results(self, line=None):
         """Redisplay previous filename search results or perform additional search on previous results
@@ -966,7 +980,7 @@ class CommandPrompt(Cmd):
 
         """
         if not self.file_hits:
-            print('no results')
+            self.error_print('no results')
             return
 
         if line:
@@ -975,12 +989,12 @@ class CommandPrompt(Cmd):
             try:
                 func = getattr(self, 'do_' + command)
             except AttributeError:
-                print('unknown operation')
+                self.error_print('unknown operation')
                 return
             try:
                 return func(arg, paths_to_search=self.file_hits)
             except TypeError:
-                print('operation does not support paths_to_search')
+                self.error_print('operation does not support paths_to_search')
                 return
 
             # TEST assume find
@@ -1016,12 +1030,12 @@ class CommandPrompt(Cmd):
         # TODO regex option for this
         # TODO cancel - ctrl-c doesn't abort it picks selected
         if not percol:
-            print('percol missing, required for fuzzy find/search')
+            self.error_print('percol missing, required for fuzzy find/search')
             return
 
         file_and_path_names = self.file_hits
         if not file_and_path_names:
-            print('no results')
+            self.error_print('no results')
             return
 
         with percol.Percol(
@@ -1054,7 +1068,7 @@ class CommandPrompt(Cmd):
             self.file_hits = [r[0] for r in results]
             self.do_results()
         else:
-            print('fzf interactive filter cancelled')
+            self.error_print('fzf interactive filter cancelled')
 
     def do_new(self, line=None):
         """create a new note/file
@@ -1066,7 +1080,7 @@ class CommandPrompt(Cmd):
         # TODO check for similar filenames and offer confirmation/file-selection
         # TODO off fzf directory name location selection
         if not line:
-            print('Missing parameter')  # TODO include/dump __doc__
+            self.error_print('Missing parameter')  # TODO include/dump __doc__
             return
         filename = line.strip()  # assume a single path/filename
 
@@ -1175,11 +1189,11 @@ class CommandPrompt(Cmd):
             if validated_entry:
                 filename_list.append(validated_entry)
             else:
-                print('Ignoring invalid %r' % entry)
+                self.error_print('Ignoring invalid %r' % entry)
         if filename_list:
             self.do_edit(line=None, filename_list=filename_list)
         else:
-            print('no results')
+            self.error_print('no results')
             return None
 
     do_en = do_em = do_editmultiple = do_edit_multiple
@@ -1359,10 +1373,10 @@ class CommandPrompt(Cmd):
         try:
             file_number = int(line)
             if not self.file_hits:
-                print('no results')  # TODO add silent parameter to validate_result_id()
+                self.error_print('no results')  # TODO add silent parameter to validate_result_id()
                 return None
             if file_number > len(self.file_hits):
-                print('result file %d invalid' % file_number)
+                self.error_print('result file %d invalid' % file_number)
                 return None
             line = self.file_hits[file_number - 1]
         except ValueError:
@@ -1455,16 +1469,9 @@ class CommandPrompt(Cmd):
                     '%s' % data
                 )  # TODO bytes instead of string?  -- or simply refactor ptcat and call that....
         except (puren_tonbo.PurenTonboIO, puren_tonbo.UnsupportedFile) as info:
-            message = 'Error opening file %r' % info
-            if self.grep_options.use_color:
-                message = ptgrep.color_error + message + ptgrep.color_reset
-            print('%s' % message)
+            self.error_print('Error opening file %r' % info)
         except KeyboardInterrupt:
-            # TODO color support?
-            message = 'search cancelled'
-            if self.grep_options.use_color:
-                message = ptgrep.color_error + message + ptgrep.color_reset
-            print('%s' % message)
+            self.error_print('search cancelled')
 
     do_c = do_cat  # shortcut to save typing
     do_type = do_cat  # Windows alias
@@ -1479,7 +1486,7 @@ class CommandPrompt(Cmd):
     def do_grep(self, line=None, paths_to_search=None):
         # Doc comment updated in code; CommandPrompt.do_grep.__doc__ - TODO list aliases?
         if not line:
-            print('Need a search term')  # TODO show help?
+            self.error_print('Need a search term')  # TODO show help?
             return
 
         options = copy.copy(self.grep_options)
@@ -1495,10 +1502,10 @@ class CommandPrompt(Cmd):
             if grep_parser._ptig_error:
                 return
             if not grep_parser_args:
-                print('Need a search term')  # TODO show help?
+                self.error_print('Need a search term')  # TODO show help?
                 return
             if len(grep_parser_args) != 1:
-                print('Too many search terms (use quotes)')  # TODO show help?
+                self.error_print('Too many search terms (use quotes)')  # TODO show help?
                 return
             search_term = grep_parser_args[0]
             # TODO consider a loop of get /set attr
@@ -1519,7 +1526,7 @@ class CommandPrompt(Cmd):
                 options.search_encrypted or grep_parser_options.search_encrypted
             )
         if not search_term:
-            print('Need a search term')  # TODO show help?
+            self.error_print('Need a search term')  # TODO show help?
             return
         paths_to_search = paths_to_search or self.cache or self.paths_to_search
 
