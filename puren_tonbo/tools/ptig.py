@@ -395,7 +395,20 @@ class CommandPrompt(Cmd):
 
             fts_engine_options['kwargs']['passphrase'] = note_password
 
-        print('%s Full Text Search indexing using options: %r' % (engine, fts_index_parser_options))
+        # Report where the index actually lives: memory (default, lost at exit)
+        # or a path on disk. Without this the only hint is the args in the
+        # options dump above, which is easy to miss.
+        # NOTE duplicated logic, see do_fts_search / FileSystemNotes.fts_index
+        index_args = fts_engine_options.get('args') or []
+        index_location = index_args[0] if index_args else None
+        if not index_location or index_location == puren_tonbo.IN_MEMORY:
+            index_where = 'in-memory (lost when ptig exits)'
+        else:
+            index_where = 'on disk at %s' % (index_location,)
+        print(
+            '%s Full Text Search indexing using options: %r, index %s'
+            % (engine, fts_index_parser_options, index_where)
+        )
         self.paths_to_search_instances = []
         start_time = time.time()
         for note_root in self.paths_to_search:

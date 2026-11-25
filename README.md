@@ -408,6 +408,38 @@ Then search with:
 sqlite3 (FTS5) is assumed to be available, but Whoosh will be defaulted if available.
 sqlcipher3 (encrypted sqlite3) can also be used for a persistent index, and will be encrypted with the same key/passphrase/password as used to decrypt file as they are added to the index.
 
+#### Where the FTS index lives (memory vs disk)
+
+The index location is not a `fts_index` option; it comes from the `fts` section of
+`pt.json` (`--config-file` to point at a different one). With no `fts` section in
+the config file the defaults are used, and **both defaults are in memory**:
+
+    "fts": {
+        "engine": "sqlite3",
+        "sqlite3": { "args": [":memory:"] },
+        "whoosh":  { "args": [":memory:"] }
+    }
+
+So by default the index is RAM-only. `fts_index` says so when it starts
+(`index in-memory (lost when ptig exits)`), and the index is gone when ptig
+exits, so `fts_search` in a later session searches an empty index. This is
+deliberate - no decrypted note text is written to disk.
+
+For an index that survives the session, put a path in `args` (sqlite3 and
+sqlcipher3 take a database filename, whoosh a directory; the literal
+`:memory:` is the in-memory marker for both):
+
+    "fts": {
+        "engine": "sqlite3",
+        "sqlite3": { "args": ["/home/yourname/.cache/puren_tonbo/fts.sqlite3"] }
+    }
+
+That file holds decrypted note contents in the clear; use `sqlcipher3` with a
+`kwargs.passphrase` if that matters. `fts_index` then reports
+`index on disk at <path>` instead. It always rebuilds from scratch
+(`index_delete()` drops the table first), so a path buys persistence, not
+incremental updates.
+
 sqlite3 (and sqlcipher3) has some limitations:
 
   1. limited stemming; "generic" and "generated" are considered the same root word by FTS5 / sqlite3
