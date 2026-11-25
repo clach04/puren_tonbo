@@ -455,18 +455,18 @@ for more help.
             pyzipper version: 0.3.6
 
     ptig: 🔎 rg better
-    Query time: 0.01 seconds
+    Query time: 0.01 seconds (plain text only; encrypted skipped)
     ptig: 🔎 set ic
     ptig: 🔎 rg better
     [1] puren_tonbo/tests/data/aesop.txt
     7:Better no rule than cruel rule.
-    Query time: 0.01 seconds
+    Query time: 0.01 seconds (plain text only; encrypted skipped)
     ptig: 🔎 find ccrypt
     [1] puren_tonbo/tests/data/aesop_win_ccrypt.cpt
-    Query time: 0.00 seconds
+    Query time: 0.00 seconds (plain text only; encrypted skipped)
     ptig: 🔎 f ccrypt
     [1] puren_tonbo/tests/data/aesop_win_ccrypt.cpt
-    Query time: 0.00 seconds
+    Query time: 0.00 seconds (plain text only; encrypted skipped)
     ptig: 🔎 cat 0
     Password for file aesop_win_ccrypt.cpt:
     ptig: 🔎 set search_encrypted=True
@@ -476,7 +476,7 @@ for more help.
     ..... Truncated
     [21] puren_tonbo/tests/data/aesop_win_winrar.aes256stored.zip
     7:Better no rule than cruel rule.
-    Query time: 0.32 seconds
+    Query time: 0.32 seconds (plain + encrypted)
     ptig: 🔎 help
 
     Documented commands (type help <topic>):

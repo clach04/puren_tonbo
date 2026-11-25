@@ -254,7 +254,10 @@ class CommandPrompt(Cmd):
         self.file_hits = []  # results
         # import pdb ; pdb.set_trace()
         if self.pt_config['ptig'].get('prompt'):
-            self.prompt = self.pt_config['ptig']['prompt']
+            # config value is a literal prefix; the search scope suffix is
+            # appended by prompt_text() so it cannot go stale
+            # TODO template support (e.g. {root} {enc}) instead of prefix+suffix
+            self.prompt_prefix = self.pt_config['ptig']['prompt']
         else:
             if len(self.paths_to_search) == 1:
                 str_paths_to_search = self.paths_to_search[0]
@@ -263,12 +266,36 @@ class CommandPrompt(Cmd):
                 )  # TODO option trim? Other idea is to add template support for prompt config
             else:
                 str_paths_to_search = str(self.paths_to_search)  # TODO review
-            self.prompt = (
+            self.prompt_prefix = (
                 'ptig:' + str_paths_to_search + ' '
             )  # Almost never going to be seen, unless config file entry is false/null, '' empty string, 0, etc.
+        self.prompt = self.prompt_text()
+
+    def prompt_text(self):
+        """Prompt line, rebuilt per command so the scope suffix tracks set enc/noenc/enconly"""
+        # TODO if the config prompt ever needs its own {enc} placeholder, this is
+        # the single place to expand it (template support, not yet implemented)
+        search_encrypted = self.grep_options.search_encrypted
+        if search_encrypted == 'only':
+            scope = '[enc only]'
+        elif search_encrypted:
+            scope = '[+enc]'
+        else:
+            scope = '[plain]'
+        prompt = '%s%s ' % (self.prompt_prefix, scope)
         if self.grep_options.use_color:
             prompt_color, color_reset = ptgrep.color_linenum, ptgrep.color_reset
-            self.prompt = prompt_color + self.prompt + color_reset
+            prompt = prompt_color + prompt + color_reset
+        return prompt
+
+    def preloop(self):
+        # cmd.Cmd reads self.prompt before each command, so refresh it here and
+        # after every command (postcmd) to pick up `set enc` and friends
+        self.prompt = self.prompt_text()
+
+    def postcmd(self, stop, line):
+        self.prompt = self.prompt_text()
+        return stop
 
     def emptyline(self):
         "NOOP - do not repeat last command like cmd.Cmd"
