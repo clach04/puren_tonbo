@@ -272,7 +272,7 @@ class CommandPrompt(Cmd):
         self.prompt = self.prompt_text()
 
     def prompt_text(self):
-        """Prompt line, rebuilt per command so the scope suffix tracks set enc/noenc/enconly"""
+        """Prompt line, rebuilt per command so the suffixes track set enc/noenc/enconly and set ic/noic"""
         # TODO if the config prompt ever needs its own {enc} placeholder, this is
         # the single place to expand it (template support, not yet implemented)
         search_encrypted = self.grep_options.search_encrypted
@@ -282,7 +282,13 @@ class CommandPrompt(Cmd):
             scope = '[+enc]'
         else:
             scope = '[plain]'
-        prompt = '%s%s ' % (self.prompt_prefix, scope)
+        # groups are appended without a separating space so they read as one
+        # cluster: "[plain][ic]"; the single trailing space ends the prompt
+        prompt = '%s%s' % (self.prompt_prefix, scope)
+        if self.grep_options.ignore_case:
+            # only shown when insensitive; sensitive is the default and stays quiet
+            prompt += '[ic]'
+        prompt += ' '
         if self.grep_options.use_color:
             prompt_color, color_reset = ptgrep.color_linenum, ptgrep.color_reset
             prompt = prompt_color + prompt + color_reset
@@ -290,7 +296,7 @@ class CommandPrompt(Cmd):
 
     def preloop(self):
         # cmd.Cmd reads self.prompt before each command, so refresh it here and
-        # after every command (postcmd) to pick up `set enc` and friends
+        # after every command (postcmd) to pick up `set enc` and `set ic`
         self.prompt = self.prompt_text()
 
     def postcmd(self, stop, line):
