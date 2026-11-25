@@ -359,7 +359,13 @@ class CommandPrompt(Cmd):
             self.paths_to_search_instances.append(notes)
         end_time = time.time()
         search_time = end_time - start_time
-        print('Query time: %.2f seconds' % search_time)
+        # scope comes from the password callback, not search_encrypted:
+        # fts_index() picks plaintext_filename_filter vs
+        # supported_filename_filter based on whether a callback was supplied
+        print(
+            'Query time: %.2f seconds (%s)'
+            % (search_time, ptgrep.search_scope_label(bool(password_func)))
+        )
 
     def do_fts_search(self, line=None):
         """Perform a Full Text Search (fts), using sqlite3 FTS syntax

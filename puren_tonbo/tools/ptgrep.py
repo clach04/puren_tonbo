@@ -115,6 +115,24 @@ def stdout_restore():
         return
     sys.stdout = sys_stdout
 
+def search_scope_label(search_encrypted, find_only_filename=False):
+    """Human readable label for which notes a search covered.
+
+    search_encrypted is tri-state: False (plain text only), True (plain and
+    encrypted), 'only' (encrypted only). find_only_filename means file
+    contents were never read, reported as a second parenthesised group.
+    """
+    if search_encrypted == 'only':
+        scope = 'encrypted only'
+    elif search_encrypted:
+        scope = 'plain + encrypted'
+    else:
+        scope = 'plain text only; encrypted skipped'
+    if find_only_filename:
+        # second group, not nested parens
+        return '%s [filenames only, contents not searched]' % scope
+    return scope
+
 
 # TODO remove/replace args and consolidate into options
 def grep(search_term, paths_to_search, options, use_color, password_func, note_encoding):
@@ -214,7 +232,10 @@ def grep(search_term, paths_to_search, options, use_color, password_func, note_e
     if options.time:
         end_time = time.time()
         search_time = end_time - start_time
-        print('Query time: %.2f seconds' % search_time)
+        print(
+            'Query time: %.2f seconds (%s)'
+            % (search_time, search_scope_label(search_encrypted, find_only_filename))
+        )
     if count_files_matched:
         return result
 
