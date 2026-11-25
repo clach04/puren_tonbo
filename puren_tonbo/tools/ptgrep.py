@@ -82,6 +82,8 @@ if not (os.environ.get('PYTHONIOENCODING') and py2 and win:
 
 """
 
+USAGE = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
+
 PTGREP_STDOUT_MODE = os.environ.get('PTGREP_STDOUT_MODE', '')
 if not PTGREP_STDOUT_MODE and is_win and not is_py3 and (not os.environ.get('PYTHONIOENCODING') or not os.environ.get('PYTHONUTF8')):
     # for python2 under Windows force hack, so that do not get UnicodeEncodeError: errors, set to 'disabled' to keep default behavior
@@ -132,6 +134,17 @@ def search_scope_label(search_encrypted, find_only_filename=False):
         # second group, not nested parens
         return '%s [filenames only, contents not searched]' % scope
     return scope
+
+
+def usage_error(message):
+    """Print message plus usage, then exit non-zero.
+
+    Was called but never defined, so the missing search term/path paths
+    raised NameError instead of printing a usage message.
+    """
+    print(message)
+    print(USAGE)
+    sys.exit(2)
 
 
 # TODO remove/replace args and consolidate into options
@@ -297,9 +310,8 @@ def main(argv=None):
     if is_py3:
         stream_encoding = 'utf-8'  # FIXME hard coded
 
-    usage = "usage: %prog [options] [search_term] [dir_name_or_filename1] [dir_name_or_filename2...]"
     # TODO mix of snake_case and hypen-case flags/options; list-formats/list_formats and note-root/note_root
-    parser = MyParser(usage=usage, version="%%prog %s" % puren_tonbo.__version__,
+    parser = MyParser(usage=USAGE, version="%%prog %s" % puren_tonbo.__version__,
                             description=ptgrep_description,
                             epilog=ptgrep_examples
     )
