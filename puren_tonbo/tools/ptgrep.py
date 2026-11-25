@@ -427,8 +427,15 @@ def main(argv=None):
     """
 
     password_func = password
-    if options.time and callable(password_func):
-        print('timing requested and password missing, grabbing password now so as to not time user interactions (for single/same password scenerio)')
+    if options.time and options.search_encrypted and callable(password_func):
+        # Only pre-fetch when encrypted notes are actually in scope. The prompt
+        # used to fire for every -t run, even plain-text-only searches.
+        # When search_encrypted is False the walk only visits plaintext notes,
+        # and note_contents_load_filename() only calls get_pass when
+        # handler_class.needs_key - so no prompt can happen anyway.
+        # Pre-fetching keeps user typing out of the timing for the encrypted
+        # case, at the cost of prompting even if the tree has no encrypted notes.
+        print('timing requested and encrypted search enabled, grabbing password now so as to not time user interactions (for single/same password scenerio)')
         _ = password_func()
 
     if options.case_sensitive:
