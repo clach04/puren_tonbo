@@ -1,0 +1,4 @@
+(B) 2026-11-25 ptrecrypt: atomic save, replace-in-place semantics, per-file result hash:a5b3f4d9 +puren_tonbo @design
+(B) 2026-11-25 ptig: recrypt/encrypt command (issue 180), design settled, implementation deferred hash:6a77677e +puren_tonbo @design
+(B) 2026-11-25 is_encrypted()/needs_key disagree for rot13/47 + SubstitutionCipher misnomer (merged fa00c950) hash:10aa0516 +puren_tonbo @bug
+(C) 2026-11-25 Consider a test-only XOR cipher (needs_key=True, no deps) if zip-based password tests prove unusable hash:a3f98a9a +puren_tonbo @design

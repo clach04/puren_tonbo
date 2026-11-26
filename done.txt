@@ -1,0 +1,1 @@
+(C) 2026-11-25 rot13/rot47 are not substitution ciphers; SubstitutionCipher marker class is a misnomer doing double duty hash:fa00c950 +puren_tonbo @design [merged into hash:10aa0516, raised to B]
